@@ -1,0 +1,7 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": true,
+		"removeComments": true,
+		"target": "ES5"
+	}
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html id="esi" ng-app="esi" ng-strict-di xmlns:ng="http://angularjs.org">
+<head>
+	<title>Nanocloud</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<link rel="stylesheet" type="text/css" href="css/libs.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/app.min.css" />
+</head>
+<body layout="row" ng-controller="MainCtrl as mainCtrl">
+
+	<md-sidenav class="md-sidenav-left md-whiteframe-z2 main-sidenav" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
+
+		<header>
+			<a href="#/"><img src="./img/logo.png" /></a>
+		</header>
+
+		<md-content role="navigation">
+			<md-list>
+				<md-list-item ng-repeat="menu in mainCtrl.nav.menus" ng-click="mainCtrl.navigateTo(menu);">
+					<div>
+						<ng-md-icon icon="{{menu.ico}}"></ng-md-icon> 
+						<span>{{menu.title}}</span>
+					</div>
+				</md-list-item>
+			</md-list>
+		</md-content>
+
+	</md-sidenav>
+
+	<div role="main" class="main-content" layout="column" flex>
+
+		<md-toolbar class="md-whiteframe-z1">
+			<div class="md-toolbar-tools">
+				{{mainCtrl.nav.current.title}}
+			</div>
+		</md-toolbar>
+
+		<md-content ng-view md-scroll-y flex layout-padding></md-content>
+
+	</div>
+
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+	
+</body>
+</html>

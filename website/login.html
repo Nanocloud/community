@@ -1,0 +1,39 @@
+<!doctype html>
+<html id="esi" ng-app="esi" ng-strict-di xmlns:ng="http://angularjs.org">
+<head>
+	<title>Nanocloud - Login</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<link rel="stylesheet" type="text/css" href="css/libs.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/app.min.css" />
+</head>
+<body class="login">
+
+	<div layout layout-margin layout-align="center">
+		<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
+			<img src="./img/logo.png" class="logo" />
+			<md-card-content>
+				<form>
+					<div layout="column">
+						<md-input-container flex>
+							<ng-md-icon icon="person"></ng-md-icon>
+							<input type="email" placeholder="Email" required />
+						</md-input-container>
+						<md-input-container flex>
+							<ng-md-icon icon="vpn_key"></ng-md-icon>
+							<input type="password" placeholder="Password" required />
+						</md-input-container>
+						<md-input-container flex>
+							<md-button class="md-raised md-primary">Sign In</md-button>
+						</md-input-container>
+					</div>
+				</form>
+			</md-card-content>
+		</md-card>
+	</div>
+
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+	
+</body>
+</html>
