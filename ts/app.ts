@@ -1,9 +1,9 @@
 /// <reference path='../typings/tsd.d.ts' />
 
-module esi {
+module hapticFrontend {
 	"use strict";
 
-	export var app = angular.module("esi", ["ngRoute", "ngMaterial", "ngMdIcons", "ui.grid"]);
+	export var app = angular.module("hapticFrontend", ["ngRoute", "ngMaterial", "ngMdIcons", "ui.grid"]);
 
 	app.config(["$routeProvider", "$mdThemingProvider", function($routeProvider: angular.route.IRouteProvider, $mdThemingProvider: angular.material.IThemingProvider) {
 		

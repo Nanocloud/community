@@ -1,6 +1,6 @@
 /// <reference path='../../typings/tsd.d.ts' />
 
-module esi.models {
+module hapticFrontend.models {
 	
 	export interface INavMenu {
 		title: string;

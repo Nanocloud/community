@@ -1,6 +1,6 @@
 /// <reference path='../../typings/tsd.d.ts' />
 
-module esi {
+module hapticFrontend {
 	"use strict";
 
 	class HomeCtrl {
