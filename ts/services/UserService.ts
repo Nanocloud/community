@@ -26,7 +26,7 @@ module hapticFrontend {
 		}
 
 		getAll(): angular.IPromise<IUser[]> {
-			return this.rpc.call({ method: "UserService.GetUsersList", id: 1 })
+			return this.rpc.call({ method: "ServiceUsers.GetList", id: 1 })
 				.then((res: IRpcResponse): IUser[] => {
 					let users: IUser[] = [];
 					
@@ -48,7 +48,7 @@ module hapticFrontend {
 		}
 
 		save(user: IUser): angular.IPromise<void> {
-			return this.rpc.call({ method: "UserService.SaveUser", params: user, id: 1 })
+			return this.rpc.call({ method: "ServiceUsers.RegisterUser", params: [user], id: 1 })
 				.then((res: IRpcResponse): void => {
 					this.isError(res);
 				});
