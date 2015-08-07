@@ -33,6 +33,6 @@ module hapticFrontend {
 		}
 		
 	}
-	
-	app.controller("UserCtrl", UserCtrl);	
+
+	app.controller("UserCtrl", UserCtrl);
 }

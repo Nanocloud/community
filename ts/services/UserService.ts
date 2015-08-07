@@ -2,7 +2,7 @@
 
 module hapticFrontend {
 	"use strict";
-	
+
 	export interface IUser {
 		Id: number;
 		Firstname: string;
@@ -11,9 +11,9 @@ module hapticFrontend {
 		Password?: string;
 		Password2?: string;
 	}
-	
+
 	export class UserService {
-		
+
 		static $inject = [
 			"RpcService",
 			"$mdToast"
@@ -22,9 +22,9 @@ module hapticFrontend {
 			private rpc: RpcService,
 			private $mdToast: angular.material.IToastService
 		) {
-			
+
 		}
-		
+
 		getAll(): angular.IPromise<IUser[]> {
 			return this.rpc.call({ method: "UserService.GetUsersList", id: 1 })
 				.then((res: IRpcResponse): IUser[] => {
@@ -44,19 +44,16 @@ module hapticFrontend {
 						users.push(JSON.parse(usr));
 					}
 					return users;
-					
 				});
 		}
-		
+
 		save(user: IUser): angular.IPromise<void> {
 			return this.rpc.call({ method: "UserService.SaveUser", params: user, id: 1 })
 				.then((res: IRpcResponse): void => {
-					
 					this.isError(res);
-					
 				});
 		}
-		
+
 		private isError(res: IRpcResponse): boolean {
 			if (res.error == null) {
 				return false;
@@ -70,6 +67,6 @@ module hapticFrontend {
 		}
 		
 	}
-	
+
 	app.service("UserService", UserService);
 }
