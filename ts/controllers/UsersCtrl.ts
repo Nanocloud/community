@@ -110,7 +110,6 @@ module hapticFrontend {
 				targetEvent: e
 			};
 		}
-		
 	}
 
 	app.controller("UsersCtrl", UsersCtrl);

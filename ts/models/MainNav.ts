@@ -16,13 +16,25 @@ module hapticFrontend.models {
 		
 		menus: INavMenu[] = [
 			{
-				title: "Home",
+				title: "Services",
 				url: "/",
-				ico: "home"
+				ico: "view_module"
+			}, {
+				title: "Applications",
+				url: "/",
+				ico: "view_list"
 			}, {
 				title: "Users",
 				url: "/users",
 				ico: "people"
+			}, {
+				title: "Stats",
+				url: "/stats",
+				ico: "equalizer"
+			}, {
+				title: "Capacity Planning",
+				url: "/capacity_planning",
+				ico: "trending_up"
 			}
 		];
 		
