@@ -39,9 +39,9 @@ module hapticFrontend {
 							Email: "jdoe@nanoloud.com"
 						}];
 					}
-					
-					for (let usr of res.result.UsersJsonArray) {
-						users.push(JSON.parse(usr));
+
+					for (let usr of JSON.parse(res.result.UsersJsonArray)) {
+						users.push(usr);
 					}
 					return users;
 				});

@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="css/libs.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/app.min.css" />
 </head>
-<body class="login">
+<body class="login" ng-controller="LoginCtrl as loginCtrl">
 
 	<div layout layout-margin layout-align="center">
 		<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
@@ -17,14 +17,14 @@
 					<div layout="column">
 						<md-input-container flex>
 							<ng-md-icon icon="person"></ng-md-icon>
-							<input type="email" placeholder="Email" required />
+							<input ng-model="loginCtrl.credentials.mail" type="email" placeholder="Email" required />
 						</md-input-container>
 						<md-input-container flex>
 							<ng-md-icon icon="vpn_key"></ng-md-icon>
-							<input type="password" placeholder="Password" required />
+							<input ng-model="loginCtrl.credentials.password" type="password" placeholder="Password" required />
 						</md-input-container>
 						<md-input-container flex>
-							<md-button class="md-raised md-primary">Sign In</md-button>
+							<md-button ng-click="loginCtrl.signIn($event)" class="md-raised md-primary">Sign In</md-button>
 						</md-input-container>
 					</div>
 				</form>

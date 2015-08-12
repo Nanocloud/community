@@ -31,7 +31,7 @@ module hapticFrontend {
 						return [{ // fake data
 							Id: 1,
 							Name: "Proxy",
-							Ico: "public",
+							Ico: "public"
 						}];
 					}
 
