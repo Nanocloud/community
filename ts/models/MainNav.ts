@@ -21,7 +21,7 @@ module hapticFrontend.models {
 				ico: "view_module"
 			}, {
 				title: "Applications",
-				url: "/",
+				url: "/applications",
 				ico: "view_list"
 			}, {
 				title: "Users",
