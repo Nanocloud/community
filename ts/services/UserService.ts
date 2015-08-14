@@ -54,6 +54,13 @@ module hapticFrontend {
 				});
 		}
 
+		delete(user: IUser): angular.IPromise<void> {
+			return this.rpc.call({ method: "ServiceUsers.DeleteUser", params: [{"Email": user.Email}], id: 1 })
+				.then((res: IRpcResponse): void => {
+					this.isError(res);
+				});
+		}
+
 		private isError(res: IRpcResponse): boolean {
 			if (res.error == null) {
 				return false;

@@ -74,6 +74,7 @@ module hapticFrontend {
 		}
 		
 		editUser(user: IUser) {
+			// here, call the server to edit
 			let i = _.findIndex(this.users, (x: IUser) => x.Id === user.Id);
 			if (i >= 0) {
 				this.users[i] = user;
@@ -94,7 +95,9 @@ module hapticFrontend {
 		}
 		
 		deleteUser(user: IUser) {
-			// here, call the server to delete
+			this.userSrv.delete(user);
+
+			// s TODO Haptic does not give user ID for now. We can rely on mail adress for now
 			let i = _.findIndex(this.users, (x: IUser) => x.Id === user.Id);
 			if (i >= 0) {
 				this.users.splice(i, 1);
