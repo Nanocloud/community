@@ -9,6 +9,7 @@ module hapticFrontend {
 
 		static $inject = [
 			"ApplicationsService",
+			"$mdDialog"
 		];
 
 		constructor(
@@ -31,11 +32,8 @@ module hapticFrontend {
 						displayName: "",
 						enableColumnMenu: false,
 						cellTemplate: "\
-							<md-button ng-click='grid.appScope.applicationsCtrl.startEditApplication($event, row.entity)'>\
-								<ng-md-icon icon='edit' size='14'></ng-md-icon> Edit\
-							</md-button>\
-							<md-button ng-click='grid.appScope.applicationsCtrl.startDeleteApplication($event, row.entity)'>\
-								<ng-md-icon icon='delete' size='14'></ng-md-icon> Delete\
+							<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>\
+								<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish\
 							</md-button>"
 					}
 				]	
@@ -57,6 +55,27 @@ module hapticFrontend {
 			});
 		}
 
+		startUnpublishApplication(e: MouseEvent, application: IApplication) {
+			let o = this.$mdDialog.confirm()
+				.parent(angular.element(document.body))
+				.title("Unpublish application")
+				.content("Are you sure you want to unpublish this application?")
+				.ok("Yes")
+				.cancel("No")
+				.targetEvent(e);
+			this.$mdDialog
+				.show(o)
+				.then(this.unpublishApplication.bind(this, application));
+		}
+
+		unpublishApplication(application: IApplication) {
+			this.applicationsSrv.unpublish(application);
+
+			let i = _.findIndex(this.applications, (x: IApplication) => x.Id === application.Id);
+			if (i >= 0) {
+				this.applications.splice(i, 1);
+			}
+		}
 	}
 
 	app.controller("ApplicationsCtrl", ApplicationsCtrl);

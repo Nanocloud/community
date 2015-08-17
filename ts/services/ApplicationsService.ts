@@ -5,6 +5,8 @@ module hapticFrontend {
 
 	export interface IApplication {
 		Id: number;
+		Alias: string;
+		CollectionName: string;
 		DisplayName: string;
 		IconContents: string;
 		FilePath: string;
@@ -32,6 +34,8 @@ module hapticFrontend {
 						// s TODO Display error
 						return [{ // fake data
 							Id: 1,
+							Alias: "eclipse",
+							CollectionName: "winapps",
 							DisplayName: "Eclipse",
 							IconContents: "",
 							FilePath: "C:\\Program File\\Eclipse\\eclipse"
@@ -39,16 +43,31 @@ module hapticFrontend {
 					}
 
 					let apps = JSON.parse(res.result.ApplicationsJsonArray);
+					console.log(apps);
 					for (let app of apps) {
 						applications.push({
 							"Id": 1, // s TODO Have an ID
+							"Alias": app.Alias,
+							"CollectionName": app.CollectionName,
 							"DisplayName": app.DisplayName,
 							"IconContents": app.IconContents,
 							"FilePath": app.FilePath
 						});
 					}
+					console.log(applications);
+
 					return applications;
 				});
+		}
+
+		unpublish(application: IApplication): angular.IPromise<void> {
+			return this.rpc.call({
+				method: "ServiceApplications.UnpublishApplication",
+				params: [{"ApplicationName": application.Alias}],
+				id: 1
+			}).then((res: IRpcResponse): void => {
+				this.isError(res);
+			});
 		}
 
 		private isError(res: IRpcResponse): boolean {
