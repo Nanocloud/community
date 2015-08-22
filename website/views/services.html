@@ -1,3 +1,12 @@
 
-<div ui-grid="servicesCtrl.gridOptions" style="height: 80%"
-  ui-grid-selection ui-grid-auto-resize></div>
+<div style="height: 80%">
+			<md-list>
+				<md-list-item ng-repeat="service in servicesCtrl.services" \
+					ng-click="servicesCtrl.displayInfo($event, service);">
+					<div>
+						<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
+						<span>{{service.Name}}</span>
+					</div>
+				</md-list-item>
+			</md-list>
+</div>
