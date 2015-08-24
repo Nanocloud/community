@@ -28,7 +28,7 @@ module hapticFrontend {
 				.then((res: IRpcResponse): IService[] => {
 					let services: IService[] = [];
 
-					if (this.isError(res)) {
+					if (this.isError(res) || res.result.VmListJsonArray === undefined) {
 						return [{ // fake Data
 							"Id": "2",
 							"Ico": "windows",
@@ -40,12 +40,12 @@ module hapticFrontend {
 							"Name": "Haptic",
 							"VM": "proxy"
 						}];
+					} else {
+						for (let srv of JSON.parse(res.result.VmListJsonArray)) {
+							services.push(srv);
+						}
+						return services;
 					}
-
-					for (let srv of res.result.ServicesJsonArray) {
-						services.push(JSON.parse(srv));
-					}
-					return services;
 				});
 		}
 
