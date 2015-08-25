@@ -18,15 +18,16 @@ module hapticFrontend.models {
 			{
 				title: "Services",
 				url: "/",
-				ico: "view_module"
+				ico: "cloud"
 			}, {
 				title: "Applications",
 				url: "/applications",
-				ico: "view_list"
+				ico: "apps"
 			}, {
 				title: "Users",
 				url: "/users",
 				ico: "people"
+				/*
 			}, {
 				title: "Stats",
 				url: "/stats",
@@ -35,6 +36,7 @@ module hapticFrontend.models {
 				title: "Capacity Planning",
 				url: "/capacity_planning",
 				ico: "trending_up"
+				*/
 			}
 		];
 		
