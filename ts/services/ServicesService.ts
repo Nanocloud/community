@@ -7,6 +7,9 @@ module hapticFrontend {
 		Id: string;
 		Ico: string;
 		Name: string;
+		DisplayName: string;
+		Readonly: boolean;
+		Running: boolean;
 		VM: string;
 	}
 
@@ -32,12 +35,18 @@ module hapticFrontend {
 						return [{ // fake Data
 							"Id": "2",
 							"Ico": "windows",
-							"Name": "Remote Desktop Application",
+							"Name": "windows-10.20.12.20",
+							"DisplayName": "Remote Desktop Application",
+							"Readonly": false,
+							"Running": false,
 							"VM": "winad"
 						}, {
 							"Id": "1",
 							"Ico": "view_module",
-							"Name": "Haptic",
+							"Name": "proxy-medium-linux",
+							"DisplayName": "Haptic",
+							"Readonly": true,
+							"Running": true,
 							"VM": "proxy"
 						}];
 					} else {

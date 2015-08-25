@@ -1,11 +1,11 @@
 
 <div style="height: 80%">
 			<md-list>
-				<md-list-item ng-repeat="service in servicesCtrl.services" \
-					ng-click="servicesCtrl.displayInfo($event, service);">
-					<div>
-						<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
-						<span>{{service.Name}}</span>
+					<div ng-repeat="service in servicesCtrl.services">
+						<md-switch ng-model="service.Running" ng-disabled="service.Readonly" aria-label="Running">
+							<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
+							<span>{{service.DisplayName}}</span>
+						</md-switch>
 					</div>
 				</md-list-item>
 			</md-list>
