@@ -1,12 +1,16 @@
-
 <div style="height: 80%">
-			<md-list>
-					<div ng-repeat="service in servicesCtrl.services">
-						<md-switch ng-model="service.Running" ng-disabled="service.Readonly" aria-label="Running">
-							<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
-							<span>{{service.DisplayName}}</span>
-						</md-switch>
-					</div>
-				</md-list-item>
-			</md-list>
+	<md-list>
+		<div ng-repeat="service in servicesCtrl.services">
+			<md-switch ng-model="service.Running" ng-disabled="service.Locked" ng-change="servicesCtrl.toggle(service)" aria-label="Running">
+				<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
+				<span>{{service.DisplayName}}</span>
+			</md-switch>
+		</div>
+	</md-list>
+	<div ng-if="servicesCtrl.servicesSrv.downloadStarted === false">
+		<md-button ng-click="servicesCtrl.startWindowsDownload($event)" class="md-raised md-primary" aria-label="Downloas windows service">
+			<md-tooltip>Download windows service</md-tooltip>
+			<ng-md-icon icon="windows"></md-icon>
+		</md-button>
+	</div>
 </div>

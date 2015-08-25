@@ -4,31 +4,25 @@ module hapticFrontend {
 	"use strict";
 	
 	class ServiceCtrl {
-		
-		service: IService;
-		
+
 		static $inject = [
-			"$mdDialog",
-			"service"
+			"ServicesService",
+			"$mdDialog"
 		];
 		constructor(
-			private $mdDialog: angular.material.IDialogService,
-			service: IService
+			private servicesSrv: ServicesService,
+			private $mdDialog: angular.material.IDialogService
 		) {
-			if (service) {
-				this.service = angular.copy(service);
+		}
+
+		accept(): void {
+			if (this.servicesSrv.downloadStarted === false) {
+				this.servicesSrv.download();
 			}
+			this.$mdDialog.cancel();
 		}
 
 		close(): void {
-			this.$mdDialog.cancel();
-		}
-
-		start(): void {
-			this.$mdDialog.cancel();
-		}
-
-		stop(): void {
 			this.$mdDialog.cancel();
 		}
 

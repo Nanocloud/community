@@ -1,7 +1,7 @@
 <md-dialog style="min-width: 300px;">
 	<md-toolbar>
 		<div class="md-toolbar-tools">
-			<h2>Service {{ serviceCtrl.service.Name }}</h2>
+			<h2>{{ serviceCtrl.service.DisplayName }} Service</h2>
 			<span flex></span>
 			<md-button class="md-icon-button" ng-click="serviceCtrl.$mdDialog.cancel()">
 				<ng-md-icon icon="close" aria-label="Close dialog"></ng-md-icon>
@@ -10,18 +10,17 @@
 	</md-toolbar>
 	<md-dialog-content>
 		<div layout="column">
-      <p>Display info about service</p>
+      <p>Display EULA licence</p>
+      <p>User must accept this</p>
+      <p>We HAVE to know if the user has accepted it or not</p>
 		</div>
 	</md-dialog-content>
 	<div class="md-actions" layout="row">
+		<md-button ng-click="serviceCtrl.accept()" class="md-primary">
+			Accept
+		</md-button>
 		<md-button ng-click="serviceCtrl.close()">
 			Close
-		</md-button>
-		<md-button ng-click="serviceCtrl.start()">
-			Start
-		</md-button>
-		<md-button ng-click="serviceCtrl.stop()">
-			Stop
 		</md-button>
 	</div>
 </md-dialog>

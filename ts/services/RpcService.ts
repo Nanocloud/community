@@ -30,17 +30,17 @@ module hapticFrontend {
 	}
 	
 	export class RpcService {
-		
+
 		static apiUrl = "http://localhost:8081/rpc";
 		static rpcVersion = "2.0";
-		 
+
 		static $inject = [
 			"$http"
 		];
 		constructor(
 			private $http: angular.IHttpService
 		) {
-			
+
 		}
 		
 		call(data: IRpcCall): angular.IPromise<IRpcResponse> {
@@ -54,7 +54,7 @@ module hapticFrontend {
 					this.xhrToRpcError
 				);
 		}
-		
+
 		batch(data: IRpcCall[]): angular.IPromise<IRpcResponse[]> {
 			let reqs: IRpcRequest[] = [];
 			for (let item of data) {
@@ -71,7 +71,7 @@ module hapticFrontend {
 					}
 				);
 		}
-		
+
 		private getReq(data: IRpcCall): IRpcRequest {
 			let req: IRpcRequest = {
 				jsonrpc: RpcService.rpcVersion,
@@ -87,7 +87,7 @@ module hapticFrontend {
 			}
 			return req;
 		}
-		
+
 		private xhrToRpcError(res: angular.IHttpPromiseCallbackArg<any>): IRpcResponse {
 			return <IRpcResponse>{
 				error: {
@@ -97,8 +97,8 @@ module hapticFrontend {
 				}
 			};
 		}
-		
+
 	}
-	
+
 	app.service("RpcService", RpcService);
 }
