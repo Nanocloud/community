@@ -76,7 +76,7 @@ module hapticFrontend {
 			}
 			this.$mdToast.show(
 				this.$mdToast.simple()
-					.content(res.error.code === 0 ? "Internal Error" : res.error.message)
+					.content(res.error.code === 0 ? "Internal Error" : res.error)
 					.position("top right")
 			);
 			return true;
