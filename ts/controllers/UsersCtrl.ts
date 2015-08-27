@@ -97,7 +97,7 @@ module hapticFrontend {
 			this.userSrv.delete(user);
 
 			// s TODO Haptic does not give user ID for now. We can rely on mail adress for now
-			let i = _.findIndex(this.users, (x: IUser) => x.Id === user.Id);
+			let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
 			if (i >= 0) {
 				this.users.splice(i, 1);
 			}
