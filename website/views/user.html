@@ -10,15 +10,15 @@
 	</md-toolbar>
 	<md-dialog-content>
 		<div layout="column">
-			<md-input-container flex>
+			<md-input-container flex ng-if="userCtrl.isCreation">
 				<label>First name</label>
 				<input ng-model="userCtrl.user.Firstname" class="dialog-close" /> <!-- dialog-close adds focus -->
 			</md-input-container>
-			<md-input-container flex>
+			<md-input-container flex ng-if="userCtrl.isCreation">
 				<label>Last Name</label>
 				<input ng-model="userCtrl.user.Lastname" />
 			</md-input-container>
-			<md-input-container flex>
+			<md-input-container flex ng-if="userCtrl.isCreation">
 				<label>Email</label>
 				<input ng-model="userCtrl.user.Email" />
 			</md-input-container>

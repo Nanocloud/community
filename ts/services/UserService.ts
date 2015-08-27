@@ -49,10 +49,7 @@ module hapticFrontend {
 		save(user: IUser): angular.IPromise<boolean> {
 			return this.rpc.call({ method: "ServiceUsers.RegisterUser", params: [user], id: 1 })
 				.then((res: IRpcResponse): boolean => {
-					if (this.isError(res)) {
-						return false;
-					}
-					return true;
+					return this.isError(res);
 				});
 		}
 
@@ -61,6 +58,19 @@ module hapticFrontend {
 				.then((res: IRpcResponse): void => {
 					this.isError(res);
 				});
+		}
+
+		updatePassword(user: IUser): angular.IPromise<boolean> {
+			return this.rpc.call({
+				method: "ServiceUsers.UpdateUserPassword",
+				params: [{
+					"Email": user.Email,
+					"Password": user.Password
+				}],
+				id: 1
+			}).then((res: IRpcResponse): boolean => {
+				return this.isError(res);
+			});
 		}
 
 		private isError(res: IRpcResponse): boolean {

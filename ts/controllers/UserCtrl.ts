@@ -2,11 +2,12 @@
 
 module hapticFrontend {
 	"use strict";
-	
+
 	class UserCtrl {
-		
+
 		user: IUser;
-		
+		isCreation: boolean;
+
 		static $inject = [
 			"UserService",
 			"$mdDialog",
@@ -15,18 +16,30 @@ module hapticFrontend {
 		constructor(
 			private userSrv: UserService,
 			private $mdDialog: angular.material.IDialogService,
-			user: IUser
+			user: IUser,
+			isCreation: boolean
 		) {
 			if (user) {
 				this.user = angular.copy(user);
+				this.isCreation = false;
+			} else {
+				this.isCreation = true;
 			}
 		}
 		
 		save(): void {
-			if (this.userSrv.save(this.user)) {
-				this.$mdDialog.hide(this.user);
+			let success;
+
+			if (this.isCreation) {
+				success = this.userSrv.save(this.user);
+			} else {
+				success = this.userSrv.updatePassword(this.user);
 			}
-			this.$mdDialog.cancel();
+			if (success) {
+				this.$mdDialog.hide(this.user);
+			} else {
+				this.$mdDialog.cancel();
+			}
 		}
 		
 		cancel(): void {
