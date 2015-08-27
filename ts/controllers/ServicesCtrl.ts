@@ -17,6 +17,7 @@ module hapticFrontend {
 			private $mdDialog: angular.material.IDialogService
 		) {
 			this.loadServices();
+			this.servicesSrv.downloadStatus();
 		}
 
 		loadServices(): angular.IPromise<void> {

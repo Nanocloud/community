@@ -13,4 +13,9 @@
 			<ng-md-icon icon="windows"></md-icon>
 		</md-button>
 	</div>
+	<div ng-if="servicesCtrl.servicesSrv.downloadStarted">
+		<md-progress-circular class="md-hue-2" md-mode="indeterminate"></md-progress-circular>
+		A download is currently in progress
+	</div>
+
 </div>
