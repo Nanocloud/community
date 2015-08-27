@@ -9,7 +9,6 @@ module hapticFrontend {
 
 		$routeProvider
 			.when("/", { templateUrl: "views/services.html", controller: "ServicesCtrl as servicesCtrl" })
-			.when("/login", { templateUrl: "views/login.html", controller: "LoginCtrl as loginCtrl" })
 			.when("/applications", { templateUrl: "views/applications.html", controller: "ApplicationsCtrl as applicationsCtrl" })
 			.when("/users", { templateUrl: "views/users.html", controller: "UsersCtrl as usersCtrl" })
 			.when("/stats", { templateUrl: "views/stats.html", controller: "StatsCtrl as statsCtrl" })

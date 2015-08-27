@@ -89,6 +89,9 @@ module hapticFrontend {
 		}
 
 		private xhrToRpcError(res: angular.IHttpPromiseCallbackArg<any>): IRpcResponse {
+			if (res.status === 401) {
+				window.location.href = "/login.html";
+			}
 			return <IRpcResponse>{
 				error: {
 					code: res.status,

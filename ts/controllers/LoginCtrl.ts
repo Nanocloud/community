@@ -29,8 +29,8 @@ module hapticFrontend {
 				this.$location.path("/");
 				window.location.href = "/";
 			} else {
-				this.$location.path("/login");
-				window.location.href = "/login";
+				this.$location.path("/login.html");
+				window.location.href = "/login.html";
 			}
 		}
 	}
