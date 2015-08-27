@@ -4,7 +4,6 @@ module hapticFrontend {
 	"use strict";
 
 	export interface IUser {
-		Id: number;
 		Firstname: string;
 		Lastname: string;
 		Email: string;

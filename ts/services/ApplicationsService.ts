@@ -4,7 +4,6 @@ module hapticFrontend {
 	"use strict";
 
 	export interface IApplication {
-		Id: number;
 		Alias: string;
 		CollectionName: string;
 		DisplayName: string;

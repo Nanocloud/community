@@ -74,7 +74,7 @@ module hapticFrontend {
 		
 		editUser(user: IUser) {
 			// here, call the server to edit
-			let i = _.findIndex(this.users, (x: IUser) => x.Id === user.Id);
+			let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
 			if (i >= 0) {
 				this.users[i] = user;
 			}

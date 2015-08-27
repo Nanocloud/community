@@ -4,7 +4,6 @@ module hapticFrontend {
 	"use strict";
 
 	export interface IService {
-		Id: string;
 		Ico: string;
 		Name: string;
 		DisplayName: string;

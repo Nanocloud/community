@@ -71,7 +71,7 @@ module hapticFrontend {
 		unpublishApplication(application: IApplication) {
 			this.applicationsSrv.unpublish(application);
 
-			let i = _.findIndex(this.applications, (x: IApplication) => x.Id === application.Id);
+			let i = _.findIndex(this.applications, (x: IApplication) => x.Alias === application.Alias);
 			if (i >= 0) {
 				this.applications.splice(i, 1);
 			}
