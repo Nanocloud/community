@@ -28,15 +28,9 @@ module hapticFrontend {
 			return this.rpc.call({ method: "ServiceUsers.GetList", id: 1 })
 				.then((res: IRpcResponse): IUser[] => {
 					let users: IUser[] = [];
-					
+
 					if (this.isError(res)) {
-						// return users;
-						return [{ // fake data
-							Id: 1,
-							Firstname: "John",
-							Lastname: "Doe",
-							Email: "jdoe@nanoloud.com"
-						}];
+						return [];
 					}
 
 					for (let usr of JSON.parse(res.result.UsersJsonArray)) {

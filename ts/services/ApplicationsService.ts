@@ -30,22 +30,13 @@ module hapticFrontend {
 					let applications: IApplication[] = [];
 
 					if (this.isError(res)) {
-						// s TODO Display error
-						return [{ // fake data
-							Id: 1,
-							Alias: "eclipse",
-							CollectionName: "winapps",
-							DisplayName: "Eclipse",
-							IconContents: "",
-							FilePath: "C:\\Program File\\Eclipse\\eclipse"
-						}];
+						return [];
 					}
 
 					let apps = JSON.parse(res.result.ApplicationsJsonArray);
 					console.log(apps);
 					for (let app of apps) {
 						applications.push({
-							"Id": 1, // s TODO Have an ID
 							"Alias": app.Alias,
 							"CollectionName": app.CollectionName,
 							"DisplayName": app.DisplayName,

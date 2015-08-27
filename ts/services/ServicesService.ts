@@ -34,23 +34,7 @@ module hapticFrontend {
 					let services: IService[] = [];
 
 					if (this.isError(res) || res.result.VmListJsonArray === undefined) {
-						return [{ // fake Data
-							"Id": "2",
-							"Ico": "windows",
-							"Name": "windows-10.20.12.20",
-							"DisplayName": "Remote Desktop Application",
-							"Locked": false,
-							"Running": false,
-							"VM": "winad"
-						}, {
-							"Id": "1",
-							"Ico": "view_module",
-							"Name": "proxy-medium-linux",
-							"DisplayName": "Haptic",
-							"Locked": true,
-							"Running": true,
-							"VM": "proxy"
-						}];
+						return [];
 					} else {
 						for (let srv of JSON.parse(res.result.VmListJsonArray)) {
 							if (srv.Ico === "windows") {
