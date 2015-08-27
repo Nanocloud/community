@@ -47,10 +47,13 @@ module hapticFrontend {
 				});
 		}
 
-		save(user: IUser): angular.IPromise<void> {
+		save(user: IUser): angular.IPromise<boolean> {
 			return this.rpc.call({ method: "ServiceUsers.RegisterUser", params: [user], id: 1 })
-				.then((res: IRpcResponse): void => {
-					this.isError(res);
+				.then((res: IRpcResponse): boolean => {
+					if (this.isError(res)) {
+						return false;
+					}
+					return true;
 				});
 		}
 

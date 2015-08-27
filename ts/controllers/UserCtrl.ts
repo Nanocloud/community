@@ -27,8 +27,10 @@ module hapticFrontend {
 			if (this.user.Id == null || this.user.Id < 1) {
 				this.user.Id = Math.floor((Math.random() * 999999) + 1);
 			} // fake id
-			this.userSrv.save(this.user);
-			this.$mdDialog.hide(this.user);
+			if (this.userSrv.save(this.user)) {
+				this.$mdDialog.hide(this.user);
+			}
+			this.$mdDialog.cancel();
 		}
 		
 		cancel(): void {

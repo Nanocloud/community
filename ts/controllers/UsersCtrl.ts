@@ -57,8 +57,7 @@ module hapticFrontend {
 			let o = this.getDefaultUserDlgOpt(e);
 			o.locals = { user: null };
 			return this.$mdDialog
-				.show(o)
-				.then(this.addUser.bind(this));
+				.show(o);
 		}
 		
 		addUser(user: IUser): void {
