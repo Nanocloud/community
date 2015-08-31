@@ -20,6 +20,7 @@ module hapticFrontend {
 		];
 
 		downloadStarted = false;
+		windowsReady = false;
 
 		constructor(
 			private rpc: RpcService,
@@ -38,7 +39,10 @@ module hapticFrontend {
 					} else {
 						for (let srv of JSON.parse(res.result.VmListJsonArray)) {
 							if (srv.Ico === "windows") {
-								this.downloadStarted = true;
+								this.downloadStarted = false;
+								this.windowsReady = true;
+							} else {
+								this.windowsReady = false;
 							}
 							services.push(srv);
 						}
@@ -61,6 +65,8 @@ module hapticFrontend {
 				.then((res: IRpcResponse): void => {
 					if (! this.isError(res) && res.result.Success === true) {
 						this.downloadStarted = true;
+					} else {
+						this.downloadStarted = false;
 					}
 				});
 		}
