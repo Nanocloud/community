@@ -31,7 +31,7 @@ module hapticFrontend {
 	
 	export class RpcService {
 
-		static apiUrl = "http://localhost:8081/rpc";
+		static apiUrl = "/rpc";
 		static rpcVersion = "2.0";
 
 		static $inject = [
