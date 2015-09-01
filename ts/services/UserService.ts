@@ -33,7 +33,7 @@ module hapticFrontend {
 						return [];
 					}
 
-					for (let usr of JSON.parse(res.result.UsersJsonArray)) {
+					for (let usr of res.result.Users) {
 						users.push(usr);
 					}
 					return users;
