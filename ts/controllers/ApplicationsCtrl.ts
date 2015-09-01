@@ -20,18 +20,17 @@ module hapticFrontend {
 				data: [],
 				rowHeight: 36,
 				columnDefs: [
+					{ field: "Hostname" },
+					{ field: "Port" },
+					{ field: "RemoteApp" },
 					{
-						name: "Icon",
-						field: "IconContents",
-						cellTemplate: "<img src=\"data:image/jpeg;base64,{{grid.getCellValue(row, col)}}\">"
-					},
-					{ field: "DisplayName" },
-					{ field: "FilePath" },
-					{
-						name: "edit",
+						name: "actions",
 						displayName: "",
 						enableColumnMenu: false,
 						cellTemplate: "\
+							<md-button ng-click='grid.appScope.applicationsCtrl.openVDI($event, row.entity)'>\
+								<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open\
+							</md-button>\
 							<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>\
 								<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish\
 							</md-button>"
@@ -71,7 +70,7 @@ module hapticFrontend {
 		unpublishApplication(application: IApplication) {
 			this.applicationsSrv.unpublish(application);
 
-			let i = _.findIndex(this.applications, (x: IApplication) => x.Alias === application.Alias);
+			let i = _.findIndex(this.applications, (x: IApplication) => x.RemoteApp === application.RemoteApp);
 			if (i >= 0) {
 				this.applications.splice(i, 1);
 			}

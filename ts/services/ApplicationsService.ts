@@ -4,11 +4,11 @@ module hapticFrontend {
 	"use strict";
 
 	export interface IApplication {
-		Alias: string;
-		CollectionName: string;
-		DisplayName: string;
-		IconContents: string;
-		FilePath: string;
+		Hostname: string;
+		Port: string;
+		Username: string;
+		Password: string;
+		RemoteApp: string;
 	}
 
 	export class ApplicationsService {
@@ -33,15 +33,14 @@ module hapticFrontend {
 						return [];
 					}
 
-					let apps = JSON.parse(res.result.ApplicationsJsonArray);
-					console.log(apps);
+					let apps = res.result.Applications;
 					for (let app of apps) {
 						applications.push({
-							"Alias": app.Alias,
-							"CollectionName": app.CollectionName,
-							"DisplayName": app.DisplayName,
-							"IconContents": app.IconContents,
-							"FilePath": app.FilePath
+							"Hostname": app.Hostname,
+							"Port": app.Port,
+							"Username": app.Username,
+							"Password": app.Password,
+							"RemoteApp": app.RemoteApp
 						});
 					}
 					console.log(applications);
@@ -53,7 +52,7 @@ module hapticFrontend {
 		unpublish(application: IApplication): angular.IPromise<void> {
 			return this.rpc.call({
 				method: "ServiceApplications.UnpublishApplication",
-				params: [{"ApplicationName": application.Alias}],
+				params: [{"ApplicationName": application.RemoteApp}],
 				id: 1
 			}).then((res: IRpcResponse): void => {
 				this.isError(res);
