@@ -9,6 +9,7 @@ module hapticFrontend {
 		Username: string;
 		Password: string;
 		RemoteApp: string;
+		ConnectionName: string;
 	}
 
 	export class ApplicationsService {
@@ -40,10 +41,10 @@ module hapticFrontend {
 							"Port": app.Port,
 							"Username": app.Username,
 							"Password": app.Password,
-							"RemoteApp": app.RemoteApp
+							"RemoteApp": app.RemoteApp || "Desktop",
+							"ConnectionName": app.ConnectionName
 						});
 					}
-					console.log(applications);
 
 					return applications;
 				});

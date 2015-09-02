@@ -20,7 +20,7 @@ module hapticFrontend {
 				data: [],
 				rowHeight: 36,
 				columnDefs: [
-					{ field: "Hostname" },
+					{ field: "ConnectionName" },
 					{ field: "Port" },
 					{ field: "RemoteApp" },
 					{
@@ -28,7 +28,7 @@ module hapticFrontend {
 						displayName: "",
 						enableColumnMenu: false,
 						cellTemplate: "\
-							<md-button ng-click='grid.appScope.applicationsCtrl.openVDI($event, row.entity)'>\
+							<md-button ng-href='/guacamole/client.xhtml?id=c%2F{{row.entity.ConnectionName}}' target='_blank'>\
 								<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open\
 							</md-button>\
 							<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>\
