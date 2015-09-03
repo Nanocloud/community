@@ -33,8 +33,10 @@ module hapticFrontend {
 						return [];
 					}
 
-					for (let usr of res.result.Users) {
-						users.push(usr);
+					if (res.result.Users) {
+						for (let u of res.result.Users) {
+							users.push(u);
+						}
 					}
 					return users;
 				});
