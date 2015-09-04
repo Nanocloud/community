@@ -23,13 +23,19 @@ module hapticFrontend {
 					{ field: "Lastname" },
 					{ field: "Email" },
 					{
-						name: "edit",
+						name: "modifications",
 						displayName: "",
 						enableColumnMenu: false,
 						cellTemplate: "\
 							<md-button ng-click='grid.appScope.usersCtrl.startEditUser($event, row.entity)'>\
-								<ng-md-icon icon='edit' size='14'></ng-md-icon> Edit\
-							</md-button>\
+								<ng-md-icon icon='edit' size='14'></ng-md-icon> Change password\
+							</md-button>"
+					},
+					{
+						name: "supression",
+						displayName: "",
+						enableColumnMenu: false,
+						cellTemplate: "\
 							<md-button ng-click='grid.appScope.usersCtrl.startDeleteUser($event, row.entity)'>\
 								<ng-md-icon icon='delete' size='14'></ng-md-icon> Delete\
 							</md-button>"

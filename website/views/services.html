@@ -1,9 +1,14 @@
 <div style="height: 80%">
 	<md-list>
 		<div ng-repeat="service in servicesCtrl.services">
-			<md-switch ng-model="service.Running" ng-disabled="service.Locked" ng-change="servicesCtrl.toggle(service)" aria-label="Running">
+			<md-switch class="md-primary" ng-model="service.Running" ng-disabled="service.Locked"
+				ng-change="servicesCtrl.toggle(service)" aria-label="Running">
 				<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
 				<span>{{service.DisplayName}}</span>
+				<md-tooltip>
+					<span ng-if="service.Running">This service is currently running</span>
+					<span ng-if="!service.Running">This service is available but not currently running</span>
+				</md-tooltip>
 			</md-switch>
 		</div>
 	</md-list>
@@ -14,8 +19,8 @@
 		</md-button>
 	</div>
 	<div ng-if="servicesCtrl.servicesSrv.downloadStarted">
-		<md-progress-circular class="md-hue-2" md-mode="indeterminate"></md-progress-circular>
-		A download is currently in progress
+		<p>Download in progress (~6 GB). This may take a while.</p>
+		<md-progress-linear md-mode="indeterminate"></md-progress-linear>
 	</div>
 
 </div>
