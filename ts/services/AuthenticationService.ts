@@ -6,30 +6,28 @@ module hapticFrontend {
 	export class AuthenticationService {
 
 		static $inject = [
-			"RpcService",
+			"$http"
+			"$mdToast"
 		];
 		constructor(
-			private rpc: RpcService,
+			private $http: angular.IHttpService,
 			private $mdToast: angular.material.IToastService
 		) {
+
+			alert(this.$http);
+
 		}
 
 		authenticate(credentials): angular.IPromise<boolean> {
-			return this.rpc.call({
-				method: "Auth.Authenticate",
-				id: 1,
-				mail: credentials.mail,
+			return this.$http.post("/login", {
+				email: credentials.email,
 				password: credentials.password
-			}).then((res: IRpcResponse): boolean => {
-					if (this.isError(res)) {
-						return true;
-					}
-					return true;
+			})
+			.then(function (response): boolean {
+				return true;
+			}, function (response): boolean {
+				return false;
 			});
-		}
-
-		tmpAuth(credentials): boolean {
-			return true;
 		}
 
 		private isError(res: IRpcResponse): boolean {

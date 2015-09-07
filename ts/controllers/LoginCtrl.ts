@@ -6,6 +6,7 @@ module hapticFrontend {
 	class LoginCtrl {
 
 		credentials: any;
+		isLoggedIn: boolean;
 
 		static $inject = [
 			"$location",
@@ -17,15 +18,16 @@ module hapticFrontend {
 			private authSrv: AuthenticationService
 		) {
 			this.credentials = {
-				"mail": "",
+				"email": "",
 				"password": ""
 			};
 		}
 
 		signIn(e: MouseEvent) {
-			// let isLoggedIn = this.authSrv.authenticate(this.credentials);
-			let isLoggedIn = this.authSrv.tmpAuth(this.credentials);
-			if (isLoggedIn === true) {
+			this.authSrv.authenticate(this.credentials).then((success: boolean) => {
+				this.isLoggedIn = success;
+			});
+			if (this.isLoggedIn === true) {
 				this.$location.path("/");
 				window.location.href = "/";
 			} else {
