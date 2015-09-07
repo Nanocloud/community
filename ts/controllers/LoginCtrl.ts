@@ -6,16 +6,17 @@ module hapticFrontend {
 	class LoginCtrl {
 
 		credentials: any;
-		isLoggedIn: boolean;
 
 		static $inject = [
 			"$location",
-			"AuthenticationService"
+			"AuthenticationService",
+			"$mdToast"
 		];
 
 		constructor(
 			private $location: angular.ILocationService,
-			private authSrv: AuthenticationService
+			private authSrv: AuthenticationService,
+			private $mdToast: angular.material.IToastService
 		) {
 			this.credentials = {
 				"email": "",
@@ -24,16 +25,19 @@ module hapticFrontend {
 		}
 
 		signIn(e: MouseEvent) {
-			this.authSrv.authenticate(this.credentials).then((success: boolean) => {
-				this.isLoggedIn = success;
-			});
-			if (this.isLoggedIn === true) {
-				this.$location.path("/");
-				window.location.href = "/";
-			} else {
-				this.$location.path("/login.html");
-				window.location.href = "/login.html";
-			}
+			this.authSrv.authenticate(this.credentials).then(
+					(success: boolean) => {
+						this.$location.path("/");
+						window.location.href = "/";
+					},
+					(error: boolean) => {
+						this.$mdToast.show(
+								this.$mdToast.simple()
+								.content("Authentication failed: Email or Password incorrect")
+								.position("top right")
+								);
+					}
+			);
 		}
 	}
 

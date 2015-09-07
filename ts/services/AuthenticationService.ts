@@ -6,27 +6,22 @@ module hapticFrontend {
 	export class AuthenticationService {
 
 		static $inject = [
-			"$http"
+			"$http",
 			"$mdToast"
 		];
 		constructor(
 			private $http: angular.IHttpService,
 			private $mdToast: angular.material.IToastService
 		) {
-
-			alert(this.$http);
-
 		}
 
 		authenticate(credentials): angular.IPromise<boolean> {
 			return this.$http.post("/login", {
-				email: credentials.email,
-				password: credentials.password
-			})
-			.then(function (response): boolean {
-				return true;
-			}, function (response): boolean {
-				return false;
+				"email": credentials.email,
+				"password": credentials.password
+			}, {
+				headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"},
+				transformRequest: function(data) { return $.param(data); }
 			});
 		}
 
