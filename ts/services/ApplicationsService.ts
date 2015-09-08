@@ -50,6 +50,31 @@ module hapticFrontend {
 				});
 		}
 
+		getApplicationForUser(): angular.IPromise<IApplication[]> {
+			return this.rpc.call({method: "ServiceApplications.GetListForCurrentUser", id: 1})
+				.then((res: IRpcResponse): IApplication[] => {
+					let applications: IApplication[] = [];
+
+					if (this.isError(res)) {
+						return [];
+					}
+
+					let apps = res.result.Applications;
+					for (let app of apps) {
+						applications.push({
+							"Hostname": app.Hostname,
+							"Port": app.Port,
+							"Username": app.Username,
+							"Password": app.Password,
+							"RemoteApp": app.RemoteApp || "Desktop",
+							"ConnectionName": app.ConnectionName
+						});
+					}
+
+					return applications;
+				});
+		}
+
 		unpublish(application: IApplication): angular.IPromise<void> {
 			return this.rpc.call({
 				method: "ServiceApplications.UnpublishApplication",
