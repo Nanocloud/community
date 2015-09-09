@@ -26,11 +26,19 @@ module hapticFrontend {
 
 		signIn(e: MouseEvent) {
 			this.authSrv.authenticate(this.credentials).then(
-					(success: boolean) => {
+					(response: any) => {
+						if (typeof response.data === "string") {
+							if (response.data.indexOf instanceof Function &&
+									response.data.indexOf("<body layout=\"row\" ng-controller=\"MainCtrl as mainCtrl\">") !== -1) {
+								this.$location.path("/admin.html");
+								window.location.href = "/admin.html";
+								return;
+							}
+						}
 						this.$location.path("/");
 						window.location.href = "/";
 					},
-					(error: boolean) => {
+					(error: any) => {
 						this.$mdToast.show(
 								this.$mdToast.simple()
 								.content("Authentication failed: Email or Password incorrect")

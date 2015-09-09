@@ -15,7 +15,7 @@ module hapticFrontend {
 		) {
 		}
 
-		authenticate(credentials): angular.IPromise<boolean> {
+		authenticate(credentials): angular.IPromise<any> {
 			return this.$http.post("/login", {
 				"email": credentials.email,
 				"password": credentials.password
