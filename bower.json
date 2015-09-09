@@ -1,25 +1,26 @@
 {
-	"name": "HapticFrontend",
-	"version": "0.1.0",
-	"private": true,
-	"ignore": [
-	"**/.*",
-		"node_modules",
-		"bower_components",
-		"typings"
-	],
-	"dependencies": {
-		"jquery": "2.x",
-		"lodash": "3.x",
-		"angular": "1.4.x",
-		"angular-route": "1.4.x",
-		"angular-animate": "1.4.x",
-		"angular-aria": "1.4.x",
-		"angular-material": "0.10.x",
-		"angular-material-icons": "latest",
-		"angular-ui-grid": "3.x"
-	},
-	"resolutions": {
-		"angular": "1.4.x"
-	}
+  "name": "HapticFrontend",
+  "version": "0.1.0",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "typings"
+  ],
+  "dependencies": {
+    "angular": "1.4.x",
+    "angular-animate": "1.4.x",
+    "angular-aria": "1.4.x",
+    "angular-material": "0.10.x",
+    "angular-material-icons": "latest",
+    "angular-route": "1.4.x",
+    "angular-ui-grid": "3.x",
+    "jquery": "2.x",
+    "lodash": "3.x",
+    "ng-flow": "~2"
+  },
+  "resolutions": {
+    "angular": "1.4.x"
+  }
 }

@@ -15,7 +15,8 @@ module.exports = function(grunt) {
 					"bower_components/angular-aria/angular-aria.min.js",
 					"bower_components/angular-material/angular-material.min.js",
 					"bower_components/angular-material-icons/angular-material-icons.min.js",
-					"bower_components/angular-ui-grid/ui-grid.min.js"
+					"bower_components/angular-ui-grid/ui-grid.min.js",
+					"bower_components/ng-flow/dist/ng-flow-standalone.js"
 				],
 				dest: "website/js/libs.min.js"
 			},

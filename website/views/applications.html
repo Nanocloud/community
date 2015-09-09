@@ -1,10 +1,34 @@
+<div ui-grid="applicationsCtrl.gridOptions" ui-grid-selection ui-grid-auto-resize></div>
 
-<div ui-grid="applicationsCtrl.gridOptions" style="height: 80%"
-  ui-grid-selection ui-grid-auto-resize></div>
+<md-card>
+  <md-card-content>
+    <h2 class="md-title">Add applications</h2>
+    <div flow-init="{target: '/upload'}"
+         flow-files-submitted="$flow.upload()"
+         flow-file-success="$file.msg = $message">
 
-<div class="align-right">
-	<md-button ng-click="applicationsCtrl.startAddApplication($event)" class="md-fab" aria-label="Add application">
-		<md-tooltip>Add application</md-tooltip>
-		<ng-md-icon icon="add" size="30"></md-icon>
-	</md-button>
-</div>
+      <div class="drop-box"
+        flow-drag-enter="style={border: '5px dashed #4183D7'}" flow-drag-leave="style={}" ng-style="style"
+        flow-drop flow-btn>
+        Drag And Drop your file here
+      </div>
+
+      <md-list>
+        <md-list-item ng-repeat="file in $flow.files" class="md-2-line">
+          <md-icon md-svg-icon="file"></md-icon>
+          <div class="md-list-item-text">
+            <h3>{{ $index + 1 }} - {{ file.name }} </h3>
+            <p> {{ file.msg }} </p>
+          </div>
+        </md-list-item>
+      </md-list>
+    </div>
+  </md-card-content>
+
+  <div class="md-actions" layout="row" layout-align="end center">
+    <md-button ng-href="" aria-label="Publish an application" class="md-raised md-primary">
+      <md-tooltip>Publish an application</md-tooltip>
+      <ng-md-icon icon="add" size="14"></ng-md-icon> Publish
+    </md-button>
+  </div>
+</md-card>
