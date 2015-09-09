@@ -59,7 +59,7 @@ module hapticFrontend {
 						return [];
 					}
 
-					let apps = res.result.Applications;
+					let apps = res.result.Applications || [];
 					for (let app of apps) {
 						applications.push({
 							"Hostname": app.Hostname,

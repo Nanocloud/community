@@ -22,6 +22,10 @@ module hapticFrontend {
 				this.applications = applications;
 			});
 		}
+
+		openApplication(application: IApplication, e: MouseEvent) {
+			window.open("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, "_blank");
+		}
 	}
 
 	app.controller("UserApplicationCtrl", UserApplicationCtrl);

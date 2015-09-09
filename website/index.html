@@ -1,7 +1,7 @@
 <!doctype html>
 <html id="hapticFrontend" ng-app="hapticFrontend" ng-strict-di xmlns:ng="http://angularjs.org">
 <head>
-  <title>Nanocloud Community</title>
+	<title>Nanocloud Community</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 	<link rel="stylesheet" type="text/css" href="css/libs.min.css" />
@@ -13,11 +13,16 @@
 		<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
 			<img src="./img/logo.png" class="logo" />
 			<md-card-content>
-				<div ng-repeat="application in applications">
-					<md-button ng-href=\"/guacamole/client.xhtml?id=c%2F{{application.ConnectionName}}\" target='_blank'>
-					<ng-md-icon icon='pageview' size='14'></ng-md-icon> {{ application.RemoteApp }}
-				</md-button>"
-			</div>
+				<md-list>
+					<md-list-item ng-click="userApplicationCtrl.openApplication(application, $event)"
+						class="md-2-line" ng-repeat="application in userApplicationCtrl.applications">
+						<md-icon md-svg-icon="pageview"></md-icon>
+						<div class="md-list-item-text" ng-class="{'md-offset': $index != 0 }">
+							<h3> {{ application.ConnectionName }} </h3>
+							<p> {{ application.RemoteApp }} </p>
+						</div>
+					</md-list-item>
+				</md-list>
 			</md-card-content>
 		</md-card>
 	</div>
