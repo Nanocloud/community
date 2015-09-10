@@ -17,7 +17,7 @@
 					<md-list-item ng-click="userApplicationCtrl.openApplication(application, $event)"
 						class="md-2-line" ng-repeat="application in userApplicationCtrl.applications">
 						<md-icon md-svg-icon="pageview"></md-icon>
-						<div class="md-list-item-text" ng-class="{'md-offset': $index != 0 }">
+						<div class="md-list-item-text">
 							<h3> {{ application.ConnectionName }} </h3>
 							<p> {{ application.RemoteApp }} </p>
 						</div>
