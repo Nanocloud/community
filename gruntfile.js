@@ -53,7 +53,7 @@ module.exports = function(grunt) {
 		ts: {
 			dist: {
 				files: {
-					"website/js/app.min.js": ["ts/**/*.ts"]
+					"website/js/app.min.js": ["website/ts/**/*.ts"]
 				},
 				options: {
 					target: "es5",
@@ -67,7 +67,7 @@ module.exports = function(grunt) {
 				configuration: grunt.file.readJSON("tslint.json")
 			},
 			files: {
-				src: ["ts/**/*.ts"]
+				src: ["website/ts/**/*.ts"]
 			}
 		},
 
@@ -77,7 +77,7 @@ module.exports = function(grunt) {
 				tasks: [ "less" ]
 			},
 			ts: {
-				files: [ "ts/**/*.ts" ],
+				files: [ "website/ts/**/*.ts" ],
 				tasks: [ "ts" ]
 			}
 		}
