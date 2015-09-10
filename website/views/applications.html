@@ -26,9 +26,13 @@
   </md-card-content>
 
   <div class="md-actions" layout="row" layout-align="end center">
-    <md-button ng-href="/guacamole/client.xhtml?id=c%2FhapticPowershell"
+    <md-button ng-href="/guacamole/client.xhtml?id=c%2FhapticDesktop" target="_blank"
+      aria-label="Open Windows desktop to install your application" class="md-raised">
+      <ng-md-icon icon="windows"></ng-md-icon> Desktop
+    </md-button>
+    <md-button ng-href="/guacamole/client.xhtml?id=c%2FhapticPowershell" target="_blank"
       aria-label="Publish an application" class="md-raised md-primary">
-      <ng-md-icon icon="add" size="14"></ng-md-icon> Publish
+      <ng-md-icon icon="cloud_done"></ng-md-icon> Publish
     </md-button>
   </div>
 </md-card>

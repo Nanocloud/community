@@ -28,7 +28,7 @@ module hapticFrontend {
 						displayName: "",
 						enableColumnMenu: false,
 						cellTemplate: "\
-							<md-button ng-href='/guacamole/client.xhtml?id=c%2F{{row.entity.ConnectionName}}' target='_blank'>\
+							<md-button ng-click='grid.appScope.applicationsCtrl.openApplication($event, row.entity)'>\
 								<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open\
 							</md-button>\
 							<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>\
@@ -74,6 +74,10 @@ module hapticFrontend {
 			if (i >= 0) {
 				this.applications.splice(i, 1);
 			}
+		}
+
+		openApplication(e: MouseEvent, application: IApplication) {
+			window.open("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, "_blank");
 		}
 	}
 
