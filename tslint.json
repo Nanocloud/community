@@ -3,7 +3,7 @@
 		"class-name": true,
 		"comment-format": [
 			true,
-			"check-lowercase",
+			//"check-lowercase",
 			"check-space"
 		],
 		"curly": true,
