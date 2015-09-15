@@ -26,7 +26,7 @@ module hapticFrontend {
 				this.isCreation = true;
 			}
 		}
-		
+
 		save(): void {
 			let success;
 

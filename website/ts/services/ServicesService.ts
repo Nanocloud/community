@@ -54,7 +54,7 @@ module hapticFrontend {
 		download(): void  {
 			this.rpc.call({ method: "ServiceIaas.Download", id: 1 })
 				.then((res: IRpcResponse): void => {
-					if (! this.isError(res) && res.result.success === true) {
+					if (! this.isError(res) && res.result.Success === true) {
 						this.downloadStarted = true;
 					}
 				});
@@ -74,7 +74,7 @@ module hapticFrontend {
 		start(service: IService): void  {
 			this.rpc.call({ method: "ServiceIaas.Start", id: 1, params: [{"vmName": service.Name}] })
 				.then((res: IRpcResponse): void => {
-					if (! this.isError(res) && res.result.success === true) {
+					if (! this.isError(res) && res.result.Success === true) {
 						service.Running = true;
 					} else {
 						service.Running = false;

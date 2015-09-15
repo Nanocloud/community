@@ -45,25 +45,30 @@ module hapticFrontend {
 			
 			this.loadUsers();
 		}
-		
+
 		get users(): IUser[] {
 			return this.gridOptions.data;
 		}
 		set users(value: IUser[]) {
 			this.gridOptions.data = value;
 		}
-		
+
 		loadUsers(): angular.IPromise<void> {
 			return this.userSrv.getAll().then((users: IUser[]) => {
 				this.users = users;
 			});
 		}
-		
+
 		startAddUser(e: MouseEvent): angular.IPromise<any> {
 			let o = this.getDefaultUserDlgOpt(e);
 			o.locals = { user: null };
 			return this.$mdDialog
-				.show(o);
+				.show(o)
+				.then((user: IUser) => {
+					if (user) {
+						this.users.push(user);
+					}
+				});
 		}
 		
 		addUser(user: IUser): void {
