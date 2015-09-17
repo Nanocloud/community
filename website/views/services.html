@@ -15,12 +15,12 @@
 	<div ng-if="servicesCtrl.servicesSrv.windowsReady === false && servicesCtrl.servicesSrv.downloadStarted === false">
 		<md-button ng-click="servicesCtrl.startWindowsDownload($event)" class="md-raised md-primary" aria-label="Downloas windows service">
 			<md-tooltip>Download windows service</md-tooltip>
-			<ng-md-icon icon="windows"></md-icon>
+			<ng-md-icon icon="windows"></ng-md-icon>
 		</md-button>
+		<ng-md-icon icon="arrow_back"></ng-md-icon> Please click on the Windows button to install it
 	</div>
 	<div ng-if="servicesCtrl.servicesSrv.downloadStarted">
 		<p>Download in progress (~6 GB). This may take a while.</p>
 		<md-progress-linear md-mode="indeterminate"></md-progress-linear>
 	</div>
-
 </div>
