@@ -4,8 +4,9 @@
 	"private": true,
 	"scripts": {
 		"postinstall": "bower install && tsd install && grunt update-libs && grunt build",
-		"start": "grunt build && concurrent \"http-server website\" \"grunt watch\"",
+		"start": "grunt build && grunt watch",
 		"build": "grunt build",
+		"serve": "http-server website",
 		"bower": "bower",
 		"grunt": "grunt",
 		"tsd": "tsd"
