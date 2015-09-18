@@ -8,7 +8,8 @@ module hapticFrontend {
 		Name: string;
 		DisplayName: string;
 		Locked: boolean;
-		Running: boolean;
+		Status: string;
+		FontColor: string;
 		VM: string;
 	}
 
@@ -75,9 +76,9 @@ module hapticFrontend {
 			this.rpc.call({ method: "ServiceIaas.Start", id: 1, params: [{"vmName": service.Name}] })
 				.then((res: IRpcResponse): void => {
 					if (! this.isError(res) && res.result.Success === true) {
-						service.Running = true;
+						service.Status = "booting";
 					} else {
-						service.Running = false;
+						service.Status = "available";
 					}
 				});
 		}
