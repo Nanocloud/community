@@ -6,6 +6,7 @@ module hapticFrontend {
 	class ServicesCtrl {
 
 		services: any;
+		colors: any;
 
 		static $inject = [
 			"ServicesService",
@@ -16,6 +17,12 @@ module hapticFrontend {
 			private servicesSrv: ServicesService,
 			private $mdDialog: angular.material.IDialogService
 		) {
+			this.colors = {
+				downloading: "#4183D7",
+				available: "#A2DED0",
+				booting: "#EB9532",
+				running: "#26A65B",
+			}
 			this.loadServices();
 			this.servicesSrv.downloadStatus();
 		}
@@ -33,7 +40,9 @@ module hapticFrontend {
 		}
 
 		toggle(service: IService) {
-			return this.servicesSrv.start(service);
+			if (! service.Locked) {
+				return this.servicesSrv.start(service);
+			}
 		}
 
 		private getDefaultServiceDlgOpt(e: MouseEvent): angular.material.IDialogOptions {

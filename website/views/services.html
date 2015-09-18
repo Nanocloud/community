@@ -1,26 +1,34 @@
 <div style="height: 80%">
 	<md-list>
-		<div ng-repeat="service in servicesCtrl.services">
-			<md-switch class="md-primary" ng-model="service.Running" ng-disabled="service.Locked"
-				ng-change="servicesCtrl.toggle(service)" aria-label="Running">
-				<ng-md-icon icon="{{service.Ico}}"></ng-md-icon>
-				<span>{{service.DisplayName}}</span>
-				<md-tooltip>
-					<span ng-if="service.Running">This service is currently running</span>
-					<span ng-if="!service.Running">This service is available but not currently running</span>
-				</md-tooltip>
-			</md-switch>
-		</div>
-	</md-list>
-	<div ng-if="servicesCtrl.servicesSrv.windowsReady === false && servicesCtrl.servicesSrv.downloadStarted === false">
-		<md-button ng-click="servicesCtrl.startWindowsDownload($event)" class="md-raised md-primary" aria-label="Downloas windows service">
-			<md-tooltip>Download windows service</md-tooltip>
+		<md-list-item class="md-3-line"
+			ng-repeat="service in servicesCtrl.services"
+			ng-click="servicesCtrl.toggle(service)">
+			<ng-md-icon icon="{{service.Ico}}"
+				ng-style="{'color': '{{ servicesCtrl.colors[service.Status] }}'}" ></ng-md-icon>
+			<div class="md-list-item-text" layout="column">
+				<h3>{{ service.DisplayName }}</h3>
+				<p>Status : <strong>{{ service.Status }}</strong>
+				<p ng-if="!service.Locked">Please click here to
+					<strong ng-if="service.Status === 'available'">boot</strong>
+					<strong ng-if="service.Status === 'running'">power down</strong>
+					this service</p>
+			</div>
+		</md-list-item>
+
+		<md-list-item class="md-3-line" ng-click="servicesCtrl.startWindowsDownload($event)"
+			ng-if="servicesCtrl.servicesSrv.windowsReady === false">
 			<ng-md-icon icon="windows"></ng-md-icon>
-		</md-button>
-		<ng-md-icon icon="arrow_back"></ng-md-icon> Please click on the Windows button to install it
-	</div>
-	<div ng-if="servicesCtrl.servicesSrv.downloadStarted">
-		<p>Download in progress (~6 GB). This may take a while.</p>
-		<md-progress-linear md-mode="indeterminate"></md-progress-linear>
-	</div>
+			<div class="md-list-item-text" layout="column">
+				<h3>Windows</h3>
+				<div ng-if="servicesCtrl.servicesSrv.downloadStarted">
+					<p>Download in progress (~6 GB). This may take a while.</p>
+					<md-progress-linear md-mode="indeterminate"></md-progress-linear>
+				</div>
+				<p ng-if="servicesCtrl.servicesSrv.downloadStarted === false">
+					<ng-md-icon icon="arrow_back"></ng-md-icon> Please click on the Windows button to install it
+				</p>
+			</div>
+		</md-list-item>
+	</md-list>
+
 </div>
