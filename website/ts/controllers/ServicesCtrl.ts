@@ -10,12 +10,14 @@ module hapticFrontend {
 
 		static $inject = [
 			"ServicesService",
-			"$mdDialog"
+			"$mdDialog",
+			"$interval"
 		];
 
 		constructor(
 			private servicesSrv: ServicesService,
-			private $mdDialog: angular.material.IDialogService
+			private $mdDialog: angular.material.IDialogService,
+			$interval: ng.IIntervalService
 		) {
 			this.colors = {
 				downloading: "#4183D7",
@@ -23,8 +25,12 @@ module hapticFrontend {
 				booting: "#EB9532",
 				running: "#26A65B",
 			}
-			this.loadServices();
-			this.servicesSrv.downloadStatus();
+
+			this.loadServices;
+			$interval(
+				this.loadServices.bind(this),
+				5000
+				);
 		}
 
 		loadServices(): angular.IPromise<void> {
