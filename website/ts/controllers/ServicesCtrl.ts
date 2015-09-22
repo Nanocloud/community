@@ -23,10 +23,10 @@ module hapticFrontend {
 				downloading: "#4183D7",
 				available: "#A2DED0",
 				booting: "#EB9532",
-				running: "#26A65B",
-			}
+				running: "#26A65B"
+			};
 
-			this.loadServices;
+			this.loadServices();
 			$interval(
 				this.loadServices.bind(this),
 				5000

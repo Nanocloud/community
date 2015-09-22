@@ -5,7 +5,7 @@ module hapticFrontend {
 	
 	class ServiceCtrl {
 
-		service: IService
+		service: IService;
 
 		static $inject = [
 			"ServicesService",
