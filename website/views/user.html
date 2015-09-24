@@ -9,35 +9,40 @@
 		</div>
 	</md-toolbar>
 	<md-dialog-content>
-		<div layout="column">
-			<md-input-container flex ng-if="userCtrl.isCreation">
-				<label>First name</label>
-				<input ng-model="userCtrl.user.Firstname" class="dialog-close" /> <!-- dialog-close adds focus -->
-			</md-input-container>
-			<md-input-container flex ng-if="userCtrl.isCreation">
-				<label>Last Name</label>
-				<input ng-model="userCtrl.user.Lastname" />
-			</md-input-container>
-			<md-input-container flex ng-if="userCtrl.isCreation">
-				<label>Email</label>
-				<input ng-model="userCtrl.user.Email" />
-			</md-input-container>
-			<md-input-container flex>
-				<label>Password</label>
-				<input type="password" ng-model="userCtrl.user.Password" />
-			</md-input-container>
-			<md-input-container flex>
-				<label>Confirm password</label>
-				<input type="password" ng-model="userCtrl.user.Password2" />
-			</md-input-container>
+		<form name="userCtrl.userForm">
+			<div layout="column">
+				<md-input-container flex ng-if="userCtrl.isCreation">
+					<label>First name</label>
+					<input ng-model="userCtrl.user.Firstname" required class="dialog-close" /> <!-- dialog-close adds focus -->
+				</md-input-container>
+				<md-input-container flex ng-if="userCtrl.isCreation">
+					<label>Last Name</label>
+					<input ng-model="userCtrl.user.Lastname" required/>
+				</md-input-container>
+				<md-input-container flex ng-if="userCtrl.isCreation">
+					<label>Email</label>
+					<input type="email" ng-model="userCtrl.user.Email" required/>
+				</md-input-container>
+				<md-input-container flex>
+					<label>Password</label>
+					<input type="password" ng-model="userCtrl.user.Password" required/>
+				</md-input-container>
+				<md-input-container flex>
+					<label>Confirm password</label>
+					<input type="password" ng-model="userCtrl.user.Password2" required/>
+					<div ng-messages="required" ng-show="(userCtrl.user.Password !== userCtrl.user.Password2)">
+						<div ng-message="required">Passwords mismatch.</div>
+					</div>
+				</md-input-container>
+			</div>
+		</md-dialog-content>
+		<div class="md-actions" layout="row">
+			<md-button ng-click="userCtrl.cancel()">
+				Cancel
+			</md-button>
+			<md-button type="submit" ng-click="userCtrl.save()">
+				Save
+			</md-button>
 		</div>
-	</md-dialog-content>
-	<div class="md-actions" layout="row">
-		<md-button ng-click="userCtrl.cancel()">
-			Cancel
-		</md-button>
-		<md-button ng-click="userCtrl.save()">
-			Save
-		</md-button>
-	</div>
+	</form>
 </md-dialog>

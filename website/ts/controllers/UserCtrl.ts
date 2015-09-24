@@ -6,6 +6,7 @@ module hapticFrontend {
 	class UserCtrl {
 
 		user: IUser;
+		userForm: any;
 		isCreation: boolean;
 
 		static $inject = [
@@ -29,6 +30,12 @@ module hapticFrontend {
 
 		save(): void {
 			let success;
+
+			if (this.userForm.$invalid) {
+				return;
+			} else if (this.user.Password !== this.user.Password2) {
+				return;
+			}
 
 			if (this.isCreation) {
 				success = this.userSrv.save(this.user);
