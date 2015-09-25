@@ -6,6 +6,7 @@ module hapticFrontend {
 	class UserApplicationCtrl {
 
 		applications: any;
+		user: string;
 
 		static $inject = [
 			"ApplicationsService"
@@ -15,6 +16,7 @@ module hapticFrontend {
 			private applicationsSrv: ApplicationsService
 		) {
 			this.loadApplications();
+			this.user = sessionStorage.getItem("user");
 		}
 
 		loadApplications(): angular.IPromise<void> {

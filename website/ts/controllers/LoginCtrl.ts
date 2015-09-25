@@ -25,6 +25,11 @@ module hapticFrontend {
 		}
 
 		signIn(e: MouseEvent) {
+			let user = {
+				"Email": this.credentials.email
+			};
+			sessionStorage.setItem("user", user.Email);
+
 			this.authSrv.authenticate(this.credentials).then(
 					(response: any) => {
 						if (typeof response.data === "string") {

@@ -2,11 +2,12 @@
 
 module hapticFrontend {
 	"use strict";
-	
+
 	class MainCtrl {
-		
+
 		nav: models.MainNav;
-		
+		user: string;
+
 		static $inject = [
 			"$location"
 		];
@@ -18,14 +19,15 @@ module hapticFrontend {
 			if (m) {
 				this.nav.current = m;
 			}
+			this.user = sessionStorage.getItem("user");
 		}
-		
+
 		navigateTo(menu: models.INavMenu) {
 			this.$location.path(menu.url);
 			this.nav.current = menu;
 		}
 
 	}
-	
+
 	app.controller("MainCtrl", MainCtrl);
 }
