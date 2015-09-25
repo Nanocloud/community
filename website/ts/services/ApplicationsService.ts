@@ -41,7 +41,7 @@ module hapticFrontend {
 							"Port": app.Port,
 							"Username": app.Username,
 							"Password": app.Password,
-							"RemoteApp": app.RemoteApp || "Desktop",
+							"RemoteApp": this.cleanAppName(app.RemoteApp),
 							"ConnectionName": app.ConnectionName
 						});
 					}
@@ -66,7 +66,7 @@ module hapticFrontend {
 							"Port": app.Port,
 							"Username": app.Username,
 							"Password": app.Password,
-							"RemoteApp": app.RemoteApp || "Desktop",
+							"RemoteApp": this.cleanAppName(app.RemoteApp),
 							"ConnectionName": app.ConnectionName
 						});
 					}
@@ -97,6 +97,13 @@ module hapticFrontend {
 			return true;
 		}
 
+		private cleanAppName(appName) {
+			if (appName) {
+				return appName.replace(/^\|\|/, "");
+			} else {
+				return "Desktop"
+			}
+		}
 	}
 
 	app.service("ApplicationsService", ApplicationsService);
