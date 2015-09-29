@@ -101,7 +101,7 @@ module hapticFrontend {
 			if (appName) {
 				return appName.replace(/^\|\|/, "");
 			} else {
-				return "Desktop"
+				return "Desktop";
 			}
 		}
 	}
