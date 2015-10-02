@@ -59,13 +59,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<span flex=""></span>
 				<div class="md-toolbar-item" ng-if="mainCtrl.user">
 					<md-select aria-label="{{mainCtrl.user}}" aria-invalid="false" id="select_2"
-						aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
-						ng-model="relatedPage" placeholder="{{mainCtrl.user}}"
-						class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
-						<md-select-value id="select_value_label_0" class="md-select-value md-select-placeholder">
-							<span>{{mainCtrl.user}}</span>
-							<span class="md-select-icon" aria-hidden="true"></span>
-						</md-select-value>
+							aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
+							ng-model="relatedPage" placeholder="{{mainCtrl.user}}"
+							class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
+						<md-option>
+							<md-button ng-href="/logout">Sign out</md-button>
+						</md-option>
 					</md-select>
 				</div>
 			</div>
