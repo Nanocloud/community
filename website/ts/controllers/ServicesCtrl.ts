@@ -51,7 +51,7 @@ module hapticFrontend {
 			this.loadServices();
 			$interval(
 				this.loadServices.bind(this),
-				5000
+				10 * 1000
 				);
 		}
 
