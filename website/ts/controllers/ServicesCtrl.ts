@@ -70,9 +70,9 @@ module hapticFrontend {
 		toggle(service: IService) {
 			if (! service.Locked) {
 				if (service.Status === "running") {
-					this.servicesSrv.start(service);
+					this.servicesSrv.startStopService(service);
 				} else {
-					this.servicesSrv.stop(service);
+					this.servicesSrv.start(service);
 				}
 			}
 		}

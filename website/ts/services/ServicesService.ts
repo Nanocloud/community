@@ -96,7 +96,8 @@ module hapticFrontend {
 				});
 		}
 
-		stop(service: IService): void  {
+		startStopService(service: IService): void  {
+			let _self = this
 			let o = this.$mdDialog.confirm()
 				.parent(angular.element(document.body))
 				.title("Stop service")
@@ -105,14 +106,18 @@ module hapticFrontend {
 				.cancel("No");
 			let e = this.$mdDialog
 				.show(o).then(function() {
-					this.rpc.call({ method: "ServiceIaas.Stop", id: 1, params: [{"vmName": service.Name}] })
-						.then((res: IRpcResponse): void => {
-							if (! this.isError(res) && res.result.Success === true) {
-								service.Status = "available";
-							} else {
-								service.Status = "running";
-							}
-						});
+					_self.stop(service);
+				});
+		}
+
+		stop(service: IService): void {
+			this.rpc.call({ method: "ServiceIaas.Stop", id: 1, params: [{"vmName": service.Name}] })
+				.then((res: IRpcResponse): void => {
+					if (! this.isError(res) && res.result.Success === true) {
+						service.Status = "available";
+					} else {
+						service.Status = "running";
+					}
 				});
 		}
 
