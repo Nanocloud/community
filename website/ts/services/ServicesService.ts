@@ -39,7 +39,8 @@ module hapticFrontend {
 
 		static $inject = [
 			"RpcService",
-			"$mdToast"
+			"$mdToast",
+			"$mdDialog"
 		];
 
 		downloadStarted = false;
@@ -47,7 +48,8 @@ module hapticFrontend {
 
 		constructor(
 			private rpc: RpcService,
-			private $mdToast: angular.material.IToastService
+			private $mdToast: angular.material.IToastService,
+			private $mdDialog: angular.material.IDialogService
 		) {
 
 		}
@@ -91,6 +93,26 @@ module hapticFrontend {
 					} else {
 						service.Status = "available";
 					}
+				});
+		}
+
+		stop(service: IService): void  {
+			let o = this.$mdDialog.confirm()
+				.parent(angular.element(document.body))
+				.title("Stop service")
+				.content("Are you sure you want to stop this service ?")
+				.ok("Yes")
+				.cancel("No");
+			let e = this.$mdDialog
+				.show(o).then(function() {
+					this.rpc.call({ method: "ServiceIaas.Stop", id: 1, params: [{"vmName": service.Name}] })
+						.then((res: IRpcResponse): void => {
+							if (! this.isError(res) && res.result.Success === true) {
+								service.Status = "available";
+							} else {
+								service.Status = "running";
+							}
+						});
 				});
 		}
 
