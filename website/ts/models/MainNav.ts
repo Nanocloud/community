@@ -31,36 +31,64 @@ module hapticFrontend.models {
 	}
 	
 	export class MainNav {
+
+		HasPanelServices = false;
+		HasPanelApplications 	 = false;
+		HasPanelUsers 			 = true;
+		HasPanelStats 			 = true;
+		HasPanelCapacityPlanning = false;
+
+		private setupMenu() {
+
+			if (this.HasPanelServices) {
+				this.menus.push({
+					title: "Services",
+					url: "/",
+					ico: "cloud"
+				});
+			}
+
+			if (this.HasPanelApplications) {
+				this.menus.push({
+					title: "Applications",
+					url: "/applications",
+					ico: "apps"
+				});
+			}
+
+			if (this.HasPanelUsers) {
+				this.menus.push({
+					title: "Users",
+					url: "/users",
+					ico: "people"
+				});
+			}
+
+			if (this.HasPanelStats) {
+				this.menus.push({
+					title: "Stats",
+					url: "/stats",
+					ico: "equalizer"
+				});
+			}
+
+			if (this.HasPanelCapacityPlanning) {
+				this.menus.push({
+					title: "Capacity Planning",
+					url: "/capacity_planning",
+					ico: "trending_up"
+				});
+			}
+		}		
 		
 		constructor() {
+
+			this.setupMenu();
+
 			this.current = this.menus[0];
 		}
 		
-		menus: INavMenu[] = [
-			{
-				title: "Services",
-				url: "/",
-				ico: "cloud"
-			}, {
-				title: "Applications",
-				url: "/applications",
-				ico: "apps"
-			}, {
-				title: "Users",
-				url: "/users",
-				ico: "people"
-				/*
-			}, {
-				title: "Stats",
-				url: "/stats",
-				ico: "equalizer"
-			}, {
-				title: "Capacity Planning",
-				url: "/capacity_planning",
-				ico: "trending_up"
-				*/
-			}
-		];
+		menus: INavMenu[] = [];
 		
 		private _current: INavMenu;
 		get current(): INavMenu {
@@ -69,7 +97,7 @@ module hapticFrontend.models {
 		set current(menu: INavMenu) {
 			this._current = menu;
 		}
-		
+
 	}
 	
 }
