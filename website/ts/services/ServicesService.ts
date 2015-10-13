@@ -97,7 +97,7 @@ module hapticFrontend {
 		}
 
 		startStopService(service: IService): void  {
-			let _self = this
+			let _self = this;
 			let o = this.$mdDialog.confirm()
 				.parent(angular.element(document.body))
 				.title("Stop service")

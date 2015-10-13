@@ -32,10 +32,10 @@ module hapticFrontend.models {
 	
 	export class MainNav {
 
-		HasPanelServices = false;
-		HasPanelApplications 	 = false;
-		HasPanelUsers 			 = true;
-		HasPanelStats 			 = true;
+		HasPanelServices = true;
+		HasPanelApplications = true;
+		HasPanelUsers = true;
+		HasPanelStats = true;
 		HasPanelCapacityPlanning = false;
 
 		private setupMenu() {
