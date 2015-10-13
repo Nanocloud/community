@@ -31,10 +31,12 @@ module hapticFrontend {
 		user: string;
 
 		static $inject = [
-			"$location"
+			"$location",
+			"$mdSidenav"
 		];
 		constructor(
-			private $location: angular.ILocationService
+			private $location: angular.ILocationService,
+			private $mdSidenav: angular.material.ISidenavService
 		) {
 			this.nav = new models.MainNav();
 			let m = _.find(this.nav.menus, (x: models.INavMenu) => x.url === $location.url());
@@ -45,10 +47,15 @@ module hapticFrontend {
 		}
 
 		navigateTo(menu: models.INavMenu) {
+			this.$mdSidenav("left").close();
+
 			this.$location.path(menu.url);
 			this.nav.current = menu;
 		}
 
+		toggleMenu() {
+			this.$mdSidenav("left").open();
+		}
 	}
 
 	app.controller("MainCtrl", MainCtrl);

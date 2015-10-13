@@ -48,7 +48,11 @@ module hapticFrontend {
 		}
 
 		openApplication(application: IApplication, e: MouseEvent) {
-			window.open("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, "_blank");
+			this.navigateTo("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, e);
+		}
+
+		navigateTo(loc: string, e: MouseEvent) {
+			window.open(loc, "_blank");
 		}
 	}
 

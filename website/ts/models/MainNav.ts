@@ -79,17 +79,15 @@ module hapticFrontend.models {
 					ico: "trending_up"
 				});
 			}
-		}		
-		
+		}
+
 		constructor() {
-
 			this.setupMenu();
-
 			this.current = this.menus[0];
 		}
-		
+
 		menus: INavMenu[] = [];
-		
+
 		private _current: INavMenu;
 		get current(): INavMenu {
 			return this._current;
@@ -97,7 +95,5 @@ module hapticFrontend.models {
 		set current(menu: INavMenu) {
 			this._current = menu;
 		}
-
 	}
-	
 }

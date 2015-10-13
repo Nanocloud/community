@@ -55,6 +55,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<div role="main" class="main-content" layout="column" flex>
 		<md-toolbar>
 			<div class="md-toolbar-tools">
+				<md-button ng-click="mainCtrl.toggleMenu()" class="md-icon-button md-primary" hide-gt-md aria-label="Menu">
+					<ng-md-icon icon="menu"></ng-md-icon> 
+				</md-button>
 				{{mainCtrl.nav.current.title}}
 				<span flex=""></span>
 				<div class="md-toolbar-item" ng-if="mainCtrl.user">
