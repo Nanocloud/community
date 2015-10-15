@@ -54,7 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					<md-list>
 						<md-list-item ng-click="userApplicationCtrl.openApplication(application, $event)"
 								class="md-2-line" ng-repeat="application in userApplicationCtrl.applications">
-							<md-icon md-svg-icon="pageview"></md-icon>
+							<ng-md-icon icon="pageview"></ng-md-icon>
 							<div class="md-list-item-text">
 								<h3> {{ application.ConnectionName }} </h3>
 								<p> {{ application.RemoteApp }} </p>
