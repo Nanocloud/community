@@ -66,8 +66,6 @@ module hapticFrontend {
 							if (srv.Ico === "windows") {
 								this.downloadStarted = false;
 								this.windowsReady = true;
-							} else {
-								this.windowsReady = false;
 							}
 							services.push(srv);
 						}
