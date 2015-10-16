@@ -20,12 +20,29 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<div ui-grid="usersCtrl.gridOptions" style="height: 80%;"
-	ui-grid-selection ui-grid-auto-resize></div>
+<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
+	<md-card-content>
+		<md-list>
+			<md-list-item ng-repeat="user in usersCtrl.users">
+				<ng-md-icon icon="person"></ng-md-icon>
+				<p>{{ user.Firstname }} {{ user.Lastname }}</p>
+				<md-button class="md-icon-button" aria-label="Change password"
+						ng-click="usersCtrl.startEditUser($event, user)">
+					<ng-md-icon icon="edit"></ng-md-icon>
+				</md-button>
+				<md-button class="md-icon-button md-warn" aria-label="Delete this user"
+						ng-click="usersCtrl.startDeleteUser(user)">
+					<ng-md-icon icon="delete"></ng-md-icon>
+				</md-button>
+			</md-list-item>
+		</md-list-item>
+	</md-card-content>
+</md-card>
 
 <div class="align-right">
-	<md-button ng-click="usersCtrl.startAddUser($event)" class="md-fab" aria-label="Add user">
-		<md-tooltip>Add user</md-tooltip>
-		<ng-md-icon icon="add" size="30"></md-icon>
+	<md-button ng-click="usersCtrl.startAddUser($event)" class="md-primary"
+			aria-label="Add a new user">
+		<md-tooltip>Add a new user user</md-tooltip>
+		<ng-md-icon icon="person_add"></md-icon>
 	</md-button>
 </div>

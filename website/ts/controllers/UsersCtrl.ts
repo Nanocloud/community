@@ -27,7 +27,7 @@ module hapticFrontend {
 	
 	class UsersCtrl {
 
-		gridOptions: any;
+		users: any;
 
 		static $inject = [
 			"UserService",
@@ -37,42 +37,8 @@ module hapticFrontend {
 			private userSrv: UserService,
 			private $mdDialog: angular.material.IDialogService
 		) {
-			this.gridOptions = {
-				data: [],
-				rowHeight: 36,
-				columnDefs: [
-					{ field: "Firstname" },
-					{ field: "Lastname" },
-					{ field: "Email" },
-					{
-						name: "modifications",
-						displayName: "",
-						enableColumnMenu: false,
-						cellTemplate: "\
-							<md-button ng-click='grid.appScope.usersCtrl.startEditUser($event, row.entity)'>\
-								<ng-md-icon icon='edit' size='14'></ng-md-icon> Change password\
-							</md-button>"
-					},
-					{
-						name: "supression",
-						displayName: "",
-						enableColumnMenu: false,
-						cellTemplate: "\
-							<md-button ng-click='grid.appScope.usersCtrl.startDeleteUser($event, row.entity)'>\
-								<ng-md-icon icon='delete' size='14'></ng-md-icon> Delete\
-							</md-button>"
-					}
-				]	
-			};
 			
 			this.loadUsers();
-		}
-
-		get users(): IUser[] {
-			return this.gridOptions.data;
-		}
-		set users(value: IUser[]) {
-			this.gridOptions.data = value;
 		}
 
 		loadUsers(): angular.IPromise<void> {
