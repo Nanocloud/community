@@ -31,11 +31,13 @@ module hapticFrontend {
 		user: string;
 
 		static $inject = [
-			"ApplicationsService"
+			"ApplicationsService",
+			"$cookies"
 		];
 
 		constructor(
-			private applicationsSrv: ApplicationsService
+			private applicationsSrv: ApplicationsService,
+			private $cookies: angular.cookies.ICookiesService
 		) {
 			this.loadApplications();
 			this.user = sessionStorage.getItem("user");
@@ -48,6 +50,7 @@ module hapticFrontend {
 		}
 
 		openApplication(application: IApplication, e: MouseEvent) {
+			this.$cookies.remove("JSESSIONID");
 			this.navigateTo("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, e);
 		}
 

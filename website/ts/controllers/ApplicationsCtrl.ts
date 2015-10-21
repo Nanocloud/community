@@ -32,12 +32,14 @@ module hapticFrontend {
 
 		static $inject = [
 			"ApplicationsService",
-			"$mdDialog"
+			"$mdDialog",
+			"$cookies"
 		];
 
 		constructor(
 			private applicationsSrv: ApplicationsService,
-			private $mdDialog: angular.material.IDialogService
+			private $mdDialog: angular.material.IDialogService,
+			private $cookies: angular.cookies.ICookiesService
 		) {
 			this.gridOptions = {
 				data: [],
@@ -100,6 +102,7 @@ module hapticFrontend {
 		}
 
 		openApplication(e: MouseEvent, application: IApplication) {
+			this.$cookies.remove("JSESSIONID");
 			window.open("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, "_blank");
 		}
 	}
