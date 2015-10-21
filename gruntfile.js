@@ -33,6 +33,7 @@ module.exports = function(grunt) {
 					"bower_components/lodash/lodash.min.js",
 					"bower_components/angular/angular.min.js",
 					"bower_components/angular-route/angular-route.min.js",
+					"bower_components/angular-cookies/angular-cookies.min.js",
 					"bower_components/angular-animate/angular-animate.min.js",
 					"bower_components/angular-aria/angular-aria.min.js",
 					"bower_components/angular-material/angular-material.min.js",
