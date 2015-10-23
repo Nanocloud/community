@@ -7,6 +7,7 @@ module hapticFrontend {
 		ConnectionId: string;
 		StartDate: string;
 		EndDate: string;
+		Stats: any;
 	}
 
 	export class StatsService {
