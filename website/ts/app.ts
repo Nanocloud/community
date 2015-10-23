@@ -25,7 +25,7 @@
 module hapticFrontend {
 	"use strict";
 
-	export var app = angular.module("hapticFrontend", ["flow", "ngRoute", "ngCookies", "ngMaterial", "ngMdIcons", "ui.grid"]);
+	export var app = angular.module("hapticFrontend", ["flow", "ngRoute", "ngCookies", "ngMaterial", "ngMdIcons", "ui.grid", "ui.grid.expandable"]);
 
 	app.config(["$routeProvider", "$mdThemingProvider", function($routeProvider: angular.route.IRouteProvider, $mdThemingProvider: angular.material.IThemingProvider) {
 

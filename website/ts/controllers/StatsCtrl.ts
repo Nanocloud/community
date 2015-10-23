@@ -16,15 +16,18 @@ module hapticFrontend {
 			private $mdDialog: angular.material.IDialogService
 		) {
 			this.gridOptions = {
-				data: [],
-				rowHeight: 36,
+				expandableRowTemplate: "views/stat.html",
+				expandableRowScope: {
+					subGridVariable: "Stats"
+				},
 				columnDefs: [
-					{ field: "Firstname" },
-					{ field: "Lastname" },
-					{ field: "Email" }
-				]	
+					{
+						displayName: "Connection Name",
+						field: "ConnectionId"
+					}
+				]
 			};
-			
+
 			this.loadStats();
 		}
 
@@ -32,7 +35,25 @@ module hapticFrontend {
 			return this.gridOptions.data;
 		}
 		set stats(value: IStat[]) {
-			this.gridOptions.data = value;
+			let stats = [];
+			for (var stat of value) {
+				let s = {
+					ConnectionId: stat.ConnectionId,
+					subgridOptions: {
+						columnDefs: [
+						{
+							field: "StartDate"
+						}, {
+							field: "EndDate"
+						}
+						],
+						data: stat.Stats
+					}
+				};
+				stats.push(s);
+			}
+
+			this.gridOptions.data = stats;
 		}
 
 		loadStats(): angular.IPromise<void> {
@@ -41,10 +62,6 @@ module hapticFrontend {
 			});
 		}
 		
-		addStat(stat: IStat): void {
-			this.stats.push(stat);
-		}
-
 		private getDefaultStatDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
 			return {
 				controller: "StatsCtrl",

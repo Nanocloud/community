@@ -4,11 +4,9 @@ module hapticFrontend {
 	"use strict";
 
 	export interface IStat {
-		Firstname: string;
-		Lastname: string;
-		Email: string;
-		Password?: string;
-		Password2?: string;
+		ConnectionId: string;
+		StartDate: string;
+		EndDate: string;
 	}
 
 	export class StatsService {
@@ -25,7 +23,7 @@ module hapticFrontend {
 		}
 
 		getAll(): angular.IPromise<IStat[]> {
-			return this.rpc.call({ method: "ServiceStats.GetList", id: 1 })
+			return this.rpc.call({ method: "ServiceHistory.GetList", id: 1 })
 				.then((res: IRpcResponse): IStat[] => {
 					let stats: IStat[] = [];
 
@@ -33,8 +31,8 @@ module hapticFrontend {
 						return [];
 					}
 
-					if (res.result.Stats) {
-						for (let s of res.result.Stats) {
+					if (res.result.Histories) {
+						for (let s of res.result.Histories) {
 							stats.push(s);
 						}
 					}
