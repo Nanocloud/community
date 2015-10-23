@@ -103,7 +103,8 @@ module hapticFrontend {
 
 		openApplication(e: MouseEvent, application: IApplication) {
 			this.$cookies.remove("JSESSIONID");
-			window.open("/guacamole/client.xhtml?id=c%2F" + application.ConnectionName, "_blank");
+			let applicationToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
+			window.open("/guacamole/#/client/" + applicationToken, "_blank");
 		}
 	}
 
