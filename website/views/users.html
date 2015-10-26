@@ -23,9 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
 	<md-card-content>
 		<md-list>
-			<md-list-item ng-repeat="user in usersCtrl.users">
+			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
 				<ng-md-icon icon="person"></ng-md-icon>
 				<p>{{ user.Firstname }} {{ user.Lastname }}</p>
+				<p>{{ user.Email }}</p>
 				<md-button class="md-icon-button" aria-label="Change password"
 						ng-click="usersCtrl.startEditUser($event, user)">
 					<ng-md-icon icon="edit"></ng-md-icon>
