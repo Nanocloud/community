@@ -16,47 +16,6 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-type HasHandleFunc interface {
-	HandleFunc(pattern string, handler func(w http.ResponseWriter, req *http.Request))
-}
-type Handler struct {
-	http.HandlerFunc
-	Enabled bool
-}
-type Handlers map[string]*Handler
-
-func (h Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	if handler, ok := h[path]; ok && handler.Enabled {
-		/*w.Write([]byte("Plugins available:\n"))
-		for i, _ := range plugins {
-			w.Write([]byte(i))
-		}*/
-		if path == "/" {
-			w.Write([]byte("Plugins available:\n"))
-			for i, _ := range plugins {
-				w.Write([]byte(i[16:] + "\n"))
-			}
-		}
-
-		handler.ServeHTTP(w, r)
-	} else {
-
-		for i, _ := range plugins {
-			if i == "plugins/running"+path || i == "plugins/staging"+path {
-				w.Write([]byte(plugins[i].WritePage()))
-				return
-			}
-		}
-		http.Error(w, "Not Found", http.StatusNotFound)
-	}
-}
-
-func (h Handlers) HandleFunc(mux HasHandleFunc, pattern string, handler http.HandlerFunc) {
-	h[pattern] = &Handler{handler, true}
-	mux.HandleFunc(pattern, h.ServeHTTP)
-}
-
 type plugin struct {
 	name   string
 	client *rpc.Client
@@ -129,18 +88,13 @@ func main() {
 	running_plugins = launch_existing_plugins(running_plugins)
 	watchPlugins(w, running_plugins)
 
-	mux := http.NewServeMux()
-	handlers := Handlers{}
-	handlers.HandleFunc(mux, "/", func(w http.ResponseWriter, r *http.Request) {
-		//w.Write([]byte("start home"))
-		handlers["/"].Enabled = true
-	})
-
-	http.Handle("/", mux)
-	http.ListenAndServe(":9020", nil)
-
 	//select {} // wait forever
-
+	http.HandleFunc("/", core)
+	err = http.ListenAndServe(":9092", nil)
+	http.HandleFunc("/plugin1", plughand)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
 
 func ClosePlugin(running_plugins []string, name string) []string {
@@ -334,16 +288,6 @@ func (p plugin) Check() bool {
 		log.Println("Error while calling Check:", err)
 	}
 	log.Println(p.name + " checked")
-	return reply
-}
-
-func (p plugin) WritePage() string {
-	reply := ""
-	err := p.client.Call(p.name+".WritePage", nil, &reply)
-	if err != nil {
-		log.Println("Error while calling WritePage:", err)
-	}
-	log.Println(p.name + " written")
 	return reply
 }
 
