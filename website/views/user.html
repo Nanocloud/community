@@ -52,8 +52,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<md-input-container flex>
 					<label>Confirm password</label>
 					<input type="password" ng-model="userCtrl.user.Password2" required/>
-					<div ng-messages="required" ng-show="(userCtrl.user.Password !== userCtrl.user.Password2)">
-						<div ng-message="required">Passwords mismatch.</div>
+					<div ng-messages="required" ng-show="userCtrl.checkPassword(userCtrl.user) === false">
+						<div ng-message="required">
+							{{ userCtrl.userFormErrorMessage }}
+						</div>
 					</div>
 				</md-input-container>
 			</div>

@@ -28,6 +28,7 @@ module hapticFrontend {
 	class UsersCtrl {
 
 		users: any;
+		displayHelp: boolean;
 
 		static $inject = [
 			"UserService",
@@ -37,8 +38,8 @@ module hapticFrontend {
 			private userSrv: UserService,
 			private $mdDialog: angular.material.IDialogService
 		) {
-			
 			this.loadUsers();
+			this.displayHelp = false;
 		}
 
 		loadUsers(): angular.IPromise<void> {
@@ -101,7 +102,15 @@ module hapticFrontend {
 				this.users.splice(i, 1);
 			}
 		}
-		
+
+		toggleHelp(e: MouseEvent) {
+			if (this.displayHelp === true) {
+				this.displayHelp = false;
+			} else {
+				this.displayHelp = true;
+			}
+		}
+
 		private getDefaultUserDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
 			return {
 				controller: "UserCtrl",

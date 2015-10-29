@@ -46,4 +46,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<md-tooltip>Add a new user user</md-tooltip>
 		<ng-md-icon icon="person_add"></md-icon>
 	</md-button>
+
+	<md-button ng-click="usersCtrl.toggleHelp($event)" aria-label="Help">
+		<md-tooltip>Information about password policies</md-tooltip>
+		<ng-md-icon icon="help"></md-icon>
+	</md-button>
+</div>
+
+<div ng-if="usersCtrl.displayHelp === true">
+	<md-card>
+		<md-card-content>
+			<p>
+				Check if the password meets the following requirements:
+				<ul>
+					<li>At least 7 characters long</li>
+					<li>Less than 65 characters long</li>
+					<li>Has at least one digit</li>
+					<li>Has at least one Upper case Alphabet</li>
+					<li>Has at least one Lower case Alphabet</li>
+				</ul>
+				Allowed Characters set:
+				<ul>
+					<li>Any alphanumeric character 0 to 9 OR A to Z or a to z</li>
+					<li>Punctuation symbols
+						<strong>. , " ' ? ! ; : # $ % & ( ) * + - / < > = @ [ ] \ ^ _ { } |</strong>
+					</li>
+				</ul>
+			</p>
+		</md-card-content>
+	</md-card>
 </div>
