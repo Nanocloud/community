@@ -29,6 +29,7 @@ module hapticFrontend {
 		Firstname: string;
 		Lastname: string;
 		Email: string;
+		Profile: string;
 		Password?: string;
 		Password2?: string;
 	}

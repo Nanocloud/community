@@ -25,14 +25,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<md-list>
 			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
 				<ng-md-icon icon="person"></ng-md-icon>
-				<p>{{ user.Firstname }} {{ user.Lastname }}</p>
-				<p>{{ user.Email }}</p>
+				<div class="md-list-item-text">
+					<h3>{{ user.Firstname }} {{ user.Lastname }}</h3>
+					<p>{{ user.Email }}</p>
+				</div>
 				<md-button class="md-icon-button" aria-label="Change password"
-						ng-click="usersCtrl.startEditUser($event, user)">
+						ng-click="usersCtrl.startEditUser($event, user)"
+						ng-show="user.Profile !== 'admin'">
 					<ng-md-icon icon="edit"></ng-md-icon>
 				</md-button>
 				<md-button class="md-icon-button md-warn" aria-label="Delete this user"
-						ng-click="usersCtrl.startDeleteUser($event, user)">
+						ng-click="usersCtrl.startDeleteUser($event, user)"
+						ng-show="user.Profile !== 'admin'">
 					<ng-md-icon icon="delete"></ng-md-icon>
 				</md-button>
 			</md-list-item>
