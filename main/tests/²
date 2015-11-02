@@ -1,0 +1,11 @@
+package main
+
+import (
+
+)
+
+func main() {
+	tmp := make(map[string]string)
+	tmp["3"] = "joe"
+	test(&tmp)
+}
