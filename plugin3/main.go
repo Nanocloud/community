@@ -1,6 +1,7 @@
 package main
 
 import (
+	//	"fmt"
 	"log"
 	"net/rpc/jsonrpc"
 	"os"
@@ -28,6 +29,35 @@ func main() {
 
 type api struct{}
 
+func (api) WritePage(args interface{}, reply *string) error {
+	*reply = "this is written by the plugin"
+	return nil
+}
+
+type Foo struct {
+	g   int
+	str string
+}
+
+func (api) Receive(args map[string]string, reply *map[string]string) error {
+	/*	m := Foo{}
+		m.g = 3
+		m.str = "ff"
+		*reply = m*/
+	*reply = make(map[string]string)
+	if args["path"] == "/plugin3/gettime" {
+		(*reply)["time"] = "08:54"
+		return nil
+	}
+	if args["path"] == "/plugin3/getdate" {
+		(*reply)["date"] = "09/05/2012"
+		return nil
+	}
+	(*reply)["error"] = "404"
+	return nil
+
+}
+
 func (api) Plug(args interface{}, reply *bool) error {
 	go launch()
 	*reply = true
@@ -50,7 +80,6 @@ func launch() {
 	tck := time.NewTicker(time.Second)
 	for {
 		<-tck.C
-		//		log.Println(name)
-		log.Println("Other plugin")
+		log.Println("Other Plugin")
 	}
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
+	//	"fmt"
 	"log"
-	"net/http"
 	"net/rpc/jsonrpc"
 	"os"
 	"time"
@@ -29,15 +29,36 @@ func main() {
 
 type api struct{}
 
-func handlz() {
-	http.HandleFunc("/plugin1", handle_plugin1)
+func (api) WritePage(args interface{}, reply *string) error {
+	*reply = "this is written by the plugin"
+	return nil
+}
 
+type Foo struct {
+	g   int
+	str string
+}
+
+func (api) Receive(args map[string]string, reply *map[string]string) error {
+	/*	m := Foo{}
+		m.g = 3
+		m.str = "ff"
+		*reply = m*/
+	*reply = make(map[string]string)
+	if args["path"] == "/plugin1/getid" {
+		(*reply)["id"] = "59"
+		return nil
+	}
+	if args["path"] == "/plugin1/getname" {
+		(*reply)["name"] = "joe"
+		return nil
+	}
+	(*reply)["error"] = "404"
+	return nil
 }
 
 func (api) Plug(args interface{}, reply *bool) error {
 	go launch()
-	go handlz()
-
 	*reply = true
 	return nil
 }
@@ -52,10 +73,6 @@ func (api) Unplug(args interface{}, reply *bool) error {
 	// cleanup code here
 	*reply = true
 	return nil
-}
-
-func handle_plugin1(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("plugin1 PAGE"))
 }
 
 func launch() {

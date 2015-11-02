@@ -1,6 +1,7 @@
 package main
 
 import (
+	//	"fmt"
 	"log"
 	"net/rpc/jsonrpc"
 	"os"
@@ -28,8 +29,41 @@ func main() {
 
 type api struct{}
 
+func (api) WritePage(args interface{}, reply *string) error {
+	*reply = "this is written by the plugin"
+	return nil
+}
+
+type Foo struct {
+	g   int
+	str string
+}
+
+func (api) Receive(args map[string]string, reply *map[string]string) error {
+	/*	m := Foo{}
+		m.g = 3
+		m.str = "ff"
+		*reply = m*/
+	*reply = make(map[string]string)
+	if args["path"] == "/plugin1/getid" {
+		(*reply)["id"] = "#454829"
+		return nil
+	}
+	if args["path"] == "/plugin1/getname" {
+		(*reply)["name"] = "peter"
+		return nil
+	}
+	(*reply)["error"] = "404"
+	return nil
+}
+
 func (api) Plug(args interface{}, reply *bool) error {
 	go launch()
+	*reply = true
+	return nil
+}
+
+func (api) Check(args interface{}, reply *bool) error {
 	*reply = true
 	return nil
 }
@@ -41,18 +75,10 @@ func (api) Unplug(args interface{}, reply *bool) error {
 	return nil
 }
 
-func (api) Check(args interface{}, reply *bool) error {
-	*reply = true
-	return nil
-}
-
 func launch() {
-	//panic("ITS A PANIC!")
-
 	tck := time.NewTicker(time.Second)
 	for {
 		<-tck.C
-		//log.Println(name)
-		log.Println("new version !§§§!!")
+		log.Println("plugin1 NEW VERSION!!§§§!")
 	}
 }
