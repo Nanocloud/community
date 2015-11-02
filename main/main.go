@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -23,11 +22,11 @@ type plugin struct {
 }
 
 var (
-	plugins  = make(map[string]plugin)
-	run_dir  = "plugins/running/"
-	stag_dir = "plugins/staging/"
-	inst_dir = "plugins/installed/"
-	c        chan int
+	plugins         = make(map[string]plugin)
+	run_dir         = "plugins/running/"
+	stag_dir        = "plugins/staging/"
+	inst_dir        = "plugins/installed/"
+	running_plugins []string
 )
 
 func get_plugins() []string {
@@ -52,16 +51,16 @@ func get_plugins() []string {
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Println("Error :")
-		fmt.Println(err)
+		log.Println("Error :")
+		log.Println(err)
 
 	}
 }
 
-func launch_existing_plugins(running_plugins []string, router **mux.Router) []string {
+func launch_existing_plugins(running_plugins []string) []string {
 	plugs := get_plugins()
 	for _, plugin := range plugs {
-		running_plugins = LoadPlugin(running_plugins, plugin, router)
+		running_plugins = LoadPlugin(running_plugins, plugin)
 		CopyFile(run_dir+plugin, inst_dir+plugin)
 
 	}
@@ -70,38 +69,18 @@ func launch_existing_plugins(running_plugins []string, router **mux.Router) []st
 
 func main() {
 
-	c = make(chan int)
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer w.Close()
 	router := NewRouter()
-	var running_plugins = make([]string, 0)
-	running_plugins = launch_existing_plugins(running_plugins, &router)
+	running_plugins = make([]string, 0)
+	running_plugins = launch_existing_plugins(running_plugins)
 
-	go watchPlugins(w, running_plugins, &router)
-	//	add_routes("plugin1", &router)
+	go watchPlugins(w, running_plugins)
 
-	go func() {
-		log.Fatal(http.ListenAndServe(":8080", router))
-	}()
-	/*
-		for {
-			select {
-			case <-c:
-				add_routes("plugin1", &router)
-
-				log.Println("ADDING ROUTESSS")
-			default:
-				//	time.Sleep(time.Second * 5)
-				//add_routes("plugin1", &router)
-			}
-		}*/
-
-	//routes = append(routes, Route{"plugin1", "GET", "/plugin1", test})
-	//router = NewRouter()
-	select {}
+	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
 
@@ -110,7 +89,7 @@ func ClosePlugin(running_plugins []string, name string) []string {
 		if val == name {
 			closePlugin(run_dir + name)
 			running_plugins = append(running_plugins[:i], running_plugins[i+1:]...)
-			fmt.Println("deleted plugin from slice")
+			log.Println("deleted plugin from slice")
 		}
 	}
 	return running_plugins
@@ -124,11 +103,11 @@ func add_routes(name string, router **mux.Router) {
 	*router = NewRouter()
 }
 
-func LoadPlugin(running_plugins []string, name string, router **mux.Router) []string {
+func LoadPlugin(running_plugins []string, name string) []string {
 
-	loadPlugin(run_dir+name, router)
+	loadPlugin(run_dir + name)
 	running_plugins = append(running_plugins, name)
-	fmt.Println("added plugin to slice")
+	log.Println("added plugin to slice")
 
 	return running_plugins
 }
@@ -137,7 +116,6 @@ func IsRunning(running_plugins []string, name string) bool {
 	check := false
 	for _, val := range running_plugins {
 		if val == name {
-			fmt.Println("GOT ITTTTTT")
 			check = true
 		}
 	}
@@ -169,57 +147,56 @@ func DeletePlugin(path string) {
 	oldpath := path
 	if _, ok := plugins[path]; !ok {
 		path = path[:8] + "staging" + path[15:]
-		fmt.Println(path)
 
 	}
 
 	if path == oldpath {
 		err := os.Remove(path)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	} else {
 		err := os.Remove(oldpath)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}
 }
 
-func CreateEvent(running_plugins []string, name string, fullpath string, router **mux.Router) []string {
+func CreateEvent(running_plugins []string, name string, fullpath string) []string {
 	time.Sleep(1000 * time.Millisecond)
 	if IsRunning(running_plugins, name) {
 		running_plugins = ClosePlugin(running_plugins, name)
-		err := loadPlugin(fullpath, router)
+		err := loadPlugin(fullpath)
 		if err != nil {
-			fmt.Println("error loading plugin")
-			fmt.Println(err)
+			log.Println("error loading plugin")
+			log.Println(err)
 		}
 		if plugins[fullpath].Check() == true {
 			running_plugins = append(running_plugins, name)
-			fmt.Println("added previously existing plugin to slice")
+			log.Println("added previously existing plugin to slice")
 			DeletePlugin(run_dir + name)
 			os.Rename(stag_dir+name, run_dir+name)
 			CopyFile(run_dir+name, inst_dir+name)
 		} else {
-			fmt.Println("New plugin encountered an error")
-			err := loadPlugin(run_dir+name, router)
+			log.Println("New plugin encountered an error")
+			err := loadPlugin(run_dir + name)
 			if err != nil {
-				fmt.Println("error loading plugin")
-				fmt.Println(err)
+				log.Println("error loading plugin")
+				log.Println(err)
 			}
 		}
 
 	} else {
 		os.Rename(stag_dir+name, run_dir+name)
 		CopyFile(run_dir+name, inst_dir+name)
-		running_plugins = LoadPlugin(running_plugins, name, router)
+		running_plugins = LoadPlugin(running_plugins, name)
 
 	}
 	return running_plugins
 }
 
-func watchPlugins(w *fsnotify.Watcher, running_plugins []string, router **mux.Router) {
+func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
 	w.Add(stag_dir)
 	w.Add(inst_dir)
 	//go func() {
@@ -231,12 +208,11 @@ func watchPlugins(w *fsnotify.Watcher, running_plugins []string, router **mux.Ro
 			switch evt.Op {
 			case fsnotify.Create:
 				if evt.Name[:16] == stag_dir {
-					running_plugins = CreateEvent(running_plugins, evt.Name[16:], evt.Name, router)
+					running_plugins = CreateEvent(running_plugins, evt.Name[16:], evt.Name)
 				}
 			case fsnotify.Remove:
 				closePlugin(run_dir + evt.Name[18:])
 				DeletePlugin(run_dir + evt.Name[18:])
-				fmt.Println(running_plugins)
 			}
 
 		case err := <-w.Errors:
@@ -248,7 +224,7 @@ func watchPlugins(w *fsnotify.Watcher, running_plugins []string, router **mux.Ro
 	//	}()
 }
 
-func loadPlugin(path string, router **mux.Router) error {
+func loadPlugin(path string) error {
 
 	c, err := pie.StartProviderCodec(jsonrpc.NewClientCodec, os.Stderr, path)
 	if err != nil {
@@ -272,13 +248,10 @@ func loadPlugin(path string, router **mux.Router) error {
 }
 
 func closePlugin(path string) {
-	fmt.Println("CLEAN DELETION")
-	fmt.Println(path)
 	if _, ok := plugins[path]; !ok {
 		path = path[:8] + "staging" + path[15:]
-		fmt.Println(path)
 		if _, ok := plugins[path]; !ok {
-			fmt.Println("Plugin not found for deletion")
+			log.Println("Plugin not found for deletion")
 			return
 		}
 	}

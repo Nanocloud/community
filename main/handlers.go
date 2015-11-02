@@ -18,10 +18,6 @@ type test_struct struct {
 	Test string
 }
 
-func test(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("lalalalaal"))
-}
-
 type Foo struct {
 	g   int
 	str string
@@ -47,24 +43,23 @@ func MakeHandler(w http.ResponseWriter, r *http.Request) {
 	if l == -1 {
 		l = len(rou[1:])
 	}
-	fmt.Println(plugins)
 	for _, val := range plugins {
 		if val.name == rou[1:l+1] {
 			if val, ok := plugins["plugins/running/"+val.name]; ok {
-				//do something here
-				err = plugins["plugins/running/"+val.name].client.Call(plugins["plugins/running/"+val.name].name+".Receive", t, &reply)
-				if err != nil {
-					log.Println("Error calling plugin")
-					log.Println(err)
-				}
+				plugins["plugins/running/"+val.name].client.Call(plugins["plugins/running/"+val.name].name+".Receive", t, &reply)
+				/*	if err != nil {
+						log.Println("Error calling plugin")
+						log.Println(err)
+					}
+				} else*/
 			}
 			if val, ok := plugins["plugins/staging/"+val.name]; ok {
-				//do something here
-				err = plugins["plugins/staging/"+val.name].client.Call(plugins["plugins/staging/"+val.name].name+".Receive", t, &reply)
-				if err != nil {
+
+				plugins["plugins/staging/"+val.name].client.Call(plugins["plugins/staging/"+val.name].name+".Receive", t, &reply)
+				/*	if err != nil {
 					log.Println("Error calling plugin")
 					log.Println(err)
-				}
+				*/
 			}
 			if reply["error"] != "404" {
 				for i, val := range reply {
