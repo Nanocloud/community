@@ -122,5 +122,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.controller("UsersCtrl", UsersCtrl);
+	angular.module("haptic.users").controller("UsersCtrl", UsersCtrl);
 }

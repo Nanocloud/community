@@ -55,5 +55,5 @@ module hapticFrontend {
 		
 	}
 
-	app.service("StatsService", StatsService);
+	angular.module("haptic.history").service("StatsService", StatsService);
 }

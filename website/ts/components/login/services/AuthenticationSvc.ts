@@ -37,7 +37,7 @@ module hapticFrontend {
 		) {
 		}
 
-		authenticate(credentials): angular.IPromise<any> {
+		authenticate(credentials: any): angular.IPromise<any> {
 			return this.$http.post("/login", {
 				"email": credentials.email,
 				"password": credentials.password
@@ -61,5 +61,5 @@ module hapticFrontend {
 
 	}
 
-	app.service("AuthenticationService", AuthenticationService);
+	angular.module("haptic.login").service("AuthenticationService", AuthenticationService);
 }

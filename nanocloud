@@ -11,7 +11,7 @@ First, clone the repository, then:
 ```
 cd front
 npm install
-npm start
+npm run setup
 ```
 
 ## npm Scripts

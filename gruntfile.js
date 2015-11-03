@@ -128,6 +128,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:uigrid"]);
 	grunt.registerTask("build", ["tslint", "ts:dist", "less", "sync"]);
-	grunt.registerTask("start", ["build", 	"watch"]);
+	grunt.registerTask("start", ["build", "watch"]);
 
 };

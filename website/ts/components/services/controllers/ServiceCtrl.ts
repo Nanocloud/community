@@ -59,5 +59,5 @@ module hapticFrontend {
 
 	}
 
-	app.controller("ServiceCtrl", ServiceCtrl);
+	angular.module("haptic.services").controller("ServiceCtrl", ServiceCtrl);
 }

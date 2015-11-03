@@ -108,5 +108,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.controller("ApplicationsCtrl", ApplicationsCtrl);
+	angular.module("haptic.applications").controller("ApplicationsCtrl", ApplicationsCtrl);
 }

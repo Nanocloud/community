@@ -52,22 +52,23 @@ module hapticFrontend {
 		}
 
 		save(): void {
-			let success;
-
 			if (this.userForm.$invalid || ! this.checkPassword(this.user)) {
 				return;
 			}
 
+			let prm: angular.IPromise<boolean>;
 			if (this.isCreation) {
-				success = this.userSrv.save(this.user);
+				prm = this.userSrv.save(this.user);
 			} else {
-				success = this.userSrv.updatePassword(this.user);
+				prm = this.userSrv.updatePassword(this.user);
 			}
-			if (success) {
-				this.$mdDialog.hide(this.user);
-			} else {
-				this.$mdDialog.cancel();
-			}
+			prm.then((ok: boolean) => {
+				if (ok) {
+					this.$mdDialog.hide(this.user);
+				} else {
+					this.$mdDialog.cancel();
+				}
+			});
 		}
 
 		checkPassword(user: IUser): boolean {
@@ -123,5 +124,5 @@ module hapticFrontend {
 
 	}
 
-	app.controller("UserCtrl", UserCtrl);
+	angular.module("haptic.users").controller("UserCtrl", UserCtrl);
 }

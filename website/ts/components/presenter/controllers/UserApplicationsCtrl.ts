@@ -60,5 +60,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.controller("UserApplicationCtrl", UserApplicationCtrl);
+	angular.module("haptic.presenter").controller("UserApplicationCtrl", UserApplicationCtrl);
 }

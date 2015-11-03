@@ -25,9 +25,14 @@
 module hapticFrontend {
 	"use strict";
 
+	interface INavMenu {
+		title: string;
+		url: string;
+		ico: string;
+	}
+
 	class MainCtrl {
 
-		nav: models.MainNav;
 		user: string;
 
 		static $inject = [
@@ -38,19 +43,14 @@ module hapticFrontend {
 			private $location: angular.ILocationService,
 			private $mdSidenav: angular.material.ISidenavService
 		) {
-			this.nav = new models.MainNav();
-			let m = _.find(this.nav.menus, (x: models.INavMenu) => x.url === $location.url());
-			if (m) {
-				this.nav.current = m;
-			}
+			
 			this.user = sessionStorage.getItem("user");
 		}
 
-		navigateTo(menu: models.INavMenu) {
+		navigateTo(menu: INavMenu) {
 			this.$mdSidenav("left").close();
 
 			this.$location.path(menu.url);
-			this.nav.current = menu;
 		}
 
 		toggleMenu() {
@@ -58,5 +58,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.controller("MainCtrl", MainCtrl);
+	angular.module("haptic.core").controller("MainCtrl", MainCtrl);
 }

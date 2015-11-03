@@ -95,7 +95,6 @@ module hapticFrontend {
 		}
 
 		startStopService(service: IService): void  {
-			let _self = this;
 			let o = this.$mdDialog.confirm()
 				.parent(angular.element(document.body))
 				.title("Stop service")
@@ -103,8 +102,8 @@ module hapticFrontend {
 				.ok("Yes")
 				.cancel("No");
 			let e = this.$mdDialog
-				.show(o).then(function() {
-					_self.stop(service);
+				.show(o).then(() => {
+					this.stop(service);
 				});
 		}
 
@@ -133,5 +132,5 @@ module hapticFrontend {
 
 	}
 
-	app.service("ServicesService", ServicesService);
+	angular.module("haptic.services").service("ServicesService", ServicesService);
 }

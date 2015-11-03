@@ -35,17 +35,14 @@ module hapticFrontend {
 			return this.gridOptions.data;
 		}
 		set stats(value: IStat[]) {
-			let stats = [];
+			let stats: any[] = [];
 			for (var stat of value) {
 				let s = {
 					ConnectionId: stat.ConnectionId,
 					subgridOptions: {
 						columnDefs: [
-						{
-							field: "StartDate"
-						}, {
-							field: "EndDate"
-						}
+							{ field: "StartDate" },
+							{ field: "EndDate" }
 						],
 						data: stat.Stats
 					}
@@ -73,5 +70,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.controller("StatsCtrl", StatsCtrl);
+	angular.module("haptic.history").controller("StatsCtrl", StatsCtrl);
 }

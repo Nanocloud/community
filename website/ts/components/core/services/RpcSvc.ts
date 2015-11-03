@@ -125,5 +125,5 @@ module hapticFrontend {
 
 	}
 
-	app.service("RpcService", RpcService);
+	angular.module("haptic.core").service("RpcService", RpcService);
 }

@@ -106,5 +106,5 @@ module hapticFrontend {
 		
 	}
 
-	app.service("UserService", UserService);
+	angular.module("haptic.users").service("UserService", UserService);
 }

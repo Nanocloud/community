@@ -119,7 +119,7 @@ module hapticFrontend {
 			return true;
 		}
 
-		private cleanAppName(appName) {
+		private cleanAppName(appName: string): string {
 			if (appName) {
 				return appName.replace(/^\|\|/, "");
 			} else {
@@ -128,5 +128,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.service("ApplicationsService", ApplicationsService);
+	angular.module("haptic.applications").service("ApplicationsService", ApplicationsService);
 }

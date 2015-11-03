@@ -76,5 +76,5 @@ module hapticFrontend {
 		}
 	}
 
-	app.controller("LoginCtrl", LoginCtrl);
+	angular.module("haptic.login").controller("LoginCtrl", LoginCtrl);
 }

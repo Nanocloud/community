@@ -1,4 +1,4 @@
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 
 // overloads that allows to register dynamically after module.config
 export function overrideModuleRegisterer(
