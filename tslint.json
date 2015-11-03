@@ -32,7 +32,7 @@
 		"no-empty": true,
 		"no-eval": true,
 		"no-shadowed-variable": true,
-		"no-string-literal": true,
+		"no-string-literal": false,
 		"no-switch-case-fall-through": true,
 		"no-trailing-comma": true,
 		"no-trailing-whitespace": false,
@@ -59,7 +59,7 @@
 			true,
 			"allow-null-check"
 		],
-		"variable-name": false,
+		"variable-name": true,
 		"whitespace": [
 			true,
 			"check-branch",

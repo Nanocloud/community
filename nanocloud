@@ -16,19 +16,21 @@ npm start
 
 ## npm Scripts
 
-* `npm install` _All-in-one_
-    * Gets all node modules and dependencies.
-    * Gets all Javascript, CSS and Typescript libraries with bower.
-    * Gets all Typescript definitions.
+* `npm install`
+    * Gets all node modules and dependencies. 
+* `npm run setup` _All-in-one_
+    * Gets all Javascript and CSS libraries with bower.
+    * Gets all Typescript definitions with tsd.
     * Concatenates js and css files of the libraries.
     * Builds ts and less files.
-* `npm start` _Start to code_
+* `npm run start` _Start to code_
     * Builds ts and less files.
     * Starts to watch the file modifications to build again.
 * `npm run build` _One-shot build_
     * Builds ts and less files.
 * `npm run serve` _Standalone Http server_
     * Starts an HTTP server at `http://localhost:8080/`.
+* You can access directly to bower, grunt or tsd by `npm run`
 
 *_Avoid using root on npm install_
 

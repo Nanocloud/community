@@ -1,8 +1,11 @@
 node_modules
 bower_components
 typings
+
 website/fonts
 website/css
 website/js
+
 *.sublime-*
 *.log
+.*

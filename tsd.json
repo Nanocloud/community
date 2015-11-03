@@ -6,25 +6,31 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "jquery/jquery.d.ts": {
-      "commit": "98a9440752f3f2ad7786aba1bf9bdefec818919e"
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "angularjs/angular.d.ts": {
-      "commit": "76e1dedf0bada455c0b75abeec3206d3aa5bd892"
-    },
-    "angularjs/angular-route.d.ts": {
-      "commit": "76e1dedf0bada455c0b75abeec3206d3aa5bd892"
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "angularjs/angular-cookies.d.ts": {
-      "commit": "98a9440752f3f2ad7786aba1bf9bdefec818919e"
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "angularjs/angular-animate.d.ts": {
-      "commit": "76e1dedf0bada455c0b75abeec3206d3aa5bd892"
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "angular-material/angular-material.d.ts": {
-      "commit": "76e1dedf0bada455c0b75abeec3206d3aa5bd892"
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "lodash/lodash.d.ts": {
-      "commit": "977da240f263e88215a27cb44f2e31524ca07135"
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "requirejs/require.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "angular-ui-router/angular-ui-router.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+    },
+    "ui-router-extras/ui-router-extras.d.ts": {
+      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     }
   }
 }
