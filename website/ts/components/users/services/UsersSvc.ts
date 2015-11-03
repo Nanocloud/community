@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <reference path='../../../typings/tsd.d.ts' />
+/// <reference path='../../../../../typings/tsd.d.ts' />
 
 module hapticFrontend {
 	"use strict";
