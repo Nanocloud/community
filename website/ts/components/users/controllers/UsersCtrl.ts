@@ -20,107 +20,107 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <reference path='../../../../../typings/tsd.d.ts' />
+/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../services/UsersSvc" />
+import { UsersSvc, IUser } from "../services/UsersSvc";
 
-module hapticFrontend {
-	"use strict";
-	
-	class UsersCtrl {
+"use strict";
 
-		users: any;
-		displayHelp: boolean;
+export class UsersCtrl {
 
-		static $inject = [
-			"UserService",
-			"$mdDialog"
-		];
-		constructor(
-			private userSrv: UserService,
-			private $mdDialog: angular.material.IDialogService
-		) {
-			this.loadUsers();
-			this.displayHelp = false;
-		}
+	users: any;
+	displayHelp: boolean;
 
-		loadUsers(): angular.IPromise<void> {
-			return this.userSrv.getAll().then((users: IUser[]) => {
-				this.users = users;
+	static $inject = [
+		"UsersSvc",
+		"$mdDialog"
+	];
+	constructor(
+		private usersSvc: UsersSvc,
+		private $mdDialog: angular.material.IDialogService
+	) {
+		this.loadUsers();
+		this.displayHelp = false;
+	}
+
+	loadUsers(): angular.IPromise<void> {
+		return this.usersSvc.getAll().then((users: IUser[]) => {
+			this.users = users;
+		});
+	}
+
+	startAddUser(e: MouseEvent): angular.IPromise<any> {
+		let o = this.getDefaultUserDlgOpt(e);
+		o.locals = { user: null };
+		return this.$mdDialog
+			.show(o)
+			.then((user: IUser) => {
+				if (user) {
+					this.users.push(user);
+				}
 			});
+	}
+	
+	addUser(user: IUser): void {
+		this.users.push(user);
+	}
+	
+	startEditUser(e: MouseEvent, user: IUser) {
+		let o = this.getDefaultUserDlgOpt(e);
+		o.locals = { user: user };
+		return this.$mdDialog
+			.show(o)
+			.then(this.editUser.bind(this));
+	}
+	
+	editUser(user: IUser) {
+		// here, call the server to edit
+		let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
+		if (i >= 0) {
+			this.users[i] = user;
 		}
+	}
+	
+	startDeleteUser(e: MouseEvent, user: IUser) {
+		let o = this.$mdDialog.confirm()
+			.parent(angular.element(document.body))
+			.title("Delete user")
+			.content("Are you sure you want to delete this user?")
+			.ok("Yes")
+			.cancel("No")
+			.targetEvent(e);
+		this.$mdDialog
+			.show(o)
+			.then(this.deleteUser.bind(this, user));
+	}
+	
+	deleteUser(user: IUser) {
+		this.usersSvc.delete(user);
 
-		startAddUser(e: MouseEvent): angular.IPromise<any> {
-			let o = this.getDefaultUserDlgOpt(e);
-			o.locals = { user: null };
-			return this.$mdDialog
-				.show(o)
-				.then((user: IUser) => {
-					if (user) {
-						this.users.push(user);
-					}
-				});
-		}
-		
-		addUser(user: IUser): void {
-			this.users.push(user);
-		}
-		
-		startEditUser(e: MouseEvent, user: IUser) {
-			let o = this.getDefaultUserDlgOpt(e);
-			o.locals = { user: user };
-			return this.$mdDialog
-				.show(o)
-				.then(this.editUser.bind(this));
-		}
-		
-		editUser(user: IUser) {
-			// here, call the server to edit
-			let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
-			if (i >= 0) {
-				this.users[i] = user;
-			}
-		}
-		
-		startDeleteUser(e: MouseEvent, user: IUser) {
-			let o = this.$mdDialog.confirm()
-				.parent(angular.element(document.body))
-				.title("Delete user")
-				.content("Are you sure you want to delete this user?")
-				.ok("Yes")
-				.cancel("No")
-				.targetEvent(e);
-			this.$mdDialog
-				.show(o)
-				.then(this.deleteUser.bind(this, user));
-		}
-		
-		deleteUser(user: IUser) {
-			this.userSrv.delete(user);
-
-			// s TODO Haptic does not give user ID for now. We can rely on mail adress for now
-			let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
-			if (i >= 0) {
-				this.users.splice(i, 1);
-			}
-		}
-
-		toggleHelp(e: MouseEvent) {
-			if (this.displayHelp === true) {
-				this.displayHelp = false;
-			} else {
-				this.displayHelp = true;
-			}
-		}
-
-		private getDefaultUserDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
-			return {
-				controller: "UserCtrl",
-				controllerAs: "userCtrl",
-				templateUrl: "./views/user.html",
-				parent: angular.element(document.body),
-				targetEvent: e
-			};
+		// TODO Haptic does not give user ID for now. We can rely on mail adress for now
+		let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
+		if (i >= 0) {
+			this.users.splice(i, 1);
 		}
 	}
 
-	angular.module("haptic.users").controller("UsersCtrl", UsersCtrl);
+	toggleHelp(e: MouseEvent) {
+		if (this.displayHelp === true) {
+			this.displayHelp = false;
+		} else {
+			this.displayHelp = true;
+		}
+	}
+
+	private getDefaultUserDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
+		return {
+			controller: "UserCtrl",
+			controllerAs: "userCtrl",
+			templateUrl: "./views/user.html",
+			parent: angular.element(document.body),
+			targetEvent: e
+		};
+	}
 }
+
+angular.module("haptic.users").controller("UsersCtrl", UsersCtrl);

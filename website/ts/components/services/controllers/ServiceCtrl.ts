@@ -20,44 +20,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <reference path='../../../../../typings/tsd.d.ts' />
+/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../services/ServicesSvc" />
+import { ServicesSvc, IService } from "../services/ServicesSvc";
 
-module hapticFrontend {
-	"use strict";
-	
-	class ServiceCtrl {
+"use strict";
 
-		service: IService;
+export class ServiceCtrl {
 
-		static $inject = [
-			"ServicesService",
-			"$mdDialog",
-			"service"
-		];
-		constructor(
-			private servicesSrv: ServicesService,
-			private $mdDialog: angular.material.IDialogService,
-			service: IService
-		) {
-			if (service) {
-				this.service = angular.copy(service);
-			}
+	service: IService;
+
+	static $inject = [
+		"ServicesSvc",
+		"$mdDialog",
+		"service"
+	];
+	constructor(
+		private servicesSrv: ServicesSvc,
+		private $mdDialog: angular.material.IDialogService,
+		service: IService
+	) {
+		if (service) {
+			this.service = angular.copy(service);
 		}
-
-		accept(): void {
-			if (this.servicesSrv.downloadStarted === false) {
-				this.servicesSrv.download();
-				this.$mdDialog.hide(this.service);
-			} else {
-				this.$mdDialog.cancel();
-			}
-		}
-
-		close(): void {
-			this.$mdDialog.cancel();
-		}
-
 	}
 
-	angular.module("haptic.services").controller("ServiceCtrl", ServiceCtrl);
+	accept(): void {
+		if (this.servicesSrv.downloadStarted === false) {
+			this.servicesSrv.download();
+			this.$mdDialog.hide(this.service);
+		} else {
+			this.$mdDialog.cancel();
+		}
+	}
+
+	close(): void {
+		this.$mdDialog.cancel();
+	}
+
 }
+
+angular.module("haptic.services").controller("ServiceCtrl", ServiceCtrl);

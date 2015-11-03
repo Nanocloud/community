@@ -20,45 +20,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <reference path='../../../../../typings/tsd.d.ts' />
+/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../../applications/services/ApplicationsSvc" />
+import { ApplicationsSvc, IApplication } from "../../applications/services/ApplicationsSvc";
 
-module hapticFrontend {
-	"use strict";
+"use strict";
 
-	class UserApplicationCtrl {
+export class UserApplicationCtrl {
 
-		applications: any;
-		user: string;
+	applications: any;
+	user: string;
 
-		static $inject = [
-			"ApplicationsService",
-			"$cookies"
-		];
+	static $inject = [
+		"ApplicationsSvc",
+		"$cookies"
+	];
 
-		constructor(
-			private applicationsSrv: ApplicationsService,
-			private $cookies: angular.cookies.ICookiesService
-		) {
-			this.loadApplications();
-			this.user = sessionStorage.getItem("user");
-		}
-
-		loadApplications(): angular.IPromise<void> {
-			return this.applicationsSrv.getApplicationForUser().then((applications: IApplication[]) => {
-				this.applications = applications;
-			});
-		}
-
-		openApplication(application: IApplication, e: MouseEvent) {
-			this.$cookies.remove("JSESSIONID");
-			let applicationToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
-			window.open("/guacamole/#/client/" + applicationToken, "_blank");
-		}
-
-		navigateTo(loc: string, e: MouseEvent) {
-			window.open(loc, "_blank");
-		}
+	constructor(
+		private applicationsSrv: ApplicationsSvc,
+		private $cookies: angular.cookies.ICookiesService
+	) {
+		this.loadApplications();
+		this.user = sessionStorage.getItem("user");
 	}
 
-	angular.module("haptic.presenter").controller("UserApplicationCtrl", UserApplicationCtrl);
+	loadApplications(): angular.IPromise<void> {
+		return this.applicationsSrv.getApplicationForUser().then((applications: IApplication[]) => {
+			this.applications = applications;
+		});
+	}
+
+	openApplication(application: IApplication, e: MouseEvent) {
+		this.$cookies.remove("JSESSIONID");
+		let applicationToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
+		window.open("/guacamole/#/client/" + applicationToken, "_blank");
+	}
+
+	navigateTo(loc: string, e: MouseEvent) {
+		window.open(loc, "_blank");
+	}
 }
+
+angular.module("haptic.presenter").controller("UserApplicationCtrl", UserApplicationCtrl);

@@ -1,74 +1,74 @@
-/// <reference path='../../../../../typings/tsd.d.ts' />
+/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../services/HistorySvc" />
+import { StatsSvc, IStat } from "../services/HistorySvc";
 
-module hapticFrontend {
-	"use strict";
-	
-	class StatsCtrl {
+"use strict";
 
-		gridOptions: any;
+export class StatsCtrl {
 
-		static $inject = [
-			"StatsService",
-			"$mdDialog"
-		];
-		constructor(
-			private statsSrv: StatsService,
-			private $mdDialog: angular.material.IDialogService
-		) {
-			this.gridOptions = {
-				expandableRowTemplate: "views/stat.html",
-				expandableRowScope: {
-					subGridVariable: "Stats"
-				},
-				columnDefs: [
-					{
-						displayName: "Connection Name",
-						field: "ConnectionId"
-					}
-				]
-			};
+	gridOptions: any;
 
-			this.loadStats();
-		}
+	static $inject = [
+		"StatsSvc",
+		"$mdDialog"
+	];
+	constructor(
+		private statsSrv: StatsSvc,
+		private $mdDialog: angular.material.IDialogService
+	) {
+		this.gridOptions = {
+			expandableRowTemplate: "views/stat.html",
+			expandableRowScope: {
+				subGridVariable: "Stats"
+			},
+			columnDefs: [
+				{
+					displayName: "Connection Name",
+					field: "ConnectionId"
+				}
+			]
+		};
 
-		get stats(): IStat[] {
-			return this.gridOptions.data;
-		}
-		set stats(value: IStat[]) {
-			let stats: any[] = [];
-			for (var stat of value) {
-				let s = {
-					ConnectionId: stat.ConnectionId,
-					subgridOptions: {
-						columnDefs: [
-							{ field: "StartDate" },
-							{ field: "EndDate" }
-						],
-						data: stat.Stats
-					}
-				};
-				stats.push(s);
-			}
-
-			this.gridOptions.data = stats;
-		}
-
-		loadStats(): angular.IPromise<void> {
-			return this.statsSrv.getAll().then((stats: IStat[]) => {
-				this.stats = stats;
-			});
-		}
-		
-		private getDefaultStatDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
-			return {
-				controller: "StatsCtrl",
-				controllerAs: "statsCtrl",
-				templateUrl: "./views/stats.html",
-				parent: angular.element(document.body),
-				targetEvent: e
-			};
-		}
+		this.loadStats();
 	}
 
-	angular.module("haptic.history").controller("StatsCtrl", StatsCtrl);
+	get stats(): IStat[] {
+		return this.gridOptions.data;
+	}
+	set stats(value: IStat[]) {
+		let stats: any[] = [];
+		for (var stat of value) {
+			let s = {
+				ConnectionId: stat.ConnectionId,
+				subgridOptions: {
+					columnDefs: [
+						{ field: "StartDate" },
+						{ field: "EndDate" }
+					],
+					data: stat.Stats
+				}
+			};
+			stats.push(s);
+		}
+
+		this.gridOptions.data = stats;
+	}
+
+	loadStats(): angular.IPromise<void> {
+		return this.statsSrv.getAll().then((stats: IStat[]) => {
+			this.stats = stats;
+		});
+	}
+	
+	private getDefaultStatDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
+		return {
+			controller: "StatsCtrl",
+			controllerAs: "statsCtrl",
+			templateUrl: "./views/stats.html",
+			parent: angular.element(document.body),
+			targetEvent: e
+		};
+	}
 }
+
+angular.module("haptic.history").controller("StatsCtrl", StatsCtrl);

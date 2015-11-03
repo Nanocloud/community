@@ -20,46 +20,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <reference path='../../../../../typings/tsd.d.ts' />
+/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../../core/services/RpcSvc" />
+import { RpcSvc, IRpcResponse } from "../../core/services/RpcSvc";
 
-module hapticFrontend {
-	"use strict";
+"use strict";
 
-	export class AuthenticationService {
+export class AuthenticationSvc {
 
-		static $inject = [
-			"$http",
-			"$mdToast"
-		];
-		constructor(
-			private $http: angular.IHttpService,
-			private $mdToast: angular.material.IToastService
-		) {
-		}
-
-		authenticate(credentials: any): angular.IPromise<any> {
-			return this.$http.post("/login", {
-				"email": credentials.email,
-				"password": credentials.password
-			}, {
-				headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"},
-				transformRequest: function(data) { return $.param(data); }
-			});
-		}
-
-		private isError(res: IRpcResponse): boolean {
-			if (res.error == null) {
-				return false;
-			}
-			this.$mdToast.show(
-				this.$mdToast.simple()
-					.content(res.error.code === 0 ? "Internal Error" : JSON.stringify(res.error))
-					.position("top right")
-			);
-			return true;
-		}
-
+	static $inject = [
+		"$http",
+		"$mdToast"
+	];
+	constructor(
+		private $http: angular.IHttpService,
+		private $mdToast: angular.material.IToastService
+	) {
 	}
 
-	angular.module("haptic.login").service("AuthenticationService", AuthenticationService);
+	authenticate(credentials: any): angular.IPromise<any> {
+		return this.$http.post("/login", {
+			"email": credentials.email,
+			"password": credentials.password
+		}, {
+			headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"},
+			transformRequest: function(data) { return $.param(data); }
+		});
+	}
+
+	private isError(res: IRpcResponse): boolean {
+		if (res.error == null) {
+			return false;
+		}
+		this.$mdToast.show(
+			this.$mdToast.simple()
+				.content(res.error.code === 0 ? "Internal Error" : JSON.stringify(res.error))
+				.position("top right")
+		);
+		return true;
+	}
+
 }
+
+angular.module("haptic.login").service("AuthenticationSvc", AuthenticationSvc);
