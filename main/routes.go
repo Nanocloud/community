@@ -16,42 +16,24 @@ var routes = Routes{
 		"Index",
 		"GET",
 		"/{.}",
-		MakeHandler,
+		GenericHandler,
 	},
 	Route{
 		"Index",
 		"GET",
 		"/{.}/{.}",
-		MakeHandler,
+		GenericHandler,
 	},
 	Route{
 		"Index",
 		"GET",
 		"/",
-		MakeHandler,
+		Index,
 	},
 	Route{
 		"Index",
 		"GET",
 		"/{.}/{.}/{.}",
-		MakeHandler,
+		GenericHandler,
 	},
-	/*	Route{
-			"plugin1",
-			"GET",
-			"/plugin1",
-			MakeHandler,
-		},
-		Route{
-			"plugin1",
-			"GET",
-			"/plugin1/{.}",
-			MakeHandler,
-		},
-		Route{
-			"plugin1",
-			"GET",
-			"/plugin1/{.}/{.}",
-			MakeHandler,
-		},*/
 }

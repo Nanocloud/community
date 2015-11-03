@@ -1,7 +1,6 @@
 package main
 
 import (
-	//	"fmt"
 	"log"
 	"net/rpc/jsonrpc"
 	"os"
@@ -39,21 +38,41 @@ type Foo struct {
 	str string
 }
 
+func SetStatusOk(reply *map[string]string) {
+	(*reply)["statuscode"] = "200"
+	(*reply)["errormsg"] = ""
+	(*reply)["errordesc"] = ""
+}
+
+func SetPageNotFound(reply *map[string]string) {
+	(*reply)["statuscode"] = "404"
+	(*reply)["errormsg"] = "Page Not Found"
+	(*reply)["errordesc"] = "The page was not found"
+}
+
 func (api) Receive(args map[string]string, reply *map[string]string) error {
 	/*	m := Foo{}
 		m.g = 3
 		m.str = "ff"
 		*reply = m*/
+	log.Println(args)
 	*reply = make(map[string]string)
 	if args["path"] == "/plugin1/getid" {
 		(*reply)["id"] = "59"
+		SetStatusOk(reply)
 		return nil
 	}
 	if args["path"] == "/plugin1/getname" {
 		(*reply)["name"] = "joe"
+		SetStatusOk(reply)
 		return nil
 	}
-	(*reply)["error"] = "404"
+	if args["path"] == "/plugin1" {
+		(*reply)["available"] = "getname getid"
+		SetStatusOk(reply)
+		return nil
+	}
+	SetPageNotFound(reply)
 	return nil
 }
 

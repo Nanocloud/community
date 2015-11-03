@@ -14,22 +14,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-type test_struct struct {
-	Test string
-}
-
-type Foo struct {
-	g   int
-	str string
-}
-
-func MakeHandler(w http.ResponseWriter, r *http.Request) {
-
+func GetRequestInfos(w http.ResponseWriter, r *http.Request, t map[string]string) {
 	str, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
 	}
-	t := make(map[string]string)
 	t["Body"] = string(str)
 	vars := mux.Vars(r)
 	for i, val := range vars {
@@ -37,41 +26,61 @@ func MakeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	rou := html.EscapeString(r.URL.Path)
 	t["path"] = rou
-	//var reply Foo
-	var reply map[string]string
-	l := strings.Index(rou[1:], "/")
-	if l == -1 {
-		l = len(rou[1:])
+	for i, val := range r.Header {
+		for _, v := range val {
+			t[i] += " " + v
+		}
 	}
+	t["method"] = r.Method
+	t["host"] = r.Host
+	t["requesturi"] = r.RequestURI
+
+}
+
+func CheckTrailingSlash(t map[string]string) int {
+	l := strings.Index(t["path"][1:], "/")
+	if l == -1 {
+		l = len(t["path"][1:])
+	}
+	return l
+}
+
+func WriteError(w http.ResponseWriter, reply map[string]string) {
+	w.Write([]byte(reply["statuscode"]))
+	w.Write([]byte(" " + reply["errormsg"]))
+}
+
+func WriteAnswer(w http.ResponseWriter, reply map[string]string) {
+	for i, val := range reply {
+		if i != "statuscode" && i != "errormsg" && i != "errordesc" {
+			w.Write([]byte(i))
+			w.Write([]byte("        "))
+			w.Write([]byte(val))
+		}
+	}
+}
+
+func GenericHandler(w http.ResponseWriter, r *http.Request) {
+	args := make(map[string]string)
+	GetRequestInfos(w, r, args)
+	var reply map[string]string
+	l := CheckTrailingSlash(args)
 	for _, val := range plugins {
-		if val.name == rou[1:l+1] {
+		if val.name == args["path"][1:l+1] {
+			// TODO Reunite these 2 cases in 1
 			if val, ok := plugins["plugins/running/"+val.name]; ok {
-				plugins["plugins/running/"+val.name].client.Call(plugins["plugins/running/"+val.name].name+".Receive", t, &reply)
-				/*	if err != nil {
-						log.Println("Error calling plugin")
-						log.Println(err)
-					}
-				} else*/
+				plugins["plugins/running/"+val.name].client.Call(plugins["plugins/running/"+val.name].name+".Receive", args, &reply)
 			}
 			if val, ok := plugins["plugins/staging/"+val.name]; ok {
 
-				plugins["plugins/staging/"+val.name].client.Call(plugins["plugins/staging/"+val.name].name+".Receive", t, &reply)
-				/*	if err != nil {
-					log.Println("Error calling plugin")
-					log.Println(err)
-				*/
+				plugins["plugins/staging/"+val.name].client.Call(plugins["plugins/staging/"+val.name].name+".Receive", args, &reply)
 			}
-			if reply["error"] != "404" {
-				for i, val := range reply {
-					w.Write([]byte(i))
-					w.Write([]byte("        "))
-					w.Write([]byte(val))
-				}
+			if reply["statuscode"] != "404" {
+				WriteAnswer(w, reply)
 				return
 			} else {
-
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("404 Not Found"))
+				WriteError(w, reply)
 				return
 			}
 		}
