@@ -79,6 +79,6 @@ func launch() {
 	tck := time.NewTicker(time.Second)
 	for {
 		<-tck.C
-		log.Println("plugin1 NEW VERSION!!§§§!")
+		log.Println("NEW VERSION!!§§§! (of plugin1)")
 	}
 }

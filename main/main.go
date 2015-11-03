@@ -45,7 +45,7 @@ func get_plugins() []string {
 			}
 		}
 	}
-	log.Println("Files: ", filenames)
+	//log.Println("Files: ", filenames)
 	return filenames
 }
 
@@ -107,7 +107,6 @@ func LoadPlugin(running_plugins []string, name string) []string {
 
 	loadPlugin(run_dir + name)
 	running_plugins = append(running_plugins, name)
-	log.Println("added plugin to slice")
 
 	return running_plugins
 }
@@ -164,7 +163,7 @@ func DeletePlugin(path string) {
 }
 
 func CreateEvent(running_plugins []string, name string, fullpath string) []string {
-	time.Sleep(1000 * time.Millisecond)
+	time.Sleep(1000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
 	if IsRunning(running_plugins, name) {
 		running_plugins = ClosePlugin(running_plugins, name)
 		err := loadPlugin(fullpath)
@@ -177,7 +176,7 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 			log.Println("added previously existing plugin to slice")
 			DeletePlugin(run_dir + name)
 			os.Rename(stag_dir+name, run_dir+name)
-			CopyFile(run_dir+name, inst_dir+name)
+			CopyFile(run_dir+name, inst_dir+name) // TODO, Replace this by a simple "touch"
 		} else {
 			log.Println("New plugin encountered an error")
 			err := loadPlugin(run_dir + name)
@@ -189,9 +188,8 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 
 	} else {
 		os.Rename(stag_dir+name, run_dir+name)
-		CopyFile(run_dir+name, inst_dir+name)
+		CopyFile(run_dir+name, inst_dir+name) //TODO replace this by touch
 		running_plugins = LoadPlugin(running_plugins, name)
-
 	}
 	return running_plugins
 }
@@ -199,12 +197,10 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
 	w.Add(stag_dir)
 	w.Add(inst_dir)
-	//go func() {
-
 	for {
 		select {
 		case evt := <-w.Events:
-			log.Println("fsnotify:", evt)
+			//log.Println("fsnotify:", evt)
 			switch evt.Op {
 			case fsnotify.Create:
 				if evt.Name[:16] == stag_dir {
@@ -221,7 +217,6 @@ func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
 		}
 
 	}
-	//	}()
 }
 
 func loadPlugin(path string) error {
