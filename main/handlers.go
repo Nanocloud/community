@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
+	//"github.com/gorilla/mux"
+	//"html"
 	"html"
+	//"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -14,33 +17,35 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func GetRequestInfos(w http.ResponseWriter, r *http.Request, t map[string]string) {
+type PlugRequest struct {
+	Body     string
+	Header   http.Header
+	Form     url.Values
+	PostForm url.Values
+	Url      string
+}
+
+func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
 	str, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
 	}
-	t["Body"] = string(str)
-	vars := mux.Vars(r)
-	for i, val := range vars {
-		t[i] = val
+	t.Body = string(str)
+	t.Header = r.Header
+	err = r.ParseForm()
+	if err != nil {
+		log.Println(err)
 	}
-	rou := html.EscapeString(r.URL.Path)
-	t["path"] = rou
-	for i, val := range r.Header {
-		for _, v := range val {
-			t[i] += " " + v
-		}
-	}
-	t["method"] = r.Method
-	t["host"] = r.Host
-	t["requesturi"] = r.RequestURI
+	t.Form = r.Form
+	t.PostForm = r.PostForm
+	t.Url = html.EscapeString(r.URL.Path)
 
 }
 
-func CheckTrailingSlash(t map[string]string) int {
-	l := strings.Index(t["path"][1:], "/")
+func CheckTrailingSlash(t PlugRequest) int {
+	l := strings.Index(t.Url[1:], "/")
 	if l == -1 {
-		l = len(t["path"][1:])
+		l = len(t.Url[1:])
 	}
 	return l
 }
@@ -50,39 +55,43 @@ func WriteError(w http.ResponseWriter, reply map[string]string) {
 	w.Write([]byte(" " + reply["errormsg"]))
 }
 
-func WriteAnswer(w http.ResponseWriter, reply map[string]string) {
-	for i, val := range reply {
-		if i != "statuscode" && i != "errormsg" && i != "errordesc" {
-			w.Write([]byte(i))
-			w.Write([]byte("        "))
-			w.Write([]byte(val))
-		}
-	}
+func WriteAnswer(w http.ResponseWriter, reply PlugRequest) {
+	//	w.Header["Access-Control-Allow-Origin"] = "*"
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cashe-Control", "no-store")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Expires", "Sat, 01 Jan 2000 00:00:00 GMT")
+	w.Header().Set("Pragma", "no-cache")
+	w.Write([]byte(reply.Body))
 }
 
 func GenericHandler(w http.ResponseWriter, r *http.Request) {
-	args := make(map[string]string)
-	GetRequestInfos(w, r, args)
-	var reply map[string]string
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+	}
+	var args PlugRequest
+	GetRequestInfos(w, r, &args)
 	l := CheckTrailingSlash(args)
+	var rep PlugRequest
 	for _, val := range plugins {
-		if val.name == args["path"][1:l+1] {
+		if val.name == args.Url[1:l+1] {
 			// TODO Reunite these 2 cases in 1
-			if val, ok := plugins["plugins/running/"+val.name]; ok {
-				plugins["plugins/running/"+val.name].client.Call(plugins["plugins/running/"+val.name].name+".Receive", args, &reply)
+			if val, ok := plugins[conf.RunDir+val.name]; ok {
+				err := plugins[conf.RunDir+val.name].client.Call(plugins[conf.RunDir+val.name].name+".Receive", args, &rep)
+				if err != nil {
+					log.Println(err)
+				}
 			}
-			if val, ok := plugins["plugins/staging/"+val.name]; ok {
-
-				plugins["plugins/staging/"+val.name].client.Call(plugins["plugins/staging/"+val.name].name+".Receive", args, &reply)
+			if val, ok := plugins[conf.StagDir+val.name]; ok {
+				err := plugins[conf.StagDir+val.name].client.Call(plugins[conf.StagDir+val.name].name+".Receive", args, &rep)
+				if err != nil {
+					log.Println(err)
+				}
 			}
-			if reply["statuscode"] != "404" {
-				WriteAnswer(w, reply)
-				return
-			} else {
-				w.WriteHeader(http.StatusNotFound)
-				WriteError(w, reply)
-				return
-			}
+			WriteAnswer(w, rep)
+			return
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
