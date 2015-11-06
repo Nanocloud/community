@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/natefinch/pie"
 	"gopkg.in/fsnotify.v1"
 )
@@ -23,14 +22,12 @@ type plugin struct {
 
 var (
 	plugins         = make(map[string]plugin)
-	run_dir         = "plugins/running/"
-	stag_dir        = "plugins/staging/"
-	inst_dir        = "plugins/installed/"
 	running_plugins []string
 )
 
 func get_plugins() []string {
-	dir, err := os.Open("plugins/running")
+	//dir, err := os.Open("plugins/running")
+	dir, err := os.Open(conf.RunDir[:len(conf.RunDir)-1])
 	checkErr(err)
 	defer dir.Close()
 	fi, err := dir.Stat()
@@ -61,14 +58,13 @@ func launch_existing_plugins(running_plugins []string) []string {
 	plugs := get_plugins()
 	for _, plugin := range plugs {
 		running_plugins = LoadPlugin(running_plugins, plugin)
-		CopyFile(run_dir+plugin, inst_dir+plugin)
-
+		CopyFile(conf.RunDir+plugin, conf.InstDir+plugin)
 	}
 	return running_plugins
 }
 
 func main() {
-
+	initConf()
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
@@ -80,14 +76,14 @@ func main() {
 
 	go watchPlugins(w, running_plugins)
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":"+conf.Port, router))
 
 }
 
 func ClosePlugin(running_plugins []string, name string) []string {
 	for i, val := range running_plugins {
 		if val == name {
-			closePlugin(run_dir + name)
+			closePlugin(conf.RunDir + name)
 			running_plugins = append(running_plugins[:i], running_plugins[i+1:]...)
 			log.Println("deleted plugin from slice")
 		}
@@ -95,17 +91,9 @@ func ClosePlugin(running_plugins []string, name string) []string {
 	return running_plugins
 }
 
-func add_routes(name string, router **mux.Router) {
-
-	routes = append(routes, Route{name, "GET", "/" + name, MakeHandler})
-	routes = append(routes, Route{name, "GET", "/" + name + "/{.}", MakeHandler})
-	routes = append(routes, Route{name, "GET", "/" + name + "/{.}/{.}", MakeHandler})
-	*router = NewRouter()
-}
-
 func LoadPlugin(running_plugins []string, name string) []string {
 
-	loadPlugin(run_dir + name)
+	loadPlugin(conf.RunDir + name)
 	running_plugins = append(running_plugins, name)
 
 	return running_plugins
@@ -145,7 +133,8 @@ func CopyFile(source string, dest string) (err error) {
 func DeletePlugin(path string) {
 	oldpath := path
 	if _, ok := plugins[path]; !ok {
-		path = path[:8] + "staging" + path[15:]
+		//		path = path[:8] + "staging" + path[15:]
+		path = conf.StagDir + path[strings.LastIndex(path, "/")+1:]
 
 	}
 
@@ -174,12 +163,12 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 		if plugins[fullpath].Check() == true {
 			running_plugins = append(running_plugins, name)
 			log.Println("added previously existing plugin to slice")
-			DeletePlugin(run_dir + name)
-			os.Rename(stag_dir+name, run_dir+name)
-			CopyFile(run_dir+name, inst_dir+name) // TODO, Replace this by a simple "touch"
+			DeletePlugin(conf.RunDir + name)
+			os.Rename(conf.StagDir+name, conf.RunDir+name)
+			CopyFile(conf.RunDir+name, conf.InstDir+name) // TODO, Replace this by a simple "touch"
 		} else {
 			log.Println("New plugin encountered an error")
-			err := loadPlugin(run_dir + name)
+			err := loadPlugin(conf.RunDir + name)
 			if err != nil {
 				log.Println("error loading plugin")
 				log.Println(err)
@@ -187,28 +176,32 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 		}
 
 	} else {
-		os.Rename(stag_dir+name, run_dir+name)
-		CopyFile(run_dir+name, inst_dir+name) //TODO replace this by touch
+		os.Rename(conf.StagDir+name, conf.RunDir+name)
+		CopyFile(conf.RunDir+name, conf.InstDir+name) //TODO replace this by touch
 		running_plugins = LoadPlugin(running_plugins, name)
 	}
 	return running_plugins
 }
 
 func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
-	w.Add(stag_dir)
-	w.Add(inst_dir)
+	w.Add(conf.StagDir)
+	w.Add(conf.InstDir)
 	for {
 		select {
 		case evt := <-w.Events:
 			//log.Println("fsnotify:", evt)
 			switch evt.Op {
 			case fsnotify.Create:
-				if evt.Name[:16] == stag_dir {
-					running_plugins = CreateEvent(running_plugins, evt.Name[16:], evt.Name)
+				if evt.Name[:strings.LastIndex(evt.Name, "/")+1] == conf.StagDir {
+					//if evt.Name[:16] == conf.StagDir {
+					//running_plugins = CreateEvent(running_plugins, evt.Name[16:], evt.Name)
+					running_plugins = CreateEvent(running_plugins, evt.Name[strings.LastIndex(evt.Name, "/")+1:], evt.Name)
 				}
 			case fsnotify.Remove:
-				closePlugin(run_dir + evt.Name[18:])
-				DeletePlugin(run_dir + evt.Name[18:])
+				//closePlugin(conf.RunDir + evt.Name[18:])
+				closePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
+				//DeletePlugin(conf.RunDir + evt.Name[18:])
+				DeletePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
 			}
 
 		case err := <-w.Errors:
@@ -244,7 +237,8 @@ func loadPlugin(path string) error {
 
 func closePlugin(path string) {
 	if _, ok := plugins[path]; !ok {
-		path = path[:8] + "staging" + path[15:]
+		//path = path[:8] + "staging" + path[15:]
+		path = conf.StagDir + path[strings.LastIndex(path, "/")+1:]
 		if _, ok := plugins[path]; !ok {
 			log.Println("Plugin not found for deletion")
 			return
@@ -272,26 +266,6 @@ func (p plugin) Check() bool {
 		log.Println("Error while calling Check:", err)
 	}
 	log.Println(p.name + " checked")
-	return reply
-}
-
-func (p plugin) Req(w http.ResponseWriter, r *http.Request) bool {
-	w.Write([]byte("writing now"))
-	err := p.client.Call(p.name+".Req", r, &w)
-	if err != nil {
-		log.Println("Error while calling Req:", err)
-	}
-	log.Println(p.name + " sent")
-	return true
-}
-
-func (p plugin) WritePage() string {
-	reply := ""
-	err := p.client.Call(p.name+".WritePage", nil, &reply)
-	if err != nil {
-		log.Println("Error while calling WritePage:", err)
-	}
-	log.Println(p.name + " written")
 	return reply
 }
 
