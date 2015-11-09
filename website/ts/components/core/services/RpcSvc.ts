@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// <reference path='../../../../../typings/tsd.d.ts' />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 
 "use strict";
 
@@ -111,7 +111,7 @@ export class RpcSvc {
 
 	private xhrToRpcError(res: angular.IHttpPromiseCallbackArg<any>): IRpcResponse {
 		if (res.status === 401) {
-			window.location.href = "/login.html";
+			window.location.href = "#/login";
 		}
 		return <IRpcResponse>{
 			error: {

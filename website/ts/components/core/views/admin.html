@@ -1,0 +1,74 @@
+<!-- <md-sidenav class="md-sidenav-left md-whiteframe-z2 main-sidenav"
+	md-component-id="left"
+	md-is-locked-open="$mdMedia('gt-md')">
+
+	<header>
+		<a href="#/"><img class="logo" src="./img/logo.png" /></a>
+	</header>
+
+	<md-content role="navigation">
+		<md-list>
+			<md-list-item ng-repeat="menu in mainCtrl.nav.menus" ng-click="mainCtrl.navigateTo(menu);">
+				<div>
+					<ng-md-icon icon="{{menu.ico}}"></ng-md-icon> 
+					<span>{{menu.title}}</span>
+				</div>
+			</md-list-item>
+		</md-list>
+	</md-content>
+
+</md-sidenav>
+
+<div role="main" class="main-content" layout="column" flex>
+	<md-toolbar>
+		<div class="md-toolbar-tools">
+			<md-button ng-click="mainCtrl.toggleMenu()" class="md-icon-button md-primary" hide-gt-md aria-label="Menu">
+				<ng-md-icon icon="menu"></ng-md-icon> 
+			</md-button>
+			{{mainCtrl.nav.current.title}}
+			<span flex=""></span>
+			<div class="md-toolbar-item" ng-if="mainCtrl.user">
+				<md-select aria-label="{{mainCtrl.user}}" aria-invalid="false" id="select_2"
+						aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
+						ng-model="relatedPage" placeholder="{{mainCtrl.user}}"
+						class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
+					<md-option>
+						<md-button ng-href="/logout">Sign out</md-button>
+					</md-option>
+				</md-select>
+			</div>
+		</div>
+	</md-toolbar>
+
+	<md-content ui-view md-scroll-y flex layout-padding></md-content>
+
+</div>
+
+ -->
+
+ <md-sidenav class="site-sidenav md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+	<md-toolbar class="md-whiteframe-z1">
+		<h1>Users</h1>
+	</md-toolbar>
+	<md-list>
+		<md-list-item>
+			<md-button>
+				<md-icon class="avatar"></md-icon>
+				John Doe
+			</md-button>
+		</md-list-item>
+	</md-list>
+</md-sidenav>
+
+<div flex layout="column" tabIndex="-1" role="main" class="md-whiteframe-z2">
+	
+	<md-toolbar layout="row" class="md-whiteframe-z1">
+		<md-button class="menu" hide-gt-sm ng-click="" aria-label="Show User List">
+			<md-icon md-svg-icon="menu"></md-icon>
+		</md-button>
+		<h1>Nanocloud</h1>
+	</md-toolbar>
+	
+	<md-content ui-view flex id="content"></md-content>
+
+</div>

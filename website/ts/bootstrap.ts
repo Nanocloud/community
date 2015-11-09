@@ -23,10 +23,11 @@ requirejs.config({
 		"angular-animate": { deps: ["angular"] },
 		"angular-cookies": { deps: ["angular"] },
 		"angular-material": { deps: ["angular", "angular-animate", "angular-aria"] },
+		"angular-material-icons": { deps: ["angular-material"] },
 		"angular-ui-grid": { deps: ["angular"] },
 		"angular-ui-route": { deps: ["angular"] },
 		"angular-ui-router-extras": { deps: ["angular-ui-route"] },
 		"ng-flow": { deps: ["angular"] }
 	},
-	deps: ["app"]
+	deps: ["haptic"]
 });

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <!doctype html>
-<html id="hapticFrontend" ng-app="hapticFrontend" ng-strict-di xmlns:ng="http://angularjs.org">
+<html xmlns:ng="http://angularjs.org">
 <head>
 	<title>Nanocloud Community</title>
 	<meta charset="utf-8" />
@@ -29,46 +29,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<link rel="stylesheet" type="text/css" href="css/libs.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/app.min.css" />
 </head>
-<body class="login" ng-controller="UserApplicationCtrl as userApplicationCtrl">
-	<div role="main" class="main-content" layout="column" flex>
-		<md-toolbar>
-			<div class="md-toolbar-tools">
-				<img src="./img/logo.png" class="logo" />
-				<span flex=""></span>
-				<div class="md-toolbar-item" ng-if="userApplicationCtrl.user">
-					<md-select aria-label="{{userApplicationCtrl.user}}" aria-invalid="false" id="select_2"
-							aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
-							ng-model="relatedPage" placeholder="{{userApplicationCtrl.user}}"
-							class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
-						<md-option>
-							<md-button ng-href="/logout">Sign out</md-button>
-						</md-option>
-					</md-select>
-				</div>
-			</div>
-		</md-toolbar>
+<body layout="row">
 
-		<div layout layout-margin layout-align="center">
-			<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
-				<md-card-content>
-					<md-list>
-						<md-list-item ng-click="userApplicationCtrl.openApplication(application, $event)"
-								class="md-2-line" ng-repeat="application in userApplicationCtrl.applications">
-							<ng-md-icon icon="pageview"></ng-md-icon>
-							<div class="md-list-item-text">
-								<h3> {{ application.ConnectionName }} </h3>
-								<p> {{ application.RemoteApp }} </p>
-							</div>
-						</md-list-item>
-					</md-list>
-				</md-card-content>
-			</md-card>
-		</div>
+	<div ui-view class="fullsize"></div>
 
-	</div>
-
-	<script src="js/libs.min.js"></script>
-	<script src="js/app.min.js"></script>
+	<script src="js/lib/require.js" data-main="js/bootstrap.js"></script>
 	
 </body>
 </html>

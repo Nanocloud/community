@@ -52,13 +52,13 @@ export class ApplicationsCtrl {
 					name: "actions",
 					displayName: "",
 					enableColumnMenu: false,
-					cellTemplate: "\
-						<md-button ng-click='grid.appScope.applicationsCtrl.openApplication($event, row.entity)'>\
-							<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open\
-						</md-button>\
-						<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>\
-							<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish\
-						</md-button>"
+					cellTemplate: `
+						<md-button ng-click='grid.appScope.applicationsCtrl.openApplication($event, row.entity)'>
+							<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open
+						</md-button>
+						<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>
+							<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish
+						</md-button>`
 				}
 			]	
 		};

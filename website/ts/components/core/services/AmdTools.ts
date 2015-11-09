@@ -17,21 +17,29 @@ export function overrideModuleRegisterer(
 	};
 }
 
-// allows to load the controller before navigating to the router
-export var requireCtrlStateFactory = ["$q", "futureState", function($q: angular.IQService, futureState: angular.ui.IState) {
+let requireCtrlStateFactory = ["$q", "futureState", function($q: angular.IQService, futureState: angular.ui.IState) {
 	let defer = $q.defer();
-	requirejs(["components/core/controllers/" + futureState.controller], function() {
+	let path = "components/" + (<any>futureState).comptName + "/controllers/" + futureState.controller;
+	requirejs([path], function() {
 		defer.resolve(futureState);
 	});
 	return defer.promise;
 }];
 
 // register states to placeholders that will be replaced with a full UI-Router state when navigated to
-export function registerCtrlFutureStates($futureStateProvider: any, states: angular.ui.IState[]): void {
+export function registerCtrlFutureStates(comptName: string, $futureStateProvider: any, states: angular.ui.IState[]): void {
+	
+	// allows to load the controller before navigating to the router	
 	$futureStateProvider.stateFactory("requireCtrl", requireCtrlStateFactory);
+
 	for (var state of states) {
 		(<any>state).type = "requireCtrl";
-		state.templateUrl = "./js/components/core/views/" + state.templateUrl;
+		(<any>state).comptName = comptName;
 		$futureStateProvider.futureState(state);
 	}
+}
+
+// absolute path
+export function getTemplateUrl(comptName: string, url: string): string {
+	return "./js/components/" + comptName + "/views/" + url;
 }

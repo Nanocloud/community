@@ -70,10 +70,11 @@ module.exports = function(grunt) {
 			assets: {
 				files: [{
 					cwd: "website/ts/",
-					src: ["**/*.html", "components/**/*.json"],
+					src: ["**/*.html"],
 					dest: "website/js/"
 				}],
-				verbose: true
+				verbose: true,
+				compareUsing: "md5"
 			}
 		},
 
@@ -110,17 +111,17 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			ts: {
-				files: ["website/ts/**/*.ts"],
-				tasks: ["ts:debug"]
-			},
 			assets: {
-				files: ["website/ts/**/*.html", "website/ts/components/**/*.json"],
+				files: ["website/ts/**/*.html"],
 				tasks: ["sync"]
 			},
 			less: {
 				files: ["website/less/**/*.less"],
 				tasks: ["less"]
+			},
+			ts: {
+				files: ["website/ts/**/*.ts"],
+				tasks: ["ts:debug"]
 			}
 		}
 

@@ -55,16 +55,18 @@ export class LoginCtrl {
 
 		this.authSrv.authenticate(this.credentials).then(
 				(response: any) => {
-					if (typeof response.data === "string") {
-						if (response.data.indexOf instanceof Function &&
-								response.data.indexOf("<body layout=\"row\" ng-controller=\"MainCtrl as mainCtrl\">") !== -1) {
-							this.$location.path("/admin.html");
-							window.location.href = "/admin.html";
-							return;
-						}
-					}
-					this.$location.path("/");
-					window.location.href = "/";
+					// if (typeof response.data === "string") {
+					// 	if (response.data.indexOf instanceof Function &&
+					// 			response.data.indexOf("<body layout=\"row\" ng-controller=\"MainCtrl as mainCtrl\">") !== -1) {
+					// 		this.$location.path("/admin.html");
+					// 		window.location.href = "/admin.html";
+					// 		return;
+					// 	}
+					// }
+					// this.$location.path("/");
+					// window.location.href = "/";
+					console.log(response);
+					this.$location.path("#/");
 				},
 				(error: any) => {
 					this.$mdToast.show(

@@ -22,6 +22,7 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/UsersSvc" />
+/// <amd-dependency path="./UserCtrl" />
 import { UsersSvc, IUser } from "../services/UsersSvc";
 
 "use strict";
@@ -116,7 +117,7 @@ export class UsersCtrl {
 		return {
 			controller: "UserCtrl",
 			controllerAs: "userCtrl",
-			templateUrl: "./views/user.html",
+			templateUrl: "./js/components/users/views/user.html",
 			parent: angular.element(document.body),
 			targetEvent: e
 		};
