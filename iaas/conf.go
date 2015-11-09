@@ -35,7 +35,7 @@ func WriteConf(in interface{}, filename string) error {
 
 func getDefaultConf() Configuration {
 	return Configuration{
-		Url:  "192.168.1.40",
+		Url:  "http://192.168.1.40",
 		Port: "8082",
 	}
 }

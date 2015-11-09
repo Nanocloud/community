@@ -26,16 +26,19 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/rpc/jsonrpc"
+	"net/url"
+
 	"os"
 	"strings"
 
-	"github.com/dullgiulio/pingo"
-
-	// vendor this dependency
-	nan "nanocloud.com/plugins/iaas/libnan"
+	"github.com/natefinch/pie"
 )
 
-type Iaas struct{}
+var (
+	name = "iaas"
+	srv  pie.Server
+)
 
 type VmInfo struct {
 	Ico         string
@@ -45,11 +48,11 @@ type VmInfo struct {
 	Locked      bool
 }
 
-var (
-	g_IaasConfig IaasConfig
-)
-
 type api struct{}
+
+type VmName struct {
+	Name string
+}
 
 type PlugRequest struct {
 	Body     string
@@ -68,7 +71,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func ListRunningVm(jsonParams string, _outMsg *string) error {
+func ListRunningVm(args PlugRequest, reply *PlugRequest) error {
 
 	var (
 		response struct {
@@ -93,17 +96,13 @@ func ListRunningVm(jsonParams string, _outMsg *string) error {
 		nil,
 	)
 	if err != nil {
-		r := nan.NewExitCode(1, "ERROR: failed to contact Iaas API : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
+		log.Println(err) // for on-screen debug output
 		return nil
 	}
 
 	err = json.Unmarshal([]byte(jsonResponse), &response)
 	if err != nil {
-		r := nan.NewExitCode(0, "ERROR: failed to unmarshal Iaas API response : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
+		log.Println(err) // for on-screen debug output
 		return nil
 	}
 
@@ -151,16 +150,21 @@ func ListRunningVm(jsonParams string, _outMsg *string) error {
 		})
 	}
 
-	jsonOuput, _ := json.Marshal(vmList)
-	*_outMsg = string(jsonOuput)
+	jsonOutput, _ := json.Marshal(vmList)
+	reply.Body = string(jsonOutput)
 	return err
 }
 
-func DownloadVm(jsonParams string, _outMsg *string) error {
+func DownloadVm(args PlugRequest, reply *PlugRequest) {
+	var t VmName
+	err := json.Unmarshal([]byte(args.Body), &t)
+	if err != nil {
+		log.Println(err)
+	}
 
 	var (
 		params = map[string]string{
-			"vmname": jsonParams,
+			"vmname": t.Name,
 		}
 		response struct {
 			Result struct {
@@ -170,34 +174,22 @@ func DownloadVm(jsonParams string, _outMsg *string) error {
 	)
 
 	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", g_IaasConfig.Url, g_IaasConfig.Port),
+		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
 		"Iaas.Download",
 		params,
 	)
 	if err != nil {
-		r := nan.NewExitCode(1, "ERROR: failed to contact Iaas API : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
-		return nil
+		log.Println(err) // for on-screen debug output
 	}
 
 	err = json.Unmarshal([]byte(jsonResponse), &response)
 	if err != nil {
-		r := nan.NewExitCode(0, "ERROR: failed to unmarshal Iaas API response : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
-		return nil
+		log.Println(err) // for on-screen debug output
 	}
 
-	if response.Result.Success == true {
-		*_outMsg = "true"
-	} else {
-		*_outMsg = "false"
-	}
-	return nil
 }
 
-func DownloadStatus(jsonParams string, _outMsg *string) error {
+func DownloadStatus(args PlugRequest, reply *PlugRequest) {
 	var (
 		response struct {
 			Result struct {
@@ -210,38 +202,31 @@ func DownloadStatus(jsonParams string, _outMsg *string) error {
 		}
 	)
 	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", g_IaasConfig.Url, g_IaasConfig.Port),
+		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
 		"Iaas.GetList",
 		nil,
 	)
 	if err != nil {
-		r := nan.NewExitCode(1, "ERROR: failed to contact Iaas API : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
-		return nil
+		log.Println(err) // for on-screen debug output
 	}
 
 	err = json.Unmarshal([]byte(jsonResponse), &response)
 	if err != nil {
-		r := nan.NewExitCode(0, "ERROR: failed to unmarshal Iaas API response : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
-		return nil
+		log.Println(err) // for on-screen debug output
 	}
 
-	if response.Result.DownloadInProgress {
-		*_outMsg = "true"
-	} else {
-		*_outMsg = "false"
-	}
-	return err
 }
 
-func StartVm(jsonParams string, _outMsg *string) error {
+func StartVm(args PlugRequest, reply *PlugRequest) {
+	var t VmName
+	err := json.Unmarshal([]byte(args.Body), &t)
+	if err != nil {
+		log.Println(err)
+	}
 
 	var (
 		params = map[string]string{
-			"name": jsonParams,
+			"name": t.Name,
 		}
 		response struct {
 			Result struct {
@@ -251,51 +236,39 @@ func StartVm(jsonParams string, _outMsg *string) error {
 	)
 
 	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", g_IaasConfig.Url, g_IaasConfig.Port),
+		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
 		"Iaas.Start",
 		params,
 	)
 	if err != nil {
-		r := nan.NewExitCode(1, "ERROR: failed to contact Iaas API : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
-		return nil
+		log.Println(err)
 	}
 
 	err = json.Unmarshal([]byte(jsonResponse), &response)
 	if err != nil {
-		r := nan.NewExitCode(0, "ERROR: failed to unmarshal Iaas API response : "+err.Error())
-		log.Printf(r.Message) // for on-screen debug output
-		*_outMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
-		return nil
+		log.Println(err)
 	}
 
-	if response.Result.Success == true {
-		*_outMsg = "true"
-	} else {
-		*_outMsg = "false"
-	}
-	return nil
 }
 
-func StopVm(vmName string, _outMsg *string) error {
-
-	var (
-		err    error
-		params = map[string]string{
-			"Name": vmName,
-		}
-	)
-
-	*_outMsg, err = jsonRpcRequest(
-		fmt.Sprintf("%s:%s", g_IaasConfig.Url, g_IaasConfig.Port),
+func StopVm(args PlugRequest, reply *PlugRequest) {
+	var t VmName
+	err := json.Unmarshal([]byte(args.Body), &t)
+	if err != nil {
+		log.Println(err)
+	}
+	var params = map[string]string{
+		"Name": t.Name,
+	}
+	_, err = jsonRpcRequest(
+		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
 		"Iaas.Stop",
 		params,
 	)
-
-	return err
+	if err != nil {
+		log.Println(err)
+	}
 }
-
 func jsonRpcRequest(url string, method string, param map[string]string) (string, error) {
 
 	data, err := json.Marshal(map[string]interface{}{
@@ -308,7 +281,6 @@ func jsonRpcRequest(url string, method string, param map[string]string) (string,
 		log.Fatalf("Marshal: %v", err)
 		return "", err
 	}
-
 	resp, err := http.Post(url, "application/json", strings.NewReader(string(data)))
 	if err != nil {
 		log.Fatalf("Post: %v", err)
@@ -326,9 +298,21 @@ func jsonRpcRequest(url string, method string, param map[string]string) (string,
 }
 
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-
+	initConf()
 	if strings.Index(args.Url, "/iaas/list") == 0 {
-		AddCall(args, reply)
+		ListRunningVm(args, reply)
+	}
+	if strings.Index(args.Url, "/iaas/stop") == 0 {
+		StopVm(args, reply)
+	}
+	if strings.Index(args.Url, "/iaas/start") == 0 {
+		StartVm(args, reply)
+	}
+	if strings.Index(args.Url, "/iaas/download") == 0 {
+		StartVm(args, reply)
+	}
+	if strings.Index(args.Url, "/iaas/downloadstatus") == 0 {
+		StartVm(args, reply)
 	}
 
 	return nil
