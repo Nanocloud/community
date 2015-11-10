@@ -82,6 +82,11 @@ export class UserCtrl {
 		// Allowed Characters set:
 		//   * Any alphanumeric character 0 to 9 OR A to Z or a to z
 		//   * Punctuation symbols [. , " ' ? ! ; : # $ % & ( ) * + - / < > = @ [ ] \ ^ _ { } |]
+
+		if (user === undefined || user === null) {
+			return;
+		}
+
 		if (user.Password.length < 7 || user.Password.length >= 65 ) {
 			this.userFormErrorMessage = "Password have to contain at least 7 characters and less than 65.";
 			return false;
