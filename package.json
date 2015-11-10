@@ -22,6 +22,7 @@
 		"grunt-contrib-uglify": "0.9.x",
 		"grunt-contrib-watch": "0.6.x",
 		"grunt-ts": "5.x",
+		"tslint": "2.5.x",
 		"grunt-tslint": "2.5.x",
 		"grunt-sync": "0.4.x",
 		"tsd": "0.6.x",
