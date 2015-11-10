@@ -1,57 +1,39 @@
-<!--
-Nanocloud Community, a comprehensive platform to turn any application
-into a cloud solution.
-
-Copyright (C) 2015 Nanocloud Software
-
-This file is part of Nanocloud community.
-
-Nanocloud community is free software; you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-Nanocloud community is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
 
 <md-dialog style="min-width: 300px;">
-	<md-toolbar>
-		<div class="md-toolbar-tools">
-			<h2>User</h2>
-			<span flex></span>
-			<md-button class="md-icon-button" ng-click="userCtrl.$mdDialog.cancel()">
-				<ng-md-icon icon="close" aria-label="Close dialog"></ng-md-icon>
-			</md-button>
-		</div>
-	</md-toolbar>
-	<md-dialog-content>
-		<form name="userCtrl.userForm">
-			<div layout="column">
+	<form name="userCtrl.userForm">
+		
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>User</h2>
+				<span flex></span>
+				<md-button class="md-icon-button" ng-click="userCtrl.$mdDialog.cancel()">
+					<ng-md-icon icon="close" aria-label="Close dialog"></ng-md-icon>
+				</md-button>
+			</div>
+		</md-toolbar>
+		
+		<md-dialog-content>
+			<div class="md-dialog-content" layout="column">
 				<md-input-container flex ng-if="userCtrl.isCreation">
 					<label>First name</label>
-					<input ng-model="userCtrl.user.Firstname" required class="dialog-close" /> <!-- dialog-close adds focus -->
+					<input ng-model="userCtrl.user.Firstname" required class="dialog-close" />
+					<!-- dialog-close adds focus -->
 				</md-input-container>
 				<md-input-container flex ng-if="userCtrl.isCreation">
 					<label>Last Name</label>
-					<input ng-model="userCtrl.user.Lastname" required/>
+					<input ng-model="userCtrl.user.Lastname" required />
 				</md-input-container>
 				<md-input-container flex ng-if="userCtrl.isCreation">
 					<label>Email</label>
-					<input type="email" ng-model="userCtrl.user.Email" required/>
+					<input type="email" ng-model="userCtrl.user.Email" required />
 				</md-input-container>
 				<md-input-container flex>
 					<label>Password</label>
-					<input type="password" ng-model="userCtrl.user.Password" required/>
+					<input type="password" ng-model="userCtrl.user.Password" required />
 				</md-input-container>
 				<md-input-container flex>
 					<label>Confirm password</label>
-					<input type="password" ng-model="userCtrl.user.Password2" required/>
+					<input type="password" ng-model="userCtrl.user.Password2" required />
 					<div ng-messages="required" ng-show="userCtrl.checkPassword(userCtrl.user) === false">
 						<div ng-message="required">
 							{{ userCtrl.userFormErrorMessage }}
@@ -60,13 +42,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				</md-input-container>
 			</div>
 		</md-dialog-content>
-		<div class="md-actions" layout="row">
+		
+		<md-dialog-actions>
 			<md-button ng-click="userCtrl.cancel()">
 				Cancel
 			</md-button>
 			<md-button type="submit" ng-click="userCtrl.save()">
 				Save
 			</md-button>
-		</div>
+		</md-dialog-actions>
+
 	</form>
 </md-dialog>
