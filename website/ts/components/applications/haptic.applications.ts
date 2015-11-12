@@ -1,10 +1,11 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="angular-ui-router-extras" />
 /// <amd-dependency path="angular-cookies" />
+/// <amd-dependency path="angular-ui-grid" />
 import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "../core/services/AmdTools";
 
 let componentName = "applications";
-let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ngCookies"]);
+let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ui.grid", "ngCookies"]);
 
 app.config(["$controllerProvider", "$provide", "$futureStateProvider", function(
 	$controllerProvider: angular.IControllerProvider,
