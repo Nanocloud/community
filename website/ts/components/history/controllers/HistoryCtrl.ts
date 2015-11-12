@@ -1,23 +1,53 @@
+/*
+ * Nanocloud Community, a comprehensive platform to turn any application
+ * into a cloud solution.
+ *
+ * Copyright (C) 2015 Nanocloud Software
+ *
+ * This file is part of Nanocloud community.
+ *
+ * Nanocloud community is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Nanocloud community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/HistorySvc" />
-import { StatsSvc, IStat } from "../services/HistorySvc";
+import { HistorySvc, IHistoryInfo } from "../services/HistorySvc";
 
 "use strict";
 
-export class StatsCtrl {
+// missing prop in the tsd file
+interface IExpandableRowScope {
+	subGridVariable: string;
+}
+interface IGridOptions extends uiGrid.IGridOptionsOf<IHistoryInfo> {
+	expandableRowScope: IExpandableRowScope;
+}
 
-	gridOptions: any;
+export class HistoryCtrl {
+
+	gridOptions: IGridOptions;
 
 	static $inject = [
-		"StatsSvc",
+		"HistorySvc",
 		"$mdDialog"
 	];
 	constructor(
-		private statsSrv: StatsSvc,
+		private historySvc: HistorySvc,
 		private $mdDialog: angular.material.IDialogService
 	) {
 		this.gridOptions = {
-			expandableRowTemplate: "views/stat.html",
+			expandableRowTemplate: "./js/components/history/views/stat.html",
 			expandableRowScope: {
 				subGridVariable: "Stats"
 			},
@@ -32,12 +62,9 @@ export class StatsCtrl {
 		this.loadStats();
 	}
 
-	get stats(): IStat[] {
-		return this.gridOptions.data;
-	}
-	set stats(value: IStat[]) {
-		let stats: any[] = [];
-		for (var stat of value) {
+	setData(hist: IHistoryInfo[]) {
+		let data: any[] = [];
+		for (let stat of hist) {
 			let s = {
 				ConnectionId: stat.ConnectionId,
 				subgridOptions: {
@@ -48,27 +75,18 @@ export class StatsCtrl {
 					data: stat.Stats
 				}
 			};
-			stats.push(s);
+			data.push(s);
 		}
 
-		this.gridOptions.data = stats;
+		this.gridOptions.data = data;
 	}
 
 	loadStats(): angular.IPromise<void> {
-		return this.statsSrv.getAll().then((stats: IStat[]) => {
-			this.stats = stats;
+		return this.historySvc.getAll().then((hist: IHistoryInfo[]) => {
+			this.setData(hist);
 		});
 	}
 	
-	private getDefaultStatDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
-		return {
-			controller: "StatsCtrl",
-			controllerAs: "statsCtrl",
-			templateUrl: "./views/stats.html",
-			parent: angular.element(document.body),
-			targetEvent: e
-		};
-	}
 }
 
-angular.module("haptic.history").controller("StatsCtrl", StatsCtrl);
+angular.module("haptic.history").controller("HistoryCtrl", HistoryCtrl);
