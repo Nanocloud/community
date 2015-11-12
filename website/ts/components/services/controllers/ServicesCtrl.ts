@@ -22,6 +22,7 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/ServicesSvc" />
+/// <amd-dependency path="./ServiceCtrl" />
 import { ServicesSvc, IService } from "../services/ServicesSvc";
 
 "use strict";
@@ -82,7 +83,7 @@ export class ServicesCtrl {
 		return {
 			controller: "ServiceCtrl",
 			controllerAs: "serviceCtrl",
-			templateUrl: "./views/service.html",
+			templateUrl: "./js/components/services/views/service.html",
 			parent: angular.element(document.body),
 			targetEvent: e
 		};
