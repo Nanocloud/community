@@ -64,6 +64,8 @@ func Configure() {
 }
 
 func Create(username, password string) (Ocs, error) {
+	log.Println(username)
+	log.Println(password)
 	return ocsRequest("POST", apiUrl+"/users", url.Values{
 		"userid":   {username},
 		"password": {password},
