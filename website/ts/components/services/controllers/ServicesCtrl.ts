@@ -35,13 +35,15 @@ export class ServicesCtrl {
 	static $inject = [
 		"ServicesSvc",
 		"$mdDialog",
-		"$interval"
+		"$interval",
+		"$scope"
 	];
 
 	constructor(
 		private servicesSrv: ServicesSvc,
 		private $mdDialog: angular.material.IDialogService,
-		$interval: ng.IIntervalService
+		$interval: ng.IIntervalService,
+		$scope: angular.IScope
 	) {
 		this.colors = {
 			downloading: "#4183D7",
@@ -51,10 +53,10 @@ export class ServicesCtrl {
 		};
 
 		this.loadServices();
-		$interval(
-			this.loadServices.bind(this),
-			10 * 1000
-			);
+		let intervalPrms = $interval(this.loadServices.bind(this), 10 * 1000);
+		$scope.$on("$destroy", function () {
+			$interval.cancel(intervalPrms);
+		});
 	}
 
 	loadServices(): angular.IPromise<void> {
@@ -88,7 +90,6 @@ export class ServicesCtrl {
 			targetEvent: e
 		};
 	}
-
 
 }
 
