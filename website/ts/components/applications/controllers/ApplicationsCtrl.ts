@@ -31,7 +31,7 @@ export class ApplicationsCtrl {
 	gridOptions: any;
 
 	static $inject = [
-		"ApplicationsService",
+		"ApplicationsSvc",
 		"$mdDialog",
 		"$cookies"
 	];
