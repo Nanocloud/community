@@ -118,10 +118,6 @@ module.exports = function(grunt) {
 			less: {
 				files: ["website/less/**/*.less"],
 				tasks: ["less"]
-			},
-			ts: {
-				files: ["website/ts/**/*.ts"],
-				tasks: ["ts:debug"]
 			}
 		}
 
@@ -129,6 +125,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:uigrid"]);
 	grunt.registerTask("build", ["tslint", "ts:dist", "less", "sync"]);
-	grunt.registerTask("start", ["build", "watch"]);
+	grunt.registerTask("watch-ts", ["tslint", "ts:debug"]);
 
 };
