@@ -22,6 +22,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/rpc/jsonrpc"
@@ -30,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/natefinch/pie"
+	"github.com/streadway/amqp"
 
 	//todo vendor this dependency
 	// nan "nanocloud.com/plugins/owncloud/libnan"
@@ -44,6 +46,14 @@ var (
 
 type CreateUserParams struct {
 	Username, Password string
+}
+type Message struct {
+	Method    string
+	Name      string
+	Email     string
+	Activated bool
+	Sam       string
+	Password  string
 }
 
 type api struct{}
@@ -114,6 +124,7 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 
 func (api) Plug(args interface{}, reply *bool) error {
 	*reply = true
+	go LookForMsg()
 	return nil
 }
 
@@ -128,6 +139,68 @@ func (api) Unplug(args interface{}, reply *bool) error {
 	return nil
 }
 
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+		panic(fmt.Sprintf("%s: %s", msg, err))
+	}
+}
+
+func LookForMsg() {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
+
+	q, err := ch.QueueDeclare(
+		"users", // name
+		false,   // durable
+		false,   // delete when usused
+		false,   // exclusive
+		false,   // no-wait
+		nil,     // arguments
+	)
+	failOnError(err, "Failed to declare a queue")
+
+	msgs, err := ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		true,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+	failOnError(err, "Failed to register a consumer")
+
+	forever := make(chan bool)
+
+	go func() {
+		var msg Message
+		for d := range msgs {
+			log.Printf("Received a message: %s", d.Body)
+			err := json.Unmarshal(d.Body, &msg)
+			if err != nil {
+				log.Println(err)
+			}
+			if msg.Method == "Add" {
+				initConf()
+				Configure()
+				_, err := Create(msg.Name, msg.Password)
+				if err != nil {
+					log.Println("create error?:")
+					log.Println(err)
+				}
+			}
+		}
+	}()
+
+	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	<-forever
+}
 func main() {
 	srv = pie.NewProvider()
 
