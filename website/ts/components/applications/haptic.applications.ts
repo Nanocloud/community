@@ -3,9 +3,24 @@
 /// <amd-dependency path="angular-cookies" />
 /// <amd-dependency path="angular-ui-grid" />
 import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "../core/services/AmdTools";
+import { MainMenu } from "../core/services/MainMenu";
 
 let componentName = "applications";
 let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ui.grid", "ngCookies"]);
+
+let states: angular.ui.IState[] = [{
+	name: "admin.applications",
+	url: "/applications",
+	controller: "ApplicationsCtrl",
+	controllerAs: "applicationsCtrl",
+	templateUrl: getTemplateUrl(componentName, "applications.html")
+}];
+
+MainMenu.add({
+	stateName: states[0].name,
+	title: "Applications",
+	ico: "apps"
+});
 
 app.config(["$controllerProvider", "$provide", "$futureStateProvider", function(
 	$controllerProvider: angular.IControllerProvider,
@@ -14,13 +29,6 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", function(
 
 	overrideModuleRegisterer(app, $controllerProvider, $provide);
 
-	let states: angular.ui.IState[] = [{
-		name: "admin.applications",
-		url: "applications",
-		controller: "ApplicationsCtrl",
-		controllerAs: "applicationsCtrl",
-		templateUrl: getTemplateUrl(componentName, "applications.html")
-	}];
 	registerCtrlFutureStates(componentName, $futureStateProvider, states);
 
 }]);

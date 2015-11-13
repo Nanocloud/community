@@ -21,40 +21,52 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
+import { MainMenu, INavMenu } from "../services/MainMenu";
+import * as _ from "lodash";
 
 "use strict";
-
-interface INavMenu {
-	title: string;
-	url: string;
-	ico: string;
-}
 
 export class MainCtrl {
 
 	user: string;
+	menus: INavMenu[] = [];
+	activeMenu: INavMenu = {};
 
 	static $inject = [
-		"$location",
-		"$mdSidenav"
+		"$state",
+		"$mdSidenav",
+		"$rootScope"
 	];
 	constructor(
-		private $location: angular.ILocationService,
-		private $mdSidenav: angular.material.ISidenavService
+		private $state: angular.ui.IStateService,
+		private $mdSidenav: angular.material.ISidenavService,
+		private $rootScope: angular.IRootScopeService
 	) {
+		this.menus = _.sortBy(MainMenu.menus, (m: INavMenu) => m.title);
 		
+		this.checkMenu(null, $state.current);
+		$rootScope.$on("$stateChangeSuccess", this.checkMenu.bind(this));
+
 		this.user = sessionStorage.getItem("user");
 	}
 
 	navigateTo(menu: INavMenu) {
 		this.$mdSidenav("left").close();
-
-		this.$location.path(menu.url);
+		this.activeMenu = menu;
+		this.$state.go(menu.stateName);
 	}
 
 	toggleMenu() {
-		this.$mdSidenav("left").open();
+		this.$mdSidenav("left").toggle();
 	}
+
+	checkMenu(event: angular.IAngularEvent, toState: angular.ui.IState) {
+		let m = _.find(this.menus, (x: INavMenu) => x.stateName === toState.name);
+		if (m) {
+			this.activeMenu = m;
+		}
+	}
+
 }
 
 angular.module("haptic.core").controller("MainCtrl", MainCtrl);

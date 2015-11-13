@@ -4,17 +4,17 @@
 	<md-sidenav class="md-sidenav-left md-whiteframe-z2 main-sidenav" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
 		
 		<header>
-			<a href="#/"><img class="logo" src="./img/logo.png" /></a>
+			<a href="#/admin"><img class="logo" src="./img/logo.png" /></a>
 		</header>
 
 		<md-content role="navigation">
 			<md-list>
-				<!-- <md-list-item ng-repeat="menu in mainCtrl.nav.menus" ng-click="mainCtrl.navigateTo(menu);">
-						<div>
-							<ng-md-icon icon="{{menu.ico}}"></ng-md-icon> 
-							<span>{{menu.title}}</span>
-						</div>
-					</md-list-item> -->
+				<md-list-item ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.navigateTo(menu);" ng-class="[{ 'md-primary': mainCtrl.activeMenu.url == menu.url }]">
+					<div>
+						<ng-md-icon icon="{{menu.ico}}"></ng-md-icon> 
+						<span>{{menu.title}}</span>
+					</div>
+				</md-list-item>
 			</md-list>
 		</md-content>
 
@@ -25,25 +25,25 @@
 		<md-toolbar>
 			<div class="md-toolbar-tools">
 				
-				<md-button class="md-icon-button md-primary" hide-gt-md aria-label="Menu">
+				<md-button ng-click="mainCtrl.toggleMenu()" class="md-icon-button md-primary" hide-gt-md aria-label="Menu">
 					<ng-md-icon icon="menu"></ng-md-icon>
 				</md-button>
 
-				<span>Page Title</span>
+				<span>{{mainCtrl.activeMenu.title}}</span>
 				
 				<!-- fill up the space between left and right area -->
 				<span flex></span>
 
-				<!-- <div class="md-toolbar-item" ng-if="mainCtrl.user">
-						<md-select aria-label="{{mainCtrl.user}}" aria-invalid="false" id="select_2"
-								aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
-								ng-model="relatedPage" placeholder="{{mainCtrl.user}}"
-								class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
-							<md-option>
-								<md-button ng-href="/logout">Sign out</md-button>
-							</md-option>
-						</md-select>
-					</div> -->
+				<div class="md-toolbar-item" ng-if="mainCtrl.user">
+					<md-select aria-label="{{mainCtrl.user}}" aria-invalid="false" id="select_2"
+							aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
+							ng-model="relatedPage" placeholder="{{mainCtrl.user}}"
+							class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
+						<md-option>
+							<md-button ng-href="/logout">Sign out</md-button>
+						</md-option>
+					</md-select>
+				</div>
 				
 			</div>
 		</md-toolbar>
