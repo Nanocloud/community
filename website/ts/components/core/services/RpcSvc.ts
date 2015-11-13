@@ -56,10 +56,12 @@ export class RpcSvc {
 	static rpcVersion = "2.0";
 
 	static $inject = [
-		"$http"
+		"$http",
+		"$location"
 	];
 	constructor(
-		private $http: angular.IHttpService
+		private $http: angular.IHttpService,
+		private $location: angular.ILocationService
 	) {
 
 	}
@@ -72,7 +74,7 @@ export class RpcSvc {
 				function (res: angular.IHttpPromiseCallbackArg<IRpcResponse>): IRpcResponse {
 					return res.data;
 				},
-				this.xhrToRpcError
+				this.xhrToRpcError.bind(this)
 			);
 	}
 
@@ -88,7 +90,7 @@ export class RpcSvc {
 					return res.data;
 				},
 				(res: angular.IHttpPromiseCallbackArg<any>): IRpcResponse[] => {
-					return [ this.xhrToRpcError(res) ];
+					return [ this.xhrToRpcError.call(this, res) ];
 				}
 			);
 	}
@@ -111,7 +113,7 @@ export class RpcSvc {
 
 	private xhrToRpcError(res: angular.IHttpPromiseCallbackArg<any>): IRpcResponse {
 		if (res.status === 401) {
-			window.location.href = "#/login";
+			this.$location.url("/login");
 		}
 		return <IRpcResponse>{
 			error: {

@@ -32,14 +32,14 @@ export class LoginCtrl {
 
 	static $inject = [
 		"$location",
-		"AuthenticationSvc",
-		"$mdToast"
+		"$mdToast",
+		"AuthenticationSvc"
 	];
 
 	constructor(
 		private $location: angular.ILocationService,
-		private authSrv: AuthenticationSvc,
-		private $mdToast: angular.material.IToastService
+		private $mdToast: angular.material.IToastService,
+		private authSvc: AuthenticationSvc
 	) {
 		this.credentials = {
 			"email": "",
@@ -47,35 +47,24 @@ export class LoginCtrl {
 		};
 	}
 
-	signIn(e: MouseEvent) {
-		let user = {
-			"Email": this.credentials.email
-		};
-		sessionStorage.setItem("user", user.Email);
-
-		this.authSrv.authenticate(this.credentials).then(
-				(response: any) => {
-					// if (typeof response.data === "string") {
-					// 	if (response.data.indexOf instanceof Function &&
-					// 			response.data.indexOf("<body layout=\"row\" ng-controller=\"MainCtrl as mainCtrl\">") !== -1) {
-					// 		this.$location.path("/admin.html");
-					// 		window.location.href = "/admin.html";
-					// 		return;
-					// 	}
-					// }
-					// this.$location.path("/");
-					// window.location.href = "/";
-					console.log(response);
-					this.$location.path("#/");
+	signIn() {
+		sessionStorage.setItem("user", this.credentials.email);
+		this.authSvc
+			.authenticate(this.credentials)
+			.then(
+				(res: any) => {
+					if (res.headers().admin && res.headers().admin === "true") {
+						this.$location.path("/admin");
+					} else {
+						this.$location.path("/");
+					}
 				},
 				(error: any) => {
 					this.$mdToast.show(
-							this.$mdToast.simple()
-							.content("Authentication failed: Email or Password incorrect")
-							.position("top right")
-							);
-				}
-		);
+						this.$mdToast.simple()
+						.content("Authentication failed: Email or Password incorrect")
+						.position("top right"));
+				});
 	}
 }
 

@@ -24,11 +24,21 @@ body {
 	font-size: 15px;
 }
 
+// hacks for ng-md-icon to be displayed correctly
 button {
 	ng-md-icon {
 		width: auto;
 		height: auto;
 		line-height: normal;
+	}
+}
+md-input-container {
+	ng-md-icon {
+		top: 10px !important;
+		left: 2px !important;
+	}
+	ng-md-icon + input {
+		margin: 0 !important;
 	}
 }
 
@@ -93,8 +103,4 @@ button {
     text-align: center;
     padding-top: 25px;
     margin: 10px;
-}
-
-.logo {
-	height: 45px;
 }

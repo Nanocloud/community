@@ -1,23 +1,27 @@
-
 <div layout layout-margin layout-align="center">
 	<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
-		<img src="./img/logo.png" class="logo" style="width:256px;height:80px;" />
-		<md-card-content>
-			<form>
-				<div layout="column">
-					<md-input-container flex>
-						<ng-md-icon icon="person"></ng-md-icon>
-						<input ng-model="loginCtrl.credentials.email" type="email" placeholder="Email" required />
-					</md-input-container>
-					<md-input-container flex>
-						<ng-md-icon icon="vpn_key"></ng-md-icon>
-						<input ng-model="loginCtrl.credentials.password" type="password" placeholder="Password" required />
-					</md-input-container>
-					<md-input-container flex>
-						<md-button ng-click="loginCtrl.signIn($event)" class="md-raised md-primary">Sign In</md-button>
-					</md-input-container>
-				</div>
-			</form>
+	<form ng-submit="loginCtrl.signIn()">
+		
+		<img src="./img/logo.png" class="md-card-image" style="width:256px;height:80px;margin:0 auto;" />
+		
+		<md-card-content layout="column" class="md-padding">
+			
+			<md-input-container class="md-block md-has-icon">
+				<ng-md-icon icon="person"></ng-md-icon>
+				<input ng-model="loginCtrl.credentials.email" type="email" placeholder="Email" ng-required="true" />
+			</md-input-container>
+
+			<md-input-container class="md-block md-has-icon">
+				<ng-md-icon icon="vpn_key"></ng-md-icon>
+				<input ng-model="loginCtrl.credentials.password" type="password" placeholder="Password" ng-required="true" />
+			</md-input-container>
+
 		</md-card-content>
+
+		<md-card-actions layout="row" layout-align="end center" class="md-padding">
+			<md-button type="submit" class="md-raised md-primary">Sign In</md-button>
+		</md-card-actions>
+
+	</form>
 	</md-card>
 </div>
