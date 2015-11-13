@@ -125,6 +125,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:uigrid"]);
 	grunt.registerTask("build", ["tslint", "ts:dist", "less", "sync"]);
+	grunt.registerTask("watch-xy", ["less", "sync", "watch"]);
 	grunt.registerTask("watch-ts", ["tslint", "ts:debug"]);
 
 };

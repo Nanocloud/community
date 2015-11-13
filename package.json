@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"setup": "bower install && tsd install && grunt build-libs && grunt build",
-		"start": "concurrent 'grunt watch' 'grunt watch-ts'",
+		"start": "concurrent 'grunt watch-xy' 'grunt watch-ts'",
 		"build": "grunt build",
 		"update": "bower update && tsd reinstall -o && grunt build-libs",
 		"serve": "http-server website",
