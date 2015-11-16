@@ -49,6 +49,8 @@ type PlugRequest struct {
 	Url      string
 }
 
+var sendqueues []string
+
 func Configure() error {
 
 	var err error
@@ -104,22 +106,33 @@ var q amqp.Queue
 var conn *amqp.Connection
 
 func SendMsg(msg Message) {
-
-	body, err := json.Marshal(msg)
-	if err != nil {
-		log.Println(err)
+	log.Println(sendqueues)
+	for _, val := range sendqueues {
+		q, err := ch.QueueDeclare(
+			val,   // name
+			false, // durable
+			false, // delete when unused
+			false, // exclusive
+			false, // no-wait
+			nil,   // arguments
+		)
+		failOnError(err, "Failed to declare a queue")
+		body, err := json.Marshal(msg)
+		if err != nil {
+			log.Println(err)
+		}
+		err = ch.Publish(
+			"",     // exchange
+			q.Name, // routing key
+			false,  // mandatory
+			false,  // immediate
+			amqp.Publishing{
+				ContentType: "application/json",
+				Body:        body,
+			})
+		log.Printf(" [x] Sent %s", body)
+		failOnError(err, "Failed to publish a message")
 	}
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        body,
-		})
-	log.Printf(" [x] Sent %s", body)
-	failOnError(err, "Failed to publish a message")
 
 }
 
@@ -187,6 +200,88 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
+type Queue struct {
+	Name string
+}
+
+func UpdateQueues(name string) {
+	if strings.HasPrefix(name, "users.") {
+		sendqueues = append(sendqueues, name)
+	}
+	log.Println(sendqueues)
+}
+
+func ListenToQueue(name string) {
+	if strings.HasSuffix(name, ".users") {
+		queues, err := ch.Consume(
+			"owncloud.users", // queue
+			"",               // consumer
+			true,             // auto-ack
+			false,            // exclusive
+			false,            // no-local
+			false,            // no-wait
+			nil,              // args
+		)
+		failOnError(err, "Failed to register a consumer")
+		go func() {
+			var queue Queue
+			for d := range queues {
+				err := json.Unmarshal(d.Body, &queue)
+				if err != nil {
+					log.Println(err)
+				}
+				if queue.Name == "stop" {
+					log.Println("Users stopped listening to the response queue of a plugin")
+					break
+				} else {
+					log.Println(queue)
+				}
+			}
+		}()
+
+	}
+
+}
+
+func CheckForQueues() {
+	queues, err := ch.Consume(
+		"users", // queue
+		"",      // consumer
+		true,    // auto-ack
+		false,   // exclusive
+		false,   // no-local
+		false,   // no-wait
+		nil,     // args
+	)
+	failOnError(err, "Failed to register a consumer")
+
+	forever := make(chan bool)
+
+	go func() {
+		var queue Queue
+		for d := range queues {
+			err := json.Unmarshal(d.Body, &queue)
+			log.Println("Received a queue name", queue)
+			if err != nil {
+				log.Println(err)
+			}
+			q, err = ch.QueueDeclare(
+				queue.Name, // name
+				false,      // durable
+				false,      // delete when unused
+				false,      // exclusive
+				false,      // no-wait
+				nil,        // arguments
+			)
+			UpdateQueues(queue.Name)
+			failOnError(err, "Failed to declare a queue")
+			ListenToQueue(queue.Name)
+		}
+	}()
+	<-forever
+
+}
+
 func (api) Plug(args interface{}, reply *bool) error {
 	var err error
 	conn, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
@@ -205,6 +300,7 @@ func (api) Plug(args interface{}, reply *bool) error {
 		nil,     // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
+	go CheckForQueues()
 	//go launch()
 	*reply = true
 	return nil

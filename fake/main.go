@@ -28,28 +28,24 @@ import (
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
-	"strings"
 
 	"github.com/natefinch/pie"
 	"github.com/streadway/amqp"
 
 	//todo vendor this dependency
-	// nan "nanocloud.com/plugins/owncloud/libnan"
+	// nan "nanocloud.com/plugins/fake/libnan"
 )
 
 // Create an object to be exported
 
 var (
-	name = "owncloud"
+	name = "fake"
 	srv  pie.Server
 )
 var ch *amqp.Channel
 var q amqp.Queue
 var conn *amqp.Connection
 
-type CreateUserParams struct {
-	Username, Password string
-}
 type Message struct {
 	Method    string
 	Name      string
@@ -69,58 +65,16 @@ type PlugRequest struct {
 	Url      string
 }
 
-func CreateUser(args PlugRequest, reply *PlugRequest) error {
-	var params CreateUserParams
-	err := json.Unmarshal([]byte(args.Body), &params)
-	if err != nil {
-		log.Println(err)
-	}
-	_, err = Create(params.Username, params.Password)
-	if err != nil {
-		log.Println(err)
-	}
-	return err
-}
-
-func ChangePassword(args PlugRequest, reply *PlugRequest) {
-	var params CreateUserParams
-	err := json.Unmarshal([]byte(args.Body), &params)
-	if err != nil {
-		log.Println(err)
-	}
-	_, err = Edit(params.Username, "password", params.Password)
+func Create() error {
+	log.Println("I CREATED A FAKE USER IN A FAKE DB YAY")
+	return nil
 }
 
 type del struct {
 	Username string
 }
 
-func DeleteUser(args PlugRequest, reply *PlugRequest) {
-
-	var User del
-	err := json.Unmarshal([]byte(args.Body), &User)
-	if err != nil {
-		log.Println(err)
-	}
-	_, err = Delete(User.Username)
-	if err != nil {
-		log.Println("deletion error: ", err)
-	}
-}
-
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	initConf()
-	Configure()
-
-	if strings.Index(args.Url, "/owncloud/add") == 0 {
-		CreateUser(args, reply)
-	}
-	if strings.Index(args.Url, "/owncloud/delete") == 0 {
-		DeleteUser(args, reply)
-	}
-	if strings.Index(args.Url, "/owncloud/changepassword") == 0 {
-		ChangePassword(args, reply)
-	}
 
 	return nil
 }
@@ -145,7 +99,7 @@ func SendMyQueues() {
 		nil,     // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
-	tmp := Queue{Name: "users.owncloud"}
+	tmp := Queue{Name: "users.fake"}
 	str, err := json.Marshal(tmp)
 	log.Println("json sent to users plugin", string(str))
 	if err != nil {
@@ -160,9 +114,9 @@ func SendMyQueues() {
 			ContentType: "encoding/json",
 			Body:        str,
 		})
-	log.Printf(" [x] Sent a Q users.owncloud")
+	log.Printf(" [x] Sent a Q users.fake")
 	failOnError(err, "Failed to publish a message")
-	tmp = Queue{Name: "owncloud.users"}
+	tmp = Queue{Name: "fake.users"}
 	str, err = json.Marshal(tmp)
 	if err != nil {
 		log.Println(err)
@@ -176,7 +130,7 @@ func SendMyQueues() {
 			ContentType: "encoding/json",
 			Body:        str,
 		})
-	log.Printf(" [x] Sent a Q owncloud.users")
+	log.Printf(" [x] Sent a Q fake.users")
 	failOnError(err, "Failed to publish a message")
 
 }
@@ -221,12 +175,12 @@ func SendReturn(msg string) {
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 	q, err := ch.QueueDeclare(
-		"owncloud.users", // name
-		false,            // durable
-		false,            // delete when usused
-		false,            // exclusive
-		false,            // no-wait
-		nil,              // arguments
+		"fake.users", // name
+		false,        // durable
+		false,        // delete when usused
+		false,        // exclusive
+		false,        // no-wait
+		nil,          // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 	tmp := Queue{Name: msg}
@@ -255,12 +209,12 @@ func LookForMsg() {
 	failOnError(err, "Failed to open a channel")
 
 	q, err := ch.QueueDeclare(
-		"users.owncloud", // name
-		false,            // durable
-		false,            // delete when usused
-		false,            // exclusive
-		false,            // no-wait
-		nil,              // arguments
+		"users.fake", // name
+		false,        // durable
+		false,        // delete when usused
+		false,        // exclusive
+		false,        // no-wait
+		nil,          // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
@@ -286,15 +240,13 @@ func LookForMsg() {
 				log.Println(err)
 			}
 			if msg.Method == "Add" {
-				initConf()
-				Configure()
-				_, err := Create(msg.Name, msg.Password)
+				err := Create()
 				if err != nil {
 					log.Println("create error?:")
 					log.Println(err)
-					SendReturn("Plugin owncloud encounter an error in the request")
+					SendReturn("Plugin fake encounter an error in the request")
 				} else {
-					SendReturn("Plugin owncloud successfully completed the request")
+					SendReturn("Plugin fake successfully completed the request")
 				}
 			}
 		}
