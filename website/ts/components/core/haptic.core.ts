@@ -5,12 +5,13 @@ import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } fr
 let componentName = "core";
 let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future"]);
 
-app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRouterProvider", "$urlMatcherFactoryProvider", function(
+app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRouterProvider", "$urlMatcherFactoryProvider", "$httpProvider", function(
 	$controllerProvider: angular.IControllerProvider,
 	$provide: angular.auto.IProvideService,
 	$futureStateProvider: any,
 	$urlRouterProvider: angular.ui.IUrlRouterProvider,
-	$urlMatcherFactoryProvider: angular.ui.IUrlMatcherFactory) {
+	$urlMatcherFactoryProvider: angular.ui.IUrlMatcherFactory,
+	$httpProvider: angular.IHttpProvider) {
 
 	overrideModuleRegisterer(app, $controllerProvider, $provide);
 
@@ -33,5 +34,24 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 		templateUrl: getTemplateUrl(componentName, "admin.html")
 	}];
 	registerCtrlFutureStates(componentName, $futureStateProvider, states);
+
+	$httpProvider.interceptors.push(function() {
+		return {
+			"request": function(config: any) {
+				let spn = document.getElementById("coreSpinner");
+				if (spn) {
+					spn.style.visibility = "visible";
+				}
+				return config;
+			},
+			"response": function(response: any) {
+				let spn = document.getElementById("coreSpinner");
+				if (spn) {
+					spn.style.visibility = "hidden";
+				}
+				return response;
+			}
+		};
+	});
 
 }]);

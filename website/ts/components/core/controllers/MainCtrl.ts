@@ -50,8 +50,10 @@ export class MainCtrl {
 		this.user = sessionStorage.getItem("user");
 
 		this.menus = _.sortBy(MainMenu.menus, (m: INavMenu) => m.title);
-		this.checkMenu(null, $state.current);
-		$rootScope.$on("$stateChangeSuccess", this.checkMenu.bind(this));
+		this.checkMenuState($state.current);
+		$rootScope.$on("$stateChangeSuccess", (event: angular.IAngularEvent, toState: angular.ui.IState) => {
+			this.checkMenuState(toState);
+		});
 	}
 
 	navigateTo(menu: INavMenu) {
@@ -64,7 +66,7 @@ export class MainCtrl {
 		this.$mdSidenav("left").toggle();
 	}
 
-	checkMenu(event: angular.IAngularEvent, toState: angular.ui.IState) {
+	checkMenuState(toState: angular.ui.IState) {
 		let m = _.find(this.menus, (x: INavMenu) => x.stateName === toState.name);
 		if (m) {
 			this.activeMenu = m;
