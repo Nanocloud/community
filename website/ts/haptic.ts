@@ -6,7 +6,13 @@ import * as angular from "angular";
 // create the main module
 let app = angular.module("haptic", ["ngMaterial", "ngMdIcons"]);
 
-let plugins: string[] = ["core", "login", "services", "users", "applications", "history"]; // should be loaded via the backend
+app.config(["$mdThemingProvider", function($mdThemingProvider: angular.material.IThemingProvider) {
+
+	$mdThemingProvider.theme("default").primaryPalette("blue");
+
+}]);
+
+let plugins: string[] = ["core", "login", "services", "users", "applications", "history", "presenter"]; // should be loaded via the backend
 
 // load the available plugins to the main module
 let deps: string[] = [];
