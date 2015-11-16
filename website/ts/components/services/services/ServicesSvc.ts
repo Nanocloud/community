@@ -60,7 +60,7 @@ export class ServicesSvc {
 			.then((res: IRpcResponse): IService[] => {
 				let services: IService[] = [];
 
-				if (this.isError(res) || res.result.VmListJsonArray === undefined || res.result.VmListJsonArray === "null") {
+				if (this.isError(res) || !Array.isArray(res.result.VmListJsonArray)) {
 					return [];
 				} else {
 					for (let srv of JSON.parse(res.result.VmListJsonArray)) {
