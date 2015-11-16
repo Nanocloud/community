@@ -53,7 +53,7 @@ export class UserCtrl {
 	}
 
 	save(): void {
-		if (this.userForm.$invalid || ! this.checkPassword(this.user)) {
+		if (this.userForm.$invalid || !this.checkPassword(this.user)) {
 			return;
 		}
 
@@ -83,35 +83,35 @@ export class UserCtrl {
 		//   * Any alphanumeric character 0 to 9 OR A to Z or a to z
 		//   * Punctuation symbols [. , " ' ? ! ; : # $ % & ( ) * + - / < > = @ [ ] \ ^ _ { } |]
 
-		if (user === undefined || user === null) {
+		if (user === undefined || user === null || typeof user.Password !== "string") {
 			return;
 		}
 
-		if (user.Password.length < 7 || user.Password.length >= 65 ) {
+		if (user.Password.length < 7 || user.Password.length >= 65) {
 			this.userFormErrorMessage = "Password have to contain at least 7 characters and less than 65.";
 			return false;
 		}
 
 		let oneUpperCaseRegexp = new RegExp("[A-Z]");
-		if (! oneUpperCaseRegexp.test(user.Password)) {
+		if (!oneUpperCaseRegexp.test(user.Password)) {
 			this.userFormErrorMessage = "Password must have at least one upper case letter";
 			return false;
 		}
 
 		let oneLowerCaseRegexp = new RegExp("[a-z]");
-		if (! oneLowerCaseRegexp.test(user.Password)) {
+		if (!oneLowerCaseRegexp.test(user.Password)) {
 			this.userFormErrorMessage = "Password must have at least one lower case letter";
 			return false;
 		}
 
 		let oneDigitRegexp = new RegExp("[0-9]");
-		if (! oneDigitRegexp.test(user.Password)) {
+		if (!oneDigitRegexp.test(user.Password)) {
 			this.userFormErrorMessage = "Password must have at least one digit";
 			return false;
 		}
 
 		let ponctuationMarkRegexp = new RegExp("[^a-zA-Z0-9]");
-		if (! ponctuationMarkRegexp.test(user.Password)) {
+		if (!ponctuationMarkRegexp.test(user.Password)) {
 			this.userFormErrorMessage = "Password must have at least one punctuation mark";
 			return false;
 		}
