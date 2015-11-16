@@ -322,16 +322,16 @@ func CheckSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	return nil, cn, count
 }
 
-func CreateNewUser(conf ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn) error {
+func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn) error {
 
 	if !test_password(params.Password) {
 
 		return answerWithError("Password does not meet minimum requirements", nil)
 
 	}
-	dn := "cn=" + fmt.Sprintf("%d", count+1) + "," + conf.ou
+	dn := "cn=" + fmt.Sprintf("%d", count+1) + "," + conf2.ou
 
-	rc := C._ldap_add(conf.ldapConnection, C.CString(dn), &mods[0])
+	rc := C._ldap_add(conf2.ldapConnection, C.CString(dn), &mods[0])
 
 	if rc != LDAP_SUCCESS {
 		return answerWithError("Adding error: "+C.GoString(C.ldap_err2string(rc)), nil)
@@ -343,6 +343,32 @@ func CreateNewUser(conf ldap_conf, params AccountParams, count int, mods [3]*C.L
 	err := ldapConnection.Modify(modify)
 	if err != nil {
 		return answerWithError("Modify error: ", err)
+	}
+	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+		&tls.Config{
+			InsecureSkipVerify: true,
+		})
+	if err != nil {
+		return answerWithError("Dial error: ", err)
+	}
+	err = ldapConnection.Bind(conf.Username, conf.Password)
+	if err != nil {
+		return answerWithError("Binding error: ", err)
+	}
+	defer ldapConnection.Close()
+	searchRequest := ldap.NewSearchRequest(
+		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectCategory=person)(cn="+fmt.Sprintf("%d", count+1)+"))",
+		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
+		nil,
+	)
+	sr, err := ldapConnection.Search(searchRequest)
+	if err != nil {
+		return answerWithError("Search error: ", err)
+	}
+	for _, entry := range sr.Entries {
+		log.Println(entry.GetAttributeValue("sAMAccountName"))
 	}
 	return nil
 
@@ -375,6 +401,33 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) erro
 	err := ldapConnection.Modify(modify)
 	if err != nil {
 		return answerWithError("Modify error: ", err)
+	}
+
+	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+		&tls.Config{
+			InsecureSkipVerify: true,
+		})
+	if err != nil {
+		return answerWithError("Dial error: ", err)
+	}
+	err = ldapConnection.Bind(conf.Username, conf.Password)
+	if err != nil {
+		return answerWithError("Binding error: ", err)
+	}
+	defer ldapConnection.Close()
+	searchRequest := ldap.NewSearchRequest(
+		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectCategory=person)(cn="+cn+"))",
+		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
+		nil,
+	)
+	sr, err := ldapConnection.Search(searchRequest)
+	if err != nil {
+		return answerWithError("Search error: ", err)
+	}
+	for _, entry := range sr.Entries {
+		log.Println(entry.GetAttributeValue("sAMAccountName"))
 	}
 	return nil
 }
