@@ -21,13 +21,16 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../services/AuthenticationSvc" />
 import { MainMenu, INavMenu } from "../services/MainMenu";
+import { AuthenticationSvc } from "../services/AuthenticationSvc";
 import * as _ from "lodash";
 
 "use strict";
 
 export class MainCtrl {
 
+	isLoading = false;
 	user: string;
 	menus: INavMenu[] = [];
 	activeMenu: INavMenu = {};
@@ -35,19 +38,20 @@ export class MainCtrl {
 	static $inject = [
 		"$state",
 		"$mdSidenav",
+		"AuthenticationSvc",
 		"$rootScope"
 	];
 	constructor(
 		private $state: angular.ui.IStateService,
 		private $mdSidenav: angular.material.ISidenavService,
-		private $rootScope: angular.IRootScopeService
+		private authSvc: AuthenticationSvc,
+		$rootScope: angular.IRootScopeService
 	) {
+		this.user = sessionStorage.getItem("user");
+
 		this.menus = _.sortBy(MainMenu.menus, (m: INavMenu) => m.title);
-		
 		this.checkMenu(null, $state.current);
 		$rootScope.$on("$stateChangeSuccess", this.checkMenu.bind(this));
-
-		this.user = sessionStorage.getItem("user");
 	}
 
 	navigateTo(menu: INavMenu) {
@@ -65,6 +69,12 @@ export class MainCtrl {
 		if (m) {
 			this.activeMenu = m;
 		}
+	}
+
+	logout() {
+		this.authSvc.logout().then(() => {
+			this.$state.go("login");
+		});
 	}
 
 }

@@ -21,45 +21,33 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
-/// <amd-dependency path="../../core/services/RpcSvc" />
-import { RpcSvc, IRpcResponse } from "../../core/services/RpcSvc";
+import * as $ from "jquery";
 
 "use strict";
 
 export class AuthenticationSvc {
 
 	static $inject = [
-		"$http",
-		"$mdToast"
+		"$http"
 	];
 	constructor(
-		private $http: angular.IHttpService,
-		private $mdToast: angular.material.IToastService
+		private $http: angular.IHttpService
 	) {
 	}
 
-	authenticate(credentials: any): angular.IPromise<any> {
-		return this.$http.post("/login", {
+	login(credentials: any): angular.IPromise<any> {
+		return this.$http.post("/login", $.param({
 			"email": credentials.email,
 			"password": credentials.password
-		}, {
-			headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"},
-			transformRequest: function(data) { return $.param(data); }
+		}), {
+			headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
 		});
 	}
 
-	private isError(res: IRpcResponse): boolean {
-		if (res.error == null) {
-			return false;
-		}
-		this.$mdToast.show(
-			this.$mdToast.simple()
-				.content(res.error.code === 0 ? "Internal Error" : JSON.stringify(res.error))
-				.position("top right")
-		);
-		return true;
+	logout(): angular.IPromise<any> {
+		return this.$http.get("/logout");
 	}
 
 }
 
-angular.module("haptic.login").service("AuthenticationSvc", AuthenticationSvc);
+angular.module("haptic.core").service("AuthenticationSvc", AuthenticationSvc);

@@ -29,5 +29,6 @@ requirejs.config({
 		"angular-ui-router-extras": { deps: ["angular-ui-route"] },
 		"ng-flow": { deps: ["angular"] }
 	},
-	deps: ["haptic"]
+	deps: ["haptic"],
+	waitSeconds: 25
 });

@@ -21,8 +21,8 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
-/// <amd-dependency path="../services/AuthenticationSvc" />
-import { AuthenticationSvc } from "../services/AuthenticationSvc";
+/// <amd-dependency path="../../core/services/AuthenticationSvc" />
+import { AuthenticationSvc } from "../../core/services/AuthenticationSvc";
 
 "use strict";
 
@@ -50,7 +50,7 @@ export class LoginCtrl {
 	signIn() {
 		sessionStorage.setItem("user", this.credentials.email);
 		this.authSvc
-			.authenticate(this.credentials)
+			.login(this.credentials)
 			.then(
 				(res: any) => {
 					if (res.headers().admin && res.headers().admin === "true") {
