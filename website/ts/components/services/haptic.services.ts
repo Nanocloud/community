@@ -11,7 +11,7 @@ let states: angular.ui.IState[] = [{
 	name: "admin.services",
 	url: "/services",
 	controller: "ServicesCtrl",
-	controllerAs: "serviceCtrl",
+	controllerAs: "servicesCtrl",
 	templateUrl: getTemplateUrl(componentName, "services.html")
 }];
 

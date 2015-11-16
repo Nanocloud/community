@@ -58,20 +58,27 @@ export class ServicesSvc {
 	getAll(): angular.IPromise<IService[]> {
 		return this.rpc.call({ method: "ServiceIaas.GetList", id: 1 })
 			.then((res: IRpcResponse): IService[] => {
-				let services: IService[] = [];
 
-				if (this.isError(res) || !Array.isArray(res.result.VmListJsonArray)) {
+				if (this.isError(res)) {
 					return [];
-				} else {
-					for (let srv of JSON.parse(res.result.VmListJsonArray)) {
-						if (srv.Ico === "windows") {
-							this.downloadStarted = false;
-							this.windowsReady = true;
-						}
-						services.push(srv);
-					}
-					return services;
 				}
+
+				let services: IService[];
+				try {
+					services = JSON.parse(res.result.VmListJsonArray);
+				} catch (e) {
+					return [];
+				}
+				
+				for (let srv of services) {
+					if (srv.Ico === "windows") {
+						this.downloadStarted = false;
+						this.windowsReady = true;
+						break;
+					}
+				}
+
+				return services;
 			});
 	}
 
