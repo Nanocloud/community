@@ -22,30 +22,36 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../../applications/services/ApplicationsSvc" />
+/// <amd-dependency path="../../core/services/AuthenticationSvc" />
 import { ApplicationsSvc, IApplication } from "../../applications/services/ApplicationsSvc";
+import { AuthenticationSvc } from "../../core/services/AuthenticationSvc";
 
 "use strict";
 
-export class UserApplicationCtrl {
+export class PresenterCtrl {
 
 	applications: any;
 	user: string;
 
 	static $inject = [
+		"$state",
+		"$cookies",
 		"ApplicationsSvc",
-		"$cookies"
+		"AuthenticationSvc"
 	];
 
 	constructor(
-		private applicationsSrv: ApplicationsSvc,
-		private $cookies: angular.cookies.ICookiesService
+		private $state: angular.ui.IStateService,
+		private $cookies: angular.cookies.ICookiesService,
+		private appsSvc: ApplicationsSvc,
+		private authSvc: AuthenticationSvc
 	) {
 		this.loadApplications();
 		this.user = sessionStorage.getItem("user");
 	}
 
 	loadApplications(): angular.IPromise<void> {
-		return this.applicationsSrv.getApplicationForUser().then((applications: IApplication[]) => {
+		return this.appsSvc.getApplicationForUser().then((applications: IApplication[]) => {
 			this.applications = applications;
 		});
 	}
@@ -59,6 +65,13 @@ export class UserApplicationCtrl {
 	navigateTo(loc: string, e: MouseEvent) {
 		window.open(loc, "_blank");
 	}
+
+	logout() {
+		this.authSvc.logout().then(() => {
+			this.$state.go("login");
+		});
+	}
+
 }
 
-angular.module("haptic.presenter").controller("UserApplicationCtrl", UserApplicationCtrl);
+angular.module("haptic.presenter").controller("PresenterCtrl", PresenterCtrl);
