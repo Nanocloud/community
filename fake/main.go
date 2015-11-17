@@ -83,61 +83,8 @@ type Queue struct {
 	Name string
 }
 
-func SendMyQueues() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-
-	q, err := ch.QueueDeclare(
-		"users", // name
-		false,   // durable
-		false,   // delete when usused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
-	tmp := Queue{Name: "users.fake"}
-	str, err := json.Marshal(tmp)
-	log.Println("json sent to users plugin", string(str))
-	if err != nil {
-		log.Println(err)
-	}
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "encoding/json",
-			Body:        str,
-		})
-	log.Printf(" [x] Sent a Q users.fake")
-	failOnError(err, "Failed to publish a message")
-	tmp = Queue{Name: "fake.users"}
-	str, err = json.Marshal(tmp)
-	if err != nil {
-		log.Println(err)
-	}
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "encoding/json",
-			Body:        str,
-		})
-	log.Printf(" [x] Sent a Q fake.users")
-	failOnError(err, "Failed to publish a message")
-
-}
-
 func (api) Plug(args interface{}, reply *bool) error {
 	*reply = true
-	SendMyQueues()
 	go LookForMsg()
 	return nil
 }
@@ -148,7 +95,6 @@ func (api) Check(args interface{}, reply *bool) error {
 }
 
 func (api) Unplug(args interface{}, reply *bool) error {
-	SendReturn("stop")
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 
@@ -174,31 +120,29 @@ func SendReturn(msg string) {
 
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
-	q, err := ch.QueueDeclare(
-		"fake.users", // name
-		false,        // durable
-		false,        // delete when usused
-		false,        // exclusive
-		false,        // no-wait
-		nil,          // arguments
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
-	tmp := Queue{Name: msg}
-	str, err := json.Marshal(tmp)
-	log.Println("json sent to users plugin", string(str))
-	if err != nil {
-		log.Println(err)
-	}
+	failOnError(err, "Failed to declare an exchange")
 	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
+		"users_topic", // exchange
+		"fake.users",  // routing key
+		false,         // mandatory
+		false,         // immediate
 		amqp.Publishing{
-			ContentType: "encoding/json",
-			Body:        str,
+			ContentType: "test/plain",
+			Body:        []byte(msg),
 		})
 	failOnError(err, "Failed to publish a message")
+
+	log.Printf(" [x] Sent return to users")
+
 }
 
 func LookForMsg() {
@@ -208,18 +152,35 @@ func LookForMsg() {
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 
-	q, err := ch.QueueDeclare(
-		"users.fake", // name
-		false,        // durable
-		false,        // delete when usused
-		false,        // exclusive
-		false,        // no-wait
-		nil,          // arguments
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
+	failOnError(err, "Failed to declare an exchange")
+	_, err = ch.QueueDeclare(
+		"fake", // name
+		false,  // durable
+		false,  // delete when usused
+		true,   // exclusive
+		false,  // no-wait
+		nil,    // arguments
+	)
+	failOnError(err, "Failed to declare an queue")
 
+	err = ch.QueueBind(
+		"fake",        // queue name
+		"users.*",     // routing key
+		"users_topic", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind a queue")
 	msgs, err := ch.Consume(
-		q.Name, // queue
+		"fake", // queue
 		"",     // consumer
 		true,   // auto-ack
 		false,  // exclusive
@@ -242,7 +203,7 @@ func LookForMsg() {
 			if msg.Method == "Add" {
 				err := Create()
 				if err != nil {
-					log.Println("create error?:")
+					log.Println("create error:")
 					log.Println(err)
 					SendReturn("Plugin fake encounter an error in the request")
 				} else {
@@ -252,7 +213,7 @@ func LookForMsg() {
 		}
 	}()
 
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for messages from Users")
 	<-forever
 }
 func main() {
