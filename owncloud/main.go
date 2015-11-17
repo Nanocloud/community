@@ -129,61 +129,8 @@ type Queue struct {
 	Name string
 }
 
-func SendMyQueues() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-
-	q, err := ch.QueueDeclare(
-		"users", // name
-		false,   // durable
-		false,   // delete when usused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
-	tmp := Queue{Name: "users.owncloud"}
-	str, err := json.Marshal(tmp)
-	log.Println("json sent to users plugin", string(str))
-	if err != nil {
-		log.Println(err)
-	}
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "encoding/json",
-			Body:        str,
-		})
-	log.Printf(" [x] Sent a Q users.owncloud")
-	failOnError(err, "Failed to publish a message")
-	tmp = Queue{Name: "owncloud.users"}
-	str, err = json.Marshal(tmp)
-	if err != nil {
-		log.Println(err)
-	}
-	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			ContentType: "encoding/json",
-			Body:        str,
-		})
-	log.Printf(" [x] Sent a Q owncloud.users")
-	failOnError(err, "Failed to publish a message")
-
-}
-
 func (api) Plug(args interface{}, reply *bool) error {
 	*reply = true
-	SendMyQueues()
 	go LookForMsg()
 	return nil
 }
@@ -194,7 +141,6 @@ func (api) Check(args interface{}, reply *bool) error {
 }
 
 func (api) Unplug(args interface{}, reply *bool) error {
-	SendReturn("stop")
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 
@@ -220,31 +166,29 @@ func SendReturn(msg string) {
 
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
-	q, err := ch.QueueDeclare(
-		"owncloud.users", // name
-		false,            // durable
-		false,            // delete when usused
-		false,            // exclusive
-		false,            // no-wait
-		nil,              // arguments
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
-	tmp := Queue{Name: msg}
-	str, err := json.Marshal(tmp)
-	log.Println("json sent to users plugin", string(str))
-	if err != nil {
-		log.Println(err)
-	}
+	failOnError(err, "Failed to declare an exchange")
 	err = ch.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
+		"users_topic",    // exchange
+		"owncloud.users", // routing key
+		false,            // mandatory
+		false,            // immediate
 		amqp.Publishing{
-			ContentType: "encoding/json",
-			Body:        str,
+			ContentType: "test/plain",
+			Body:        []byte(msg),
 		})
 	failOnError(err, "Failed to publish a message")
+
+	log.Printf(" [x] Sent return to users")
+
 }
 
 func LookForMsg() {
@@ -254,24 +198,41 @@ func LookForMsg() {
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 
-	q, err := ch.QueueDeclare(
-		"users.owncloud", // name
-		false,            // durable
-		false,            // delete when usused
-		false,            // exclusive
-		false,            // no-wait
-		nil,              // arguments
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
+	failOnError(err, "Failed to declare an exchange")
+	_, err = ch.QueueDeclare(
+		"owncloud", // name
+		false,      // durable
+		false,      // delete when usused
+		true,       // exclusive
+		false,      // no-wait
+		nil,        // arguments
+	)
+	failOnError(err, "Failed to declare an queue")
 
+	err = ch.QueueBind(
+		"owncloud",    // queue name
+		"users.*",     // routing key
+		"users_topic", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind a queue")
 	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		"owncloud", // queue
+		"",         // consumer
+		true,       // auto-ack
+		false,      // exclusive
+		false,      // no-local
+		false,      // no-wait
+		nil,        // args
 	)
 	failOnError(err, "Failed to register a consumer")
 
@@ -285,24 +246,40 @@ func LookForMsg() {
 			if err != nil {
 				log.Println(err)
 			}
-			if msg.Method == "Add" {
-				initConf()
-				Configure()
-				_, err := Create(msg.Name, msg.Password)
-				if err != nil {
-					log.Println("create error?:")
-					log.Println(err)
-					SendReturn("Plugin owncloud encounter an error in the request")
-				} else {
-					SendReturn("Plugin owncloud successfully completed the request")
-				}
-			}
+			HandleRequest(msg)
+
 		}
 	}()
 
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for messages from Users")
 	<-forever
 }
+
+func HandleError(err error) {
+	if err != nil {
+		log.Println(err)
+		SendReturn("Plugin owncloud encountered an error in the request")
+	} else {
+		SendReturn("Plugin owncloud successfully completed the request")
+	}
+}
+
+func HandleRequest(msg Message) {
+	initConf()
+	Configure()
+	if msg.Method == "Add" {
+		_, err := Create(msg.Name, msg.Password)
+		HandleError(err)
+	} else if msg.Method == "Delete" {
+		_, err := Delete(msg.Name)
+		HandleError(err)
+	} else if msg.Method == "ChangePassword" {
+		_, err := Edit(msg.Name, "password", msg.Password)
+		HandleError(err)
+	}
+
+}
+
 func main() {
 	srv = pie.NewProvider()
 

@@ -49,8 +49,6 @@ type PlugRequest struct {
 	Url      string
 }
 
-var sendqueues []string
-
 func Configure() error {
 
 	var err error
@@ -106,48 +104,53 @@ var q amqp.Queue
 var conn *amqp.Connection
 
 func SendMsg(msg Message) {
-	log.Println(sendqueues)
-	for _, val := range sendqueues {
-		q, err := ch.QueueDeclare(
-			val,   // name
-			false, // durable
-			false, // delete when unused
-			false, // exclusive
-			false, // no-wait
-			nil,   // arguments
-		)
-		failOnError(err, "Failed to declare a queue")
-		body, err := json.Marshal(msg)
-		if err != nil {
-			log.Println(err)
-		}
-		err = ch.Publish(
-			"",     // exchange
-			q.Name, // routing key
-			false,  // mandatory
-			false,  // immediate
-			amqp.Publishing{
-				ContentType: "application/json",
-				Body:        body,
-			})
-		log.Printf(" [x] Sent %s", body)
-		failOnError(err, "Failed to publish a message")
-	}
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
 
-}
-
-func Add(args PlugRequest) error {
-	var msg Message
-	var t UserInfo
-	err := json.Unmarshal([]byte(args.Body), &t)
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
+	)
+	failOnError(err, "Failed to declare an exchange")
+	str, err := json.Marshal(msg)
 	if err != nil {
 		log.Println(err)
 	}
-	msg.Method = "Add"
-	msg.Name = t.Name
-	msg.Email = t.Email
-	msg.Password = t.Password
-	SendMsg(msg)
+	err = ch.Publish(
+		"users_topic", // exchange
+		"users.req",   // routing key
+		false,         // mandatory
+		false,         // immediate
+		amqp.Publishing{
+			ContentType: "encoding/json",
+			Body:        []byte(str),
+		})
+	failOnError(err, "Failed to publish a message")
+
+	log.Printf(" [x] Sent order to plugin")
+
+}
+
+func Add(args PlugRequest, reply *PlugRequest) error {
+	initConf()
+	err := Configure()
+	if err != nil {
+		log.Println(err)
+	}
+	defer UserDb.Close()
+	var t UserInfo
+	err = json.Unmarshal([]byte(args.Body), &t)
+	if err != nil {
+		log.Println(err)
+	}
+	SendMsg(Message{Method: "Add", Name: t.Name, Email: t.Email, Password: t.Password})
 	UserDb.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
@@ -161,17 +164,65 @@ func Add(args PlugRequest) error {
 	return nil
 }
 
-func AddCall(args PlugRequest, reply *PlugRequest) {
+func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 	initConf()
 	err := Configure()
 	if err != nil {
 		log.Println(err)
 	}
-	Add(args)
+	defer UserDb.Close()
+	var t UserInfo
+	var rec UserInfo
+	err = json.Unmarshal([]byte(args.Body), &t)
+	if err != nil {
+		log.Println(err)
+	}
+	SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password})
+	UserDb.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(conf.DatabaseName))
+		if bucket == nil {
+			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
+		}
+		cursor := bucket.Cursor()
+		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
+			if string(key) == t.Name {
+				json.Unmarshal(value, &rec)
+				rec.Password = t.Password
+				jsonUser, _ := json.Marshal(rec)
+				bucket.Put([]byte(rec.Name), jsonUser)
+				break
+			}
+		}
+
+		return err
+	})
+	return nil
+}
+
+func Delete(args PlugRequest, reply *PlugRequest) error {
+	initConf()
+	err := Configure()
 	if err != nil {
 		log.Println(err)
 	}
 	defer UserDb.Close()
+	var t UserInfo
+	err = json.Unmarshal([]byte(args.Body), &t)
+	if err != nil {
+		log.Println(err)
+	}
+	SendMsg(Message{Method: "Delete", Name: t.Name})
+	UserDb.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(conf.DatabaseName))
+		if bucket == nil {
+			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
+		}
+		bucket.Delete([]byte(t.Name))
+
+		return err
+	})
+
+	return nil
 }
 
 func ListCall(reply *PlugRequest) {
@@ -191,10 +242,16 @@ func ListCall(reply *PlugRequest) {
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 
 	if strings.Index(args.Url, "/users/add") == 0 {
-		AddCall(args, reply)
+		Add(args, reply)
 	}
 	if strings.Index(args.Url, "/users/list") == 0 {
 		ListCall(reply)
+	}
+	if strings.Index(args.Url, "/users/delete") == 0 {
+		Delete(args, reply)
+	}
+	if strings.Index(args.Url, "/users/modifypassword") == 0 {
+		ModifyPassword(args, reply)
 	}
 
 	return nil
@@ -204,47 +261,41 @@ type Queue struct {
 	Name string
 }
 
-func UpdateQueues(name string) {
-	if strings.HasPrefix(name, "users.") {
-		sendqueues = append(sendqueues, name)
-	}
-	log.Println(sendqueues)
-}
+func ListenToQueue() {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	//defer conn.Close()
 
-func ListenToQueue(name string) {
-	if strings.HasSuffix(name, ".users") {
-		queues, err := ch.Consume(
-			"owncloud.users", // queue
-			"",               // consumer
-			true,             // auto-ack
-			false,            // exclusive
-			false,            // no-local
-			false,            // no-wait
-			nil,              // args
-		)
-		failOnError(err, "Failed to register a consumer")
-		go func() {
-			var queue Queue
-			for d := range queues {
-				err := json.Unmarshal(d.Body, &queue)
-				if err != nil {
-					log.Println(err)
-				}
-				if queue.Name == "stop" {
-					log.Println("Users stopped listening to the response queue of a plugin")
-					break
-				} else {
-					log.Println(queue)
-				}
-			}
-		}()
+	ch, err = conn.Channel()
+	failOnError(err, "Failed to open a channel")
 
-	}
-
-}
-
-func CheckForQueues() {
-	queues, err := ch.Consume(
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
+	)
+	failOnError(err, "Failed to declare an exchange")
+	_, err = ch.QueueDeclare(
+		"users", // name
+		false,   // durable
+		false,   // delete when usused
+		true,    // exclusive
+		false,   // no-wait
+		nil,     // arguments
+	)
+	failOnError(err, "Failed to declare an queue")
+	err = ch.QueueBind(
+		"users",       // queue name
+		"*.users",     // routing key
+		"users_topic", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind a queue")
+	responses, err := ch.Consume(
 		"users", // queue
 		"",      // consumer
 		true,    // auto-ack
@@ -254,54 +305,21 @@ func CheckForQueues() {
 		nil,     // args
 	)
 	failOnError(err, "Failed to register a consumer")
-
 	forever := make(chan bool)
-
 	go func() {
-		var queue Queue
-		for d := range queues {
-			err := json.Unmarshal(d.Body, &queue)
-			log.Println("Received a queue name", queue)
+		for d := range responses {
 			if err != nil {
 				log.Println(err)
 			}
-			q, err = ch.QueueDeclare(
-				queue.Name, // name
-				false,      // durable
-				false,      // delete when unused
-				false,      // exclusive
-				false,      // no-wait
-				nil,        // arguments
-			)
-			UpdateQueues(queue.Name)
-			failOnError(err, "Failed to declare a queue")
-			ListenToQueue(queue.Name)
+			log.Println(string(d.Body))
 		}
 	}()
+	log.Println("Waiting for responses of fake/owncloud")
 	<-forever
-
 }
 
 func (api) Plug(args interface{}, reply *bool) error {
-	var err error
-	conn, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	//defer conn.Close()
-
-	ch, err = conn.Channel()
-	failOnError(err, "Failed to open a channel")
-
-	q, err = ch.QueueDeclare(
-		"users", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
-	go CheckForQueues()
-	//go launch()
+	go ListenToQueue()
 	*reply = true
 	return nil
 }
