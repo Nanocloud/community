@@ -48,7 +48,7 @@ var q amqp.Queue
 var conn *amqp.Connection
 
 type CreateUserParams struct {
-	Email, Password string
+	Username, Password string
 }
 type Message struct {
 	Method    string
@@ -75,7 +75,7 @@ func CreateUser(args PlugRequest, reply *PlugRequest) error {
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = Create(params.Email, params.Password)
+	_, err = Create(params.Username, params.Password)
 	if err != nil {
 		log.Println(err)
 	}
@@ -88,11 +88,11 @@ func ChangePassword(args PlugRequest, reply *PlugRequest) {
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = Edit(params.Email, "password", params.Password)
+	_, err = Edit(params.Username, "password", params.Password)
 }
 
 type del struct {
-	Email string
+	Username string
 }
 
 func DeleteUser(args PlugRequest, reply *PlugRequest) {
@@ -102,7 +102,7 @@ func DeleteUser(args PlugRequest, reply *PlugRequest) {
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = Delete(User.Email)
+	_, err = Delete(User.Username)
 	if err != nil {
 		log.Println("deletion error: ", err)
 	}
@@ -210,9 +210,9 @@ func LookForMsg() {
 	failOnError(err, "Failed to declare an exchange")
 	_, err = ch.QueueDeclare(
 		"owncloud", // name
-		true,       // durable
+		true,      // durable
 		false,      // delete when usused
-		false,      // exclusive
+		true,       // exclusive
 		false,      // no-wait
 		nil,        // arguments
 	)
@@ -268,13 +268,13 @@ func HandleRequest(msg Message) {
 	initConf()
 	Configure()
 	if msg.Method == "Add" {
-		_, err := Create(msg.Email, msg.Password)
+		_, err := Create(msg.Name, msg.Password)
 		HandleError(err)
 	} else if msg.Method == "Delete" {
-		_, err := Delete(msg.Email)
+		_, err := Delete(msg.Name)
 		HandleError(err)
 	} else if msg.Method == "ChangePassword" {
-		_, err := Edit(msg.Email, "password", msg.Password)
+		_, err := Edit(msg.Name, "password", msg.Password)
 		HandleError(err)
 	}
 
