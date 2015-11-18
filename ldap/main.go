@@ -58,6 +58,7 @@ import (
 	"unsafe"
 
 	"github.com/natefinch/pie"
+	"github.com/streadway/amqp"
 )
 
 const (
@@ -94,6 +95,15 @@ type AccountParams struct {
 type ChangePasswordParams struct {
 	SamAccountName string
 	NewPassword    string
+}
+
+type Message struct {
+	Method    string
+	Name      string
+	Email     string
+	Activated string
+	Sam       string
+	Password  string
 }
 
 type Ldap struct{}
@@ -437,7 +447,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 	var params AccountParams
 
 	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
-		return answerWithError("AddUser() failed: ", e)
+		return answerWithError("modify password failed: ", e)
 	}
 	bindusername := conf.Username
 	bindpassword := conf.Password
@@ -463,7 +473,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 	searchRequest := ldap.NewSearchRequest(
 		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectCategory=person)(sAMAccountName="+params.UserEmail+"))",
+		"(&(objectCategory=person)(mail="+params.UserEmail+"))",
 		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
 		nil,
 	)
@@ -475,7 +485,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 
 	var cn string
 	if len(sr.Entries) != 1 {
-		return answerWithError("invalid sAMAccountName", nil)
+		return answerWithError("invalid Email", nil)
 	}
 	for _, entry := range sr.Entries {
 		cn = entry.GetAttributeValue("cn")
@@ -747,9 +757,148 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
+func SendReturn(msg string) {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+
+	ch, err := conn.Channel()
+	defer ch.Close()
+	defer conn.Close()
+	failOnError(err, "Failed to open a channel")
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
+	)
+	failOnError(err, "Failed to declare an exchange")
+	err = ch.Publish(
+		"users_topic", // exchange
+		"ldap.users",  // routing key
+		false,         // mandatory
+		false,         // immediate
+		amqp.Publishing{
+			ContentType: "test/plain",
+			Body:        []byte(msg),
+		})
+	failOnError(err, "Failed to publish a message")
+
+	log.Printf(" [x] Sent return to users")
+
+}
+
+func LookForMsg() {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+
+	ch, err := conn.Channel()
+	defer ch.Close()
+	defer conn.Close()
+	failOnError(err, "Failed to open a channel")
+
+	err = ch.ExchangeDeclare(
+		"users_topic", // name
+		"topic",       // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
+	)
+	failOnError(err, "Failed to declare an exchange")
+	_, err = ch.QueueDeclare(
+		"ldap", // name
+		true,   // durable
+		false,  // delete when usused
+		false,  // exclusive
+		false,  // no-wait
+		nil,    // arguments
+	)
+	failOnError(err, "Failed to declare an queue")
+
+	err = ch.QueueBind(
+		"ldap",        // queue name
+		"users.*",     // routing key
+		"users_topic", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind a queue")
+	msgs, err := ch.Consume(
+		"ldap", // queue
+		"",     // consumer
+		true,   // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+	failOnError(err, "Failed to register a consumer")
+
+	forever := make(chan bool)
+
+	go func() {
+		var msg Message
+		for d := range msgs {
+			log.Printf("Received a message: %s", d.Body)
+			err := json.Unmarshal(d.Body, &msg)
+			if err != nil {
+				log.Println(err)
+			}
+			HandleRequest(msg)
+
+		}
+	}()
+
+	log.Printf(" [*] Waiting for messages from Users")
+	<-forever
+}
+
+func HandleError(err error) {
+	if err != nil {
+		log.Println(err)
+		SendReturn("Plugin ldap encountered an error in the request")
+	} else {
+		SendReturn("Plugin ldap successfully completed the request")
+	}
+}
+
+func HandleRequest(msg Message) {
+	initConf()
+	var args PlugRequest
+	var reply PlugRequest
+	var params AccountParams
+	params.UserEmail = msg.Email
+	params.Password = msg.Password
+	userjson, err := json.Marshal(params)
+	if err != nil {
+		log.Println(err)
+	}
+	args.Body = string(userjson)
+	if msg.Method == "Add" {
+		err = AddUser(args, &reply)
+		HandleError(err)
+	} else if msg.Method == "DisableAccount" {
+		err = ForceDisableAccount(args, &reply)
+		HandleError(err)
+	} else if msg.Method == "ChangePassword" {
+		err := ModifyPassword(args, &reply)
+		HandleError(err)
+	}
+
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Println(msg, err)
+	}
+}
+
 func (api) Plug(args interface{}, reply *bool) error {
-	//go launch()
 	*reply = true
+	go LookForMsg()
 	return nil
 }
 
