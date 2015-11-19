@@ -50,8 +50,8 @@ func initConf() {
 	conf = getDefaultConf()
 	f := "core.yaml"
 	if runtime.GOOS == "linux" {
-		d := "/etc/nanocloud/core/"
-		err := os.MkdirAll(d, 0644)
+		d := "/home/antoine/nanocloud/core/"
+		err := os.MkdirAll(d, 0777)
 		if err == nil {
 			f = d + f
 		} else {

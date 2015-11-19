@@ -71,6 +71,7 @@ func main() {
 	}
 	defer w.Close()
 	router := NewRouter()
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../front/"))))
 	running_plugins = make([]string, 0)
 	running_plugins = launch_existing_plugins(running_plugins)
 
@@ -151,7 +152,7 @@ func DeletePlugin(path string) {
 	}
 }
 
-func CreateEvent(running_plugins []string, name string, fullpath string) []string {
+func CreateEvent(running_plugins []string, name string, fullpath string, sourcefile string) []string {
 	time.Sleep(1000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
 	if IsRunning(running_plugins, name) {
 		running_plugins = ClosePlugin(running_plugins, name)
@@ -165,7 +166,10 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 			log.Println("added previously existing plugin to slice")
 			DeletePlugin(conf.RunDir + name)
 			os.Rename(conf.StagDir+name, conf.RunDir+name)
+
 			CopyFile(conf.RunDir+name, conf.InstDir+name) // TODO, Replace this by a simple "touch"
+			DeleteOldFront(sourcefile)
+			UnpackFront(sourcefile)
 		} else {
 			log.Println("New plugin encountered an error")
 			err := loadPlugin(conf.RunDir + name)
@@ -176,11 +180,23 @@ func CreateEvent(running_plugins []string, name string, fullpath string) []strin
 		}
 
 	} else {
+		UnpackFront(sourcefile)
 		os.Rename(conf.StagDir+name, conf.RunDir+name)
+		err := os.Rename(sourcefile, conf.RunDir+sourcefile[strings.LastIndex(sourcefile, "/")+1:])
+		if err != nil {
+			log.Println(err)
+		}
 		CopyFile(conf.RunDir+name, conf.InstDir+name) //TODO replace this by touch
 		running_plugins = LoadPlugin(running_plugins, name)
 	}
 	return running_plugins
+}
+
+func DeleteTar(name string) {
+	err := os.Remove(conf.RunDir + name[strings.LastIndex(name, "/")+1:])
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
@@ -193,14 +209,11 @@ func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
 			switch evt.Op {
 			case fsnotify.Create:
 				if evt.Name[:strings.LastIndex(evt.Name, "/")+1] == conf.StagDir {
-					//if evt.Name[:16] == conf.StagDir {
-					//running_plugins = CreateEvent(running_plugins, evt.Name[16:], evt.Name)
-					running_plugins = CreateEvent(running_plugins, evt.Name[strings.LastIndex(evt.Name, "/")+1:], evt.Name)
+					UnpackGo(evt.Name)
 				}
 			case fsnotify.Remove:
-				//closePlugin(conf.RunDir + evt.Name[18:])
+				DeleteTar(evt.Name + ".tar.gz")
 				closePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
-				//DeletePlugin(conf.RunDir + evt.Name[18:])
 				DeletePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
 			}
 
