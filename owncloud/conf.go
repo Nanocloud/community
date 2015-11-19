@@ -49,7 +49,7 @@ func initConf() {
 	conf = getDefaultConf()
 	f := "owncloud.yaml"
 	if runtime.GOOS == "linux" {
-		d := "/etc/nanocloud/owncloud/"
+		d := "/home/antoine/.config/nanocloud/owncloud/"
 		err := os.MkdirAll(d, 0644)
 		if err == nil {
 			f = d + f

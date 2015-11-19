@@ -24,12 +24,12 @@ var routes = Routes{
 		"/{.}/{.}",
 		GenericHandler,
 	},
-	Route{
+	/*	Route{
 		"Index",
 		"GET",
 		"/",
 		Index,
-	},
+	},*/
 	Route{
 		"Index",
 		"GET",

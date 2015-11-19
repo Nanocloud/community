@@ -71,6 +71,7 @@ func GenericHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+
 	var args PlugRequest
 	GetRequestInfos(w, r, &args)
 	l := CheckTrailingSlash(args)
