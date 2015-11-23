@@ -26,7 +26,6 @@ var (
 )
 
 func get_plugins() []string {
-	//dir, err := os.Open("plugins/running")
 	dir, err := os.Open(conf.RunDir[:len(conf.RunDir)-1])
 	checkErr(err)
 	defer dir.Close()
@@ -37,12 +36,11 @@ func get_plugins() []string {
 		fis, err := dir.Readdir(-1) // -1 means return all the FileInfos
 		checkErr(err)
 		for _, fileinfo := range fis {
-			if !fileinfo.IsDir() {
+			if !fileinfo.IsDir() && !strings.HasSuffix(fileinfo.Name(), ".tar.gz") {
 				filenames = append(filenames, fileinfo.Name())
 			}
 		}
 	}
-	//log.Println("Files: ", filenames)
 	return filenames
 }
 
@@ -71,7 +69,7 @@ func main() {
 	}
 	defer w.Close()
 	router := NewRouter()
-	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../front/"))))
+	//	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../front/"))))
 	running_plugins = make([]string, 0)
 	running_plugins = launch_existing_plugins(running_plugins)
 
@@ -134,7 +132,6 @@ func CopyFile(source string, dest string) (err error) {
 func DeletePlugin(path string) {
 	oldpath := path
 	if _, ok := plugins[path]; !ok {
-		//		path = path[:8] + "staging" + path[15:]
 		path = conf.StagDir + path[strings.LastIndex(path, "/")+1:]
 
 	}
@@ -153,7 +150,7 @@ func DeletePlugin(path string) {
 }
 
 func CreateEvent(running_plugins []string, name string, fullpath string, sourcefile string) []string {
-	time.Sleep(1000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
+	time.Sleep(2000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
 	if IsRunning(running_plugins, name) {
 		running_plugins = ClosePlugin(running_plugins, name)
 		err := loadPlugin(fullpath)
@@ -165,11 +162,19 @@ func CreateEvent(running_plugins []string, name string, fullpath string, sourcef
 			running_plugins = append(running_plugins, name)
 			log.Println("added previously existing plugin to slice")
 			DeletePlugin(conf.RunDir + name)
-			os.Rename(conf.StagDir+name, conf.RunDir+name)
+			err := os.Rename(conf.StagDir+name, conf.RunDir+name)
+			if err != nil {
+				log.Println(err)
+			}
 
 			CopyFile(conf.RunDir+name, conf.InstDir+name) // TODO, Replace this by a simple "touch"
 			DeleteOldFront(sourcefile)
 			UnpackFront(sourcefile)
+			err = os.Rename(sourcefile, conf.RunDir+sourcefile[strings.LastIndex(sourcefile, "/")+1:])
+
+			if err != nil {
+				log.Println(err)
+			}
 		} else {
 			log.Println("New plugin encountered an error")
 			err := loadPlugin(conf.RunDir + name)
@@ -181,8 +186,11 @@ func CreateEvent(running_plugins []string, name string, fullpath string, sourcef
 
 	} else {
 		UnpackFront(sourcefile)
-		os.Rename(conf.StagDir+name, conf.RunDir+name)
-		err := os.Rename(sourcefile, conf.RunDir+sourcefile[strings.LastIndex(sourcefile, "/")+1:])
+		err := os.Rename(conf.StagDir+name, conf.RunDir+name)
+		if err != nil {
+			log.Println(err)
+		}
+		err = os.Rename(sourcefile, conf.RunDir+sourcefile[strings.LastIndex(sourcefile, "/")+1:])
 		if err != nil {
 			log.Println(err)
 		}
@@ -205,7 +213,7 @@ func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
 	for {
 		select {
 		case evt := <-w.Events:
-			//log.Println("fsnotify:", evt)
+			log.Println("fsnotify:", evt)
 			switch evt.Op {
 			case fsnotify.Create:
 				if evt.Name[:strings.LastIndex(evt.Name, "/")+1] == conf.StagDir {
@@ -242,15 +250,11 @@ func loadPlugin(path string) error {
 	p.Plug()
 
 	plugins[path] = p
-
-	//add_routes(name, router)
-
 	return nil
 }
 
 func closePlugin(path string) {
 	if _, ok := plugins[path]; !ok {
-		//path = path[:8] + "staging" + path[15:]
 		path = conf.StagDir + path[strings.LastIndex(path, "/")+1:]
 		if _, ok := plugins[path]; !ok {
 			log.Println("Plugin not found for deletion")

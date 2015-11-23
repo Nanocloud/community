@@ -49,7 +49,7 @@ func initConf() {
 	conf = getDefaultConf()
 	f := "ldap.yaml"
 	if runtime.GOOS == "linux" {
-		d := "/etc/nanocloud/ldap/"
+		d := "/home/antoine/.config/nanocloud/ldap/"
 		err := os.MkdirAll(d, 0644)
 		if err == nil {
 			f = d + f
