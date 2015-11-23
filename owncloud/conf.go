@@ -39,7 +39,7 @@ func getDefaultConf() Configuration {
 	return Configuration{
 		adminLogin:    "drive_admin",
 		adminPassword: "BJboVHDiawECoDt",
-		hostname:      "192.168.1.40/drive",
+		hostname:      "192.168.1.39/drive",
 		protocol:      "https",
 	}
 }
