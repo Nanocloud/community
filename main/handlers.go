@@ -23,6 +23,7 @@ type PlugRequest struct {
 	Form     url.Values
 	PostForm url.Values
 	Url      string
+	Method   string
 }
 
 func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
@@ -32,6 +33,7 @@ func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
 	}
 	t.Body = string(str)
 	t.Header = r.Header
+	t.Method = r.Method
 	err = r.ParseForm()
 	if err != nil {
 		log.Println(err)
