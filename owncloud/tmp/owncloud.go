@@ -40,7 +40,7 @@ var (
 type Ocs struct {
 	XMLName xml.Name `xml:"ocs"`
 	Meta    OcsMeta
-	//	Data    OcsData
+	Data    OcsData
 }
 type OcsMeta struct {
 	XMLName    xml.Name `xml:"meta"`
@@ -49,14 +49,13 @@ type OcsMeta struct {
 	Message    string   `xml:"message"`
 }
 
-/*
 type OcsData struct {
 	XMLName xml.Name `xml:"data"`
 	Users   OcsUsers `xml:"users"`
 }
 type OcsUsers struct {
 	Element []string `xml:"element"`
-}*/
+}
 
 func init() {
 	client = &http.Client{
@@ -83,11 +82,9 @@ func Create(username, password string) (Ocs, error) {
 	})
 }
 
-/*
 func List() (Ocs, error) {
 	return ocsRequest("GET", apiUrl+"/users", url.Values{})
 }
-*/
 func Delete(username string) (Ocs, error) {
 	return ocsRequest("DELETE", apiUrl+"/users/"+username, nil)
 }

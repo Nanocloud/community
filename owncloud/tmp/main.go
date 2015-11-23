@@ -67,7 +67,7 @@ func DeleteUser(username string, reply *bool) error {
 
 func main() {
 	out := ""
-	err := Configure(`{ "protocol" : "https", "url" : "192.168.1.40/drive", "login" : "drive_admin", "password" : "BJboVHDiawECoDt" }`, &out)
+	err := Configure(`{ "protocol" : "https", "url" : "192.168.1.39/drive", "login" : "drive_admin", "password" : "BJboVHDiawECoDt" }`, &out)
 	if err != nil {
 		log.Println(err)
 	}

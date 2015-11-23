@@ -10,7 +10,8 @@ import (
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
-	"strings"
+	"regexp"
+	//	"strings"
 
 	"github.com/boltdb/bolt"
 	"github.com/natefinch/pie"
@@ -49,6 +50,8 @@ type PlugRequest struct {
 	Form     url.Values
 	PostForm url.Values
 	Url      string
+	Method   string
+	UrlVars  map[string]string
 }
 
 func Configure() error {
@@ -86,15 +89,13 @@ func GetList(users *[]UserInfo) error {
 
 		return nil
 	})
-
-	if e != nil {
-		return e
-	}
-
-	return nil
+	return e
 }
 
-func GetUser(args PlugRequest, reply *PlugRequest) error {
+func GetUser(args PlugRequest, reply *PlugRequest, mail string) error {
+	if mail == "" {
+		return errors.New(fmt.Sprintf("Email needed to retrieve account informations"))
+	}
 	initConf()
 	err := Configure()
 	if err != nil {
@@ -102,28 +103,19 @@ func GetUser(args PlugRequest, reply *PlugRequest) error {
 		return err
 	}
 	defer UserDb.Close()
-	var user UserInfo
-	err = json.Unmarshal([]byte(args.Body), &user)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
 	e := UserDb.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
 			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
 		}
 
-		userJson := bucket.Get([]byte(user.Email))
+		userJson := bucket.Get([]byte(mail))
 		//json.Unmarshal(userJson, &user)
 		reply.Body = string(userJson)
 
 		return nil
 	})
-	if e != nil {
-		return e
-	}
-	return nil
+	return e
 
 }
 
@@ -253,7 +245,7 @@ func SendMsg(msg Message) {
 
 }
 
-func Add(args PlugRequest, reply *PlugRequest) error {
+func Add(args PlugRequest, reply *PlugRequest, mail string) error {
 	initConf()
 	err := Configure()
 	if err != nil {
@@ -279,7 +271,10 @@ func Add(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
-func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
+func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) error {
+	if mail == "" {
+		return errors.New(fmt.Sprintf("Email needed to modify account"))
+	}
 	initConf()
 	err := Configure()
 	if err != nil {
@@ -300,7 +295,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 		}
 		cursor := bucket.Cursor()
 		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			if string(key) == t.Name {
+			if string(key) == mail {
 				json.Unmarshal(value, &rec)
 				rec.Password = t.Password
 				jsonUser, _ := json.Marshal(rec)
@@ -314,20 +309,21 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
-func DisableAccount(args PlugRequest, reply *PlugRequest) error {
+func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) error {
+	if mail == "" {
+		return errors.New(fmt.Sprintf("Email needed for desactivation"))
+	}
 	initConf()
 	err := Configure()
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	defer UserDb.Close()
-	var t UserInfo
 	var rec UserInfo
-	err = json.Unmarshal([]byte(args.Body), &t)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
-	SendMsg(Message{Method: "DisableAccount", Email: t.Email, Name: t.Name})
+	SendMsg(Message{Method: "DisableAccount", Email: mail})
 	UserDb.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
@@ -335,9 +331,9 @@ func DisableAccount(args PlugRequest, reply *PlugRequest) error {
 		}
 		cursor := bucket.Cursor()
 		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			if string(key) == t.Email {
+			if string(key) == mail {
 				json.Unmarshal(value, &rec)
-				rec.Activated = t.Activated
+				rec.Activated = "false"
 				jsonUser, _ := json.Marshal(rec)
 				bucket.Put([]byte(rec.Email), jsonUser)
 				break
@@ -349,25 +345,24 @@ func DisableAccount(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
-func Delete(args PlugRequest, reply *PlugRequest) error {
+func Delete(args PlugRequest, reply *PlugRequest, mail string) error {
+	if mail == "" {
+		return errors.New(fmt.Sprintf("Email needed for deletion"))
+	}
 	initConf()
 	err := Configure()
 	if err != nil {
 		log.Println(err)
 	}
+
 	defer UserDb.Close()
-	var t UserInfo
-	err = json.Unmarshal([]byte(args.Body), &t)
-	if err != nil {
-		log.Println(err)
-	}
-	SendMsg(Message{Method: "Delete", Email: t.Email, Name: t.Name})
+	SendMsg(Message{Method: "Delete", Email: mail})
 	UserDb.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
 			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
 		}
-		bucket.Delete([]byte(t.Email))
+		bucket.Delete([]byte(mail))
 
 		return err
 	})
@@ -375,7 +370,7 @@ func Delete(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
-func ListCall(args PlugRequest, reply *PlugRequest) error {
+func ListCall(args PlugRequest, reply *PlugRequest, mail string) error {
 	initConf()
 	err := Configure()
 	if err != nil {
@@ -390,21 +385,36 @@ func ListCall(args PlugRequest, reply *PlugRequest) error {
 
 }
 
-func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	handlers := make(map[string]func(PlugRequest, *PlugRequest) error, 8)
-	handlers["/users/add"] = Add
-	handlers["/users/list"] = ListCall
-	handlers["/users/delete"] = Delete
-	handlers["/users/modifypassword"] = ModifyPassword
-	handlers["/users/disableaccount"] = DisableAccount
-	handlers["/users/getuser"] = GetUser
-	handlers["/users/isuserregistered"] = IsUserRegistered
-	handlers["/users/countregisteredusers"] = CountRegisteredUsers
+var tab = []struct {
+	Url    string
+	Method string
+	f      func(PlugRequest, *PlugRequest, string) error
+}{
+	{`^\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", DisableAccount},
+	{`^\/users\/{0,1}$`, "GET", ListCall},
+	{`^\/users\/{0,1}$`, "POST", Add},
+	{`^\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", Delete},
+	{`^\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
+	{`^\/users\/(?P<id>[^\/]+)\/{0,1}$`, "GET", GetUser},
+}
 
-	for i, val := range handlers {
-		if strings.Index(args.Url, i) == 0 {
-			val(args, reply)
-			break
+func (api) Receive(args PlugRequest, reply *PlugRequest) error {
+	for _, val := range tab {
+		re := regexp.MustCompile(val.Url)
+		match := re.MatchString(args.Url)
+		if val.Method == args.Method && match {
+			if len(re.FindStringSubmatch(args.Url)) == 2 {
+				err := val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				err := val.f(args, reply, "")
+
+				if err != nil {
+					log.Println(err)
+				}
+			}
 		}
 	}
 	return nil
