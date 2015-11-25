@@ -1,0 +1,31 @@
+guacamole-client:
+ build: ./
+ dockerfile: guacamole-client/Dockerfile
+ links:
+  - guacamole-server:guacd
+ volumes:
+  - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
+  - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
+guacamole-server:
+ image: glyptodon/guacd
+nanocloud-backend:
+ build: ./
+ dockerfile: nanocloud-backend/Dockerfile
+ links:
+  - guacamole-client:guacamole
+ volumes:
+  - ./nanocloud-backend/conf:/opt/conf
+ volumes_from:
+  - guacamole-client
+proxy:
+ image: nginx
+ volumes:
+  - ./nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
+ links:
+  - nanocloud-backend:haptic
+  - guacamole-client:guacamole
+ ports:
+  - 80:80
+  - 443:443
+ 
