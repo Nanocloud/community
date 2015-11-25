@@ -57,6 +57,10 @@ fi
 if [ "${1}" != "local" ]; then
   echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
   wget --quiet --show-progress ${NANOCLOUD_BIN_URL} -O - | nano_exec
+  if [ "$?" != "0" ]; then
+    echo "$(date "${DATE_FMT}") Installation failed, exiting…"
+    exit 1
+  fi
   echo "$(date "${DATE_FMT}") Downloading Coreos…"
   (
     cd ${NANOCLOUD_DIR}/images
@@ -76,11 +80,11 @@ fi
 echo "$(date "${DATE_FMT}") Starting first VM…"
 (
   cd ${NANOCLOUD_DIR}
-  nohup scripts/launch-coreos.sh > start.log &
+  nohup scripts/launch-coreos.sh > start.log 2>&1 &
 )
 chmod 400 /var/lib/nanocloud/coreos.key
 
-echo "$(date "${DATE_FMT}") Starting first VM…"
+echo "$(date "${DATE_FMT}") Testing connectivity…"
 sleep 10
 nc -v -z -w 10 localhost 2222 > /dev/null 2>&1
 if [ "$?" != "0" ]; then

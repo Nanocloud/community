@@ -29,14 +29,14 @@ Before deploying the **nanocloud-backend** container, you must specify the IP ad
 To do so, modify values of *AppServer.Server* and *AppServer.ExecutionServer* in the following lines of the file **nanocloud-backend/conf/config.json**.
 
 ```
-...
+…
     "AppServer": {
       "User" : "Administrator",
       "Server" : "<execution-manager-IPadress>",
       "ExecutionServers" : [
         "<execution-environment-IPadress>"
       ],
-...
+…
 ```
 
 ### Web server
