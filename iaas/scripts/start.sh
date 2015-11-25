@@ -37,6 +37,9 @@ if [ "$(sysctl --value net.ipv4.ip_forward)" != "1" ]; then
   sysctl --write net.ipv4.ip_forward=1 > /dev/null 2>&1
 fi
 
+echo "$(date "${DATE_FMT}") Starting host API"
+/etc/init.d/iaasAPI start > /dev/null 2>&1
+
 (
   cd ${NANOCLOUD_DIR}
   nohup scripts/launch-coreos.sh > start.log &
