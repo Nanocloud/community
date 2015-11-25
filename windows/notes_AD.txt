@@ -1,0 +1,118 @@
+(SSH)
+$ /cygdrive/c/Windows/System32/dcpromo.exe /unattend /NewDomain:forest /ReplicaOrNewDomain:Domain /NewDomainDNSName:intra.nanocloud.com /DomainLevel:4 /ForestLevel:4 /SafeModeAdminPassword:"Nanocloud123+"
+The dcpromo unattended operation is replaced by the ADDSDeployment module for Windows PowerShell. For more information, see http://go.microsoft.com/fwlink/?LinkId=220924
+Checking if Active Directory Domain Services binaries are installed...
+Active Directory Domain Services Setup
+
+Validating environment and parameters...
+Windows Server 2012 R2 domain controllers have a default for the security setting named "Allow cryptography algorithms compatible with Windows NT 4.0" that prevents weaker cryptography algorithms when establishing security channel sessions.
+
+For more information about this setting, see Knowledge Base article 942564 (http://go.microsoft.com/fwlink/?LinkId=104751).
+
+A delegation for this DNS server cannot be created because the authoritative parent zone cannot be found or it does not run Windows DNS server. If you are integrating with an existing DNS infrastructure, you should manually create a delegation to this DNS server in the parent zone to ensure reliable name resolution from outside the domain "intra.nanocloud.com". Otherwise, no action is required.
+
+----------------------------------------
+The following actions will be performed:
+Configure this server as the first Active Directory domain controller in a new forest.
+
+The new domain name is "intra.nanocloud.com". This is also the name of the new forest.
+
+The NetBIOS name of the domain is "INTRA".
+
+Forest Functional Level: Windows Server 2008 R2
+
+Domain Functional Level: Windows Server 2008 R2
+
+Site: Default-First-Site-Name
+
+Additional Options:
+  Read-only domain controller: "No"
+  Global catalog: Yes
+  DNS Server: Yes
+
+Create DNS Delegation: No
+
+Database folder: C:\Windows\NTDS
+Log file folder: C:\Windows\NTDS
+SYSVOL folder: C:\Windows\SYSVOL
+
+The DNS Server service will be installed on this computer.
+The DNS Server service will be configured on this computer.
+This computer will be configured to use this DNS server as its preferred DNS server.
+
+The password of the new domain Administrator will be the same as the password of the local Administrator of this computer.
+----------------------------------------
+
+Starting...
+
+Performing DNS installation...
+
+Press CTRL-C to: Cancel
+
+Waiting for DNS installation to finish
+
+Waiting for DNS Server service to be recognized... 0
+
+Waiting for DNS Server service to start... 0
+
+Checking if Group Policy Management Console needs to be installed...
+
+Installing Group Policy Management Console...
+
+Copying initial Directory Service database file C:\Windows\system32\ntds.dit to C:\Windows\NTDS\ntds.dit
+
+
+Configuring the local computer to host Active Directory Domain Services
+
+Creating directory partition: CN=Configuration,DC=intra,DC=nanocloud,DC=com; 1152 objects remaining
+
+Creating directory partition: CN=Configuration,DC=intra,DC=nanocloud,DC=com; 821 objects remaining
+
+Creating directory partition: CN=Configuration,DC=intra,DC=nanocloud,DC=com; 563 objects remaining
+
+Creating directory partition: CN=Configuration,DC=intra,DC=nanocloud,DC=com; 350 objects remaining
+
+Creating directory partition: CN=Configuration,DC=intra,DC=nanocloud,DC=com; 158 objects remaining
+
+Creating directory partition: CN=Configuration,DC=intra,DC=nanocloud,DC=com; 0 objects remaining
+
+Setting the LSA policy information
+
+
+Setting the computer's DNS computer name root to intra.nanocloud.com
+
+
+Securing S-1-5-32-548
+
+Securing machine\software\microsoft\windows
+
+The attempted domain controller operation has completed
+
+
+Configuring the DNS Server service on this computer...
+
+Enabling Active Directory Web Services if necessary ...
+
+Configuring Encrypting File System Services ...
+
+Active Directory Domain Services is now installed on this computer for the domain "intra.nanocloud.com".
+
+This Active Directory domain controller is assigned to the site "Default-First-Site-Name". You can manage sites with the Active Directory Sites and Services administrative tool.
+
+
+#############################################################################################################
+# POWERSHELL
+#############################################################################################################
+
+
+NOTA For RDS:
+Remove RDSSessionCollection
+
+Remove-RDSessionCollection "name"
+
+Add-WindowsFeature -Name RDS-RD-Server -IncludeAllSubFeature -WhatIf
+
+Whatif -> Check (remove to launch the command)
+
+This does not install everything. The normal installation is still necessary after. But it seems faster.
+

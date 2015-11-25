@@ -1,0 +1,8 @@
+# Packer
+packer_cache/
+data/
+
+# Ignore binary files
+iaas/qemu/
+iaas/tools/
+coreos.key*

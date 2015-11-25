@@ -1,0 +1,10 @@
+put Autounattend.xml in C:\
+
+Sysprep:
+
+cd C:\Windows\System32\Sysprep
+
+sysprep /oobe /reboot /unattend:C:\Autounattend.xml
+
+
+NOTA: /generalize options removes all drivers (unbootable system)

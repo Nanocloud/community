@@ -1,0 +1,20 @@
+qemu-img create -f raw floppy_setup.img 1440k
+(Formatting 'floppy_setup.img', fmt=raw size=1474560)
+
+mkfs.msdos -s 1 floppy_setup.img
+(mkfs.fat 3.0.27 (2014-11-12))
+
+(as root)
+
+mkdir /tmp/floppy
+mount -o loop floppy_setup.img /tmp/floppy
+
+cp ~dominique/DEV/nanocloud_software/community/windows_install/packer/windows/scripts/install-AD.bat /tmp/floppy/
+cp ~dominique/DEV/nanocloud_software/community/windows_install/packer/windows/scripts/install-ADCS.bat /tmp/floppy/
+mkdir /tmp/floppy/Sysprep
+cp ~dominique/DEV/nanocloud_software/community/windows_install/packer/windows/scripts/sysprep.bat /tmp/floppy/
+cp ~dominique/DEV/nanocloud_software/community/windows_install/packer/windows/floppy/windows-2012-standard-amd64/Autounattend.xml /tmp/floppy/Sysprep/
+
+sync
+umount /tmp/floppy
+mv floppy_setup.img ~dominique/DEV/nanocloud_software/community/windows_install/packer/windows/floppy/
