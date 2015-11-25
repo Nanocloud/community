@@ -266,7 +266,7 @@ func launchCheckPrerequisite() {
 func main() {
 	var installWillProceedMsg string = `Installation will proceed…
     To uninstall Nanocloud community, run the followind command:
-    curl https://community.nanocloud.com/nanocloud_uninstall.sh | sh`
+    wget https://community.nanocloud.com/nanocloud_uninstall.sh -q -O - | sh`
 
 	if len(os.Args) == 1 {
 		launchCheckPrerequisite()

@@ -56,7 +56,7 @@ fi
 
 if [ "${1}" != "local" ]; then
   echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
-  wget --quiet --show-progress ${NANOCLOUD_BIN_URL} -O - | nano_exec
+  wget --quiet --progress=bar:force ${NANOCLOUD_BIN_URL} -O - | nano_exec
   if [ "$?" != "0" ]; then
     echo "$(date "${DATE_FMT}") Installation failed, exiting…"
     exit 1
@@ -64,7 +64,7 @@ if [ "${1}" != "local" ]; then
   echo "$(date "${DATE_FMT}") Downloading Coreos…"
   (
     cd ${NANOCLOUD_DIR}/images
-    wget --quiet --show-progress ${NANOCLOUD_QCOW2_URL} -O coreos.qcow2
+    wget --quiet --progress=bar:force ${NANOCLOUD_QCOW2_URL} -O coreos.qcow2
     echo "$(date "${DATE_FMT}") Coreos download finished"
   )
 else
@@ -72,7 +72,7 @@ else
   (
     cd ${NANOCLOUD_DIR}/images
     echo "$(date "${DATE_FMT}") Downloading CoreOS"
-    wget --quiet --show-progress ${COREOS_QCOW2_URL} -O - | bzcat > coreos.qcow2
+    wget --quiet --progress=bar:force ${COREOS_QCOW2_URL} -O - | bzcat > coreos.qcow2
   )
   ./nanocloud launch
 fi
@@ -80,7 +80,7 @@ fi
 echo "$(date "${DATE_FMT}") Starting first VM…"
 (
   cd ${NANOCLOUD_DIR}
-  nohup scripts/launch-coreos.sh > start.log 2>&1 &
+  nohup scripts/launch-coreos.sh > start.log & 2>&1
 )
 chmod 400 /var/lib/nanocloud/coreos.key
 
