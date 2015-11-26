@@ -1,0 +1,7 @@
+BASE            DC=intra,DC=localdomain,DC=com
+BINDDN          CN=Administrator,DC=intra,DC=localdomain,DC=com
+URI             ldaps://10.20.12.20/
+TLS_CACERT      /opt/conf/ad2012.cer
+#TLS_REQCERT    allow
+TLS_REQCERT     never
+#loglevel 256
