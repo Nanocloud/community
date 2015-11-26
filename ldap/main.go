@@ -50,7 +50,7 @@ import (
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
-	"strings"
+	"regexp"
 	//	"os/exec"
 	"strconv"
 	"unicode"
@@ -122,6 +122,16 @@ type PlugRequest struct {
 	Form     url.Values
 	PostForm url.Values
 	Url      string
+	Method   string
+	Status   int
+	HeadVals map[string]string
+}
+
+type ReturnMsg struct {
+	Method string
+	Err    string
+	Plugin string
+	Email  string
 }
 
 func SetOptions(ldapConnection *C.LDAP) error {
@@ -158,7 +168,7 @@ func answerWithError(msg string, e error) error {
 	return errors.New(answer)
 }
 
-func ListUsers(args PlugRequest, reply *PlugRequest) error {
+func ListUsers(args PlugRequest, reply *PlugRequest, id string) error {
 	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
 		&tls.Config{
 			InsecureSkipVerify: true,
@@ -332,10 +342,10 @@ func CheckSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	return nil, cn, count
 }
 
-func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn) error {
+func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn, reply *PlugRequest) error {
 
 	if !test_password(params.Password) {
-
+		reply.Status = 400
 		return answerWithError("Password does not meet minimum requirements", nil)
 
 	}
@@ -442,12 +452,15 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) erro
 	return nil
 }
 
-func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
+func ModifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 
 	var params AccountParams
 
 	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
 		return answerWithError("modify password failed: ", e)
+	}
+	if id != "" {
+		params.UserEmail = id
 	}
 	bindusername := conf.Username
 	bindpassword := conf.Password
@@ -503,13 +516,16 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest) error {
 
 }
 
-func AddUser(args PlugRequest, reply *PlugRequest) error {
+func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
+	reply.Status = 201
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
 	var params AccountParams
 
 	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
+		reply.Status = 400
 		return answerWithError("AddUser() failed: ", e)
 	}
-	log.Println(params)
 	// OpenLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
 	tconf.host = conf.ServerURL
@@ -574,7 +590,7 @@ func AddUser(args PlugRequest, reply *PlugRequest) error {
 
 	// If no disabled accounts were found, real new user created
 	if cn == "" {
-		err = CreateNewUser(tconf, params, count, mods, ldapConnection)
+		err = CreateNewUser(tconf, params, count, mods, ldapConnection, reply)
 		if err != nil {
 			return err
 		}
@@ -594,11 +610,11 @@ func AddUser(args PlugRequest, reply *PlugRequest) error {
 		}
 
 	}
-
+	reply.Status = 201
 	return nil
 }
 
-func ForceDisableAccount(args PlugRequest, reply *PlugRequest) error {
+func ForceDisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 	var params AccountParams
 
 	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
@@ -659,7 +675,7 @@ func ForceDisableAccount(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
-func DisableAccount(args PlugRequest, reply *PlugRequest) error {
+func DisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 	var params AccountParams
 
 	if err := json.Unmarshal([]byte(args.Body), &params); err != nil {
@@ -720,50 +736,49 @@ func DisableAccount(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
+var tab = []struct {
+	Url    string
+	Method string
+	f      func(PlugRequest, *PlugRequest, string) error
+}{
+	{`^\/ldap\/users\/{0,1}$`, "POST", AddUser},
+	{`^\/ldap\/users\/{0,1}$`, "GET", ListUsers},
+	{`^\/ldap\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
+	{`^\/ldap\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", DisableAccount},
+	{`^\/ldap\/users\/(?P<id>[^\/]+)\/forcedisable\/{0,1}$`, "POST", ForceDisableAccount},
+}
+
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-
 	initConf()
-	if strings.Index(args.Url, "/ldap/list") == 0 {
-		err := ListUsers(args, reply)
-		if err != nil {
-			log.Println(err)
+	var err error
+	for _, val := range tab {
+		re := regexp.MustCompile(val.Url)
+		match := re.MatchString(args.Url)
+		if val.Method == args.Method && match {
+			if len(re.FindStringSubmatch(args.Url)) == 2 {
+				err = val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
+			} else {
+				err = val.f(args, reply, "")
+			}
+			if err != nil {
+				if reply.Status == 201 {
+					reply.Status = 500
+				}
+			}
 		}
 	}
-	if strings.Index(args.Url, "/ldap/add") == 0 {
-		err := AddUser(args, reply)
-		if err != nil {
-			log.Println(err)
-		}
-	}
-	if strings.Index(args.Url, "/ldap/modifypassword") == 0 {
-		err := ModifyPassword(args, reply)
-		if err != nil {
-			log.Println(err)
-		}
-	}
-	if strings.Index(args.Url, "/ldap/forcedisableaccount") == 0 {
-		err := ForceDisableAccount(args, reply)
-		if err != nil {
-			log.Println(err)
-		}
-	}
-	if strings.Index(args.Url, "/ldap/disableaccount") == 0 {
-		err := DisableAccount(args, reply)
-		if err != nil {
-			log.Println(err)
-		}
-	}
-
 	return nil
 }
 
-func SendReturn(msg string) {
+func SendReturn(msg ReturnMsg) {
+	Str, err := json.Marshal(msg)
+	if err != nil {
+		log.Println(err)
+	}
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 
 	ch, err := conn.Channel()
-	defer ch.Close()
-	defer conn.Close()
 	failOnError(err, "Failed to open a channel")
 	err = ch.ExchangeDeclare(
 		"users_topic", // name
@@ -776,13 +791,13 @@ func SendReturn(msg string) {
 	)
 	failOnError(err, "Failed to declare an exchange")
 	err = ch.Publish(
-		"users_topic", // exchange
-		"ldap.users",  // routing key
-		false,         // mandatory
-		false,         // immediate
+		"users_topic",    // exchange
+		"owncloud.users", // routing key
+		false,            // mandatory
+		false,            // immediate
 		amqp.Publishing{
-			ContentType: "test/plain",
-			Body:        []byte(msg),
+			ContentType: "application/json",
+			Body:        Str,
 		})
 	failOnError(err, "Failed to publish a message")
 
@@ -856,12 +871,12 @@ func LookForMsg() {
 	<-forever
 }
 
-func HandleError(err error) {
+func HandleError(err error, mail string, method string) {
 	if err != nil {
 		log.Println(err)
-		SendReturn("Plugin ldap encountered an error in the request")
+		SendReturn(ReturnMsg{Method: method, Err: err.Error(), Plugin: "ldap", Email: mail})
 	} else {
-		SendReturn("Plugin ldap successfully completed the request")
+		SendReturn(ReturnMsg{Method: method, Err: "", Plugin: "ldap", Email: mail})
 	}
 }
 
@@ -878,14 +893,14 @@ func HandleRequest(msg Message) {
 	}
 	args.Body = string(userjson)
 	if msg.Method == "Add" {
-		err = AddUser(args, &reply)
-		HandleError(err)
+		err = AddUser(args, &reply, "")
+		HandleError(err, params.UserEmail, msg.Method)
 	} else if msg.Method == "DisableAccount" {
-		err = ForceDisableAccount(args, &reply)
-		HandleError(err)
+		err = ForceDisableAccount(args, &reply, "")
+		HandleError(err, params.UserEmail, msg.Method)
 	} else if msg.Method == "ChangePassword" {
-		err := ModifyPassword(args, &reply)
-		HandleError(err)
+		err := ModifyPassword(args, &reply, "")
+		HandleError(err, params.UserEmail, msg.Method)
 	}
 
 }

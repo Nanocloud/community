@@ -3,14 +3,15 @@ package main
 import (
 	"io"
 	"log"
-	"net/http"
+	//	"net/http"
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
+	"github.com/labstack/echo"
+	mw "github.com/labstack/echo/middleware"
 	"github.com/natefinch/pie"
 	"gopkg.in/fsnotify.v1"
 )
@@ -68,14 +69,17 @@ func main() {
 		log.Fatal(err)
 	}
 	defer w.Close()
-	router := NewRouter()
-	//	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../front/"))))
+	//router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../front/"))))
+	e := echo.New()
+	e.Use(mw.Logger())
+	e.Use(mw.Recover())
+	e.Any("/*", GenericHandler)
 	running_plugins = make([]string, 0)
 	running_plugins = launch_existing_plugins(running_plugins)
 
 	go watchPlugins(w, running_plugins)
 
-	log.Fatal(http.ListenAndServe(":"+conf.Port, router))
+	e.Run(":" + conf.Port)
 
 }
 
@@ -150,7 +154,6 @@ func DeletePlugin(path string) {
 }
 
 func CreateEvent(running_plugins []string, name string, fullpath string, sourcefile string) []string {
-	time.Sleep(2000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
 	if IsRunning(running_plugins, name) {
 		running_plugins = ClosePlugin(running_plugins, name)
 		err := loadPlugin(fullpath)
@@ -213,7 +216,7 @@ func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
 	for {
 		select {
 		case evt := <-w.Events:
-			log.Println("fsnotify:", evt)
+			//log.Println("fsnotify:", evt)
 			switch evt.Op {
 			case fsnotify.Create:
 				if evt.Name[:strings.LastIndex(evt.Name, "/")+1] == conf.StagDir {

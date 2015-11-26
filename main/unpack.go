@@ -3,19 +3,19 @@ package main
 import (
 	"archive/tar"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 func UnpackGo(sourcefile string) {
-
+	time.Sleep(1000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
 	file, err := os.Open(sourcefile)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 
@@ -27,7 +27,7 @@ func UnpackGo(sourcefile string) {
 	if strings.HasSuffix(sourcefile, ".gz") {
 		if fileReader, err = gzip.NewReader(file); err != nil {
 
-			fmt.Println(err)
+			log.Println(err)
 			os.Exit(1)
 		}
 		defer fileReader.Close()
@@ -43,7 +43,7 @@ func UnpackGo(sourcefile string) {
 			if err == io.EOF {
 				break
 			}
-			fmt.Println(err)
+			log.Println(err)
 			os.Exit(1)
 		}
 
@@ -54,12 +54,12 @@ func UnpackGo(sourcefile string) {
 		case tar.TypeDir:
 		case tar.TypeReg:
 			// handle normal file
-			fmt.Println("Untarring :", filename)
+			log.Println("Untarring :", filename)
 			if !strings.Contains(filename, "/") {
 				writer, err := os.OpenFile("plugins/staging/"+filename, os.O_WRONLY|os.O_CREATE, os.FileMode(header.Mode))
 
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 					os.Exit(1)
 				}
 
@@ -68,17 +68,15 @@ func UnpackGo(sourcefile string) {
 				//err = os.Chmod(filename, os.FileMode(header.Mode))
 
 				if err != nil {
-					fmt.Println(err)
+					log.Println(err)
 					os.Exit(1)
 				}
 
 				writer.Close()
-				log.Println("filename: ", filename)
-				log.Println("conf.StagDir: ", conf.StagDir)
 				running_plugins = CreateEvent(running_plugins, filename, conf.StagDir+filename, sourcefile)
 			}
 		default:
-			fmt.Printf("Unable to untar type : %c in file %s", header.Typeflag, filename)
+			log.Println("Unable to untar type :", header.Typeflag, " in file", filename)
 		}
 	}
 
@@ -87,7 +85,7 @@ func UnpackGo(sourcefile string) {
 func DeleteOldFront(sourcefile string) {
 	file, err := os.Open(sourcefile)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 	defer file.Close()
@@ -96,7 +94,7 @@ func DeleteOldFront(sourcefile string) {
 	if strings.HasSuffix(sourcefile, ".gz") {
 		if fileReader, err = gzip.NewReader(file); err != nil {
 
-			fmt.Println(err)
+			log.Println(err)
 			os.Exit(1)
 		}
 		defer fileReader.Close()
@@ -108,22 +106,22 @@ func DeleteOldFront(sourcefile string) {
 			if err == io.EOF {
 				break
 			}
-			fmt.Println(err)
+			log.Println(err)
 			os.Exit(1)
 		}
 		filename := header.Name
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// handle directory
-			fmt.Println("Deleting directory :", "../front/"+filename)
+			log.Println("Deleting directory :", "../front/"+filename)
 			err = os.RemoveAll("../front/" + filename) // or use 0755 if you prefer
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				os.Exit(1)
 			}
 		case tar.TypeReg:
 		default:
-			fmt.Printf("Unable to delete type : %c in file %s", header.Typeflag, filename)
+			log.Println("Unable to delete type :", header.Typeflag, " in file", filename)
 		}
 	}
 }
@@ -132,7 +130,7 @@ func UnpackFront(sourcefile string) {
 	file, err := os.Open(sourcefile)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 
@@ -144,7 +142,7 @@ func UnpackFront(sourcefile string) {
 	if strings.HasSuffix(sourcefile, ".gz") {
 		if fileReader, err = gzip.NewReader(file); err != nil {
 
-			fmt.Println(err)
+			log.Println(err)
 			os.Exit(1)
 		}
 		defer fileReader.Close()
@@ -160,7 +158,7 @@ func UnpackFront(sourcefile string) {
 			if err == io.EOF {
 				break
 			}
-			fmt.Println(err)
+			log.Println(err)
 			os.Exit(1)
 		}
 
@@ -170,34 +168,34 @@ func UnpackFront(sourcefile string) {
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// handle directory
-			fmt.Println("Creating directory :", "../front/"+filename)
+			log.Println("Creating directory :", "../front/"+filename)
 			err = os.MkdirAll("../front/"+filename, os.FileMode(header.Mode)) // or use 0755 if you prefer
 
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				os.Exit(1)
 			}
 
 		case tar.TypeReg:
 			// handle normal file
-			fmt.Println("Untarring :", filename)
+			log.Println("Untarring :", filename)
 			writer, err := os.OpenFile("../front/"+filename, os.O_WRONLY|os.O_CREATE, os.FileMode(header.Mode))
 
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				os.Exit(1)
 			}
 
 			io.Copy(writer, tarBallReader)
 
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				os.Exit(1)
 			}
 
 			writer.Close()
 		default:
-			fmt.Printf("Unable to untar type : %c in file %s", header.Typeflag, filename)
+			log.Println("Unable to untar type :", header.Typeflag, " in file", filename)
 		}
 	}
 
