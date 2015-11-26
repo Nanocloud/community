@@ -54,7 +54,8 @@ type OcsData struct {
 	Users   OcsUsers `xml:"users"`
 }
 type OcsUsers struct {
-	Element []string `xml:"element"`
+	Element  []string `xml:"element"`
+	Password string   `xml:"password"`
 }
 
 func init() {
