@@ -37,7 +37,6 @@ ENV GOPATH="$GOPATH:/opt/build/backend"
 ENV NANOCONF="/opt/conf/config.json"
 RUN make setup \
     && make haptic
-RUN cp /opt/conf/ldaprc /etc/ldap/ldap.conf
 
 EXPOSE 8081
 
