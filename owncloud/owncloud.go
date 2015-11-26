@@ -63,27 +63,43 @@ func Configure() {
 	apiUrl = fmt.Sprintf("%s://%s/ocs/v1.php/cloud", conf.protocol, conf.hostname)
 }
 
-func Create(username, password string) (Ocs, error) {
-	return ocsRequest("POST", apiUrl+"/users", url.Values{
+func Create(username, password string) ReturnMsg {
+	_, err := ocsRequest("POST", apiUrl+"/users", url.Values{
 		"userid":   {username},
 		"password": {password},
 	})
+	if err != nil {
+		return ReturnMsg{Method: "Add", Err: err.Error(), Plugin: "owncloud", Email: username}
+	} else {
+		return ReturnMsg{Method: "Add", Err: "", Plugin: "owncloud", Email: username}
+	}
 }
 
-func Delete(username string) (Ocs, error) {
-	log.Println(apiUrl + "/users/" + username)
-	return ocsRequest("DELETE", apiUrl+"/users/"+username, nil)
+func Delete(username string) ReturnMsg {
+	log.Println(username)
+	_, err := ocsRequest("DELETE", apiUrl+"/users/"+username, nil)
+	if err != nil {
+		return ReturnMsg{Method: "Delete", Err: err.Error(), Plugin: "owncloud", Email: username}
+	} else {
+		return ReturnMsg{Method: "Delete", Err: "", Plugin: "owncloud", Email: username}
+	}
 }
 
 // Allows to edit attributes related to a user.
 // The key could be one of these values :
 // email, display, password or quota.
 // Only admins can edit the quota value.
-func Edit(username string, key string, value string) (Ocs, error) {
-	return ocsRequest("PUT", apiUrl+"/users/"+username, url.Values{
+func Edit(username string, key string, value string) ReturnMsg {
+	log.Println(username, key, value)
+	_, err := ocsRequest("PUT", apiUrl+"/users/"+username, url.Values{
 		"key":   {key},
 		"value": {value},
 	})
+	if err != nil {
+		return ReturnMsg{Method: "Edit", Err: err.Error(), Plugin: "owncloud", Email: username}
+	} else {
+		return ReturnMsg{Method: "Edit", Err: "", Plugin: "owncloud", Email: username}
+	}
 }
 
 func ocsRequest(method, url string, data url.Values) (Ocs, error) {

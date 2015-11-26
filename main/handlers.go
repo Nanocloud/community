@@ -24,6 +24,8 @@ type PlugRequest struct {
 	PostForm url.Values
 	Url      string
 	Method   string
+	Status   int
+	HeadVals map[string]string
 }
 
 func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
@@ -62,9 +64,11 @@ func WriteAnswer(w http.ResponseWriter, reply PlugRequest) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cashe-Control", "no-store")
 	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	//	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Expires", "Sat, 01 Jan 2000 00:00:00 GMT")
 	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Content-Type", reply.HeadVals["Content-Type"])
+	w.WriteHeader(reply.Status)
 	w.Write([]byte(reply.Body))
 }
 
@@ -73,7 +77,6 @@ func GenericHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-
 	var args PlugRequest
 	GetRequestInfos(w, r, &args)
 	l := CheckTrailingSlash(args)
