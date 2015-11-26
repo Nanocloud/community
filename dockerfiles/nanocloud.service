@@ -1,0 +1,11 @@
+[Unit]
+Description=Nanocloud
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/home/core/dockerfiles/docker-compose -f /home/core/dockerfiles/docker-compose.yml up
+
+[Install]
+WantedBy=multi-user.target
