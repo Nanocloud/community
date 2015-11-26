@@ -51,7 +51,15 @@ type PlugRequest struct {
 	PostForm url.Values
 	Url      string
 	Method   string
-	UrlVars  map[string]string
+	HeadVals map[string]string
+	Status   int
+}
+
+type ReturnMsg struct {
+	Method string
+	Err    string
+	Plugin string
+	Email  string
 }
 
 func Configure() error {
@@ -93,16 +101,25 @@ func GetList(users *[]UserInfo) error {
 }
 
 func GetUser(args PlugRequest, reply *PlugRequest, mail string) error {
+	var err error
+	err = nil
 	if mail == "" {
-		return errors.New(fmt.Sprintf("Email needed to retrieve account informations"))
+		err := errors.New(fmt.Sprintf("Email needed to retrieve account informations"))
+
+		if err != nil {
+			log.Println(err)
+		}
 	}
+
 	initConf()
-	err := Configure()
+	err = Configure()
 	if err != nil {
 		log.Println(err)
-		return err
 	}
 	defer UserDb.Close()
+
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
 	e := UserDb.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
@@ -110,11 +127,17 @@ func GetUser(args PlugRequest, reply *PlugRequest, mail string) error {
 		}
 
 		userJson := bucket.Get([]byte(mail))
-		//json.Unmarshal(userJson, &user)
+		if userJson == nil {
+			reply.Status = 404
+			return errors.New(fmt.Sprintf("User Not Found"))
+		} else {
+			reply.Status = 200
+		}
 		reply.Body = string(userJson)
 
 		return nil
 	})
+
 	return e
 
 }
@@ -234,7 +257,7 @@ func SendMsg(msg Message) {
 		false,         // mandatory
 		false,         // immediate
 		amqp.Publishing{
-			ContentType: "encoding/json",
+			ContentType: "application/json",
 			Body:        []byte(str),
 		})
 	failOnError(err, "Failed to publish a message")
@@ -268,6 +291,13 @@ func Add(args PlugRequest, reply *PlugRequest, mail string) error {
 		return err
 	})
 
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html;charset=UTF-8"
+	if err == nil {
+		reply.Status = 202
+	} else {
+		reply.Status = 400
+	}
 	return nil
 }
 
@@ -278,7 +308,9 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) error {
 	initConf()
 	err := Configure()
 	if err != nil {
+		reply.Status = 500
 		log.Println(err)
+		return err
 	}
 	defer UserDb.Close()
 	var t UserInfo
@@ -287,10 +319,11 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) error {
 	if err != nil {
 		log.Println(err)
 	}
-	SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password, Email: t.Email})
+	SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password, Email: mail})
 	UserDb.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
+			reply.Status = 500
 			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
 		}
 		cursor := bucket.Cursor()
@@ -303,30 +336,35 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) error {
 				break
 			}
 		}
-
+		if rec.Password == "" {
+			reply.Status = 404
+		} else {
+			reply.Status = 202
+		}
 		return err
 	})
 	return nil
 }
 
 func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) error {
+	reply.Status = 404
 	if mail == "" {
 		return errors.New(fmt.Sprintf("Email needed for desactivation"))
 	}
 	initConf()
 	err := Configure()
 	if err != nil {
+		reply.Status = 500
 		return err
 	}
 	defer UserDb.Close()
 	var rec UserInfo
-	if err != nil {
-		return err
-	}
+
 	SendMsg(Message{Method: "DisableAccount", Email: mail})
 	UserDb.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
+			reply.Status = 500
 			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
 		}
 		cursor := bucket.Cursor()
@@ -336,6 +374,7 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) error {
 				rec.Activated = "false"
 				jsonUser, _ := json.Marshal(rec)
 				bucket.Put([]byte(rec.Email), jsonUser)
+				reply.Status = 202
 				break
 			}
 		}
@@ -347,12 +386,14 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) error {
 
 func Delete(args PlugRequest, reply *PlugRequest, mail string) error {
 	if mail == "" {
+		reply.Status = 400
 		return errors.New(fmt.Sprintf("Email needed for deletion"))
 	}
 	initConf()
 	err := Configure()
 	if err != nil {
-		log.Println(err)
+		reply.Status = 500
+		return err
 	}
 
 	defer UserDb.Close()
@@ -360,9 +401,11 @@ func Delete(args PlugRequest, reply *PlugRequest, mail string) error {
 	UserDb.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(conf.DatabaseName))
 		if bucket == nil {
+			reply.Status = 500
 			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
 		}
 		bucket.Delete([]byte(mail))
+		reply.Status = 202
 
 		return err
 	})
@@ -374,13 +417,21 @@ func ListCall(args PlugRequest, reply *PlugRequest, mail string) error {
 	initConf()
 	err := Configure()
 	if err != nil {
-		log.Println(err)
+		reply.Status = 500
+		return err
 	}
 	defer UserDb.Close()
 	var users []UserInfo
 	GetList(&users)
 	rsp, err := json.Marshal(users)
 	reply.Body = string(rsp)
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	if err == nil {
+		reply.Status = 200
+	} else {
+		reply.Status = 400
+	}
 	return nil
 
 }
@@ -471,16 +522,31 @@ func ListenToQueue() {
 	forever := make(chan bool)
 	go func() {
 		for d := range responses {
-			if err != nil {
-				log.Println(err)
-			}
-			log.Println(string(d.Body))
+			HandleReturns(d.Body)
 		}
 	}()
-	log.Println("Waiting for responses of fake/owncloud")
+	log.Println("Waiting for responses of other plugins")
 	defer ch.Close()
 	defer conn.Close()
 	<-forever
+}
+
+func HandleReturns(ret []byte) {
+	var Msg ReturnMsg
+	err := json.Unmarshal(ret, &Msg)
+	if err != nil {
+		log.Println(err)
+	}
+	if Msg.Err == "" {
+		log.Println("Request:", Msg.Method, "Successfully completed by plugin", Msg.Plugin)
+	} else {
+		if Msg.Method == "Add" {
+			log.Println("Request:", Msg.Method, "Didn't complete by plugin", Msg.Plugin, ", now reversing process")
+			Delete(PlugRequest{}, &PlugRequest{}, Msg.Email)
+		} else {
+			log.Println("Request:", Msg.Method, "Didn't complete by plugin", Msg.Plugin)
+		}
+	}
 }
 
 func (api) Plug(args interface{}, reply *bool) error {

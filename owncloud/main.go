@@ -28,7 +28,7 @@ import (
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/natefinch/pie"
 	"github.com/streadway/amqp"
@@ -67,47 +67,102 @@ type PlugRequest struct {
 	Form     url.Values
 	PostForm url.Values
 	Url      string
+	Method   string
+	Status   int
+	HeadVals map[string]string
 }
 
-func CreateUser(args PlugRequest, reply *PlugRequest) error {
+type ReturnMsg struct {
+	Method string
+	Err    string
+	Plugin string
+	Email  string
+}
+
+func CreateUser(args PlugRequest, reply *PlugRequest, mail string) {
+
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
 	var params CreateUserParams
 	err := json.Unmarshal([]byte(args.Body), &params)
 	if err != nil {
+		reply.Status = 400
 		log.Println(err)
+		return
 	}
-	_, err = Create(params.Email, params.Password)
-	if err != nil {
-		log.Println(err)
+	var msg ReturnMsg
+	msg = Create(params.Email, params.Password)
+	if msg.Err != "" {
+		reply.Status = 400
+		log.Println(msg.Err)
+		return
 	}
-	return err
+	reply.Status = 201
 }
 
-func ChangePassword(args PlugRequest, reply *PlugRequest) {
+func ChangePassword(args PlugRequest, reply *PlugRequest, mail string) {
+
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
 	var params CreateUserParams
 	err := json.Unmarshal([]byte(args.Body), &params)
 	if err != nil {
+		reply.Status = 400
 		log.Println(err)
+		return
 	}
-	_, err = Edit(params.Email, "password", params.Password)
+	var msg ReturnMsg
+	msg = Edit(mail, "password", params.Password)
+	if msg.Err != "" {
+		reply.Status = 404
+		log.Println(msg.Err)
+		return
+	}
+	reply.Status = 204
 }
 
-type del struct {
-	Email string
+func DeleteUser(args PlugRequest, reply *PlugRequest, mail string) {
+
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
+	var msg ReturnMsg
+	msg = Delete(mail)
+	if msg.Err != "" {
+		log.Println("deletion error: ", msg.Err)
+		reply.Status = 404
+		return
+	}
+	reply.Status = 204
 }
 
-func DeleteUser(args PlugRequest, reply *PlugRequest) {
-
-	var User del
-	err := json.Unmarshal([]byte(args.Body), &User)
-	if err != nil {
-		log.Println(err)
-	}
-	_, err = Delete(User.Email)
-	if err != nil {
-		log.Println("deletion error: ", err)
-	}
+var tab = []struct {
+	Url    string
+	Method string
+	f      func(PlugRequest, *PlugRequest, string)
+}{
+	{`^\/owncloud\/users\/{0,1}$`, "POST", CreateUser},
+	{`^\/owncloud\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", DeleteUser},
+	{`^\/owncloud\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ChangePassword},
 }
 
+func (api) Receive(args PlugRequest, reply *PlugRequest) error {
+	initConf()
+	Configure()
+	for _, val := range tab {
+		re := regexp.MustCompile(val.Url)
+		match := re.MatchString(args.Url)
+		if val.Method == args.Method && match {
+			if len(re.FindStringSubmatch(args.Url)) == 2 {
+				val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
+			} else {
+				val.f(args, reply, "")
+			}
+		}
+	}
+	return nil
+}
+
+/*
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	initConf()
 	Configure()
@@ -123,7 +178,7 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	}
 
 	return nil
-}
+}*/
 
 type Queue struct {
 	Name string
@@ -160,7 +215,11 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func SendReturn(msg string) {
+func SendReturn(msg ReturnMsg) {
+	Str, err := json.Marshal(msg)
+	if err != nil {
+		log.Println(err)
+	}
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 
@@ -182,8 +241,8 @@ func SendReturn(msg string) {
 		false,            // mandatory
 		false,            // immediate
 		amqp.Publishing{
-			ContentType: "test/plain",
-			Body:        []byte(msg),
+			ContentType: "application/json",
+			Body:        Str,
 		})
 	failOnError(err, "Failed to publish a message")
 
@@ -255,27 +314,29 @@ func LookForMsg() {
 	<-forever
 }
 
-func HandleError(err error) {
+/*
+func HandleError(msg ReturnMsg) {
 	if err != nil {
 		log.Println(err)
 		SendReturn("Plugin owncloud encountered an error in the request")
 	} else {
 		SendReturn("Plugin owncloud successfully completed the request")
 	}
-}
+}*/
 
 func HandleRequest(msg Message) {
 	initConf()
 	Configure()
+	var ret ReturnMsg
 	if msg.Method == "Add" {
-		_, err := Create(msg.Email, msg.Password)
-		HandleError(err)
+		ret = Create(msg.Email, msg.Password)
+		SendReturn(ret)
 	} else if msg.Method == "Delete" {
-		_, err := Delete(msg.Email)
-		HandleError(err)
+		ret = Delete(msg.Email)
+		SendReturn(ret)
 	} else if msg.Method == "ChangePassword" {
-		_, err := Edit(msg.Email, "password", msg.Password)
-		HandleError(err)
+		ret = Edit(msg.Email, "password", msg.Password)
+		SendReturn(ret)
 	}
 
 }
