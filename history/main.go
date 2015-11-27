@@ -10,7 +10,7 @@ import (
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/boltdb/bolt"
 	"github.com/natefinch/pie"
@@ -43,6 +43,9 @@ type PlugRequest struct {
 	Form     url.Values
 	PostForm url.Values
 	Url      string
+	Method   string
+	HeadVals map[string]string
+	Status   int
 }
 
 func Configure() error {
@@ -88,11 +91,13 @@ func GetList(histories *[]HistoryInfo) error {
 	return nil
 }
 
-func Add(args PlugRequest) error {
+func Add(args PlugRequest, reply *PlugRequest) error {
 	var t HistoryInfo
 	err := json.Unmarshal([]byte(args.Body), &t)
 	if err != nil {
+		reply.Status = 400
 		log.Println(err)
+		return err
 	}
 
 	HistoryDb.Update(func(tx *bolt.Tx) error {
@@ -108,62 +113,81 @@ func Add(args PlugRequest) error {
 	return nil
 }
 
-func SetStatusOk(reply *map[string]string) {
-	(*reply)["statuscode"] = "200"
-	(*reply)["errormsg"] = ""
-	(*reply)["errordesc"] = ""
-}
-
-func SetPageNotFound(reply *map[string]string) {
-	(*reply)["statuscode"] = "404"
-	(*reply)["errormsg"] = "Page Not Found"
-	(*reply)["errordesc"] = "The page was not found"
-}
-
-func AddCall(args PlugRequest, reply *PlugRequest) {
-	log.Println("ADDCALL")
-	//	ids := strings.Split(args.Url, "/")
+func AddCall(args PlugRequest, reply *PlugRequest, id string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
 	initConf()
 	err := Configure()
 	if err != nil {
+		reply.Status = 500
 		log.Println(err)
+		return
 	}
-	Add(args)
+	err = Add(args, reply)
 	if err != nil {
+		if reply.Status != 400 {
+			reply.Status = 500
+		}
 		log.Println(err)
+		return
 	}
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html;charset=UTF-8"
 	defer HistoryDb.Close()
+	reply.Status = 202
 }
 
-func ListCall(reply *PlugRequest) {
-	log.Println("LIST CALL")
+func ListCall(args PlugRequest, reply *PlugRequest, id string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
 	initConf()
 	err := Configure()
 	if err != nil {
+		reply.Status = 500
 		log.Println(err)
+		return
 	}
 	defer HistoryDb.Close()
 	var histories []HistoryInfo
 	GetList(&histories)
 	rsp, err := json.Marshal(histories)
+	if err != nil {
+		reply.Status = 500
+		log.Println(err)
+		return
+	}
 	reply.Body = string(rsp)
+	reply.Status = 200
 
 }
 
+var tab = []struct {
+	Url    string
+	Method string
+	f      func(PlugRequest, *PlugRequest, string)
+}{
+	{`^\/api\/history\/{0,1}$`, "GET", ListCall},
+	{`^\/api\/history\/{0,1}$`, "POST", AddCall},
+}
+
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-
-	if strings.Index(args.Url, "/history/add") == 0 {
-		AddCall(args, reply)
+	for _, val := range tab {
+		re := regexp.MustCompile(val.Url)
+		match := re.MatchString(args.Url)
+		if val.Method == args.Method && match {
+			if len(re.FindStringSubmatch(args.Url)) == 2 {
+				val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
+				return nil
+			} else {
+				val.f(args, reply, "")
+				return nil
+			}
+		}
 	}
-	if strings.Index(args.Url, "/history/list") == 0 {
-		ListCall(reply)
-	}
-
 	return nil
 }
 
 func (api) Plug(args interface{}, reply *bool) error {
-	//go launch()
 	*reply = true
 	return nil
 }
