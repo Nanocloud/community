@@ -5,10 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
 	"runtime"
 )
 
-const confFilename string = "conf.yaml"
+const confFilename string = "owncloud.yaml"
 
 type Configuration struct {
 	adminLogin    string
@@ -47,10 +48,15 @@ func getDefaultConf() Configuration {
 func initConf() {
 
 	conf = getDefaultConf()
+	usr, err := user.Current()
+	if err != nil {
+		log.Println(err)
+	}
+	home := usr.HomeDir
 	f := "owncloud.yaml"
 	if runtime.GOOS == "linux" {
-		d := "/home/antoine/.config/nanocloud/owncloud/"
-		err := os.MkdirAll(d, 0644)
+		d := home + "/.config/nanocloud/owncloud/"
+		err := os.MkdirAll(d, 0755)
 		if err == nil {
 			f = d + f
 		} else {
@@ -59,7 +65,12 @@ func initConf() {
 	}
 
 	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println(err)
+		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
+		alt := "/etc/nanocloud/owncloud/owncloud.yaml"
+		if err := ReadMergeConf(&conf, alt); err != nil {
+			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
+		}
+
 	}
 	if err := WriteConf(conf, f); err != nil {
 		log.Println(err)
