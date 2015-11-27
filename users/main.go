@@ -441,12 +441,12 @@ var tab = []struct {
 	Method string
 	f      func(PlugRequest, *PlugRequest, string) error
 }{
-	{`^\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", DisableAccount},
-	{`^\/users\/{0,1}$`, "GET", ListCall},
-	{`^\/users\/{0,1}$`, "POST", Add},
-	{`^\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", Delete},
-	{`^\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
-	{`^\/users\/(?P<id>[^\/]+)\/{0,1}$`, "GET", GetUser},
+	{`^\/api\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", DisableAccount},
+	{`^\/api\/users\/{0,1}$`, "GET", ListCall},
+	{`^\/api\/users\/{0,1}$`, "POST", Add},
+	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", Delete},
+	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
+	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "GET", GetUser},
 }
 
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {

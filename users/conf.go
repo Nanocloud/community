@@ -5,10 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
 	"runtime"
 )
 
-const confFilename string = "conf.yaml"
+const confFilename string = "users.yaml"
 
 type Configuration struct {
 	ConnectionString string
@@ -35,18 +36,23 @@ func WriteConf(in interface{}, filename string) error {
 
 func getDefaultConf() Configuration {
 	return Configuration{
-		ConnectionString: "users2.db",
-		DatabaseName:     "users2",
+		ConnectionString: "users.db",
+		DatabaseName:     "users",
 	}
 }
 
 func initConf() {
 
 	conf = getDefaultConf()
+	usr, err := user.Current()
+	if err != nil {
+		log.Println(err)
+	}
+	home := usr.HomeDir
 	f := "users.yaml"
 	if runtime.GOOS == "linux" {
-		d := "/home/antoine/.config/nanocloud/users/"
-		err := os.MkdirAll(d, 0644)
+		d := home + "/.config/nanocloud/users/"
+		err := os.MkdirAll(d, 0755)
 		if err == nil {
 			f = d + f
 		} else {
@@ -55,7 +61,11 @@ func initConf() {
 	}
 
 	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println(err)
+		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
+		alt := "/etc/nanocloud/users/users.yaml"
+		if err := ReadMergeConf(&conf, alt); err != nil {
+			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
+		}
 	}
 	if err := WriteConf(conf, f); err != nil {
 		log.Println(err)

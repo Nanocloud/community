@@ -169,6 +169,9 @@ func answerWithError(msg string, e error) error {
 }
 
 func ListUsers(args PlugRequest, reply *PlugRequest, id string) error {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
+	reply.Status = 500
 	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
 		&tls.Config{
 			InsecureSkipVerify: true,
@@ -221,6 +224,7 @@ func ListUsers(args PlugRequest, reply *PlugRequest, id string) error {
 	}
 	g, _ := json.Marshal(res)
 	reply.Body = string(g)
+	reply.Status = 200
 	return nil
 }
 
@@ -454,9 +458,14 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) erro
 
 func ModifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
+	reply.Status = 500
+
 	var params AccountParams
 
 	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
+		reply.Status = 400
 		return answerWithError("modify password failed: ", e)
 	}
 	if id != "" {
@@ -512,6 +521,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 	if err != nil {
 		return answerWithError("Password modification failed: ", err)
 	}
+	reply.Status = 202
 	return nil
 
 }
@@ -615,9 +625,14 @@ func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
 }
 
 func ForceDisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
+	reply.Status = 202
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
 	var params AccountParams
-
-	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
+	if id != "" {
+		params.UserEmail = id
+	} else if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
+		reply.Status = 400
 		return answerWithError("ForceDisableAccount() failed ", e)
 	}
 
@@ -741,11 +756,11 @@ var tab = []struct {
 	Method string
 	f      func(PlugRequest, *PlugRequest, string) error
 }{
-	{`^\/ldap\/users\/{0,1}$`, "POST", AddUser},
-	{`^\/ldap\/users\/{0,1}$`, "GET", ListUsers},
-	{`^\/ldap\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
-	{`^\/ldap\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", DisableAccount},
-	{`^\/ldap\/users\/(?P<id>[^\/]+)\/forcedisable\/{0,1}$`, "POST", ForceDisableAccount},
+	{`^\/api\/ldap\/users\/{0,1}$`, "POST", AddUser},
+	{`^\/api\/ldap\/users\/{0,1}$`, "GET", ListUsers},
+	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
+	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", ForceDisableAccount},
+	//	{`^\/ldap\/users\/(?P<id>[^\/]+)\/forcedisable\/{0,1}$`, "POST", ForceDisableAccount},
 }
 
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {

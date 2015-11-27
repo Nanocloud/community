@@ -140,9 +140,9 @@ var tab = []struct {
 	Method string
 	f      func(PlugRequest, *PlugRequest, string)
 }{
-	{`^\/owncloud\/users\/{0,1}$`, "POST", CreateUser},
-	{`^\/owncloud\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", DeleteUser},
-	{`^\/owncloud\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ChangePassword},
+	{`^\/api\/owncloud\/users\/{0,1}$`, "POST", CreateUser},
+	{`^\/api\/owncloud\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", DeleteUser},
+	{`^\/api\/owncloud\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ChangePassword},
 }
 
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
