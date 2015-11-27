@@ -1,4 +1,0 @@
-rundir: plugins/running/
-stagdir: plugins/staging/
-instdir: plugins/installed/
-port: "8080"
