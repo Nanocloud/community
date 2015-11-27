@@ -13,10 +13,6 @@ import (
 	"strings"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome!")
-}
-
 type PlugRequest struct {
 	Body     string
 	Header   http.Header
@@ -46,30 +42,18 @@ func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
 
 }
 
-func CheckTrailingSlash(t PlugRequest) int {
-	l := strings.Index(t.Url[1:], "/")
-	if l == -1 {
-		l = len(t.Url[1:])
-	}
-	return l
-}
-
-func WriteError(w http.ResponseWriter, reply map[string]string) {
-	w.Write([]byte(reply["statuscode"]))
-	w.Write([]byte(" " + reply["errormsg"]))
-}
-
 func WriteAnswer(w http.ResponseWriter, reply PlugRequest) {
+	w.Header().Set("Content-Type", reply.HeadVals["Content-Type"])
+	//w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(reply.Status)
 	//	w.Header["Access-Control-Allow-Origin"] = "*"
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cashe-Control", "no-store")
 	w.Header().Set("Connection", "keep-alive")
-	//	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Expires", "Sat, 01 Jan 2000 00:00:00 GMT")
 	w.Header().Set("Pragma", "no-cache")
-	w.Header().Set("Content-Type", reply.HeadVals["Content-Type"])
-	w.WriteHeader(reply.Status)
 	w.Write([]byte(reply.Body))
+
 }
 
 func GenericHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,10 +63,10 @@ func GenericHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var args PlugRequest
 	GetRequestInfos(w, r, &args)
-	l := CheckTrailingSlash(args)
+	//	l := CheckTrailingSlash(args)
 	var rep PlugRequest
 	for _, val := range plugins {
-		if val.name == args.Url[1:l+1] {
+		if strings.HasPrefix(args.Url, "/api/"+val.name) {
 			// TODO Reunite these 2 cases in 1
 			if val, ok := plugins[conf.RunDir+val.name]; ok {
 				err := plugins[conf.RunDir+val.name].client.Call(plugins[conf.RunDir+val.name].name+".Receive", args, &rep)
