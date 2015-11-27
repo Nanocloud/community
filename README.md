@@ -3,7 +3,7 @@
 
 ## Quickinstall
 
-Simply run the following command to install and run **Nanocloud**
+Simply run the following command as **root** to install and run **Nanocloud**
 
 ```
 wget "http://community.nanocloud.com/nanocloud.sh" -q -O - | sh
