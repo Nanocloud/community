@@ -13,6 +13,7 @@ import (
 	"regexp"
 	//	"strings"
 
+	"../tools"
 	"github.com/boltdb/bolt"
 	"github.com/natefinch/pie"
 	"github.com/streadway/amqp"
