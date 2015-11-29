@@ -4,7 +4,7 @@ MAINTAINER \
 	Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
 RUN apt-get update && \
-    apt-get -y install git libldap2-dev
+    apt-get -y install git libldap2-dev sshpass
 
 COPY repos_nanocloud /opt/repos
 
