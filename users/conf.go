@@ -12,8 +12,8 @@ import (
 const confFilename string = "users.yaml"
 
 type Configuration struct {
-	ConnectionString string
-	DatabaseName     string
+	DatabaseUri string
+	QueueUri    string
 }
 
 var conf Configuration
@@ -36,13 +36,12 @@ func WriteConf(in interface{}, filename string) error {
 
 func getDefaultConf() Configuration {
 	return Configuration{
-		ConnectionString: "users.db",
-		DatabaseName:     "users",
+		DatabaseUri: "postgres://localhost/nanocloud?sslmode=disable",
+		QueueUri:    "amqp://guest:guest@localhost:5672/",
 	}
 }
 
 func initConf() {
-
 	conf = getDefaultConf()
 	usr, err := user.Current()
 	if err != nil {
