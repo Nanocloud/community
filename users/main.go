@@ -1,22 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	//	"io"
+	_ "github.com/lib/pq"
+	"github.com/natefinch/pie"
+	"github.com/streadway/amqp"
 	"log"
 	"net/http"
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
 	"regexp"
-	//	"strings"
-
-	"../tools"
-	"github.com/boltdb/bolt"
-	"github.com/natefinch/pie"
-	"github.com/streadway/amqp"
 )
 
 var (
@@ -26,7 +23,7 @@ var (
 
 type api struct{}
 
-var UserDb *bolt.DB
+var PgDb *sql.DB
 
 type UserInfo struct {
 	Name      string
@@ -63,131 +60,76 @@ type ReturnMsg struct {
 	Email  string
 }
 
-func Configure() error {
-
-	var err error
-	err = nil
-
-	UserDb, err = bolt.Open(conf.ConnectionString, 0777, nil)
+func GetList(users *[]UserInfo) (err error) {
+	rows, err := PgDb.Query("SELECT * FROM users")
 	if err != nil {
-		return err
+		return
 	}
 
-	err = UserDb.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucketIfNotExists([]byte(conf.DatabaseName))
-		return nil
-	})
-	return err
+	defer rows.Close()
+	for rows.Next() {
+		user := UserInfo{}
+
+		rows.Scan(&user.Name, &user.Email, &user.Password, &user.Activated, &user.Sam)
+		*users = append(*users, user)
+	}
+
+	err = rows.Err()
+	return
 }
 
-func GetList(users *[]UserInfo) error {
-	var user UserInfo
-
-	e := UserDb.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
-
-		cursor := bucket.Cursor()
-		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			user = UserInfo{}
-			json.Unmarshal(value, &user)
-			*users = append(*users, user)
-		}
-
-		return nil
-	})
-	return e
-}
-
-func GetUser(args PlugRequest, reply *PlugRequest, mail string) error {
-	var err error
-	err = nil
+func GetUser(args PlugRequest, reply *PlugRequest, mail string) (err error) {
+	reply.Status = 400
 	if mail == "" {
-		err := errors.New(fmt.Sprintf("Email needed to retrieve account informations"))
+		err = errors.New(fmt.Sprintf("Email needed to retrieve account informations"))
 
-		if err != nil {
-			log.Println(err)
-		}
-	}
-
-	initConf()
-	err = Configure()
-	if err != nil {
 		log.Println(err)
+		return
 	}
-	defer UserDb.Close()
 
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
-	e := UserDb.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
+	reply.Status = 500
+	rows, err := PgDb.Query(
+		`SELECT name, email, password, activated
+		FROM users WHERE email = $1::varchar`,
+		mail)
+	if err != nil {
+		return
+	}
 
-		userJson := bucket.Get([]byte(mail))
-		if userJson == nil {
-			reply.Status = 404
-			return errors.New(fmt.Sprintf("User Not Found"))
+	defer rows.Close()
+	if rows.Next() {
+		reply.Status = 200
+
+		reply.HeadVals = make(map[string]string, 1)
+		reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+
+		var activated bool
+		var user UserInfo
+		rows.Scan(
+			&user.Name, &user.Email,
+			&user.Password, &activated,
+		)
+		if activated {
+			user.Activated = "true"
 		} else {
-			reply.Status = 200
-		}
-		reply.Body = string(userJson)
-
-		return nil
-	})
-
-	return e
-
-}
-
-type Registered struct {
-	IsRegistered string
-}
-
-func IsUserRegistered(args PlugRequest, reply *PlugRequest) error {
-	initConf()
-	err := Configure()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	defer UserDb.Close()
-	var user UserInfo
-	err = json.Unmarshal([]byte(args.Body), &user)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	str, err := json.Marshal(Registered{IsRegistered: "false"})
-	if err != nil {
-		log.Println(err)
-	}
-	reply.Body = string(str)
-	e := UserDb.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
+			user.Activated = "false"
 		}
 
-		cursor := bucket.Cursor()
-		for key, _ := cursor.First(); key != nil; key, _ = cursor.Next() {
-			if string(key) == user.Email {
-				str, err := json.Marshal(Registered{IsRegistered: "true"})
-				if err != nil {
-					log.Println(err)
-				}
-				reply.Body = string(str)
-				break
-			}
+		var res []byte
+		res, err = json.Marshal(user)
+		if err != nil {
+			reply.Status = 500
+			return
 		}
 
-		return nil
-	})
-	return e
+		reply.Status = 200
+		reply.Body = string(res)
+	} else {
+		reply.Status = 404
+		err = errors.New(fmt.Sprintf("User Not Found"))
+	}
+
+	return
 }
 
 func failOnError(err error, msg string) {
@@ -195,41 +137,6 @@ func failOnError(err error, msg string) {
 		log.Fatalf("%s: %s", msg, err)
 		panic(fmt.Sprintf("%s: %s", msg, err))
 	}
-}
-
-type NbUser struct {
-	Count int
-}
-
-func CountRegisteredUsers(args PlugRequest, reply *PlugRequest) error {
-	initConf()
-	err := Configure()
-	if err != nil {
-		log.Println(err)
-	}
-	var nb NbUser
-	nb.Count = 0
-	defer UserDb.Close()
-
-	e := UserDb.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
-
-		cursor := bucket.Cursor()
-		for key, _ := cursor.First(); key != nil; key, _ = cursor.Next() {
-			nb.Count++
-		}
-		str, err := json.Marshal(nb)
-		if err != nil {
-			log.Println(err)
-		}
-		reply.Body = string(str)
-		return nil
-	})
-
-	return e
 }
 
 func SendMsg(msg Message) {
@@ -269,28 +176,77 @@ func SendMsg(msg Message) {
 
 }
 
-func Add(args PlugRequest, reply *PlugRequest, mail string) error {
-	initConf()
-	err := Configure()
-	if err != nil {
-		log.Println(err)
-	}
-	defer UserDb.Close()
+func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 	var t UserInfo
 	err = json.Unmarshal([]byte(args.Body), &t)
 	if err != nil {
 		log.Println(err)
+		return
 	}
-	SendMsg(Message{Method: "Add", Name: t.Name, Email: t.Email, Password: t.Password, Activated: t.Activated})
-	UserDb.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
-		bucket.Put([]byte(t.Email), []byte(args.Body))
 
-		return err
-	})
+	rows, err := PgDb.Query(
+		`INSERT INTO users
+			(name, email, password,
+			activated, sam)
+			VALUES (
+				$1::varchar,
+				$2::varchar,
+				$3::varchar,
+				$4::bool,
+				''
+			)`,
+		t.Name, t.Email,
+		t.Password, (t.Activated == "true"))
+
+	if err != nil {
+		switch err.Error() {
+		case "pq: duplicate key value violates unique constraint \"users_pkey\"":
+			err = errors.New("user email exists already")
+
+			/*
+					TODO: integrate user uuid
+				case "pq: duplicate key value violates unique constraint \"users_pkey\"":
+					err = errors.New("user id exists already")
+				case "pq: duplicate key value violates unique constraint \"users_email_key\"":
+					err = errors.New("user email exists already")
+			*/
+		}
+		return
+	}
+
+	rows.Close()
+
+	rows, err = PgDb.Query(
+		`SELECT name, email,
+		password, activated
+		FROM users
+		WHERE email = $1::varchar`,
+		t.Email)
+
+	if err != nil {
+		return
+	}
+
+	if !rows.Next() {
+		err = errors.New("user not created")
+		return
+	}
+
+	var user UserInfo
+	var activated bool
+	rows.Scan(
+		&user.Name, &user.Email,
+		&user.Password, &activated, &user.Activated,
+	)
+	if activated {
+		user.Activated = "true"
+	} else {
+		user.Activated = "false"
+	}
+
+	rows.Close()
+
+	SendMsg(Message{Method: "Add", Name: user.Name, Email: user.Email, Password: user.Password, Activated: user.Activated})
 
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "text/html;charset=UTF-8"
@@ -299,129 +255,85 @@ func Add(args PlugRequest, reply *PlugRequest, mail string) error {
 	} else {
 		reply.Status = 400
 	}
-	return nil
+	return
 }
 
-func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) error {
+func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) (err error) {
+	reply.Status = 400
 	if mail == "" {
-		return errors.New(fmt.Sprintf("Email needed to modify account"))
+		err = errors.New(fmt.Sprintf("Email needed to modify account"))
+		return
 	}
-	initConf()
-	err := Configure()
-	if err != nil {
-		reply.Status = 500
-		log.Println(err)
-		return err
-	}
-	defer UserDb.Close()
+	reply.Status = 500
+
 	var t UserInfo
-	var rec UserInfo
 	err = json.Unmarshal([]byte(args.Body), &t)
 	if err != nil {
 		log.Println(err)
+		return
 	}
+
+	rows, err := PgDb.Query(
+		`UPDATE users
+		SET password = $1::varchar
+		WHERE email = $2::varchar`,
+		t.Password, mail)
+
+	if err != nil {
+		return
+	}
+	rows.Close()
+
+	reply.Status = 202
 	SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password, Email: mail})
-	UserDb.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			reply.Status = 500
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
-		cursor := bucket.Cursor()
-		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			if string(key) == mail {
-				json.Unmarshal(value, &rec)
-				rec.Password = t.Password
-				jsonUser, _ := json.Marshal(rec)
-				bucket.Put([]byte(rec.Email), jsonUser)
-				break
-			}
-		}
-		if rec.Password == "" {
-			reply.Status = 404
-		} else {
-			reply.Status = 202
-		}
-		return err
-	})
-	return nil
+	return
 }
 
-func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) error {
+func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 	reply.Status = 404
 	if mail == "" {
-		return errors.New(fmt.Sprintf("Email needed for desactivation"))
+		err = errors.New(fmt.Sprintf("Email needed for desactivation"))
+		return
 	}
-	initConf()
-	err := Configure()
+
+	reply.Status = 500
+	rows, err := PgDb.Query(
+		`UPDATE users
+		SET activated = false
+		WHERE email = $1::varchar`,
+		mail)
+
 	if err != nil {
-		reply.Status = 500
-		return err
+		return
 	}
-	defer UserDb.Close()
-	var rec UserInfo
+	rows.Close()
+	reply.Status = 202
 
-	SendMsg(Message{Method: "DisableAccount", Email: mail})
-	UserDb.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			reply.Status = 500
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
-		cursor := bucket.Cursor()
-		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			if string(key) == mail {
-				json.Unmarshal(value, &rec)
-				rec.Activated = "false"
-				jsonUser, _ := json.Marshal(rec)
-				bucket.Put([]byte(rec.Email), jsonUser)
-				reply.Status = 202
-				break
-			}
-		}
-
-		return err
-	})
-	return nil
+	return
 }
 
-func Delete(args PlugRequest, reply *PlugRequest, mail string) error {
+func Delete(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 	if mail == "" {
 		reply.Status = 400
-		return errors.New(fmt.Sprintf("Email needed for deletion"))
+		err = errors.New(fmt.Sprintf("Email needed for deletion"))
+		return
 	}
-	initConf()
-	err := Configure()
+	reply.Status = 500
+
+	rows, err := PgDb.Query("DELETE FROM users WHERE email = $1::varchar", mail)
+
 	if err != nil {
-		reply.Status = 500
-		return err
+		return
 	}
-
-	defer UserDb.Close()
+	rows.Close()
 	SendMsg(Message{Method: "Delete", Email: mail})
-	UserDb.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(conf.DatabaseName))
-		if bucket == nil {
-			reply.Status = 500
-			return errors.New(fmt.Sprintf("Bucket '%s' doesn't exist", conf.DatabaseName))
-		}
-		bucket.Delete([]byte(mail))
-		reply.Status = 202
 
-		return err
-	})
+	reply.Status = 202
 
-	return nil
+	return
 }
 
 func ListCall(args PlugRequest, reply *PlugRequest, mail string) error {
-	initConf()
-	err := Configure()
-	if err != nil {
-		reply.Status = 500
-		return err
-	}
-	defer UserDb.Close()
 	var users []UserInfo
 	GetList(&users)
 	rsp, err := json.Marshal(users)
@@ -434,7 +346,6 @@ func ListCall(args PlugRequest, reply *PlugRequest, mail string) error {
 		reply.Status = 400
 	}
 	return nil
-
 }
 
 var tab = []struct {
@@ -455,6 +366,7 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 		re := regexp.MustCompile(val.Url)
 		match := re.MatchString(args.Url)
 		if val.Method == args.Method && match {
+			fmt.Fprintf(os.Stderr, ">> %s\n", val.Url)
 			if len(re.FindStringSubmatch(args.Url)) == 2 {
 				err := val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
 				if err != nil {
@@ -477,7 +389,7 @@ type Queue struct {
 }
 
 func ListenToQueue() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(conf.QueueUri)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	//defer conn.Close()
 
@@ -568,11 +480,19 @@ func (api) Unplug(args interface{}, reply *bool) error {
 }
 
 func main() {
+	var err error
 
 	srv = pie.NewProvider()
 
-	if err := srv.RegisterName(name, api{}); err != nil {
+	if err = srv.RegisterName(name, api{}); err != nil {
 		log.Fatalf("Failed to register %s: %s", name, err)
+	}
+
+	initConf()
+
+	PgDb, err = sql.Open("postgres", conf.DatabaseUri)
+	if err != nil {
+		log.Fatalf("Cannot connect to Postgres Database: %s", err)
 	}
 
 	srv.ServeCodec(jsonrpc.NewServerCodec)
