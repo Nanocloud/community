@@ -29,7 +29,6 @@ RUN mkdir -p plugins
 WORKDIR /opt/build/backend/src/nanocloud.com/plugins
 RUN git clone /opt/repos/plugin_iaas iaas
 RUN git clone /opt/repos/plugin_ldap ldap
-RUN git clone /opt/repos/plugin_owncloud owncloud
 RUN git clone /opt/repos/plugin_history history
 
 WORKDIR /opt/build/backend/src/nanocloud.com/core
