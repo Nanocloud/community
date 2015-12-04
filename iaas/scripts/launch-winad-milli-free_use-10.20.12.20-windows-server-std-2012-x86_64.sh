@@ -100,46 +100,27 @@ iptables -t filter -A FORWARD -p tcp -d ${VM_IP} --dport 636
 QEMU=$(which qemu-system-x86_64)
 
 SYSTEM_VHD="${NANOCLOUD_DIR}/images/${VM_NAME}.qcow2"
+VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 
 screen -DmS ${VM_NAME} $QEMU \
     -nodefaults \
     -name ${VM_NAME} \
+    -enable-kvm \
+    -cpu host \
+    -smp "${VM_NCPUS}" \
+    -m 2560 \
     -pidfile ${NANOCLOUD_DIR}/pid/${VM_NAME}.pid  \
     -drive file=${SYSTEM_VHD},if=none,media=disk,cache=writeback,aio=native,id=vhd_system \
     -device driver=virtio-blk-pci,drive=vhd_system \
-    -drive file='',if=ide,media=cdrom \
-    -boot order=cd \
-    -enable-kvm \
-    -cpu host \
-    -smp 2 \
-    -m 8196 \
-    -usb \
-    -device usb-tablet \
     -rtc base=localtime,clock=host \
     -chardev socket,id=monitor,path=${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket,server,nowait \
     -mon chardev=monitor,mode=readline \
     -netdev type=tap,id=tap_id_19539f4,ifname=${VM_INTERFACE},script=no,downscript=no,vhost=on \
     -device virtio-net-pci,netdev=tap_id_19539f4,mac=52:54:00:53:af:3a \
-    -soundhw hda \
-    -vnc none \
+    -vnc :2 \
     -vga qxl \
-    -nographic \
     -global qxl-vga.vram_size=33554432 \
-    -spice port=8097,addr=${PUBLIC_IP},password='firstpass',streaming-video=off \
-    -device virtio-serial \
-    -chardev spicevmc,id=vdagent,name=vdagent \
-    -device virtserialport,chardev=vdagent,name=com.redhat.spice.0 \
-    -chardev spicevmc,name=usbredir,id=usbredirchardev1 \
-    -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1 \
-    -chardev spicevmc,name=usbredir,id=usbredirchardev2 \
-    -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2 \
-    -chardev spicevmc,name=usbredir,id=usbredirchardev3 \
-    -device usb-redir,chardev=usbredirchardev3,id=usbredirdev3 \
-    -watchdog i6300esb \
-    -watchdog-action none \
-    -uuid 19539f4c-d88d-40e9-9cba-d240c2f1ad8d \
-    -balloon virtio \
-    -monitor stdio
+    -nographic
 
 
 # Stops masquerading towards outside
