@@ -2,9 +2,9 @@ node_modules
 bower_components
 typings
 
-website/fonts
-website/css
-website/js
+front/website/fonts
+front/website/css
+front/website/js
 
 *.sublime-*
 *.log
