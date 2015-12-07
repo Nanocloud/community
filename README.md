@@ -64,7 +64,7 @@ If your issue isn't listed bellow, please report your situation
 * This installation won't work with **parallels** or **virtualbox**.
 * While downloading **Windows**, information disappears from home page.
 * CoreOS qcow2 disk keeps growing until it's full and cause some 
-[issue](http://stackoverflow.com/questions/31712266/how-to-clean-up-docker-overlay-directory)
+[issue](http://stackoverflow.com/questions/31712266/how-to-clean-up-docker-overlay-directory).
 * When CoreOS VM is stopped, users are erased.
 * When an application is published, a connection for admin user is displayed but it will not work.
 
