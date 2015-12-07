@@ -28,6 +28,21 @@ COREOS_QCOW2_URL="http://stable.release.core-os.net/amd64-usr/current/coreos_pro
 NANOCLOUD_QCOW2_URL="http://community.nanocloud.com/coreos.qcow2"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
+download() {
+  CURL_CMD=$(which curl)
+  WGET_CMD=$(which wget)
+
+  URL=${1}
+  if [ -n "${CURL_CMD}" ]; then
+    curl --progress-bar "${URL}"
+  elif [ -n "${WGET_CMD}" ]; then
+    wget --quiet "${URL}" -O -
+  else
+    echo "You need *curl* or *wget* to run this script, exiting"
+    exit 2
+  fi
+}
+
 nano_exec() {
   # Arrange for the temporary file to be deleted when the script terminates
   trap 'rm -f "/tmp/exec.$$"' 0
@@ -56,7 +71,7 @@ fi
 
 if [ "${1}" != "local" ]; then
   echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
-  wget --quiet --progress=bar:force ${NANOCLOUD_BIN_URL} -O - | nano_exec
+  download ${NANOCLOUD_BIN_URL} | nano_exec
   if [ "$?" != "0" ]; then
     echo "$(date "${DATE_FMT}") Installation failed, exiting…"
     exit 1
@@ -64,7 +79,7 @@ if [ "${1}" != "local" ]; then
   echo "$(date "${DATE_FMT}") Downloading Coreos…"
   (
     cd ${NANOCLOUD_DIR}/images
-    wget --quiet --progress=bar:force ${NANOCLOUD_QCOW2_URL} -O coreos.qcow2
+    download ${NANOCLOUD_QCOW2_URL} > coreos.qcow2
     echo "$(date "${DATE_FMT}") Coreos download finished"
   )
 else
@@ -72,7 +87,7 @@ else
   (
     cd ${NANOCLOUD_DIR}/images
     echo "$(date "${DATE_FMT}") Downloading CoreOS"
-    wget --quiet --progress=bar:force ${COREOS_QCOW2_URL} -O - | bzcat > coreos.qcow2
+    download ${COREOS_QCOW2_URL} | bzcat > coreos.qcow2
   )
   ./nanocloud launch
 fi
