@@ -38,7 +38,7 @@ For your host computer
 Then, you need to install the following package on your distribution
 
 * *qemu-system-x86*
-* *curl* or *wget* or *nc*
+* *curl* or *wget*
 
 
 ## How to build
@@ -51,6 +51,37 @@ packer build windows/windows-2012-R2-standard-amd64.json
 ```
 
 And, that's it.
+
+
+## Known bug
+
+**Nanocloud** is in an active development phase, and some issues are known and
+will be fixed in future releases.
+
+If your issue isn't listed bellow, please report your situation
+[here](https://github.com/Nanocloud/community/issues/new)
+
+* This installation won't work with **parallels** or **virtualbox**
+* While downloading **Windows** information disappear from home page
+* CoreOS qcow2 disk keep growing until it's full and cause some
+[issue](http://stackoverflow.com/questions/31712266/how-to-clean-up-docker-overlay-directory)
+* When CoreOS VM is stopped, users are erased
+* When an application is published, a connection for admin user is displayed,
+  but not working
+
+## Roadmap
+
+In future releases, we plan to add :
+
+* Installation as a simple user
+* Customize applications names and icons
+* Assign permission per application and per users
+* Dashboard to get information on the hosting platform
+* Buttons to clean windows users sessions
+* A better authentication method
+* Display technical graphics (RAM/DISK/CPU usage)
+* Change users information (not just password)
+* Show last connection per user
 
 ## Licence
 
