@@ -3,6 +3,10 @@ packer_cache/
 data/
 
 # Ignore binary files
+coreos.key*
 iaas/qemu/
 iaas/tools/
-coreos.key*
+iaas/scripts/api
+installer/bindata.go
+installer/installer
+nanocloud
