@@ -1,8 +1,9 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
+/// <reference path="../../core.d.ts" />
 /// <amd-dependency path="angular-ui-router-extras" />
 /// <amd-dependency path="angular-ui-grid" />
-import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "../core/services/AmdTools";
-import { MainMenu } from "../core/services/MainMenu";
+import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "AmdTools";
+import { MainMenu } from "MainMenu";
 
 let componentName = "history";
 let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ui.grid", "ui.grid.expandable"]);
