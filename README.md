@@ -6,7 +6,7 @@
 Simply run the following command as **root** to install and run **Nanocloud**
 
 ```
-wget "http://community.nanocloud.com/nanocloud.sh" -q -O - | sh
+curl --progress-bar "http://community.nanocloud.com/nanocloud.sh" | sh
 ```
 
 > Note: You need to be *root* on the host machine to run **Nanocloud**. This
@@ -15,15 +15,30 @@ wget "http://community.nanocloud.com/nanocloud.sh" -q -O - | sh
 At the end of the installation Nanocloud community will be installed in
 */var/lib/nanocloud*.
 
+### Alternative to curl
 
-## Prerequisites for your host computer
+If you don't want to or cannot use *curl*, you can launch the **one-liner** this way :
+
+```
+wget "http://community.nanocloud.com/nanocloud.sh" -q -O - | sh
+```
+
+## Prerequisites
+
+For your host computer
 
 * You must be able to login as root
 * CPU must support harware virtualization (Intel VT-x or AMD-V).
 * Operating system must be a linux 64 bits. It is advised to use Debian 8 or
   later. Other linux distributions may work.
-* Recommended RAM availability: at least 8GB of RAM
-* Recommended disk usage: at least 6GB available
+* At least 4GB of RAM available (6GB recommended)
+* At least 6GB disk space (10GB recommended, depending on software you want to
+  deploy)
+
+Then, you need to install the following package on your distribution
+
+* *qemu-system-x86*
+* *curl* or *wget* or *nc*
 
 
 ## How to build
