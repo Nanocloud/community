@@ -55,7 +55,7 @@ And, that's it.
 
 ## Known bugs
 
-**Nanocloud** is in an active development phase, and some issues are known and
+**Nanocloud** is in an active development phase. Some issues are known and
 will be fixed in future releases.
 
 If your issue isn't listed bellow, please report your situation
