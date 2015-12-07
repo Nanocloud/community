@@ -27,13 +27,13 @@ wget "http://community.nanocloud.com/nanocloud.sh" -q -O - | sh
 
 For your host computer
 
-* You must be able to login as root
+* You must be able to login as root.
 * CPU must support hardware virtualization (Intel VT-x or AMD-V).
 * Operating system must be a linux 64 bit. It is advised to use Debian 8 or
   later. Other Linux distributions may work.
-* At least 4GB of RAM available (6GB recommended)
+* At least 4GB of RAM available (6GB recommended).
 * At least 6GB disk space (10GB recommended, depending on software you want to
-  deploy)
+  deploy).
 
 Then, you need to install the following packages on your distribution:
 
@@ -61,27 +61,26 @@ will be fixed in future releases.
 If your issue isn't listed bellow, please report your situation
 [here](https://github.com/Nanocloud/community/issues/new)
 
-* This installation won't work with **parallels** or **virtualbox**
-* While downloading **Windows** information disappear from home page
-* CoreOS qcow2 disk keep growing until it's full and cause some
+* This installation won't work with **parallels** or **virtualbox**.
+* While downloading **Windows**, information disappear from home page.
+* CoreOS qcow2 disk keeps growing until it's full and cause some.
 [issue](http://stackoverflow.com/questions/31712266/how-to-clean-up-docker-overlay-directory)
-* When CoreOS VM is stopped, users are erased
-* When an application is published, a connection for admin user is displayed,
-  but not working
+* When CoreOS VM is stopped, users are erased.
+* When an application is published, a connection for admin user is displayed but it does not work.
 
 ## Roadmap
 
 In future releases, we plan to add :
 
-* Installation as a simple user
-* Customize applications names and icons
-* Assign permission per application and per users
-* Dashboard to get information on the hosting platform
-* Buttons to clean windows users sessions
-* A better authentication method
-* Display technical graphics (RAM/DISK/CPU usage)
-* Change users information (not just password)
-* Show last connection per user
+* Installation as a simple user.
+* Customize applications names and icons.
+* Assign permission per application and per users.
+* Dashboard to get information on the hosting platform.
+* Buttons to clean windows users sessions.
+* A better authentication method.
+* Display technical graphics (RAM/DISK/CPU usage).
+* Change users information (not just password).
+* Show last connection per user.
 
 ## Licence
 
