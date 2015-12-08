@@ -10,7 +10,7 @@ curl --progress-bar "http://community.nanocloud.com/nanocloud.sh" | sh
 ```
 
 > Note: You need to be *root* on the host machine to run **Nanocloud**. This
-> won't be mandatory in a next release.
+> won't be any more necessary in a next release.
 
 At the end of the installation Nanocloud community will be installed in
 */var/lib/nanocloud*.
