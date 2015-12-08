@@ -10,7 +10,7 @@ curl --progress-bar "http://community.nanocloud.com/nanocloud.sh" | sh
 ```
 
 > Note: You need to be *root* on the host machine to run **Nanocloud**. This
-> won't be any more necessary in a next release.
+> won't be necessary any more in the next release.
 
 At the end of the installation Nanocloud community will be installed in
 */var/lib/nanocloud*.
@@ -32,10 +32,10 @@ For your host computer
 * Operating system must be a linux 64 bit. It is advised to use Debian 8 or
   later. Other Linux distributions may work.
 * At least 4GB of RAM available (6GB recommended).
-* At least 6GB disk space (10GB recommended, depending on software you want to
+* At least 6GB disk space (10GB recommended, depending on the software you want to
   deploy).
 
-Then, you need to install the following packages on your distribution:
+You also need to install the following packages on your distribution:
 
 * *qemu-system-x86_64*
 * *curl* or *wget*
@@ -55,10 +55,10 @@ And, that's it.
 
 ## Known bugs
 
-**Nanocloud** is in an active development phase. Some issues are known and
+**Nanocloud** is in active development phase. Some issues are known and
 will be fixed in future releases.
 
-If your issue isn't listed bellow, please report your situation
+If your issue isn't listed bellow, please report it
 [here](https://github.com/Nanocloud/community/issues/new)
 
 * This installation won't work with **parallels** or **virtualbox**.
@@ -66,19 +66,19 @@ If your issue isn't listed bellow, please report your situation
 * CoreOS qcow2 disk keeps growing until it's full and cause some 
 [issue](http://stackoverflow.com/questions/31712266/how-to-clean-up-docker-overlay-directory).
 * When CoreOS VM is stopped, users are erased.
-* When an application is published, a connection for admin user is displayed but it will not work.
+* When an application is published, a connection for admin user is displayed but will not work.
 
 ## Roadmap
 
 In future releases, we plan to add :
 
-* Installation as a simple user.
+* Installation as a non-root user.
 * Customize applications names and icons.
 * Assign permission per application and per users.
 * Dashboard to get information on the hosting platform.
-* Buttons to clean windows users sessions.
+* Buttons to log off a user from its windows session.
 * A better authentication method.
-* Display technical graphics (RAM/DISK/CPU usage).
+* Display live metrics graphs (RAM/DISK/CPU usage).
 * Change users information (not just password).
 * Show last connection per user.
 
