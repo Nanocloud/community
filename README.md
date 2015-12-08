@@ -1,6 +1,6 @@
 # Nanocloud community
 
-![Build Status](https://bamboo.nanocloud.com/plugins/servlet/wittified/build-status/NC-COL) Current version: **0.1**
+[![Build Status](https://bamboo.nanocloud.com/plugins/servlet/wittified/build-status/NC-COL)](https://bamboo.nanocloud.com/browse/NC-COL) Current version: **0.1**
 
 Experience the seamless transformation of your application.
 
