@@ -1,1 +1,0 @@
-netsh firewall set portopening tcp 445 smb enable

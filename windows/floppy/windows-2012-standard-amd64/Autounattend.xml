@@ -127,15 +127,22 @@
       </AutoLogon>
 
       <FirstLogonCommands>
-
-        <SynchronousCommand wcm:action="add">
+      
+      <SynchronousCommand wcm:action="add">
           <CommandLine>cmd /c a:\configure.bat</CommandLine>
           <Description>Run configure script</Description>
           <Order>1</Order>
         </SynchronousCommand>
+      
+      <SynchronousCommand wcm:action="add">
+         <CommandLine>c:\windows\system32\WindowsPowerShell\v1.0\powershell.exe a:\configure-winrm.ps1</CommandLine>
+         <Description>Configure WinRM</Description>
+         <Order>2</Order>
+         <RequiresUserInput>true</RequiresUserInput>
+       </SynchronousCommand>
+     
 
       </FirstLogonCommands>
-
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <HideLocalAccountScreen>true</HideLocalAccountScreen>
