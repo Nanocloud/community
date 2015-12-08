@@ -1,0 +1,24 @@
+[submodule "vendor/src/github.com/labstack/echo"]
+	path = vendor/src/github.com/labstack/echo
+	url = https://github.com/labstack/echo
+[submodule "vendor/src/github.com/labstack/gommon"]
+	path = vendor/src/github.com/labstack/gommon
+	url = https://github.com/labstack/gommon
+[submodule "vendor/src/github.com/mattn/go-colorable"]
+	path = vendor/src/github.com/mattn/go-colorable
+	url = https://github.com/mattn/go-colorable
+[submodule "vendor/src/github.com/mattn/go-isatty"]
+	path = vendor/src/github.com/mattn/go-isatty
+	url = https://github.com/mattn/go-isatty
+[submodule "vendor/src/golang.org/x/net"]
+	path = vendor/src/golang.org/x/net
+	url = https://github.com/golang/net
+[submodule "vendor/src/github.com/natefinch/pie"]
+	path = vendor/src/github.com/natefinch/pie
+	url = https://github.com/natefinch/pie
+[submodule "vendor/src/gopkg.in/fsnotify.v1"]
+	path = vendor/src/gopkg.in/fsnotify.v1
+	url = https://gopkg.in/fsnotify.v1
+[submodule "vendor/src/gopkg.in/yaml.v2"]
+	path = vendor/src/gopkg.in/yaml.v2
+	url = https://gopkg.in/yaml.v2
