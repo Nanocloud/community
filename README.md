@@ -2,6 +2,14 @@
 
 ![Build Status](https://bamboo.nanocloud.com/plugins/servlet/wittified/build-status/NC-COL) Current version: **0.1**
 
+Experience the seamless transformation of your application.
+
+Nanocloud Community is an open source solution to provide a simple DevOps box
+for techies and specialists. It allows every application to be pushed out in
+any browser. A simple graphical interface allows users to experience any
+applications with new uses.
+
+
 ## Quickinstall
 
 Simply run the following command as **root** to install and run **Nanocloud**:
