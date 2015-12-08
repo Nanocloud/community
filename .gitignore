@@ -1,1 +1,7 @@
-src
+
+.*
+*.log
+
+front/node_modules
+front/typings
+front/website/js
