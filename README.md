@@ -37,7 +37,7 @@ For your host computer
 
 Then, you need to install the following packages on your distribution:
 
-* *qemu-system-x86*
+* *qemu-system-x86_64*
 * *curl* or *wget*
 
 
