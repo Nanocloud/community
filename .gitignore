@@ -7,3 +7,6 @@ front/typings
 front/website/js
 
 /src/users/users
+
+/bin
+/pkg
