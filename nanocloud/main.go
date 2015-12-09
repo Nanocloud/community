@@ -1,19 +1,17 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
+	mw "github.com/labstack/echo/middleware"
+	"github.com/natefinch/pie"
+	"gopkg.in/fsnotify.v1"
 	"io"
-	"log"
-	//	"net/http"
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/labstack/echo"
-	mw "github.com/labstack/echo/middleware"
-	"github.com/natefinch/pie"
-	"gopkg.in/fsnotify.v1"
 )
 
 type plugin struct {
@@ -63,6 +61,9 @@ func launch_existing_plugins(running_plugins []string) []string {
 }
 
 func main() {
+	log.SetOutput(os.Stderr)
+	log.SetLevel(log.DebugLevel)
+
 	initConf()
 	w, err := fsnotify.NewWatcher()
 	if err != nil {

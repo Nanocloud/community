@@ -11,3 +11,7 @@ front/typings
 front/website/fonts
 front/website/css
 front/website/js
+
+/src/nanocloud/nanocloud
+/src/nanocloud/plugins
+/src/nanocloud/*.yaml
