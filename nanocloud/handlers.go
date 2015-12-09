@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	"github.com/costent/oauth"
+	"github.com/nanocloud/oauth"
 	"html"
 	"io/ioutil"
 	"net/http"
