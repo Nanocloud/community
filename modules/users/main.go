@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq"
 	"github.com/natefinch/pie"
+	"github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
-	"log"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/rpc/jsonrpc"
 	"net/url"
@@ -23,14 +25,15 @@ var (
 
 type api struct{}
 
-var PgDb *sql.DB
+var db *sql.DB
 
 type UserInfo struct {
-	Name      string
+	Id        string
+	Activated bool
 	Email     string
-	Password  string
-	Activated string
-	Sam       string
+	FirstName string
+	LastName  string
+	IsAdmin   bool
 }
 
 type Message struct {
@@ -60,38 +63,58 @@ type ReturnMsg struct {
 	Email  string
 }
 
-func GetList(users *[]UserInfo) (err error) {
-	rows, err := PgDb.Query("SELECT * FROM users")
+func GetUsers() (*[]UserInfo, error) {
+	rows, err := db.Query(
+		`SELECT id,
+		first_name, last_name,
+		email, is_admin, activated
+		FROM users`,
+	)
 	if err != nil {
-		return
+		return nil, err
 	}
+
+	var users []UserInfo
 
 	defer rows.Close()
 	for rows.Next() {
 		user := UserInfo{}
 
-		rows.Scan(&user.Name, &user.Email, &user.Password, &user.Activated, &user.Sam)
-		*users = append(*users, user)
+		rows.Scan(
+			&user.Id,
+			&user.FirstName, &user.LastName,
+			&user.Email,
+			&user.IsAdmin,
+			&user.Activated,
+		)
+		users = append(users, user)
 	}
 
 	err = rows.Err()
-	return
+	if err != nil {
+		return nil, err
+	}
+
+	return &users, nil
 }
 
-func GetUser(args PlugRequest, reply *PlugRequest, mail string) (err error) {
+func GetUser(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 	reply.Status = 400
-	if mail == "" {
-		err = errors.New(fmt.Sprintf("Email needed to retrieve account informations"))
+	if userId == "" {
+		err = errors.New("User id needed to retrieve account informations")
 
-		log.Println(err)
+		log.Error(err)
 		return
 	}
 
 	reply.Status = 500
-	rows, err := PgDb.Query(
-		`SELECT name, email, password, activated
-		FROM users WHERE email = $1::varchar`,
-		mail)
+	rows, err := db.Query(
+		`SELECT id,
+		first_name, last_name,
+		email, is_admin, activated
+		FROM users
+		WHERE id = $1::varchar`,
+		userId)
 	if err != nil {
 		return
 	}
@@ -101,19 +124,16 @@ func GetUser(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 		reply.Status = 200
 
 		reply.HeadVals = make(map[string]string, 1)
-		reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+		reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
 
-		var activated bool
 		var user UserInfo
 		rows.Scan(
-			&user.Name, &user.Email,
-			&user.Password, &activated,
+			&user.Id,
+			&user.FirstName, &user.LastName,
+			&user.Email,
+			&user.IsAdmin,
+			&user.Activated,
 		)
-		if activated {
-			user.Activated = "true"
-		} else {
-			user.Activated = "false"
-		}
 
 		var res []byte
 		res, err = json.Marshal(user)
@@ -126,7 +146,7 @@ func GetUser(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 		reply.Body = string(res)
 	} else {
 		reply.Status = 404
-		err = errors.New(fmt.Sprintf("User Not Found"))
+		err = errors.New("User Not Found")
 	}
 
 	return
@@ -134,8 +154,7 @@ func GetUser(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 
 func failOnError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-		panic(fmt.Sprintf("%s: %s", msg, err))
+		log.Error("%s: %s", msg, err)
 	}
 }
 
@@ -157,7 +176,7 @@ func SendMsg(msg Message) {
 	failOnError(err, "Failed to declare an exchange")
 	str, err := json.Marshal(msg)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	err = ch.Publish(
 		"users_topic", // exchange
@@ -170,58 +189,60 @@ func SendMsg(msg Message) {
 		})
 	failOnError(err, "Failed to publish a message")
 
-	log.Printf(" [x] Sent order to plugin")
+	log.Info(" [x] Sent order to plugin")
 	defer ch.Close()
 	defer conn.Close()
 
 }
 
-func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
-	var t UserInfo
-	err = json.Unmarshal([]byte(args.Body), &t)
+func CreateUser(
+	activated bool,
+	email string,
+	firstName string,
+	lastName string,
+	password string,
+	isAdmin bool,
+) (createdUser *UserInfo, err error) {
+	id := uuid.NewV4().String()
+
+	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 
-	rows, err := PgDb.Query(
+	rows, err := db.Query(
 		`INSERT INTO users
-			(name, email, password,
-			activated, sam)
-			VALUES (
-				$1::varchar,
-				$2::varchar,
-				$3::varchar,
-				$4::bool,
-				''
-			)`,
-		t.Name, t.Email,
-		t.Password, (t.Activated == "true"))
+		(id, email, activated,
+		first_name, last_name,
+		password, created_at, is_admin)
+		VALUES(
+			$1::varchar, $2::varchar, $3::bool,
+			$4::varchar, $5::varchar,
+			$6::varchar, NOW(), $7::bool)
+		`, id, email, activated,
+		firstName, lastName,
+		pass, isAdmin)
 
 	if err != nil {
 		switch err.Error() {
 		case "pq: duplicate key value violates unique constraint \"users_pkey\"":
+			err = errors.New("user id exists already")
+		case "pq: duplicate key value violates unique constraint \"users_email_key\"":
 			err = errors.New("user email exists already")
-
-			/*
-					TODO: integrate user uuid
-				case "pq: duplicate key value violates unique constraint \"users_pkey\"":
-					err = errors.New("user id exists already")
-				case "pq: duplicate key value violates unique constraint \"users_email_key\"":
-					err = errors.New("user email exists already")
-			*/
 		}
 		return
 	}
 
 	rows.Close()
 
-	rows, err = PgDb.Query(
-		`SELECT name, email,
-		password, activated
+	rows, err = db.Query(
+		`SELECT id, activated,
+		email,
+		first_name, last_name,
+		is_admin
 		FROM users
-		WHERE email = $1::varchar`,
-		t.Email)
+		WHERE id = $1::varchar`,
+		id)
 
 	if err != nil {
 		return
@@ -233,20 +254,33 @@ func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 	}
 
 	var user UserInfo
-	var activated bool
 	rows.Scan(
-		&user.Name, &user.Email,
-		&user.Password, &activated, &user.Activated,
+		&user.Id, &user.Activated,
+		&user.Email, &user.FirstName,
+		&user.LastName, &user.IsAdmin,
 	)
-	if activated {
-		user.Activated = "true"
-	} else {
-		user.Activated = "false"
-	}
 
 	rows.Close()
 
-	SendMsg(Message{Method: "Add", Name: user.Name, Email: user.Email, Password: user.Password, Activated: user.Activated})
+	createdUser = &user
+	return
+}
+
+func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
+	var body = make(map[string]interface{})
+	err = json.Unmarshal([]byte(args.Body), &body)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	_, err = CreateUser(
+		body["activated"].(bool),
+		body["email"].(string),
+		body["first_name"].(string),
+		body["last_name"].(string),
+		body["password"].(string),
+		body["is_admin"].(bool),
+	)
 
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "text/html;charset=UTF-8"
@@ -258,50 +292,54 @@ func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 	return
 }
 
-func ModifyPassword(args PlugRequest, reply *PlugRequest, mail string) (err error) {
+func UpdatePassword(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 	reply.Status = 400
-	if mail == "" {
-		err = errors.New(fmt.Sprintf("Email needed to modify account"))
+	if userId == "" {
+		err = errors.New("Email needed to modify account")
 		return
 	}
 	reply.Status = 500
 
-	var t UserInfo
-	err = json.Unmarshal([]byte(args.Body), &t)
+	body := make(map[string]interface{})
+	err = json.Unmarshal([]byte(args.Body), &body)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 
-	rows, err := PgDb.Query(
+	pass, err := bcrypt.GenerateFromPassword([]byte(body["password"].(string)), bcrypt.DefaultCost)
+	if err != nil {
+		return
+	}
+
+	rows, err := db.Query(
 		`UPDATE users
 		SET password = $1::varchar
-		WHERE email = $2::varchar`,
-		t.Password, mail)
-
+		WHERE id = $2::varchar`,
+		pass, userId)
 	if err != nil {
 		return
 	}
+
 	rows.Close()
 
 	reply.Status = 202
-	SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password, Email: mail})
+	// SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password, Email: mail})
 	return
 }
 
-func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) (err error) {
+func DisableAccount(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 	reply.Status = 404
-	if mail == "" {
-		err = errors.New(fmt.Sprintf("Email needed for desactivation"))
+	if userId == "" {
+		err = errors.New("User id needed for desactivation")
 		return
 	}
 
 	reply.Status = 500
-	rows, err := PgDb.Query(
+	rows, err := db.Query(
 		`UPDATE users
 		SET activated = false
-		WHERE email = $1::varchar`,
-		mail)
+		WHERE id = $1::varchar`,
+		userId)
 
 	if err != nil {
 		return
@@ -312,21 +350,21 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, mail string) (err erro
 	return
 }
 
-func Delete(args PlugRequest, reply *PlugRequest, mail string) (err error) {
-	if mail == "" {
+func Delete(args PlugRequest, reply *PlugRequest, userId string) (err error) {
+	if userId == "" {
 		reply.Status = 400
-		err = errors.New(fmt.Sprintf("Email needed for deletion"))
+		err = errors.New("User id needed for deletion")
 		return
 	}
 	reply.Status = 500
 
-	rows, err := PgDb.Query("DELETE FROM users WHERE email = $1::varchar", mail)
+	rows, err := db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
 
 	if err != nil {
 		return
 	}
 	rows.Close()
-	SendMsg(Message{Method: "Delete", Email: mail})
+	// SendMsg(Message{Method: "Delete", Email: mail})
 
 	reply.Status = 202
 
@@ -334,12 +372,15 @@ func Delete(args PlugRequest, reply *PlugRequest, mail string) (err error) {
 }
 
 func ListCall(args PlugRequest, reply *PlugRequest, mail string) error {
-	var users []UserInfo
-	GetList(&users)
+	users, err := GetUsers()
+	if err != nil {
+		return err
+	}
+
 	rsp, err := json.Marshal(users)
 	reply.Body = string(rsp)
 	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
 	if err == nil {
 		reply.Status = 200
 	} else {
@@ -357,7 +398,7 @@ var tab = []struct {
 	{`^\/api\/users\/{0,1}$`, "GET", ListCall},
 	{`^\/api\/users\/{0,1}$`, "POST", Add},
 	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", Delete},
-	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
+	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", UpdatePassword},
 	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "GET", GetUser},
 }
 
@@ -370,13 +411,13 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 			if len(re.FindStringSubmatch(args.Url)) == 2 {
 				err := val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
 				if err != nil {
-					log.Println(err)
+					log.Error(err)
 				}
 			} else {
 				err := val.f(args, reply, "")
 
 				if err != nil {
-					log.Println(err)
+					log.Error(err)
 				}
 			}
 		}
@@ -386,6 +427,107 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 
 type Queue struct {
 	Name string
+}
+
+func getUserFromEmailPassword(email, password string) (*UserInfo, string, error) {
+	log.Debug("getUserFromEmailPassword")
+	rows, err := db.Query(
+		`SELECT id, activated,
+		email, password,
+		first_name, last_name,
+		is_admin
+		FROM users
+		WHERE email = $1::varchar`,
+		email,
+	)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if !rows.Next() {
+		return nil, "user not found", nil
+	}
+
+	var user UserInfo
+	var passwordHash string
+	rows.Scan(
+		&user.Id, &user.Activated,
+		&user.Email, &passwordHash,
+		&user.FirstName, &user.LastName,
+		&user.IsAdmin,
+	)
+	rows.Close()
+
+	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
+
+	if err != nil {
+		return nil, "wrong password", nil
+	}
+
+	if !user.Activated {
+		return nil, "user is not activated", nil
+	}
+
+	return &user, "", nil
+}
+
+func (api) GetUser(arg struct{ UserId string }, res *struct {
+	Success      bool
+	ErrorMessage string
+	User         UserInfo
+}) error {
+	rows, err := db.Query(
+		`SELECT id, activated,
+		email,
+		first_name, last_name,
+		is_admin
+		FROM users
+		WHERE id = $1::varchar`,
+		arg.UserId)
+
+	if err != nil {
+		return err
+	}
+
+	defer rows.Close()
+	if !rows.Next() {
+		res.ErrorMessage = "User not found"
+		return nil
+	}
+
+	err = rows.Scan(
+		&res.User.Id, &res.User.Activated,
+		&res.User.Email, &res.User.FirstName,
+		&res.User.LastName, &res.User.IsAdmin)
+	if err != nil {
+		return err
+	}
+	res.Success = true
+	return nil
+}
+
+func (api) AuthenticateUser(info struct {
+	Username string
+	Password string
+}, res *struct {
+	Success      bool
+	ErrorMessage string
+	User         UserInfo
+}) error {
+	user, message, err := getUserFromEmailPassword(info.Username, info.Password)
+
+	if err != nil {
+		return err
+	}
+
+	if user != nil {
+		res.Success = true
+		res.User = *user
+		return nil
+	}
+
+	res.ErrorMessage = message
+	return nil
 }
 
 func ListenToQueue() {
@@ -482,6 +624,9 @@ func (api) Unplug(args interface{}, reply *bool) error {
 func main() {
 	var err error
 
+	log.SetOutput(os.Stderr)
+	log.SetLevel(log.DebugLevel)
+
 	srv = pie.NewProvider()
 
 	if err = srv.RegisterName(name, api{}); err != nil {
@@ -490,7 +635,7 @@ func main() {
 
 	initConf()
 
-	PgDb, err = sql.Open("postgres", conf.DatabaseUri)
+	db, err = sql.Open("postgres", conf.DatabaseUri)
 	if err != nil {
 		log.Fatalf("Cannot connect to Postgres Database: %s", err)
 	}
