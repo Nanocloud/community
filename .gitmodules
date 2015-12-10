@@ -1,0 +1,6 @@
+[submodule "vendor/src/github.com/natefinch/pie"]
+	path = vendor/src/github.com/natefinch/pie
+	url = https://github.com/natefinch/pie
+[submodule "vendor/src/gopkg.in/yaml.v2"]
+	path = vendor/src/gopkg.in/yaml.v2
+	url = https://gopkg.in/yaml.v2
