@@ -121,7 +121,7 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 					log.Error(err)
 				}
 			}
-			WriteAnswer(w, rep)
+			writeAnswer(w, rep)
 			return
 		}
 	}

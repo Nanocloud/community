@@ -4,16 +4,14 @@ import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	"github.com/nanocloud/oauth"
-	"net/url"
 )
 
 type oauthConnector struct{}
 
 type Client struct {
-	Id           int
-	Name         string
-	Key          string
-	RedirectHost string
+	Id   int
+	Name string
+	Key  string
 }
 
 type AccessToken struct {
@@ -106,7 +104,7 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 	return &res.User, nil
 }
 
-func (c oauthConnector) GetClient(key string) (interface{}, error) {
+func (c oauthConnector) GetClient(key string, secret string) (interface{}, error) {
 	db, err := GetDB()
 	if err != nil {
 		return nil, err
@@ -114,47 +112,7 @@ func (c oauthConnector) GetClient(key string) (interface{}, error) {
 
 	rows, err := db.Query(
 		`SELECT id, name,
-		key, redirect_host
-		FROM oauth_clients
-		WHERE key = $1::varchar`,
-		key,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-	if rows.Next() {
-		client := Client{}
-		rows.Scan(&client.Id)
-		rows.Scan(&client.Name)
-		rows.Scan(&client.Key)
-		rows.Scan(&client.RedirectHost)
-		return &client, nil
-	}
-	return nil, nil
-}
-
-func (c oauthConnector) CheckClientRedirectURI(rawClient interface{}, redirectURI string) (bool, error) {
-	client := rawClient.(*Client)
-
-	url, err := url.Parse(redirectURI)
-	if err == nil && url.Host == client.RedirectHost {
-		return true, nil
-	}
-
-	return false, nil
-}
-
-func (c oauthConnector) AuthenticateClient(key string, secret string) (interface{}, error) {
-	db, err := GetDB()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := db.Query(
-		`SELECT id, name,
-		key, redirect_host
+		key
 		FROM oauth_clients
 		WHERE key = $1::varchar
 		AND secret = $2::varchar`,
@@ -163,14 +121,19 @@ func (c oauthConnector) AuthenticateClient(key string, secret string) (interface
 	if err != nil {
 		return nil, err
 	}
+	log.Debug(key)
+	log.Debug(secret)
 
 	defer rows.Close()
 	if rows.Next() {
 		client := Client{}
-		rows.Scan(&client.Id)
-		rows.Scan(&client.Name)
-		rows.Scan(&client.Key)
-		rows.Scan(&client.RedirectHost)
+
+		err = rows.Scan(&client.Id, &client.Name, &client.Key)
+		if err != nil {
+			log.Debug(err)
+		}
+		log.Debugf("Client id = %d\n", client.Id)
+		log.Debug(client.Name)
 		return &client, nil
 	}
 	return nil, nil
@@ -215,6 +178,7 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JS
 
 	token := randomString(25)
 
+	log.Debugf("Client id = %d\n", client.Id)
 	rows, err = db.Query(
 		`INSERT INTO oauth_access_tokens
 		(token, oauth_client_id, user_id)

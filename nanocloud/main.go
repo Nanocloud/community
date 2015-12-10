@@ -36,6 +36,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Static("/", conf.FrontDir)
 	e.Any("/api/*", genericHandler)
+	e.Any("/oauth/*", genericHandler)
 
 	addr := ":" + conf.Port
 	log.Info("Server running at ", addr)

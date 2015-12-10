@@ -36,11 +36,17 @@ export class AuthenticationSvc {
 	}
 
 	login(credentials: any): angular.IPromise<any> {
-		return this.$http.post("/login", $.param({
-			"email": credentials.email,
-			"password": credentials.password
+		let appKey = "9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae";
+		let appSecret = "9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341";
+
+		let basic = btoa(appKey + ":" + appSecret);
+		console.log(basic);
+		return this.$http.post("/oauth/token", JSON.stringify({
+			"username": credentials.email,
+			"password": credentials.password,
+			"grant_type": "password"
 		}), {
-			headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
+			headers: { "Authorization": "Basic " + basic }
 		});
 	}
 

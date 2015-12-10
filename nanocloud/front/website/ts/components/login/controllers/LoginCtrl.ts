@@ -53,11 +53,12 @@ export class LoginCtrl {
 			.login(this.credentials)
 			.then(
 				(res: any) => {
-					if (res.headers().admin && res.headers().admin === "true") {
+					/*if (res.headers().admin && res.headers().admin === "true") {
 						this.$location.path("/admin");
 					} else {
 						this.$location.path("/");
-					}
+					}*/
+					localStorage["accessToken"] = res.data.access_token;
 				},
 				(error: any) => {
 					this.$mdToast.show(
