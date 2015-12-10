@@ -4,40 +4,16 @@ import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	"github.com/nanocloud/oauth"
-	"math/rand"
-	"time"
+	"net/url"
 )
-
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const (
-	letterIdxBits = 6                    // 6 bits to represent a letter index
-	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
-	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
-)
-
-func randomString(n int) string {
-	var src = rand.NewSource(time.Now().UnixNano())
-	b := make([]byte, n)
-
-	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
-		if remain == 0 {
-			cache, remain = src.Int63(), letterIdxMax
-		}
-		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
-			b[i] = letterBytes[idx]
-			i--
-		}
-		cache >>= letterIdxBits
-		remain--
-	}
-
-	return string(b)
-}
 
 type oauthConnector struct{}
 
 type Client struct {
-	Id int
+	Id           int
+	Name         string
+	Key          string
+	RedirectHost string
 }
 
 type AccessToken struct {
@@ -130,14 +106,55 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 	return &res.User, nil
 }
 
-func (c oauthConnector) GetClient(key string, secret string) (interface{}, error) {
+func (c oauthConnector) GetClient(key string) (interface{}, error) {
 	db, err := GetDB()
 	if err != nil {
 		return nil, err
 	}
 
 	rows, err := db.Query(
-		`SELECT id
+		`SELECT id, name,
+		key, redirect_host
+		FROM oauth_clients
+		WHERE key = $1::varchar`,
+		key,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	if rows.Next() {
+		client := Client{}
+		rows.Scan(&client.Id)
+		rows.Scan(&client.Name)
+		rows.Scan(&client.Key)
+		rows.Scan(&client.RedirectHost)
+		return &client, nil
+	}
+	return nil, nil
+}
+
+func (c oauthConnector) CheckClientRedirectURI(rawClient interface{}, redirectURI string) (bool, error) {
+	client := rawClient.(*Client)
+
+	url, err := url.Parse(redirectURI)
+	if err == nil && url.Host == client.RedirectHost {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (c oauthConnector) AuthenticateClient(key string, secret string) (interface{}, error) {
+	db, err := GetDB()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Query(
+		`SELECT id, name,
+		key, redirect_host
 		FROM oauth_clients
 		WHERE key = $1::varchar
 		AND secret = $2::varchar`,
@@ -151,6 +168,9 @@ func (c oauthConnector) GetClient(key string, secret string) (interface{}, error
 	if rows.Next() {
 		client := Client{}
 		rows.Scan(&client.Id)
+		rows.Scan(&client.Name)
+		rows.Scan(&client.Key)
+		rows.Scan(&client.RedirectHost)
 		return &client, nil
 	}
 	return nil, nil
