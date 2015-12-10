@@ -184,7 +184,7 @@ if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
 fi
 
 # Default to KVM, fall back on full emulation
-/var/lib/nanocloud/qemu/bin/qemu-system-x86_64 \
+qemu-system-x86_64 \
     -nodefaults \
     -name "$VM_NAME" \
     -m ${VM_MEMORY} \
