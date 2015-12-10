@@ -31,7 +31,14 @@ type UserInfo struct {
 	IsAdmin   bool
 }
 
-func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
+type RPCRequest struct {
+	Method string
+	Path   string
+	Body   []byte
+}
+
+// fill a fake http request for the plugins
+func getRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
 	str, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -48,44 +55,9 @@ func GetRequestInfos(w http.ResponseWriter, r *http.Request, t *PlugRequest) {
 	t.Url = html.EscapeString(r.URL.Path)
 }
 
-type RPCRequest struct {
-	Method string
-	Path   string
-	Body   []byte
-}
-
-/*
-func GetRequestInfos(req *http.Request, rpcReq *RPCRequest) (*RPCRequest, error) {
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return &RPCRequest{
-		req.Method,
-		req.URL.Path,
-		body,
-	}, nil
-}
-*/
-
-func WriteAnswer(w http.ResponseWriter, reply PlugRequest) {
+// fill the http response from the plugins
+func writeAnswer(w http.ResponseWriter, reply PlugRequest) {
 	w.Header().Set("Content-Type", reply.HeadVals["Content-Type"])
-	//w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(reply.Status)
-	//	w.Header["Access-Control-Allow-Origin"] = "*"
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Cashe-Control", "no-store")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Expires", "Sat, 01 Jan 2000 00:00:00 GMT")
-	w.Header().Set("Pragma", "no-cache")
-	w.Write([]byte(reply.Body))
-
-}
-
-/*
-func WriteAnswer(w http.ResponseWriter, reply RPCRequest) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(reply.Status)
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cashe-Control", "no-store")
@@ -94,7 +66,6 @@ func WriteAnswer(w http.ResponseWriter, reply RPCRequest) {
 	w.Header().Set("Pragma", "no-cache")
 	w.Write([]byte(reply.Body))
 }
-*/
 
 func handleMeRequest(user *UserInfo, w http.ResponseWriter, r *http.Request) {
 	me := make(map[string]interface{})
@@ -119,7 +90,8 @@ func handleMeRequest(user *UserInfo, w http.ResponseWriter, r *http.Request) {
 	w.Write(rt)
 }
 
-func GenericHandler(w http.ResponseWriter, r *http.Request) {
+// handle REST API
+func genericHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(r.URL.Path, "/oauth") {
 		oauth.HandleRequest(w, r)
 		return
@@ -139,9 +111,7 @@ func GenericHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	var args PlugRequest
-	// var args RPCRequest
-	GetRequestInfos(w, r, &args)
-	// l := CheckTrailingSlash(args)
+	getRequestInfos(w, r, &args)
 	var rep PlugRequest
 	for _, val := range plugins {
 		if strings.HasPrefix(args.Url, "/api/"+val.name) {

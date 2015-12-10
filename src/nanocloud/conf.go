@@ -1,25 +1,25 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
-	"runtime"
 )
 
 const confFilename string = "conf.yaml"
 
-type Configuration struct {
-	RunDir  string
-	StagDir string
-	InstDir string
-	Port    string
+type configuration struct {
+	RunDir   string
+	StagDir  string
+	InstDir  string
+	Port     string
+	FrontDir string
 }
 
-var conf Configuration
+var conf configuration
 
-func ReadMergeConf(out interface{}, filename string) error {
+func readMergeConf(out interface{}, filename string) error {
 	d, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -27,8 +27,7 @@ func ReadMergeConf(out interface{}, filename string) error {
 	return yaml.Unmarshal(d, out)
 }
 
-func WriteConf(in interface{}, filename string) error {
-	log.Println(in)
+func writeConf(in interface{}, filename string) error {
 	d, err := yaml.Marshal(in)
 	if err != nil {
 		return err
@@ -36,33 +35,34 @@ func WriteConf(in interface{}, filename string) error {
 	return ioutil.WriteFile(filename, d, 0644)
 }
 
-func getDefaultConf() Configuration {
-	return Configuration{
-		RunDir:  "plugins/running/",
-		StagDir: "plugins/staging/",
-		InstDir: "plugins/installed/",
-		Port:    "8080",
+func getDefaultConf() configuration {
+	return configuration{
+		RunDir:   "plugins/running/",
+		StagDir:  "plugins/staging/",
+		InstDir:  "plugins/installed/",
+		FrontDir: "front/",
+		Port:     "8080",
 	}
 }
 
 func initConf() {
-
 	conf = getDefaultConf()
-	f := "core.yaml"
-	if runtime.GOOS == "linux" {
-		d := "/home/antoine/nanocloud/core/"
-		err := os.MkdirAll(d, 0777)
-		if err == nil {
-			f = d + f
-		} else {
-			log.Println(err)
-		}
-	}
 
-	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println(err)
+	if err := readMergeConf(&conf, confFilename); err != nil {
+		log.Warn("Unable to read/merge the conf file: ", err)
 	}
-	if err := WriteConf(conf, f); err != nil {
-		log.Println(err)
+	if err := writeConf(conf, confFilename); err != nil {
+		log.Warn("Unable to write the conf file: ", err)
+	}
+	log.Info("Current conf: ", conf)
+
+	if err := os.MkdirAll(conf.RunDir, 0777); err != nil {
+		log.Fatal("Mkdir failed: ", conf.RunDir, err)
+	}
+	if err := os.MkdirAll(conf.StagDir, 0777); err != nil {
+		log.Fatal("Mkdir failed: ", conf.StagDir, err)
+	}
+	if err := os.MkdirAll(conf.InstDir, 0777); err != nil {
+		log.Fatal("Mkdir failed: ", conf.InstDir, err)
 	}
 }

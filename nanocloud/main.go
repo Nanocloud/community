@@ -3,177 +3,151 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
-	mw "github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/middleware"
 	"github.com/natefinch/pie"
 	"gopkg.in/fsnotify.v1"
-	"io"
-	"net/rpc"
 	"net/rpc/jsonrpc"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-type plugin struct {
-	name   string
-	client *rpc.Client
-}
-
 var (
-	plugins         = make(map[string]plugin)
-	running_plugins []string
+	plugins = make(map[string]plugin)
 )
-
-func get_plugins() []string {
-	dir, err := os.Open(conf.RunDir[:len(conf.RunDir)-1])
-	checkErr(err)
-	defer dir.Close()
-	fi, err := dir.Stat()
-	checkErr(err)
-	filenames := make([]string, 0)
-	if fi.IsDir() {
-		fis, err := dir.Readdir(-1) // -1 means return all the FileInfos
-		checkErr(err)
-		for _, fileinfo := range fis {
-			if !fileinfo.IsDir() && !strings.HasSuffix(fileinfo.Name(), ".tar.gz") {
-				filenames = append(filenames, fileinfo.Name())
-			}
-		}
-	}
-	return filenames
-}
-
-func checkErr(err error) {
-	if err != nil {
-		log.Println("Error :")
-		log.Println(err)
-
-	}
-}
-
-func launch_existing_plugins(running_plugins []string) []string {
-	plugs := get_plugins()
-	for _, plugin := range plugs {
-		running_plugins = LoadPlugin(running_plugins, plugin)
-		CopyFile(conf.RunDir+plugin, conf.InstDir+plugin)
-	}
-	return running_plugins
-}
 
 func main() {
 	log.SetOutput(os.Stderr)
 	log.SetLevel(log.DebugLevel)
 
 	initConf()
+
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Unable to run the watcher. ", err)
 	}
 	defer w.Close()
-	//router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("../front/"))))
+
+	runningPlugins := launchExistingPlugins()
+	go watchPlugins(w, runningPlugins)
+
 	e := echo.New()
-	e.Use(mw.Logger())
-	e.Use(mw.Recover())
-	e.Any("/*", GenericHandler)
-	running_plugins = make([]string, 0)
-	running_plugins = launch_existing_plugins(running_plugins)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Static("/", conf.FrontDir)
+	e.Any("/api/*", genericHandler)
 
-	go watchPlugins(w, running_plugins)
-
-	e.Run(":" + conf.Port)
-
+	addr := ":" + conf.Port
+	log.Info("Server running at ", addr)
+	e.Run(addr)
 }
 
-func ClosePlugin(running_plugins []string, name string) []string {
-	for i, val := range running_plugins {
+// get plugins list from the running directory
+func getPlugins() []string {
+	dir, err := os.Open(conf.RunDir[:len(conf.RunDir)-1])
+	if err != nil {
+		log.Error("Unable to open the running folder. ", err)
+		return nil
+	}
+	defer dir.Close()
+	var filenames []string
+	fis, err := dir.Readdir(-1) // -1 means return all the FileInfos
+	if err != nil {
+		log.Error("Unable to get filenames of the running folder. ", err)
+		return nil
+	}
+	for _, fileinfo := range fis {
+		if !fileinfo.IsDir() && !strings.HasSuffix(fileinfo.Name(), ".tar.gz") {
+			filenames = append(filenames, fileinfo.Name())
+		}
+	}
+	return filenames
+}
+
+// load all available plugins
+func launchExistingPlugins() []string {
+	var runningPlugins []string
+	plugs := getPlugins()
+	for _, plugin := range plugs {
+		runningPlugins = addPlugin(runningPlugins, plugin)
+		copyFile(conf.RunDir+plugin, conf.InstDir+plugin)
+	}
+	return runningPlugins
+}
+
+// check if the plugin is currently running
+func isRunning(runningPlugins []string, name string) bool {
+	for _, val := range runningPlugins {
+		if val == name {
+			return true
+		}
+	}
+	return false
+}
+
+// remove a plugin
+func removePlugin(runningPlugins []string, name string) []string {
+	for i, val := range runningPlugins {
 		if val == name {
 			closePlugin(conf.RunDir + name)
-			running_plugins = append(running_plugins[:i], running_plugins[i+1:]...)
+			runningPlugins = append(runningPlugins[:i], runningPlugins[i+1:]...)
 			log.Println("deleted plugin from slice")
 		}
 	}
-	return running_plugins
+	return runningPlugins
 }
 
-func LoadPlugin(running_plugins []string, name string) []string {
+// add a plugin
+func addPlugin(runningPlugins []string, name string) []string {
 
 	loadPlugin(conf.RunDir + name)
-	running_plugins = append(running_plugins, name)
+	runningPlugins = append(runningPlugins, name)
 
-	return running_plugins
+	return runningPlugins
 }
 
-func IsRunning(running_plugins []string, name string) bool {
-	check := false
-	for _, val := range running_plugins {
-		if val == name {
-			check = true
-		}
-	}
-	return check
-}
-
-func CopyFile(source string, dest string) (err error) {
-	sf, err := os.Open(source)
-	if err != nil {
-		return err
-	}
-	defer sf.Close()
-	df, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
-	defer df.Close()
-	_, err = io.Copy(df, sf)
-	if err == nil {
-		si, err := os.Stat(source)
-		if err != nil {
-			err = os.Chmod(dest, si.Mode())
-		}
-	}
-	return
-}
-
-func DeletePlugin(path string) {
+// delete a plugin from disk
+func deletePlugin(path string) error {
 	oldpath := path
 	if _, ok := plugins[path]; !ok {
 		path = conf.StagDir + path[strings.LastIndex(path, "/")+1:]
-
 	}
 
 	if path == oldpath {
 		err := os.Remove(path)
 		if err != nil {
-			log.Println(err)
+			return err
 		}
 	} else {
 		err := os.Remove(oldpath)
 		if err != nil {
-			log.Println(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
-func CreateEvent(running_plugins []string, name string, fullpath string, sourcefile string) []string {
-	if IsRunning(running_plugins, name) {
-		running_plugins = ClosePlugin(running_plugins, name)
+// handle the case when a plugin is dropped in the staging folder
+func createEvent(runningPlugins []string, name string, fullpath string, sourcefile string) []string {
+
+	// if another version of the plugin is already running
+	if isRunning(runningPlugins, name) {
+		runningPlugins = removePlugin(runningPlugins, name)
 		err := loadPlugin(fullpath)
-		if err != nil {
-			log.Println("error loading plugin")
-			log.Println(err)
-		}
-		if plugins[fullpath].Check() == true {
-			running_plugins = append(running_plugins, name)
-			log.Println("added previously existing plugin to slice")
-			DeletePlugin(conf.RunDir + name)
+		// verify if the plugin can be loaded
+		if err == nil && plugins[fullpath].Check() == true {
+			runningPlugins = append(runningPlugins, name)
+
+			deletePlugin(conf.RunDir + name)
 			err := os.Rename(conf.StagDir+name, conf.RunDir+name)
 			if err != nil {
 				log.Println(err)
 			}
 
-			CopyFile(conf.RunDir+name, conf.InstDir+name) // TODO, Replace this by a simple "touch"
-			DeleteOldFront(sourcefile)
-			UnpackFront(sourcefile)
+			copyFile(conf.RunDir+name, conf.InstDir+name)
+			deleteOldFront(sourcefile)
+			unpackFront(sourcefile)
 			err = os.Rename(sourcefile, conf.RunDir+sourcefile[strings.LastIndex(sourcefile, "/")+1:])
 
 			if err != nil {
@@ -189,51 +163,59 @@ func CreateEvent(running_plugins []string, name string, fullpath string, sourcef
 		}
 
 	} else {
-		UnpackFront(sourcefile)
+
+		// ok, it's a new plugin
+
+		// handle the binary
 		err := os.Rename(conf.StagDir+name, conf.RunDir+name)
 		if err != nil {
-			log.Println(err)
+			log.Error("Unable to move the binary file to the running folder. ", err)
 		}
+		_, err = os.Create(conf.InstDir + name)
+		if err != nil {
+			log.Error("Unable to create a touch file in the installed folder. ", err)
+		}
+		// handle the front
+		unpackFront(sourcefile)
 		err = os.Rename(sourcefile, conf.RunDir+sourcefile[strings.LastIndex(sourcefile, "/")+1:])
 		if err != nil {
-			log.Println(err)
+			log.Error("Unable to move the tarball to the running folder. ", err)
 		}
-		CopyFile(conf.RunDir+name, conf.InstDir+name) //TODO replace this by touch
-		running_plugins = LoadPlugin(running_plugins, name)
+
+		runningPlugins = addPlugin(runningPlugins, name)
 	}
-	return running_plugins
+	return runningPlugins
 }
 
-func DeleteTar(name string) {
+func deleteTar(name string) {
 	err := os.Remove(conf.RunDir + name[strings.LastIndex(name, "/")+1:])
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func watchPlugins(w *fsnotify.Watcher, running_plugins []string) {
+func watchPlugins(w *fsnotify.Watcher, runningPlugins []string) {
 	w.Add(conf.StagDir)
 	w.Add(conf.InstDir)
 	for {
 		select {
+
 		case evt := <-w.Events:
-			//log.Println("fsnotify:", evt)
 			switch evt.Op {
 			case fsnotify.Create:
 				if evt.Name[:strings.LastIndex(evt.Name, "/")+1] == conf.StagDir {
-					UnpackGo(evt.Name)
+					unpackGo(evt.Name, runningPlugins)
 				}
 			case fsnotify.Remove:
-				DeleteTar(evt.Name + ".tar.gz")
+				deleteTar(evt.Name + ".tar.gz")
 				closePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
-				DeletePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
+				deletePlugin(conf.RunDir + evt.Name[strings.LastIndex(evt.Name, "/")+1:])
 			}
 
 		case err := <-w.Errors:
 			log.Println("watcher crashed:", err)
 
 		}
-
 	}
 }
 
@@ -269,33 +251,4 @@ func closePlugin(path string) {
 	plugins[path].Unplug()
 
 	delete(plugins, path)
-}
-
-func (p plugin) Plug() {
-	var reply bool
-	err := p.client.Call(p.name+".Plug", nil, &reply)
-	if err != nil {
-		log.Println("Error while calling Plug:", err)
-	}
-	log.Println(p.name + " plugged")
-}
-
-func (p plugin) Check() bool {
-	reply := false
-	err := p.client.Call(p.name+".Check", nil, &reply)
-	if err != nil {
-		log.Println("Error while calling Check:", err)
-	}
-	log.Println(p.name + " checked")
-	return reply
-}
-
-func (p plugin) Unplug() {
-	var reply bool
-	err := p.client.Call(p.name+".Unplug", nil, &reply)
-	if err != nil && err != io.ErrUnexpectedEOF {
-		log.Println("Error while calling Unplug:", err)
-	}
-	p.client.Close()
-	log.Println(p.name + " unplugged")
 }

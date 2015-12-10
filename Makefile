@@ -13,11 +13,14 @@ initial:
 	cd front && npm install && npm run setup
 	@echo
 	
-build: clean
+build: clean go npm
+
+go:
 	@echo "==== build back"
 	$(GOPATH)/bin/gb build
 	@echo
-	
+
+npm:
 	@echo "==== build front"
 	cd front && npm run build
 	cp -r front/website/ bin/front/

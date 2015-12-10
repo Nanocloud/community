@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func UnpackGo(sourcefile string) {
+func unpackGo(sourcefile string, runningPlugins []string) {
 	time.Sleep(1000 * time.Millisecond) // TODO, Delete that and see when file is fully copied
 	file, err := os.Open(sourcefile)
 
@@ -73,7 +73,7 @@ func UnpackGo(sourcefile string) {
 				}
 
 				writer.Close()
-				running_plugins = CreateEvent(running_plugins, filename, conf.StagDir+filename, sourcefile)
+				runningPlugins = createEvent(runningPlugins, filename, conf.StagDir+filename, sourcefile)
 			}
 		default:
 			log.Println("Unable to untar type :", header.Typeflag, " in file", filename)
@@ -82,7 +82,7 @@ func UnpackGo(sourcefile string) {
 
 }
 
-func DeleteOldFront(sourcefile string) {
+func deleteOldFront(sourcefile string) {
 	file, err := os.Open(sourcefile)
 	if err != nil {
 		log.Println(err)
@@ -113,8 +113,8 @@ func DeleteOldFront(sourcefile string) {
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// handle directory
-			log.Println("Deleting directory :", "../front/"+filename)
-			err = os.RemoveAll("../front/" + filename) // or use 0755 if you prefer
+			log.Println("Deleting directory :", conf.FrontDir+filename)
+			err = os.RemoveAll(conf.FrontDir + filename) // or use 0755 if you prefer
 			if err != nil {
 				log.Println(err)
 				os.Exit(1)
@@ -126,7 +126,7 @@ func DeleteOldFront(sourcefile string) {
 	}
 }
 
-func UnpackFront(sourcefile string) {
+func unpackFront(sourcefile string) {
 	file, err := os.Open(sourcefile)
 
 	if err != nil {
@@ -168,8 +168,8 @@ func UnpackFront(sourcefile string) {
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// handle directory
-			log.Println("Creating directory :", "../front/"+filename)
-			err = os.MkdirAll("../front/"+filename, os.FileMode(header.Mode)) // or use 0755 if you prefer
+			log.Println("Creating directory :", conf.FrontDir+filename)
+			err = os.MkdirAll(conf.FrontDir+filename, os.FileMode(header.Mode)) // or use 0755 if you prefer
 
 			if err != nil {
 				log.Println(err)
@@ -179,7 +179,7 @@ func UnpackFront(sourcefile string) {
 		case tar.TypeReg:
 			// handle normal file
 			log.Println("Untarring :", filename)
-			writer, err := os.OpenFile("../front/"+filename, os.O_WRONLY|os.O_CREATE, os.FileMode(header.Mode))
+			writer, err := os.OpenFile(conf.FrontDir+filename, os.O_WRONLY|os.O_CREATE, os.FileMode(header.Mode))
 
 			if err != nil {
 				log.Println(err)
