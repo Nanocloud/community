@@ -98,7 +98,7 @@ func CreateConnections() error {
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	bashConfigFile, err := os.Create("configuration.sh")
+	bashConfigFile, err := os.Create("./scripts/configuration.sh")
 	if err != nil {
 		log.Printf("Failed to configure bash scripts : %s", err)
 		return nil
@@ -114,7 +114,7 @@ func CreateConnections() error {
 	bashConfigFile.Write([]byte(fmt.Sprintf("PORT=\"%s\"\n", conf.SSHPort)))
 	bashConfigFile.Write([]byte(fmt.Sprintf("PASSWORD=\"%s\"\n", conf.Password)))
 	bashConfigFile.Close()
-	bashExecScript := "./exec.sh"
+	bashExecScript := "./scripts/exec.sh"
 	cmd := exec.Command(bashExecScript, "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"")
 	cmd.Dir = "."
 	response, err := cmd.Output()
@@ -372,7 +372,7 @@ func ListApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection 
 func UnpublishApp(Alias string) {
 	var powershellCmd string
 
-	bashExecScript := "./exec.sh"
+	bashExecScript := "./scripts/exec.sh"
 	powershellCmd = fmt.Sprintf(
 		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias %s -CollectionName %s -Force\"",
 		Alias,
