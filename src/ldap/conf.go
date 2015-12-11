@@ -3,10 +3,11 @@ package main
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/user"
 	"runtime"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const confFilename string = "ldap.yaml"
@@ -48,7 +49,7 @@ func initConf() {
 	conf = getDefaultConf()
 	usr, err := user.Current()
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	home := usr.HomeDir
 	f := "ldap.yaml"
@@ -58,19 +59,19 @@ func initConf() {
 		if err == nil {
 			f = d + f
 		} else {
-			log.Println(err)
+			log.Error("Failed to make necessery directories for config files", err)
 		}
 	}
 
 	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
+		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
 		alt := "/etc/nanocloud/ldap/ldap.yaml"
 		if err := ReadMergeConf(&conf, alt); err != nil {
-			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
+			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
 
 	}
 	if err := WriteConf(conf, f); err != nil {
-		log.Println(err)
+		log.Error("Failed to write new configuration file: ", err)
 	}
 }
