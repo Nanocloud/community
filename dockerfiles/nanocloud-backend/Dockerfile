@@ -38,7 +38,7 @@ RUN ln -s ../../../../ldap/bin/ldap plugins/running/ldap
 RUN ln -s ../../../../users/bin/history plugins/running/history
 RUN ln -s ../../../../users/bin/users plugins/running/users
 
-RUN ln -s ../../../../../users/front/website/js/components/iaas front/js/components/iass
+RUN ln -s ../../../../../users/front/website/js/components/iaas front/js/components/iaas
 RUN ln -s ../../../../../users/front/website/js/components/history front/js/components/history
 RUN ln -s ../../../../../users/front/website/js/components/users front/js/components/users
 
