@@ -30,11 +30,12 @@ cd community/dockerfiles
 
 (
   mkdir repos_nanocloud; cd repos_nanocloud/
-  git clone https://github.com/Nanocloud/core.git
-  git clone https://github.com/Nanocloud/front.git
-  git clone https://github.com/Nanocloud/plugin_iaas.git
-  git clone https://github.com/Nanocloud/plugin_ldap.git
-  git clone https://github.com/Nanocloud/plugin_history.git
+
+  git clone https://github.com/Nanocloud/nanocloud.git
+  git clone https://github.com/Nanocloud/users.git
+  git clone https://github.com/Nanocloud/iaas.git
+  git clone https://github.com/Nanocloud/ldap.git
+  git clone https://github.com/Nanocloud/history.git
 )
 
 curl -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
