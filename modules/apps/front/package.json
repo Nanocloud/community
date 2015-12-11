@@ -1,0 +1,24 @@
+{
+	"name": "NanoHistory",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"setup": "tsd install && grunt build",
+		"start": "concurrent 'grunt watch-xy' 'grunt watch-ts'",
+		"build": "grunt build",
+		"grunt": "grunt",
+		"tsd": "tsd"
+	},
+	"devDependencies": {
+		"grunt-cli": "latest",
+		"grunt": "~0.4.5",
+		"grunt-contrib-watch": "0.6.x",
+		"typescript": "1.7.x",
+		"grunt-ts": "5.x",
+		"tslint": "3.x",
+		"grunt-tslint": "3.x",
+		"grunt-sync": "0.4.x",
+		"tsd": "0.6.x",
+		"load-grunt-tasks": "latest"
+	}
+}
