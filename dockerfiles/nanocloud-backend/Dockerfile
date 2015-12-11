@@ -33,13 +33,13 @@ WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/bin
 
 RUN mkdir -p plugins/running
 
-RUN ln -s ../../../../users/bin/iaas plugins/running/iaas
+RUN ln -s ../../../../iaas/bin/iaas plugins/running/iaas
 RUN ln -s ../../../../ldap/bin/ldap plugins/running/ldap
-RUN ln -s ../../../../users/bin/history plugins/running/history
+RUN ln -s ../../../../history/bin/history plugins/running/history
 RUN ln -s ../../../../users/bin/users plugins/running/users
 
-RUN ln -s ../../../../../users/front/website/js/components/iaas front/js/components/iaas
-RUN ln -s ../../../../../users/front/website/js/components/history front/js/components/history
+RUN ln -s ../../../../../iaas/front/website/js/components/iaas front/js/components/iaas
+RUN ln -s ../../../../../history/front/website/js/components/history front/js/components/history
 RUN ln -s ../../../../../users/front/website/js/components/users front/js/components/users
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
