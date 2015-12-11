@@ -44,9 +44,7 @@ RUN ln -s ../../../../../users/front/website/js/components/users front/js/compon
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 ENV NANOCONF="/opt/conf/config.json"
-RUN make setup \
-    && make haptic
 
 EXPOSE 8081
 
-CMD ["make", "serve"]
+CMD ["./nanocloud"]
