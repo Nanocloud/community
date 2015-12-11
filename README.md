@@ -52,7 +52,22 @@ You also need to install the following packages on your distribution:
 
 ## How to build
 
-If you want to build your own installer, follow these steps:
+You will need some tools to build Nanocloud
+
+* git
+* gcc
+* qemu
+* go
+
+Also, Nanocloud's backend requires some golang dependencies you can easily download with `go get`
+
+```
+go get github.com/gorilla/rpc
+go get github.com/gorilla/rpc/json
+go get github.com/jteeuwen/go-bindata/...
+```
+
+Then to build your own installer, follow these steps:
 
 ```
 ./build_nanocloud.sh
