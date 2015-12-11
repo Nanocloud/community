@@ -1,7 +1,5 @@
 # SHELL = /bin/bash
 
-default: build
-
 setup: initial build
 
 initial:
