@@ -25,10 +25,12 @@ type HistoryConfig struct {
 	DatabaseName     string
 }
 
+// Plugin Structure
 type api struct{}
 
 var HistoryDb *bolt.DB
 
+// Log entries are stored in this structure
 type HistoryInfo struct {
 	UserId       string
 	ConnectionId string
@@ -36,6 +38,7 @@ type HistoryInfo struct {
 	EndDate      string
 }
 
+// Structure used for exchanges with the core, faking a request/responsewriter
 type PlugRequest struct {
 	Body     string
 	Header   http.Header
@@ -47,6 +50,7 @@ type PlugRequest struct {
 	Status   int
 }
 
+// Connects to the bolt databse
 func Configure() error {
 
 	var err error
@@ -64,6 +68,7 @@ func Configure() error {
 	return err
 }
 
+// Get a list of all the log entries of the database
 func GetList(histories *[]HistoryInfo) error {
 	var history HistoryInfo
 
@@ -90,6 +95,7 @@ func GetList(histories *[]HistoryInfo) error {
 	return nil
 }
 
+// Add a new log entry to the database
 func Add(args PlugRequest, reply *PlugRequest) error {
 	var t HistoryInfo
 	err := json.Unmarshal([]byte(args.Body), &t)
@@ -112,6 +118,7 @@ func Add(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
+// Connects to the DB, adds entry ,sets the status and body of the response and closes the DB
 func AddCall(args PlugRequest, reply *PlugRequest, id string) {
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
@@ -130,12 +137,11 @@ func AddCall(args PlugRequest, reply *PlugRequest, id string) {
 		log.Error("Failed to add an entry: ", err)
 		return
 	}
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "text/html;charset=UTF-8"
 	defer HistoryDb.Close()
 	reply.Status = 202
 }
 
+// Connects to the DB, list entries ,sets the status and body of the response and closes the DB
 func ListCall(args PlugRequest, reply *PlugRequest, id string) {
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
@@ -160,6 +166,7 @@ func ListCall(args PlugRequest, reply *PlugRequest, id string) {
 
 }
 
+// slice of available handler functions
 var tab = []struct {
 	Url    string
 	Method string
@@ -169,6 +176,7 @@ var tab = []struct {
 	{`^\/api\/history\/{0,1}$`, "POST", AddCall},
 }
 
+// Will receive all http requests starting by /api/history from the core and chose the correct handler function
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	for _, val := range tab {
 		re := regexp.MustCompile(val.Url)
@@ -186,16 +194,19 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
+// Plug the plugin to the core
 func (api) Plug(args interface{}, reply *bool) error {
 	*reply = true
 	return nil
 }
 
+// Will contain various verifications for the plugin. If the core can call the function and receives "true" in the reply, it means the plugin is functionning correctly
 func (api) Check(args interface{}, reply *bool) error {
 	*reply = true
 	return nil
 }
 
+// Unplug the plugin from the core
 func (api) Unplug(args interface{}, reply *bool) error {
 	defer os.Exit(0)
 	*reply = true
@@ -207,7 +218,7 @@ func main() {
 	srv = pie.NewProvider()
 
 	if err := srv.RegisterName(name, api{}); err != nil {
-		log.Fatalf("Failed to register %s: %s", name, err)
+		log.Fatal("Failed to register:", name, err)
 	}
 
 	srv.ServeCodec(jsonrpc.NewServerCodec)
