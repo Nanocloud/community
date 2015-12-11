@@ -14,8 +14,12 @@ nanocloud-backend:
  dockerfile: nanocloud-backend/Dockerfile
  links:
   - guacamole-client:guacamole
+  - postgres:postgres
+  - rabbitmq:rabbitmq
  volumes:
-  - ./nanocloud-backend/conf/config.json:/opt/conf/config.json
+  - ./nanocloud-backend/conf/config.yaml:/etc/nanocloud/config.yaml
+  - ./nanocloud-backend/conf/nanocloud/conf.yaml:/etc/nanocloud/nanocloud/conf.yaml
+  - ./nanocloud-backend/conf/users/conf.yaml:/etc/nanocloud/users/users.yaml
   - ./nanocloud-backend/conf/ldaprc:/etc/ldap/ldap.conf:ro
   - ./nanocloud-backend/conf/ad2012.cer:/opt/conf/ad2012.cer:ro
  volumes_from:
@@ -31,9 +35,17 @@ proxy:
  ports:
   - 80:80
   - 443:443
- 
 ambassador:
  image: cpuguy83/docker-grand-ambassador
  volumes:
  - "/var/run/docker.sock:/var/run/docker.sock"
  command: "-name dockerfiles_guacamole-client_1 -name dockerfiles_proxy_1 "
+rabbitmq:
+  image: rabbitmq
+postgres:
+ image: postgres
+ volumes:
+  - ./postgres:/var/lib/postgresql/data/pgdata
+ environment:
+  - PGDATA=/var/lib/postgresql/data/pgdata
+  - POSTGRES_USER=nanocloud
