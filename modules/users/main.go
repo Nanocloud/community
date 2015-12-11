@@ -214,11 +214,11 @@ func CreateUser(
 		`INSERT INTO users
 		(id, email, activated,
 		first_name, last_name,
-		password, created_at, is_admin)
+		password, is_admin)
 		VALUES(
 			$1::varchar, $2::varchar, $3::bool,
 			$4::varchar, $5::varchar,
-			$6::varchar, NOW(), $7::bool)
+			$6::varchar, $7::bool)
 		`, id, email, activated,
 		firstName, lastName,
 		pass, isAdmin)
@@ -621,6 +621,55 @@ func (api) Unplug(args interface{}, reply *bool) error {
 	return nil
 }
 
+func setupDb() error {
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'users'`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Info("[Users] users table already set up\n")
+		return nil
+	}
+
+	rows, err = db.Query(
+		`CREATE TABLE users (
+			id               varchar(36) PRIMARY KEY,
+			first_name       varchar(36),
+			last_name        varchar(36),
+			email            varchar(36) UNIQUE,
+			password         varchar(60),
+			is_admin         boolean,
+			activated        boolean
+		);`)
+	if err != nil {
+		log.Errorf("[Users] Unable to create users table: %s\n", err)
+		return err
+	}
+
+	rows.Close()
+
+	_, err = CreateUser(
+		true,
+		"admin@nanocloud.com",
+		"John",
+		"Doe",
+		"admin",
+		true,
+	)
+
+	if err != nil {
+		log.Errorf("[Users] Unable to create the default user: %s\n", err)
+		return err
+	}
+
+	return nil
+}
+
 func main() {
 	var err error
 
@@ -638,6 +687,11 @@ func main() {
 	db, err = sql.Open("postgres", conf.DatabaseUri)
 	if err != nil {
 		log.Fatalf("Cannot connect to Postgres Database: %s", err)
+	}
+
+	err = setupDb()
+	if err != nil {
+		log.Fatalf("[Users] unable to setup users table: %s", err)
 	}
 
 	srv.ServeCodec(jsonrpc.NewServerCodec)
