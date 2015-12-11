@@ -21,7 +21,7 @@ go:
 npm:
 	@echo "==== build front"
 	cd front && npm run build
-	cp -r front/website/ bin/front/
+	ln -s ../front/website bin/front
 	@echo
 
 clean:
