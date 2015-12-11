@@ -5,16 +5,20 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"os/user"
+	"runtime"
 )
 
 const confFilename string = "conf.yaml"
 
 type configuration struct {
-	RunDir   string
-	StagDir  string
-	InstDir  string
-	Port     string
-	FrontDir string
+	RunDir      string
+	StagDir     string
+	InstDir     string
+	Port        string
+	FrontDir    string
+	DatabaseUri string
+	QueueUri    string
 }
 
 var conf configuration
@@ -37,32 +41,42 @@ func writeConf(in interface{}, filename string) error {
 
 func getDefaultConf() configuration {
 	return configuration{
-		RunDir:   "plugins/running/",
-		StagDir:  "plugins/staging/",
-		InstDir:  "plugins/installed/",
-		FrontDir: "front/",
-		Port:     "8080",
+		RunDir:      "plugins/running/",
+		StagDir:     "plugins/staging/",
+		InstDir:     "plugins/installed/",
+		FrontDir:    "front/",
+		Port:        "8080",
+		DatabaseUri: "postgres://localhost/nanocloud?sslmode=disable",
+		QueueUri:    "amqp://guest:guest@localhost:5672/",
 	}
 }
 
 func initConf() {
 	conf = getDefaultConf()
+	usr, err := user.Current()
+	if err != nil {
+		log.Println(err)
+	}
+	home := usr.HomeDir
+	f := "nanocloud.yaml"
+	if runtime.GOOS == "linux" {
+		d := home + "/.config/nanocloud/nanocloud/"
+		err := os.MkdirAll(d, 0755)
+		if err == nil {
+			f = d + f
+		} else {
+			log.Println(err)
+		}
+	}
 
-	if err := readMergeConf(&conf, confFilename); err != nil {
-		log.Warn("Unable to read/merge the conf file: ", err)
+	if err := readMergeConf(&conf, f); err != nil {
+		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
+		alt := "/etc/nanocloud/nanocloud/nanocloud.yaml"
+		if err := readMergeConf(&conf, alt); err != nil {
+			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
+		}
 	}
-	if err := writeConf(conf, confFilename); err != nil {
-		log.Warn("Unable to write the conf file: ", err)
-	}
-	log.Info("Current conf: ", conf)
-
-	if err := os.MkdirAll(conf.RunDir, 0777); err != nil {
-		log.Fatal("Mkdir failed: ", conf.RunDir, err)
-	}
-	if err := os.MkdirAll(conf.StagDir, 0777); err != nil {
-		log.Fatal("Mkdir failed: ", conf.StagDir, err)
-	}
-	if err := os.MkdirAll(conf.InstDir, 0777); err != nil {
-		log.Fatal("Mkdir failed: ", conf.InstDir, err)
+	if err := writeConf(conf, f); err != nil {
+		log.Println(err)
 	}
 }
