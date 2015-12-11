@@ -75,8 +75,8 @@ const (
 	LDAP_SCOPE_BASE        = 0x0000
 	LDAP_SCOPE_ONELEVEL    = 0x0001
 	LDAP_SCOPE_SUBTREE     = 0x0002
-	LDAP_SCOPE_SUBORDINATE = 0x0003 // OpenLDAP extension
-	LDAP_SCOPE_DEFAULT     = -1     // OpenLDAP extension
+	LDAP_SCOPE_SUBORDINATE = 0x0003 // openLDAP extension
+	LDAP_SCOPE_DEFAULT     = -1     // openLDAP extension
 )
 
 var (
@@ -96,6 +96,7 @@ type ChangePasswordParams struct {
 	NewPassword    string
 }
 
+// Strucutre used in messages from RabbitMQ
 type Message struct {
 	Method    string
 	Name      string
@@ -105,6 +106,7 @@ type Message struct {
 	Password  string
 }
 
+// Plugin structure
 type Ldap struct{}
 
 type ldap_conf struct {
@@ -115,6 +117,7 @@ type ldap_conf struct {
 	ou             string
 }
 
+// Structure used for exchanges with the core, faking a request/responsewriter
 type PlugRequest struct {
 	Body     string
 	Header   http.Header
@@ -126,6 +129,7 @@ type PlugRequest struct {
 	HeadVals map[string]string
 }
 
+// Strucutre used in return messages sent to RabbitMQ
 type ReturnMsg struct {
 	Method string
 	Err    string
@@ -133,8 +137,8 @@ type ReturnMsg struct {
 	Email  string
 }
 
-func SetOptions(ldapConnection *C.LDAP) error {
-	// Setting LDAP version and referrals
+// Setting LDAP version and referrals
+func setOptions(ldapConnection *C.LDAP) error {
 	var version C.int
 	var opt C.int
 	version = LDAP_VERSION3
@@ -153,10 +157,6 @@ func SetOptions(ldapConnection *C.LDAP) error {
 
 func answerWithError(msg string, e error) error {
 
-	// TODO return JSON answer
-	// r := nan.NewExitCode(0, "ERROR: failed to  : "+err.Error())
-	// log.Printf(r.Message) // for on-screen debug output
-	// *pOutMsg = r.ToJson() // return codes for IPC should use JSON as much as possible
 	answer := "plugin Ldap: " + msg
 	if e != nil {
 		answer += e.Error()
@@ -167,7 +167,7 @@ func answerWithError(msg string, e error) error {
 	return errors.New(answer)
 }
 
-func ListUsers(args PlugRequest, reply *PlugRequest, id string) error {
+func listUsers(args PlugRequest, reply *PlugRequest, id string) error {
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
 	reply.Status = 500
@@ -260,7 +260,7 @@ func test_password(pass string) bool {
 	}
 	return true
 }
-func DeleteUsers(mails []string) error {
+func deleteUsers(mails []string) error {
 	var tconf ldap_conf
 
 	tconf.host = conf.ServerURL
@@ -299,9 +299,9 @@ func DeleteUsers(mails []string) error {
 	return nil
 
 }
-func Initialize(conf *ldap_conf) error {
+func initialize(conf *ldap_conf) error {
 
-	if SetOptions(nil) != nil {
+	if setOptions(nil) != nil {
 		return answerWithError("Options error", nil)
 	}
 	rc := C.ldap_initialize(&conf.ldapConnection, C.CString(conf.host+":636"))
@@ -316,7 +316,8 @@ func Initialize(conf *ldap_conf) error {
 
 }
 
-func CheckSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
+// Checks if there is at least one sam account available, to use it to create a new user instead of generating a new sam account
+func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	searchRequest := ldap.NewSearchRequest(
 		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -345,7 +346,7 @@ func CheckSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	return nil, cn, count
 }
 
-func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn, reply *PlugRequest) error {
+func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn, reply *PlugRequest) error {
 
 	if !test_password(params.Password) {
 		reply.Status = 400
@@ -359,7 +360,7 @@ func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 	if rc != LDAP_SUCCESS {
 		return answerWithError("Adding error: "+C.GoString(C.ldap_err2string(rc)), nil)
 	}
-	pwd := EncodePassword(params.Password)
+	pwd := encodePassword(params.Password)
 	modify := ldap.NewModifyRequest("cn=" + fmt.Sprintf("%d", count+1) + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
 	modify.Replace("unicodePwd", []string{string(pwd)}) // field where the windows password is stored
 	modify.Replace("userAccountControl", []string{"512"})
@@ -397,7 +398,7 @@ func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 
 }
 
-func EncodePassword(pass string) []byte {
+func encodePassword(pass string) []byte {
 	s := pass
 	// Windows AD needs a UTF16-LE encoded password, with double quotes at the beginning and at the end
 	enc := utf16.Encode([]rune(s))
@@ -414,9 +415,10 @@ func EncodePassword(pass string) []byte {
 	return pwd
 }
 
-func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) error {
+// Uses a deactivated sam account to create a new user with it
+func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) error {
 
-	pwd := EncodePassword(params.Password)
+	pwd := encodePassword(params.Password)
 	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
 	modify.Replace("unicodePwd", []string{string(pwd)})
 	modify.Replace("userAccountControl", []string{"512"})
@@ -455,7 +457,7 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) erro
 	return nil
 }
 
-func ModifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
+func modifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
@@ -512,7 +514,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 		cn = entry.GetAttributeValue("cn")
 
 	}
-	pwd := EncodePassword(params.Password)
+	pwd := encodePassword(params.Password)
 
 	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
 	modify.Replace("unicodePwd", []string{string(pwd)})
@@ -525,7 +527,7 @@ func ModifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 
 }
 
-func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
+func addUser(args PlugRequest, reply *PlugRequest, id string) error {
 	reply.Status = 201
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
@@ -533,15 +535,15 @@ func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
 
 	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
 		reply.Status = 400
-		return answerWithError("AddUser() failed: ", e)
+		return answerWithError("addUser() failed: ", e)
 	}
-	// OpenLDAP and CGO needed here to add a new user
+	// openLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
 	tconf.host = conf.ServerURL
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
 	tconf.ou = "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
-	err := Initialize(&tconf)
+	err := initialize(&tconf)
 	if err != nil {
 		return err
 	}
@@ -570,9 +572,9 @@ func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
 
 	bindusername := conf.Username
 	bindpassword := conf.Password
-	// Return to ldap go API to set the password
+	// return to ldap go API to set the password
 	c := 0
-	for i, val := range conf.ServerURL { //Passing letters/symbols before IP adress ( ex : ldaps:// )
+	for i, val := range conf.ServerURL { // passing letters/symbols before IP adress ( ex : ldaps:// )
 		if unicode.IsDigit(val) {
 			c = i
 			break
@@ -592,28 +594,28 @@ func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
 
 	defer ldapConnection.Close()
 
-	err, cn, count := CheckSamAvailability(ldapConnection) // If an account is disabled, this function will look for his CN
+	err, cn, count := checkSamAvailability(ldapConnection) // if an account is disabled, this function will look for his CN
 	if err != nil {
 		return err
 	}
 
-	// If no disabled accounts were found, real new user created
+	// if no disabled accounts were found, a real new user is created
 	if cn == "" {
-		err = CreateNewUser(tconf, params, count, mods, ldapConnection, reply)
+		err = createNewUser(tconf, params, count, mods, ldapConnection, reply)
 		if err != nil {
 			return err
 		}
-		// Freeing various structures needed for adding entry with OpenLDAP
+		// freeing various structures needed for adding entry with OpenLDAP
 		C.free(unsafe.Pointer(vclass[0]))
 		C.free(unsafe.Pointer(vclass[1]))
 		C.free(unsafe.Pointer(vclass[2]))
 		C.free(unsafe.Pointer(vclass[3]))
 		C.free(unsafe.Pointer(vcn[0]))
 		C.free(unsafe.Pointer(modCN.mod_type))
-		//C._ldap_mods_free(&mods[0], 1)   Should work but doesnt...
+		//C._ldap_mods_free(&mods[0], 1)   Should work but doesnt
 	} else {
-		// If a disabled account is found, modifying this account instead of creating a new one
-		err = RecycleSam(params, ldapConnection, cn)
+		// if a disabled account is found, modifying this account instead of creating a new one
+		err = recycleSam(params, ldapConnection, cn)
 		if err != nil {
 			return err
 		}
@@ -623,7 +625,7 @@ func AddUser(args PlugRequest, reply *PlugRequest, id string) error {
 	return nil
 }
 
-func ForceDisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
+func forcedisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 	reply.Status = 202
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
@@ -632,13 +634,13 @@ func ForceDisableAccount(args PlugRequest, reply *PlugRequest, id string) error 
 		params.UserEmail = id
 	} else if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
 		reply.Status = 400
-		return answerWithError("ForceDisableAccount() failed ", e)
+		return answerWithError("forcedisableAccount() failed ", e)
 	}
 
 	bindusername := conf.Username
 	bindpassword := conf.Password
 	c := 0
-	for i, val := range conf.ServerURL { //Passing letters/symbols before IP adress ( ex : ldaps:// )
+	for i, val := range conf.ServerURL { // passing letters/symbols before IP adress ( ex : ldaps:// )
 		if unicode.IsDigit(val) {
 			c = i
 			break
@@ -671,7 +673,7 @@ func ForceDisableAccount(args PlugRequest, reply *PlugRequest, id string) error 
 	}
 
 	if len(sr.Entries) != 1 {
-		// Means entered mail was not valid, or several user have the same mail ?
+		// means entered mail was not valid, or several user have the same mail
 		return answerWithError("Email does not match any user, or several users have the same mail adress", nil)
 	} else {
 		var cn string
@@ -689,7 +691,7 @@ func ForceDisableAccount(args PlugRequest, reply *PlugRequest, id string) error 
 	return nil
 }
 
-func DisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
+func disableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 	var params AccountParams
 
 	if err := json.Unmarshal([]byte(args.Body), &params); err != nil {
@@ -700,7 +702,7 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 	bindusername := conf.Username
 	bindpassword := conf.Password
 	c := 0
-	for i, val := range conf.ServerURL { //Passing letters/symbols before IP adress ( ex : ldaps:// )
+	for i, val := range conf.ServerURL { // passing letters/symbols before IP adress ( ex : ldaps:// )
 		if unicode.IsDigit(val) {
 			c = i
 			break
@@ -731,7 +733,7 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 		return answerWithError("Search error: ", err)
 	}
 
-	if len(sr.Entries) != 1 { //wrong samaccount
+	if len(sr.Entries) != 1 { // wrong samaccount
 		return answerWithError("SAMACCOUNT does not match any user", nil)
 	} else {
 		var cn string
@@ -755,13 +757,14 @@ var tab = []struct {
 	Method string
 	f      func(PlugRequest, *PlugRequest, string) error
 }{
-	{`^\/api\/ldap\/users\/{0,1}$`, "POST", AddUser},
-	{`^\/api\/ldap\/users\/{0,1}$`, "GET", ListUsers},
-	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", ModifyPassword},
-	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", ForceDisableAccount},
-	//	{`^\/ldap\/users\/(?P<id>[^\/]+)\/forcedisable\/{0,1}$`, "POST", ForceDisableAccount},
+	{`^\/api\/ldap\/users\/{0,1}$`, "POST", addUser},
+	{`^\/api\/ldap\/users\/{0,1}$`, "GET", listUsers},
+	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", modifyPassword},
+	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", forcedisableAccount},
+	//	{`^\/ldap\/users\/(?P<id>[^\/]+)\/forcedisable\/{0,1}$`, "POST", forcedisableAccount},
 }
 
+// Will receive all http requests starting by /api/history from the core and chose the correct handler function
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	initConf()
 	var err error
@@ -784,7 +787,8 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	return nil
 }
 
-func SendReturn(msg ReturnMsg) {
+// When being contacted via a queue with RabbitMQ, send a return message informing whoever called this plugin that the operation succeeded or failed
+func sendReturn(msg ReturnMsg) {
 	Str, err := json.Marshal(msg)
 	if err != nil {
 		log.Error("Faile to Marshal the rabbitmq message to return", err)
@@ -819,7 +823,8 @@ func SendReturn(msg ReturnMsg) {
 
 }
 
-func LookForMsg() {
+// Infinite loop, awaiting for messages from RabbitMQ
+func lookForMsg() {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 
@@ -888,12 +893,13 @@ func LookForMsg() {
 func HandleError(err error, mail string, method string) {
 	if err != nil {
 		log.Error(err)
-		SendReturn(ReturnMsg{Method: method, Err: err.Error(), Plugin: "ldap", Email: mail})
+		sendReturn(ReturnMsg{Method: method, Err: err.Error(), Plugin: "ldap", Email: mail})
 	} else {
-		SendReturn(ReturnMsg{Method: method, Err: "", Plugin: "ldap", Email: mail})
+		sendReturn(ReturnMsg{Method: method, Err: "", Plugin: "ldap", Email: mail})
 	}
 }
 
+// Analyze the message received from RabbitMQ
 func HandleRequest(msg Message) {
 	initConf()
 	var args PlugRequest
@@ -907,13 +913,13 @@ func HandleRequest(msg Message) {
 	}
 	args.Body = string(userjson)
 	if msg.Method == "Add" {
-		err = AddUser(args, &reply, "")
+		err = addUser(args, &reply, "")
 		HandleError(err, params.UserEmail, msg.Method)
-	} else if msg.Method == "DisableAccount" {
-		err = ForceDisableAccount(args, &reply, "")
+	} else if msg.Method == "disableAccount" {
+		err = forcedisableAccount(args, &reply, "")
 		HandleError(err, params.UserEmail, msg.Method)
 	} else if msg.Method == "ChangePassword" {
-		err := ModifyPassword(args, &reply, "")
+		err := modifyPassword(args, &reply, "")
 		HandleError(err, params.UserEmail, msg.Method)
 	}
 
@@ -925,17 +931,20 @@ func failOnError(err error, msg string) {
 	}
 }
 
+// Plug the plugin to the core
 func (api) Plug(args interface{}, reply *bool) error {
 	*reply = true
-	go LookForMsg()
+	go lookForMsg()
 	return nil
 }
 
+// Will contain various verifications for the plugin. If the core can call the function and receives "true" in the reply, it means the plugin is functionning correctly
 func (api) Check(args interface{}, reply *bool) error {
 	*reply = true
 	return nil
 }
 
+// Unplug the plugin from the core
 func (api) Unplug(args interface{}, reply *bool) error {
 	defer os.Exit(0)
 	*reply = true

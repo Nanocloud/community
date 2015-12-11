@@ -20,7 +20,8 @@ type Configuration struct {
 
 var conf Configuration
 
-func ReadMergeConf(out interface{}, filename string) error {
+// Read a configuration file and unmarshal the data in its first parameter
+func readMergeConf(out interface{}, filename string) error {
 	d, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -28,7 +29,8 @@ func ReadMergeConf(out interface{}, filename string) error {
 	return yaml.Unmarshal(d, out)
 }
 
-func WriteConf(in interface{}, filename string) error {
+// Write the new configuration on the configuration file
+func writeConf(in interface{}, filename string) error {
 	d, err := yaml.Marshal(in)
 	if err != nil {
 		return err
@@ -36,6 +38,7 @@ func WriteConf(in interface{}, filename string) error {
 	return ioutil.WriteFile(filename, d, 0644)
 }
 
+// Default configuration to use if no configuration files are found
 func getDefaultConf() Configuration {
 	return Configuration{
 		Username:  "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com",
@@ -56,6 +59,8 @@ func initConf() {
 	if runtime.GOOS == "linux" {
 		d := home + "/.config/nanocloud/ldap/"
 		err := os.MkdirAll(d, 0755)
+		// creating necessary directories for configuration file if they do not exist
+
 		if err == nil {
 			f = d + f
 		} else {
@@ -63,15 +68,18 @@ func initConf() {
 		}
 	}
 
-	if err := ReadMergeConf(&conf, f); err != nil {
+	// look in ~/.config/nanocloud for config file
+	if err := readMergeConf(&conf, f); err != nil {
 		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
 		alt := "/etc/nanocloud/ldap/ldap.yaml"
-		if err := ReadMergeConf(&conf, alt); err != nil {
+		// if the config file is not found in ~/.config/nanocloud, look in /etc/nanocloud
+		if err := readMergeConf(&conf, alt); err != nil {
 			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
 
 	}
-	if err := WriteConf(conf, f); err != nil {
+	// finally write the final configuration used in ./config/nanocloud
+	if err := writeConf(conf, f); err != nil {
 		log.Error("Failed to write new configuration file: ", err)
 	}
 }
