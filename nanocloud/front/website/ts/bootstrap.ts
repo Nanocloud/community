@@ -14,7 +14,10 @@ requirejs.config({
 		"angular-ui-grid": "lib/ui-grid.min",
 		"angular-ui-route": "lib/angular-ui-router.min",
 		"angular-ui-router-extras": "lib/ct-ui-router-extras.min",
-		"ng-flow": "lib/ng-flow-standalone.min"
+		"ng-flow": "lib/ng-flow-standalone.min",
+		
+		"AmdTools": "components/core/services/AmdTools",
+		"MainMenu": "components/core/services/MainMenu"
 	},
 	shim: {
 		"angular": { exports: "angular", deps: ["jquery"] },

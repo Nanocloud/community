@@ -1,6 +1,7 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="angular-ui-router-extras" />
-import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "./services/AmdTools";
+/// <reference path="../../core.d.ts" />
+import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "AmdTools";
 
 let componentName = "core";
 let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future"]);
