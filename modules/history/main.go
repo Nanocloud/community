@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	//	"io"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"net/rpc/jsonrpc"
 	"net/url"
@@ -96,7 +95,7 @@ func Add(args PlugRequest, reply *PlugRequest) error {
 	err := json.Unmarshal([]byte(args.Body), &t)
 	if err != nil {
 		reply.Status = 400
-		log.Println(err)
+		log.Error("Json Arguments are not valid: ", err)
 		return err
 	}
 
@@ -120,7 +119,7 @@ func AddCall(args PlugRequest, reply *PlugRequest, id string) {
 	err := Configure()
 	if err != nil {
 		reply.Status = 500
-		log.Println(err)
+		log.Error("Failed to connect de the Database: ", err)
 		return
 	}
 	err = Add(args, reply)
@@ -128,7 +127,7 @@ func AddCall(args PlugRequest, reply *PlugRequest, id string) {
 		if reply.Status != 400 {
 			reply.Status = 500
 		}
-		log.Println(err)
+		log.Error("Failed to add an entry: ", err)
 		return
 	}
 	reply.HeadVals = make(map[string]string, 1)
@@ -144,7 +143,7 @@ func ListCall(args PlugRequest, reply *PlugRequest, id string) {
 	err := Configure()
 	if err != nil {
 		reply.Status = 500
-		log.Println(err)
+		log.Error("Failed to connect de the Database: ", err)
 		return
 	}
 	defer HistoryDb.Close()
@@ -153,7 +152,7 @@ func ListCall(args PlugRequest, reply *PlugRequest, id string) {
 	rsp, err := json.Marshal(histories)
 	if err != nil {
 		reply.Status = 500
-		log.Println(err)
+		log.Error("Failed to Marshal histories: ", err)
 		return
 	}
 	reply.Body = string(rsp)

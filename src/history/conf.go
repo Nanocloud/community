@@ -1,9 +1,9 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/user"
 	"runtime"
@@ -46,7 +46,7 @@ func initConf() {
 	conf = getDefaultConf()
 	usr, err := user.Current()
 	if err != nil {
-		log.Println(err)
+		log.Error("Failed to get data on current user: ", err)
 	}
 	home := usr.HomeDir
 
@@ -57,19 +57,19 @@ func initConf() {
 		if err == nil {
 			f = d + f
 		} else {
-			log.Println(err)
+			log.Error("Failed to create necessary directories for config files: ", err)
 		}
 	}
 
 	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
+		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
 		alt := "/etc/nanocloud/history/history.yaml"
 		if err := ReadMergeConf(&conf, alt); err != nil {
-			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
+			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
 
 	}
 	if err := WriteConf(conf, f); err != nil {
-		log.Println(err)
+		log.Error("Failed to write configuration file: ", err)
 	}
 }
