@@ -74,13 +74,13 @@ func initConf() {
 	}
 
 	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
+		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
 		alt := "/etc/nanocloud/apps/apps.yaml"
 		if err := ReadMergeConf(&conf, alt); err != nil {
-			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
+			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
 	}
 	if err := WriteConf(conf, f); err != nil {
-		log.Println(err)
+		log.Error("Failed to write configuration file for plugin apps: ", err)
 	}
 }
