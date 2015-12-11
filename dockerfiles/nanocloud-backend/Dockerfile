@@ -6,37 +6,51 @@ MAINTAINER \
 RUN apt-get update && \
     apt-get -y install git libldap2-dev sshpass
 
-COPY repos_nanocloud /opt/repos
-
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y nodejs
 
+RUN mkdir /opt/build
 WORKDIR /opt/build
-RUN git clone /opt/repos/front frontend
-WORKDIR frontend
-RUN npm install -g bower
-RUN npm install
-RUN bower install --allow-root
-RUN npm run tsd install
-RUN npm run grunt update-libs
-RUN npm run grunt build
+RUN git clone https://github.com/Gentux/users.git && \
+	cd users && \
+	git submodule update --init && \
+	make initial && \
+	make
 
-RUN mkdir -p /opt/build/backend/src/nanocloud.com
-WORKDIR /opt/build/backend/src/nanocloud.com
+RUN git clone https://github.com/Nanocloud/iaas.git && \
+	cd iaas && \
+	git submodule update --init && \
+	make initial && \
+	make
 
-RUN git clone /opt/repos/core core
-RUN mkdir -p plugins
+RUN git clone https://github.com/Nanocloud/ldap.git && \
+	cd ldap && \
+	git submodule update --init && \
+	make initial && \
+	make
 
-WORKDIR /opt/build/backend/src/nanocloud.com/plugins
-RUN git clone /opt/repos/plugin_iaas iaas
-RUN git clone /opt/repos/plugin_ldap ldap
-RUN git clone /opt/repos/plugin_history history
+RUN git clone https://github.com/Nanocloud/history.git && \
+	cd history && \
+	git submodule update --init && \
+	make initial && \
+	make
 
-WORKDIR /opt/build/backend/src/nanocloud.com/core
-ENV GOPATH="$GOPATH:/opt/build/backend"
-ENV NANOCONF="/opt/conf/config.json"
-RUN make setup \
-    && make haptic
+RUN git clone https://github.com/Nanocloud/oauth.git && \
+	cd oauth && \
+	git submodule update --init && \
+	make initial && \
+	make
+
+RUN git clone https://github.com/Nanocloud/apps.git && \
+	cd apps && \
+	git submodule update --init && \
+	make initial && \
+	make
+
+RUN git clone https://github.com/Nanocloud/nanocloud.git && \
+	cd nanocloud && \
+	git submodule update --init && \
+	make initial && \
+	make
 
 EXPOSE 8081
-
-CMD ["make", "serve"]
+CMD ["./nanocloud/nanocloud"]
