@@ -81,12 +81,12 @@ type UserInfo struct {
 }
 
 // ========================================================================================================================
-// Procedure: CreateConnections
+// Procedure: createConnections
 //
 // Does:
 // - Create all connections in DB for a particular user in order to use all applications
 // ========================================================================================================================
-func CreateConnections() error {
+func createConnections() error {
 
 	type configs GuacamoleXMLConfigs
 	var (
@@ -242,12 +242,12 @@ func CreateConnections() error {
 }
 
 // ========================================================================================================================
-// Procedure: ListApplications
+// Procedure: listApplications
 //
 // Does:
 // - Return list of applications published by Active Directory
 // ========================================================================================================================
-func ListApplications(reply *PlugRequest) []Connection {
+func listApplications(reply *PlugRequest) []Connection {
 	var (
 		guacamoleConfigs GuacamoleXMLConfigs
 		connections      []Connection
@@ -255,7 +255,7 @@ func ListApplications(reply *PlugRequest) []Connection {
 		err              error
 	)
 
-	err = CreateConnections()
+	err = createConnections()
 	if err != nil {
 		reply.Status = 500
 	}
@@ -302,12 +302,12 @@ func ListApplications(reply *PlugRequest) []Connection {
 }
 
 // ========================================================================================================================
-// Procedure: ListApplicationsForSamAccount
+// Procedure: listApplicationsForSamAccount
 //
 // Does:
 // - Return list of applications available for a particular SAM account
 // ========================================================================================================================
-func ListApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection {
+func listApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection {
 
 	var (
 		guacamoleConfigs GuacamoleXMLConfigs
@@ -360,12 +360,12 @@ func ListApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection 
 }
 
 // ========================================================================================================================
-// Procedure: UnpublishApplication
+// Procedure: unpublishApplication
 //
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
-func UnpublishApp(Alias string) {
+func unpublishApp(Alias string) {
 	var powershellCmd string
 
 	bashExecScript := "../src/nanocloud/scripts/exec.sh"
@@ -388,7 +388,7 @@ func UnpublishApp(Alias string) {
 // Does:
 // - Upload user files to windows VM
 // ========================================================================================================================
-func SyncUploadedFile(Filename string) {
+func syncUploadedFile(Filename string) {
 	bashCopyScript := filepath.Join(nan.Config().CommonBaseDir, "scripts", "copy.sh")
 	cmd := exec.Command(bashCopyScript, Filename)
 	cmd.Dir = filepath.Join(nan.Config().CommonBaseDir, "scripts")
