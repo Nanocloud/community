@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load configuration file
-source ./scripts/configuration.sh
+source ../src/nanocloud/scripts/configuration.sh
 
 if [ ${#} -lt 1 ]; then
 	  echo "Not enough arguments"
