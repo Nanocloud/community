@@ -45,18 +45,17 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/ldap.v2"
-	"log"
 	"net/http"
 	"net/rpc/jsonrpc"
 	"net/url"
 	"os"
 	"regexp"
-	//	"os/exec"
 	"strconv"
 	"unicode"
 	"unicode/utf16"
 	"unsafe"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/natefinch/pie"
 	"github.com/streadway/amqp"
 )
@@ -163,7 +162,7 @@ func answerWithError(msg string, e error) error {
 		answer += e.Error()
 	}
 
-	log.Println(answer)
+	log.Error(answer)
 
 	return errors.New(answer)
 }
@@ -392,7 +391,7 @@ func CreateNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 		return answerWithError("Search error: ", err)
 	}
 	for _, entry := range sr.Entries {
-		log.Println(entry.GetAttributeValue("sAMAccountName"))
+		log.Info(entry.GetAttributeValue("sAMAccountName"))
 	}
 	return nil
 
@@ -451,7 +450,7 @@ func RecycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) erro
 		return answerWithError("Search error: ", err)
 	}
 	for _, entry := range sr.Entries {
-		log.Println(entry.GetAttributeValue("sAMAccountName"))
+		log.Info(entry.GetAttributeValue("sAMAccountName"))
 	}
 	return nil
 }
@@ -694,7 +693,7 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
 	var params AccountParams
 
 	if err := json.Unmarshal([]byte(args.Body), &params); err != nil {
-		log.Println(err)
+		log.Error("Failed to Unmarshall the parameters of the account to disable", err)
 		return err
 	}
 
@@ -788,7 +787,7 @@ func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 func SendReturn(msg ReturnMsg) {
 	Str, err := json.Marshal(msg)
 	if err != nil {
-		log.Println(err)
+		log.Error("Faile to Marshal the rabbitmq message to return", err)
 	}
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
@@ -875,7 +874,7 @@ func LookForMsg() {
 			log.Printf("Received a message: %s", d.Body)
 			err := json.Unmarshal(d.Body, &msg)
 			if err != nil {
-				log.Println(err)
+				log.Error("Failed to Unmarshal the message received: ", err)
 			}
 			HandleRequest(msg)
 
@@ -888,7 +887,7 @@ func LookForMsg() {
 
 func HandleError(err error, mail string, method string) {
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		SendReturn(ReturnMsg{Method: method, Err: err.Error(), Plugin: "ldap", Email: mail})
 	} else {
 		SendReturn(ReturnMsg{Method: method, Err: "", Plugin: "ldap", Email: mail})
@@ -904,7 +903,7 @@ func HandleRequest(msg Message) {
 	params.Password = msg.Password
 	userjson, err := json.Marshal(params)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	args.Body = string(userjson)
 	if msg.Method == "Add" {
@@ -922,7 +921,7 @@ func HandleRequest(msg Message) {
 
 func failOnError(err error, msg string) {
 	if err != nil {
-		log.Println(msg, err)
+		log.Error(msg, err)
 	}
 }
 
@@ -947,7 +946,7 @@ func main() {
 	srv = pie.NewProvider()
 
 	if err := srv.RegisterName(name, api{}); err != nil {
-		log.Fatalf("Failed to register %s: %s", name, err)
+		log.Fatal("Failed to register ", name, err)
 	}
 
 	srv.ServeCodec(jsonrpc.NewServerCodec)
