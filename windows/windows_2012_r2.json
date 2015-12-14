@@ -79,7 +79,6 @@
                             "floppy/windows-2012-standard-amd64/Disable-WU.ps1",
                             "floppy/windows-2012-standard-amd64/AD-install.ps1",
                             "floppy/windows-2012-standard-amd64/enable-RDP.ps1",
-                            "floppy/windows-2012-standard-amd64/net-opti.ps1",
                             "floppy/windows-2012-standard-amd64/RDS-install.ps1"
 
             ]
