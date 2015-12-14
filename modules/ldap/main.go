@@ -766,7 +766,6 @@ var tab = []struct {
 
 // Will receive all http requests starting by /api/history from the core and chose the correct handler function
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	initConf()
 	var err error
 	for _, val := range tab {
 		re := regexp.MustCompile(val.Url)
@@ -793,7 +792,7 @@ func sendReturn(msg ReturnMsg) {
 	if err != nil {
 		log.Error("Faile to Marshal the rabbitmq message to return", err)
 	}
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(conf.QueueURI)
 	failOnError(err, "Failed to connect to RabbitMQ")
 
 	ch, err := conn.Channel()
@@ -825,7 +824,7 @@ func sendReturn(msg ReturnMsg) {
 
 // Infinite loop, awaiting for messages from RabbitMQ
 func lookForMsg() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(conf.QueueURI)
 	failOnError(err, "Failed to connect to RabbitMQ")
 
 	ch, err := conn.Channel()
@@ -952,6 +951,8 @@ func (api) Unplug(args interface{}, reply *bool) error {
 }
 
 func main() {
+	initConf()
+
 	srv = pie.NewProvider()
 
 	if err := srv.RegisterName(name, api{}); err != nil {
@@ -959,5 +960,4 @@ func main() {
 	}
 
 	srv.ServeCodec(jsonrpc.NewServerCodec)
-
 }

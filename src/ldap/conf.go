@@ -16,6 +16,7 @@ type Configuration struct {
 	Username  string
 	Password  string
 	ServerURL string
+	QueueURI  string
 }
 
 var conf Configuration
@@ -44,6 +45,7 @@ func getDefaultConf() Configuration {
 		Username:  "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com",
 		Password:  "Nanocloud123+",
 		ServerURL: "ldaps://10.20.12.20",
+		QueueURI:  "amqp://guest:guest@localhost:5672/",
 	}
 }
 
@@ -57,7 +59,7 @@ func initConf() {
 	home := usr.HomeDir
 	f := "ldap.yaml"
 	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud/ldap/"
+		d := home + "/.config/nanocloud"
 		err := os.MkdirAll(d, 0755)
 		// creating necessary directories for configuration file if they do not exist
 
@@ -71,15 +73,10 @@ func initConf() {
 	// look in ~/.config/nanocloud for config file
 	if err := readMergeConf(&conf, f); err != nil {
 		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
-		alt := "/etc/nanocloud/ldap/ldap.yaml"
+		alt := "/etc/nanocloud/ldap.yaml"
 		// if the config file is not found in ~/.config/nanocloud, look in /etc/nanocloud
 		if err := readMergeConf(&conf, alt); err != nil {
 			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
-
-	}
-	// finally write the final configuration used in ./config/nanocloud
-	if err := writeConf(conf, f); err != nil {
-		log.Error("Failed to write new configuration file: ", err)
 	}
 }
