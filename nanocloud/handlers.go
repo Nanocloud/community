@@ -3,11 +3,13 @@ package main
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 	"github.com/nanocloud/oauth"
 	"html"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 )
 
@@ -127,4 +129,18 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("404 Not Found"))
+}
+
+// get list of available front components
+func getComponentsHandler(c *echo.Context) error {
+	fis, err := ioutil.ReadDir(filepath.Join(conf.FrontDir, "ts/components"))
+	if err != nil {
+		log.Fatal("Unable to load the components folder. ", err)
+		return c.Err()
+	}
+	var comps []string
+	for _, f := range fis {
+		comps = append(comps, f.Name())
+	}
+	return c.JSON(http.StatusOK, comps)
 }
