@@ -297,7 +297,6 @@ var tab = []struct {
 
 // Will receive all http requests starting by /api/history from the core and chose the correct handler function
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	initConf()
 	for _, val := range tab {
 		re := regexp.MustCompile(val.Url)
 		match := re.MatchString(args.Url)
@@ -329,6 +328,7 @@ func (api) Unplug(args interface{}, reply *bool) error {
 }
 
 func main() {
+	initConf()
 
 	srv = pie.NewProvider()
 

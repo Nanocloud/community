@@ -1,23 +1,23 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
-	"os"
-	"runtime"
+	"os/user"
+	"path/filepath"
 )
 
 const confFilename string = "iaas.yaml"
 
-type Configuration struct {
+type configuration struct {
 	Url  string
 	Port string
 }
 
-var conf Configuration
+var conf configuration
 
-func ReadMergeConf(out interface{}, filename string) error {
+func readMergeConf(out interface{}, filename string) error {
 	d, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func ReadMergeConf(out interface{}, filename string) error {
 	return yaml.Unmarshal(d, out)
 }
 
-func WriteConf(in interface{}, filename string) error {
+func writeConf(in interface{}, filename string) error {
 	d, err := yaml.Marshal(in)
 	if err != nil {
 		return err
@@ -33,31 +33,34 @@ func WriteConf(in interface{}, filename string) error {
 	return ioutil.WriteFile(filename, d, 0644)
 }
 
-func getDefaultConf() Configuration {
-	return Configuration{
+func getDefaultConf() configuration {
+	return configuration{
 		Url:  "http://192.168.1.40",
 		Port: "8082",
 	}
 }
 
+func readConfFromPath(path string) error {
+	f := filepath.Join(path, confFilename)
+	return readMergeConf(&conf, f)
+}
+
+func readConfFromHome() error {
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(u.HomeDir, "/.config/nanocloud")
+	return readConfFromPath(path)
+}
+
 func initConf() {
-
-	conf = getDefaultConf()
-	f := "iaas.yaml"
-	if runtime.GOOS == "linux" {
-		d := "/etc/nanocloud"
-		err := os.MkdirAll(d, 0644)
-		if err == nil {
-			f = d + f
-		} else {
-			log.Println(err)
-		}
+	err := readConfFromHome()
+	if err == nil {
+		return
 	}
-
-	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println(err)
-	}
-	if err := WriteConf(conf, f); err != nil {
-		log.Println(err)
+	err = readConfFromPath(filepath.Join("/etc/nanocloud", confFilename))
+	if err != nil {
+		log.Info(confFilename, " is neither found in ~/.config/nanocloud nor in /etc/nanocloud. using default configuration.")
 	}
 }
