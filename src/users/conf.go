@@ -36,7 +36,7 @@ func WriteConf(in interface{}, filename string) error {
 
 func getDefaultConf() Configuration {
 	return Configuration{
-		DatabaseUri: "postgres://localhost/nanocloud?sslmode=disable",
+		DatabaseUri: "postgres://nanocloud@localhost/nanocloud?sslmode=disable",
 		QueueUri:    "amqp://guest:guest@localhost:5672/",
 	}
 }
