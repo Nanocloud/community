@@ -55,7 +55,7 @@ func initConf() {
 
 	f := "history.yaml"
 	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud/history/"
+		d := home + "/.config/nanocloud"
 		// Creating necessary directories for configuration file if they do not exist
 		err := os.MkdirAll(d, 0755)
 		if err == nil {
@@ -68,15 +68,11 @@ func initConf() {
 	//Look in ~/.config/nanocloud for config file
 	if err := ReadMergeConf(&conf, f); err != nil {
 		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
-		alt := "/etc/nanocloud/history/history.yaml"
+		alt := "/etc/nanocloud/history.yaml"
 		// If the config file is not found in ~/.config/nanocloud, look in /etc/nanocloud
 		if err := ReadMergeConf(&conf, alt); err != nil {
 			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
 
-	}
-	// Finally write the fine configuration used in ./config/nanocloud
-	if err := WriteConf(conf, f); err != nil {
-		log.Error("Failed to write configuration file: ", err)
 	}
 }
