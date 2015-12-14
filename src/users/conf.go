@@ -66,7 +66,4 @@ func initConf() {
 			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
 	}
-	if err := WriteConf(conf, f); err != nil {
-		log.Println(err)
-	}
 }
