@@ -9,7 +9,7 @@ import (
 	"runtime"
 )
 
-const confFilename string = "conf.yaml"
+const confFilename string = "nanocloud.yaml"
 
 type configuration struct {
 	RunDir      string
@@ -60,7 +60,7 @@ func initConf() {
 	home := usr.HomeDir
 	f := "nanocloud.yaml"
 	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud/nanocloud/"
+		d := home + "/.config/nanocloud/"
 		err := os.MkdirAll(d, 0755)
 		if err == nil {
 			f = d + f
@@ -71,12 +71,9 @@ func initConf() {
 
 	if err := readMergeConf(&conf, f); err != nil {
 		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
-		alt := "/etc/nanocloud/nanocloud/nanocloud.yaml"
+		alt := "/etc/nanocloud/nanocloud.yaml"
 		if err := readMergeConf(&conf, alt); err != nil {
 			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
-	}
-	if err := writeConf(conf, f); err != nil {
-		log.Println(err)
 	}
 }
