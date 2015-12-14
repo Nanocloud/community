@@ -50,7 +50,7 @@ func initConf() {
 	home := usr.HomeDir
 	f := "users.yaml"
 	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud/users/"
+		d := home + "/.config/nanocloud/"
 		err := os.MkdirAll(d, 0755)
 		if err == nil {
 			f = d + f
@@ -61,7 +61,7 @@ func initConf() {
 
 	if err := ReadMergeConf(&conf, f); err != nil {
 		log.Println("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
-		alt := "/etc/nanocloud/users/users.yaml"
+		alt := "/etc/nanocloud/users.yaml"
 		if err := ReadMergeConf(&conf, alt); err != nil {
 			log.Println("No Configuration file found in /etc/nanocloud, using default configuration")
 		}
