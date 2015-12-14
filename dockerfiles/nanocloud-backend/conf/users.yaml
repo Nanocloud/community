@@ -1,0 +1,2 @@
+databaseuri: postgres://nanocloud@postgres/nanocloud?sslmode=disable
+queueuri:    amqp://guest:guest@rabbitmq:5672/
