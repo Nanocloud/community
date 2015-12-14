@@ -8,7 +8,7 @@ import (
 	"runtime"
 )
 
-const confFilename string = "conf.yaml"
+const confFilename string = "iaas.yaml"
 
 type Configuration struct {
 	Url  string
@@ -45,7 +45,7 @@ func initConf() {
 	conf = getDefaultConf()
 	f := "iaas.yaml"
 	if runtime.GOOS == "linux" {
-		d := "/etc/nanocloud/iaas/"
+		d := "/etc/nanocloud"
 		err := os.MkdirAll(d, 0644)
 		if err == nil {
 			f = d + f
@@ -55,9 +55,6 @@ func initConf() {
 	}
 
 	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Println(err)
-	}
-	if err := WriteConf(conf, f); err != nil {
 		log.Println(err)
 	}
 }
