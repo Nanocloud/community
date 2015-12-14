@@ -23,11 +23,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/rpc/jsonrpc"
 	"net/url"
+	"regexp"
 
 	"os"
 	"strings"
@@ -48,18 +49,23 @@ type VmInfo struct {
 	Locked      bool
 }
 
+// Plugin structure
 type api struct{}
 
 type VmName struct {
 	Name string
 }
 
+// Structure used for exchanges with the core, faking a request/responsewriter
 type PlugRequest struct {
 	Body     string
 	Header   http.Header
 	Form     url.Values
 	PostForm url.Values
 	Url      string
+	Method   string
+	HeadVals map[string]string
+	Status   int
 }
 
 func stringInSlice(a string, list []string) bool {
@@ -71,8 +77,10 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
-func ListRunningVm(args PlugRequest, reply *PlugRequest) error {
-
+func ListRunningVm(args PlugRequest, reply *PlugRequest, name string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	reply.Status = 200
 	var (
 		response struct {
 			Result struct {
@@ -87,7 +95,7 @@ func ListRunningVm(args PlugRequest, reply *PlugRequest) error {
 		vmList      []VmInfo
 		icon        string
 		locked      bool
-		status      string
+		Status      string
 		displayName string
 	)
 	jsonResponse, err := jsonRpcRequest(
@@ -96,14 +104,15 @@ func ListRunningVm(args PlugRequest, reply *PlugRequest) error {
 		nil,
 	)
 	if err != nil {
-		log.Println(err) // for on-screen debug output
-		return nil
+		log.Error("RPC Call to Iaas API failed: ", err)
+		reply.Status = 500
+		return
 	}
 
 	err = json.Unmarshal([]byte(jsonResponse), &response)
 	if err != nil {
-		log.Println(err) // for on-screen debug output
-		return nil
+		log.Error("Failed to Unmarshal response from Iaas API: ", err)
+		reply.Status = 500
 	}
 
 	// TODO: Lots of Data aren't from iaas API
@@ -133,45 +142,38 @@ func ListRunningVm(args PlugRequest, reply *PlugRequest) error {
 		}
 
 		if stringInSlice(vmName, response.Result.RunningVmNames) {
-			status = "running"
+			Status = "running"
 		} else if stringInSlice(vmName, response.Result.BootingVmNames) {
-			status = "booting"
+			Status = "booting"
 		} else if stringInSlice(vmName, response.Result.DownloadingVmNames) {
-			status = "download"
+			Status = "download"
 		} else if stringInSlice(vmName, response.Result.AvailableVMNames) {
-			status = "available"
+			Status = "available"
 		}
 		vmList = append(vmList, VmInfo{
 			Ico:         icon,
 			Name:        vmName,
 			DisplayName: displayName,
-			Status:      status,
+			Status:      Status,
 			Locked:      locked,
 		})
 	}
 
-	jsonOutput, _ := json.Marshal(vmList)
+	jsonOutput, err := json.Marshal(vmList)
+	if err != nil {
+		log.Error("Failed to Marshal Vm list: ", err)
+		reply.Status = 500
+	}
 	reply.Body = string(jsonOutput)
-	return err
 }
 
-func DownloadVm(args PlugRequest, reply *PlugRequest) {
-	var t VmName
-	err := json.Unmarshal([]byte(args.Body), &t)
-	if err != nil {
-		log.Println(err)
+func DownloadVm(args PlugRequest, reply *PlugRequest, name string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	reply.Status = 200
+	var params = map[string]string{
+		"vmname": name,
 	}
-
-	var (
-		params = map[string]string{
-			"vmname": t.Name,
-		}
-		response struct {
-			Result struct {
-				Success bool
-			}
-		}
-	)
 
 	jsonResponse, err := jsonRpcRequest(
 		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
@@ -179,95 +181,79 @@ func DownloadVm(args PlugRequest, reply *PlugRequest) {
 		params,
 	)
 	if err != nil {
-		log.Println(err) // for on-screen debug output
+		log.Error("RPC Call to Iaas API failed: ", err)
+		reply.Status = 500
+		return
 	}
-
-	err = json.Unmarshal([]byte(jsonResponse), &response)
-	if err != nil {
-		log.Println(err) // for on-screen debug output
-	}
+	reply.Body = string(jsonResponse)
 
 }
 
-func DownloadStatus(args PlugRequest, reply *PlugRequest) {
-	var (
-		response struct {
-			Result struct {
-				AvailableVMNames   []string
-				RunningVmNames     []string
-				DownloadInProgress bool
-			}
-			Error string
-			Id    int
-		}
-	)
+// NOT USEFUL RIGHT NOW
+/*
+func DownloadStatus(args PlugRequest, reply *PlugRequest, name string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	reply.Status = 200
+
+	var params = map[string]string{
+		"Name": name,
+	}
 	jsonResponse, err := jsonRpcRequest(
 		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
-		"Iaas.GetList",
-		nil,
+		"Iaas.GetStatus",
+		params,
 	)
 	if err != nil {
-		log.Println(err) // for on-screen debug output
+		log.Error("RPC Call to Iaas API failed: ", err)
+		reply.Status = 500
+		return
 	}
+	reply.Body = string(jsonResponse)
 
-	err = json.Unmarshal([]byte(jsonResponse), &response)
-	if err != nil {
-		log.Println(err) // for on-screen debug output
+}*/
+
+func StartVm(args PlugRequest, reply *PlugRequest, name string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	reply.Status = 200
+
+	var params = map[string]string{
+		"name": name,
 	}
-
-}
-
-func StartVm(args PlugRequest, reply *PlugRequest) {
-	var t VmName
-	err := json.Unmarshal([]byte(args.Body), &t)
-	if err != nil {
-		log.Println(err)
-	}
-
-	var (
-		params = map[string]string{
-			"name": t.Name,
-		}
-		response struct {
-			Result struct {
-				Success bool
-			}
-		}
-	)
-
 	jsonResponse, err := jsonRpcRequest(
 		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
 		"Iaas.Start",
 		params,
 	)
 	if err != nil {
-		log.Println(err)
+		log.Error("RPC Call to Iaas API failed: ", err)
+		reply.Status = 500
+		return
 	}
-
-	err = json.Unmarshal([]byte(jsonResponse), &response)
-	if err != nil {
-		log.Println(err)
-	}
+	reply.Body = string(jsonResponse)
 
 }
 
-func StopVm(args PlugRequest, reply *PlugRequest) {
-	var t VmName
-	err := json.Unmarshal([]byte(args.Body), &t)
-	if err != nil {
-		log.Println(err)
-	}
+func StopVm(args PlugRequest, reply *PlugRequest, name string) {
+	reply.HeadVals = make(map[string]string, 1)
+	reply.HeadVals["Content-Type"] = "application/json;charset=UTF-8"
+	reply.Status = 200
+
 	var params = map[string]string{
-		"Name": t.Name,
+		"Name": name,
 	}
-	_, err = jsonRpcRequest(
+	jsonResponse, err := jsonRpcRequest(
 		fmt.Sprintf("%s:%s", conf.Url, conf.Port),
 		"Iaas.Stop",
 		params,
 	)
 	if err != nil {
-		log.Println(err)
+		log.Error("RPC Call to Iaas API failed: ", err)
+		reply.Status = 500
+		return
 	}
+	reply.Body = string(jsonResponse)
 }
 func jsonRpcRequest(url string, method string, param map[string]string) (string, error) {
 
@@ -297,24 +283,32 @@ func jsonRpcRequest(url string, method string, param map[string]string) (string,
 	return string(body), nil
 }
 
+var tab = []struct {
+	Url    string
+	Method string
+	f      func(PlugRequest, *PlugRequest, string)
+}{
+	{`^\/api\/iaas\/{0,1}$`, "GET", ListRunningVm},
+	{`^\/api\/iaas\/(?P<id>[^\/]+)\/stop\/{0,1}$`, "POST", StopVm},
+	{`^\/api\/iaas\/(?P<id>[^\/]+)\/start\/{0,1}$`, "POST", StartVm},
+	{`^\/api\/iaas\/(?P<id>[^\/]+)\/download\/{0,1}$`, "POST", DownloadVm},
+	//	{`^\/api\/iaas\/(?P<id>[^\/]+)\/status\/{0,1}$`, "POST", DownloadStatus},
+}
+
+// Will receive all http requests starting by /api/history from the core and chose the correct handler function
 func (api) Receive(args PlugRequest, reply *PlugRequest) error {
 	initConf()
-	if strings.Index(args.Url, "/iaas/list") == 0 {
-		ListRunningVm(args, reply)
+	for _, val := range tab {
+		re := regexp.MustCompile(val.Url)
+		match := re.MatchString(args.Url)
+		if val.Method == args.Method && match {
+			if len(re.FindStringSubmatch(args.Url)) == 2 {
+				val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
+			} else {
+				val.f(args, reply, "")
+			}
+		}
 	}
-	if strings.Index(args.Url, "/iaas/stop") == 0 {
-		StopVm(args, reply)
-	}
-	if strings.Index(args.Url, "/iaas/start") == 0 {
-		StartVm(args, reply)
-	}
-	if strings.Index(args.Url, "/iaas/download") == 0 {
-		StartVm(args, reply)
-	}
-	if strings.Index(args.Url, "/iaas/downloadstatus") == 0 {
-		StartVm(args, reply)
-	}
-
 	return nil
 }
 
