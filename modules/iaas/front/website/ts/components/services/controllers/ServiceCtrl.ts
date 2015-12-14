@@ -47,7 +47,7 @@ export class ServiceCtrl {
 
 	accept(): void {
 		if (this.servicesSrv.downloadStarted === false) {
-			this.servicesSrv.download();
+			this.servicesSrv.download(this.service);
 			this.$mdDialog.hide(this.service);
 		} else {
 			this.$mdDialog.cancel();

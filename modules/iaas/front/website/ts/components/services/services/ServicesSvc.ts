@@ -21,8 +21,6 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
-/// <amd-dependency path="../../core/services/RpcSvc" />
-import { RpcSvc, IRpcResponse } from "../../core/services/RpcSvc";
 
 "use strict";
 
@@ -39,7 +37,7 @@ export interface IService {
 export class ServicesSvc {
 
 	static $inject = [
-		"RpcSvc",
+		"$http",
 		"$mdToast",
 		"$mdDialog"
 	];
@@ -48,7 +46,7 @@ export class ServicesSvc {
 	windowsReady = false;
 
 	constructor(
-		private rpc: RpcSvc,
+		private $http: angular.IHttpService,
 		private $mdToast: angular.material.IToastService,
 		private $mdDialog: angular.material.IDialogService
 	) {
@@ -56,49 +54,36 @@ export class ServicesSvc {
 	}
 
 	getAll(): angular.IPromise<IService[]> {
-		return this.rpc.call({ method: "ServiceIaas.GetList", id: 1 })
-			.then((res: IRpcResponse): IService[] => {
-
-				if (this.isError(res)) {
-					return [];
-				}
-
-				let services: IService[];
-				try {
-					services = JSON.parse(res.result.VmListJsonArray);
-				} catch (e) {
-					return [];
-				}
+		return this.$http.get("/api/iaas").then(
+			(res: angular.IHttpPromiseCallbackArg<IService[]>) => {
 				
-				for (let srv of services) {
+				for (let srv of res.data) {
 					if (srv.Ico === "windows") {
 						this.downloadStarted = false;
 						this.windowsReady = true;
 						break;
 					}
 				}
+				
+				return res.data;
+			},
+			() => []);
+	}
 
-				return services;
+	download(service: IService): angular.IPromise<any> {
+		return this.$http.post("/api/iaas/" + service.Name + "/download", null)
+			.then(() => {
+				this.downloadStarted = true;
 			});
 	}
 
-	download(): void  {
-		this.rpc.call({ method: "ServiceIaas.Download", id: 1 })
-			.then((res: IRpcResponse): void => {
-				if (! this.isError(res) && res.result.Success === true) {
-					this.downloadStarted = true;
-				}
-			});
-	}
-
-	start(service: IService): void  {
-		this.rpc.call({ method: "ServiceIaas.Start", id: 1, params: [{"vmName": service.Name}] })
-			.then((res: IRpcResponse): void => {
-				if (! this.isError(res) && res.result.Success === true) {
-					service.Status = "booting";
-				} else {
-					service.Status = "available";
-				}
+	start(service: IService): angular.IPromise<any> {
+		return this.$http.post("/api/iaas/" + service.Name + "/start", null).then(
+			function() {
+				service.Status = "booting";
+			},
+			function() {
+				service.Status = "available";
 			});
 	}
 
@@ -115,27 +100,14 @@ export class ServicesSvc {
 			});
 	}
 
-	stop(service: IService): void {
-		this.rpc.call({ method: "ServiceIaas.Stop", id: 1, params: [{"vmName": service.Name}] })
-			.then((res: IRpcResponse): void => {
-				if (! this.isError(res) && res.result.Success === true) {
-					service.Status = "available";
-				} else {
-					service.Status = "running";
-				}
+	stop(service: IService): angular.IPromise<any> {
+		return this.$http.post("/api/iaas/" + service.Name + "/stop", null).then(
+			function() {
+				service.Status = "available";
+			},
+			function() {
+				service.Status = "running";
 			});
-	}
-
-	private isError(res: IRpcResponse): boolean {
-		if (res.error == null) {
-			return false;
-		}
-		this.$mdToast.show(
-			this.$mdToast.simple()
-				.content(res.error.code === 0 ? "Internal Error" : JSON.stringify(res.error))
-				.position("top right")
-		);
-		return true;
 	}
 
 }
