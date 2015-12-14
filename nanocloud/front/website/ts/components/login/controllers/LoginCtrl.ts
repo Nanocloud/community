@@ -54,7 +54,7 @@ export class LoginCtrl {
 		this.authSvc
 			.login(this.credentials)
 			.then(
-				(res: any) => {
+				() => {
 					this.$http.get("/api/me")
 						.then((res: angular.IHttpPromiseCallbackArg<any>) => {
 							if (res.data.isAdmin === true) {
