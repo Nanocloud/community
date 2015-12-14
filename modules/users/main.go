@@ -33,6 +33,7 @@ type UserInfo struct {
 	Email     string
 	FirstName string
 	LastName  string
+	Password  string
 	IsAdmin   bool
 }
 
@@ -267,23 +268,21 @@ func CreateUser(
 }
 
 func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
-	var body = make(map[string]interface{})
-	err = json.Unmarshal([]byte(args.Body), &body)
+	var user UserInfo
+	err = json.Unmarshal([]byte(args.Body), &user)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-	_, err = CreateUser(
-		body["activated"].(bool),
-		body["email"].(string),
-		body["first_name"].(string),
-		body["last_name"].(string),
-		body["password"].(string),
-		body["is_admin"].(bool),
-	)
 
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "text/html;charset=UTF-8"
+	_, err = CreateUser(
+		true,
+		user.Email,
+		user.FirstName,
+		user.LastName,
+		user.Password,
+		false,
+	)
 	if err == nil {
 		reply.Status = 202
 	} else {
@@ -300,13 +299,14 @@ func UpdatePassword(args PlugRequest, reply *PlugRequest, userId string) (err er
 	}
 	reply.Status = 500
 
-	body := make(map[string]interface{})
-	err = json.Unmarshal([]byte(args.Body), &body)
+	var user UserInfo
+	err = json.Unmarshal([]byte(args.Body), &user)
 	if err != nil {
+		log.Error(err)
 		return
 	}
 
-	pass, err := bcrypt.GenerateFromPassword([]byte(body["password"].(string)), bcrypt.DefaultCost)
+	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return
 	}
@@ -351,23 +351,23 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, userId string) (err er
 }
 
 func Delete(args PlugRequest, reply *PlugRequest, userId string) (err error) {
-	if userId == "" {
+	if len(userId) == 0 {
 		reply.Status = 400
 		err = errors.New("User id needed for deletion")
+		log.Warn(err)
 		return
 	}
+
 	reply.Status = 500
-
 	rows, err := db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
-
 	if err != nil {
+		log.Error(err)
 		return
 	}
 	rows.Close()
 	// SendMsg(Message{Method: "Delete", Email: mail})
 
 	reply.Status = 202
-
 	return
 }
 

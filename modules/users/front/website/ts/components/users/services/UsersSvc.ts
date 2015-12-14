@@ -21,12 +21,11 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
-/// <amd-dependency path="../../core/services/RpcSvc" />
-import { RpcSvc, IRpcResponse } from "../../core/services/RpcSvc";
 
 "use strict";
 
 export interface IUser {
+	Id?: string;
 	Firstname: string;
 	Lastname: string;
 	Email: string;
@@ -38,73 +37,35 @@ export interface IUser {
 export class UsersSvc {
 
 	static $inject = [
-		"RpcSvc",
+		"$http",
 		"$mdToast"
 	];
 	constructor(
-		private rpc: RpcSvc,
+		private $http: angular.IHttpService,
 		private $mdToast: angular.material.IToastService
 	) {
 
 	}
 
 	getAll(): angular.IPromise<IUser[]> {
-		return this.rpc.call({ method: "ServiceUsers.GetList", id: 1 })
-			.then((res: IRpcResponse): IUser[] => {
-				let users: IUser[] = [];
-
-				if (this.isError(res)) {
-					return [];
-				}
-
-				if (res.result.Users) {
-					for (let u of res.result.Users) {
-						users.push(u);
-					}
-				}
-				return users;
-			});
+		return this.$http.get("/api/users")
+			.then((res: angular.IHttpPromiseCallbackArg<IUser[]>) => res.data);
 	}
 
 	save(user: IUser): angular.IPromise<boolean> {
-		return this.rpc.call({ method: "ServiceUsers.RegisterUser", params: [user], id: 1 })
-			.then((res: IRpcResponse): boolean => {
-				return !this.isError(res);
-			});
+		return this.$http.post("/api/users", user)
+			.then(() => true, () => false);
 	}
 
-	delete(user: IUser): angular.IPromise<void> {
-		return this.rpc.call({ method: "ServiceUsers.DeleteUser", params: [{"Email": user.Email}], id: 1 })
-			.then((res: IRpcResponse): void => {
-				this.isError(res);
-			});
+	delete(user: IUser): angular.IPromise<any> {
+		return this.$http.delete("/api/users/" + user.Id);
 	}
 
 	updatePassword(user: IUser): angular.IPromise<boolean> {
-		return this.rpc.call({
-			method: "ServiceUsers.UpdateUserPassword",
-			params: [{
-				"Email": user.Email,
-				"Password": user.Password
-			}],
-			id: 1
-		}).then((res: IRpcResponse): boolean => {
-			return this.isError(res);
-		});
+		return this.$http.put("/api/users/" + user.Id, { password: user.Password })
+			.then(() => true, () => false);
 	}
 
-	private isError(res: IRpcResponse): boolean {
-		if (res.error == null) {
-			return false;
-		}
-		this.$mdToast.show(
-			this.$mdToast.simple()
-				.content(res.error.code === 0 ? "Internal Error" : JSON.stringify(res.error))
-				.position("top right")
-		);
-		return true;
-	}
-	
 }
 
 angular.module("haptic.users").service("UsersSvc", UsersSvc);
