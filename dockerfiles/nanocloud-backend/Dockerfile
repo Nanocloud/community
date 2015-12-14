@@ -14,6 +14,8 @@ RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y
 RUN mkdir -p /opt/build/backend/src/nanocloud.com
 WORKDIR /opt/build/backend/src/nanocloud.com
 
+RUN echo '{"analytics": false}' > ~/.bowerrc
+
 RUN git clone --recursive /opt/repos/nanocloud nanocloud
 RUN make -C nanocloud
 
