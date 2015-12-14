@@ -19,6 +19,7 @@
 		"grunt-tslint": "3.x",
 		"grunt-sync": "0.4.x",
 		"tsd": "0.6.x",
-		"load-grunt-tasks": "latest"
+		"load-grunt-tasks": "latest",
+		"concurrently": "latest"
 	}
 }
