@@ -57,4 +57,7 @@ func initConf() {
 	if err := ReadMergeConf(&conf, f); err != nil {
 		log.Println(err)
 	}
+	if err := WriteConf(conf, f); err != nil {
+		log.Println(err)
+	}
 }
