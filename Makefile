@@ -3,15 +3,17 @@
 setup: initial build
 
 initial:
+	mkdir -p bin
+
 	@echo "==== get gb"
 	go get -u github.com/constabulary/gb/...
 	@echo
-	
+
 	@echo "==== install npm"
 	cd front && npm install && npm run setup
 	@echo
-	
-build: clean go npm
+
+build: go npm
 
 go:
 	@echo "==== build back"
@@ -24,9 +26,5 @@ npm:
 	ln -s ../front/website bin/front
 	@echo
 
-clean:
-	@if [ -d bin ]; then \
-		echo "==== clean"; \
-		rm -rd bin; \
-		echo; \
-	fi
+run:
+	cd bin && ./nanocloud
