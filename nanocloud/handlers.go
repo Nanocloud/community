@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/nanocloud/oauth"
@@ -25,12 +24,12 @@ type PlugRequest struct {
 }
 
 type UserInfo struct {
-	Id        string
-	Activated bool
-	Email     string
-	FirstName string
-	LastName  string
-	IsAdmin   bool
+	Id        string `json:"id"`
+	Activated bool   `json:"activated"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	IsAdmin   bool   `json:"isAdmin"`
 }
 
 type RPCRequest struct {
@@ -69,27 +68,12 @@ func writeAnswer(w http.ResponseWriter, reply PlugRequest) {
 	w.Write([]byte(reply.Body))
 }
 
-func handleMeRequest(user *UserInfo, w http.ResponseWriter, r *http.Request) {
-	me := make(map[string]interface{})
-
-	me["id"] = user.Id
-	me["first_name"] = user.FirstName
-	me["last_name"] = user.LastName
-	me["email"] = user.Email
-	me["activated"] = user.Activated
-	me["is_admin"] = user.IsAdmin
-
-	rt, err := json.Marshal(me)
-	if err != nil {
-		log.Error(err)
-		w.WriteHeader(500)
-		return
+func getMeHandler(c *echo.Context) error {
+	user := oauth.GetUserOrFail(c.Response().Writer(), c.Request())
+	if user == nil {
+		return echo.NewHTTPError(http.StatusNotFound)
 	}
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Header().Set("Cache-Control", "no-store")
-	w.Header().Set("Pragma", "no-cache")
-	w.Write(rt)
+	return c.JSON(http.StatusOK, user)
 }
 
 // handle REST API
@@ -102,11 +86,6 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 	user := oauth.GetUserOrFail(w, r)
 
 	if user == nil {
-		return
-	}
-
-	if r.URL.Path == "/api/me" {
-		handleMeRequest(user.(*UserInfo), w, r)
 		return
 	}
 

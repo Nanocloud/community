@@ -33,12 +33,14 @@ export class LoginCtrl {
 	static $inject = [
 		"$location",
 		"$mdToast",
+		"$http",
 		"AuthenticationSvc"
 	];
 
 	constructor(
 		private $location: angular.ILocationService,
 		private $mdToast: angular.material.IToastService,
+		private $http: angular.IHttpService,
 		private authSvc: AuthenticationSvc
 	) {
 		this.credentials = {
@@ -53,12 +55,14 @@ export class LoginCtrl {
 			.login(this.credentials)
 			.then(
 				(res: any) => {
-					/*if (res.headers().admin && res.headers().admin === "true") {
-						this.$location.path("/admin");
-					} else {
-						this.$location.path("/");
-					}*/
-					localStorage["accessToken"] = res.data.access_token;
+					this.$http.get("/api/me")
+						.then((res: angular.IHttpPromiseCallbackArg<any>) => {
+							if (res.data.isAdmin === true) {
+								this.$location.path("/admin");
+							} else {
+								this.$location.path("/");
+							}
+						});
 				},
 				(error: any) => {
 					this.$mdToast.show(

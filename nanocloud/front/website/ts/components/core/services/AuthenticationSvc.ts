@@ -28,10 +28,12 @@ import * as $ from "jquery";
 export class AuthenticationSvc {
 
 	static $inject = [
-		"$http"
+		"$http",
+		"$q"
 	];
 	constructor(
-		private $http: angular.IHttpService
+		private $http: angular.IHttpService,
+		private $q: angular.IQService
 	) {
 	}
 
@@ -40,18 +42,26 @@ export class AuthenticationSvc {
 		let appSecret = "9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341";
 
 		let basic = btoa(appKey + ":" + appSecret);
-		console.log(basic);
-		return this.$http.post("/oauth/token", JSON.stringify({
-			"username": credentials.email,
-			"password": credentials.password,
-			"grant_type": "password"
-		}), {
-			headers: { "Authorization": "Basic " + basic }
-		});
+		return this.$http
+			.post("/oauth/token", JSON.stringify({
+				"username": credentials.email,
+				"password": credentials.password,
+				"grant_type": "password"
+			}), {
+				headers: { "Authorization": "Basic " + basic }
+			})
+			.then((res: angular.IHttpPromiseCallbackArg<any>) => {
+				localStorage["accessToken"] = res.data.access_token;
+				this.$http.defaults.headers.common["Authorization"] = "Bearer " + res.data.access_token;
+			});
 	}
 
-	logout(): angular.IPromise<any> {
-		return this.$http.get("/logout");
+	logout(): angular.IPromise<void> {
+		let dfr = this.$q.defer<void>();
+		sessionStorage.clear();
+		localStorage.clear();
+		dfr.resolve();
+		return dfr.promise;
 	}
 
 }

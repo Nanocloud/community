@@ -6,7 +6,13 @@ declare module "AmdTools" {
 }
 
 declare module "MainMenu" {
+	export interface INavMenu {
+		stateName?: string;
+		title?: string;
+		ico?: string;
+	}
 	export module MainMenu {
+		let menus: INavMenu[];
 		function add(menu: any): void;
 	}
 }

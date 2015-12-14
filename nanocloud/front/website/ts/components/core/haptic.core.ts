@@ -16,16 +16,20 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 
 	overrideModuleRegisterer(app, $controllerProvider, $provide);
 
+	// disable strict mode to be able to have "/foo/" == "/foo"
 	$urlMatcherFactoryProvider.strictMode(false);
+	
+	// if a route wasn't found then go to the home
 	$urlRouterProvider.otherwise(function($injector: angular.auto.IInjectorService, $location: angular.ILocationService): string {
 		let prefix = "/admin";
 		if ($location.url().slice(0, prefix.length) === prefix) {
 			return prefix + "/services"; // default admin page
 		} else {
-			return "/";
+			return "/"; // default normal page
 		}
 	});
 
+	// admin parent state, all admin routes are passed by this
 	let states: angular.ui.IState[] = [{
 		abstract: true,
 		name: "admin",
@@ -36,6 +40,12 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 	}];
 	registerCtrlFutureStates(componentName, $futureStateProvider, states);
 
+	// if an oauth authentication is found then set it in all http headers
+	if (localStorage["accessToken"]) {
+		$httpProvider.defaults.headers.common["Authorization"] = "Bearer " + localStorage["accessToken"];
+	}
+
+	// allows to have a global spinner for ajax requests
 	$httpProvider.interceptors.push(function() {
 		return {
 			"request": function(config: any) {

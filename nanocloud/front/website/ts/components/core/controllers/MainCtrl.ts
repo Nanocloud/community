@@ -22,7 +22,7 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/AuthenticationSvc" />
-import { MainMenu, INavMenu } from "../services/MainMenu";
+import { MainMenu, INavMenu } from "MainMenu";
 import { AuthenticationSvc } from "../services/AuthenticationSvc";
 import * as _ from "lodash";
 
