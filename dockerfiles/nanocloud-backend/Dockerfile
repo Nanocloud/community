@@ -16,18 +16,23 @@ WORKDIR /opt/build/backend/src/nanocloud.com
 
 RUN echo '{"analytics": false}' > ~/.bowerrc
 
+COPY conf/nanocloud.yaml /etc/nanocloud/nanocloud.yaml
 RUN git clone --recursive /opt/repos/nanocloud nanocloud
 RUN make -C nanocloud
 
+COPY conf/iaas.yaml /etc/nanocloud/iaas.yaml
 RUN git clone --recursive /opt/repos/iaas iaas
 RUN make -C iaas
 
+COPY conf/ldap.yaml /etc/nanocloud/ldap.yaml
 RUN git clone --recursive /opt/repos/ldap ldap
 RUN make -C ldap
 
+COPY conf/history.yaml /etc/nanocloud/history.yaml
 RUN git clone --recursive /opt/repos/history history
 RUN make -C history
 
+COPY conf/users.yaml /etc/nanocloud/users.yaml
 RUN git clone --recursive /opt/repos/users users
 RUN make -C users
 
@@ -45,8 +50,7 @@ RUN ln -s ../../../../../history/front/website/js/components/history front/js/co
 RUN ln -s ../../../../../users/front/website/js/components/users front/js/components/users
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
-ENV NANOCONF="/opt/conf/config.json"
 
-EXPOSE 8081
+EXPOSE 8080
 
 CMD ["./nanocloud"]
