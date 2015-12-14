@@ -7,11 +7,11 @@ initial:
 	go get -u github.com/constabulary/gb/...
 	@echo
 	
-	# @echo "==== install npm"
-	# cd front && npm install && npm run setup
-	# @echo
+	@echo "==== install npm"
+	cd front && npm install && npm run setup
+	@echo
 	
-build: clean go npm
+build: go npm
 
 go:
 	@echo "==== build back"
@@ -19,14 +19,7 @@ go:
 	@echo
 
 npm:
-	# @echo "==== build front"
-	# cd front && npm run build
-	# cp -r front/website/ bin/front/
-	# @echo
-
-clean:
-	@if [ -d bin ]; then \
-		echo "==== clean"; \
-		rm -rd bin; \
-		echo; \
-	fi
+	@echo "==== build front"
+	cd front && npm run build
+	ln -s ../front/website bin/front
+	@echo
