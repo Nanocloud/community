@@ -39,6 +39,7 @@ You also need to install the following packages on your distribution:
 
 * *qemu-system-x86_64*
 * *curl* or *wget*
+* *netcat*
 
 
 ## How to build
