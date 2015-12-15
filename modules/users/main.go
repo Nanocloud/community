@@ -23,6 +23,8 @@ var (
 	srv  pie.Server
 )
 
+type hash map[string]interface{}
+
 type api struct{}
 
 var db *sql.DB
@@ -670,6 +672,18 @@ func setupDb() error {
 	return nil
 }
 
+func handleRPCGetUsers() ([]byte, error) {
+	users, err := GetUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]interface{})
+	res["users"] = users
+
+	return json.Marshal(res)
+}
+
 func main() {
 	var err error
 
@@ -684,6 +698,17 @@ func main() {
 
 	initConf()
 
+	go rpcListen("amqp://guest:guest@localhost:5672/", func(req map[string]interface{}) (int, []byte, error) {
+		if req["action"] == "get_users" {
+			res, err := handleRPCGetUsers()
+			if err != nil {
+				return 500, nil, err
+			}
+			return 200, res, nil
+		}
+		return 400, []byte(`{"error": "invalid action"}`), nil
+	})
+
 	db, err = sql.Open("postgres", conf.DatabaseUri)
 	if err != nil {
 		log.Fatalf("Cannot connect to Postgres Database: %s", err)
@@ -695,4 +720,5 @@ func main() {
 	}
 
 	srv.ServeCodec(jsonrpc.NewServerCodec)
+
 }
