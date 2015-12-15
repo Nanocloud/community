@@ -30,13 +30,15 @@ type api struct{}
 var db *sql.DB
 
 type UserInfo struct {
-	Id        string
-	Activated bool
-	Email     string
-	FirstName string
-	LastName  string
-	Password  string
-	IsAdmin   bool
+	Id              string
+	Activated       bool
+	Email           string
+	FirstName       string
+	LastName        string
+	Password        string
+	IsAdmin         bool
+	Sam             string
+	WindowsPassword string
 }
 
 type Message struct {
@@ -70,7 +72,8 @@ func GetUsers() (*[]UserInfo, error) {
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
-		email, is_admin, activated
+		email, is_admin, activated,
+		sam, windows_password
 		FROM users`,
 	)
 	if err != nil {
@@ -89,6 +92,8 @@ func GetUsers() (*[]UserInfo, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
+			&user.Sam,
+			&user.WindowsPassword,
 		)
 		users = append(users, user)
 	}
@@ -114,7 +119,8 @@ func GetUser(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
-		email, is_admin, activated
+		email, is_admin, activated,
+		sam, windows_password
 		FROM users
 		WHERE id = $1::varchar`,
 		userId)
@@ -136,6 +142,8 @@ func GetUser(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
+			&user.Sam,
+			&user.WindowsPassword,
 		)
 
 		var res []byte
@@ -162,7 +170,7 @@ func failOnError(err error, msg string) {
 }
 
 func SendMsg(msg Message) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(conf.QueueUri)
 	failOnError(err, "Failed to connect to RabbitMQ")
 
 	ch, err := conn.Channel()
@@ -198,6 +206,17 @@ func SendMsg(msg Message) {
 
 }
 
+func CreateADUser(id string) (string, string, error) {
+	password := randomString(8) + "s4D+"
+	args := make(map[string]string, 2)
+	args["id"] = id
+	args["password"] = password
+	log.Error("CALLING RPCREQUEST")
+	res, err := rpcRequest("rmq_ldap", "create_user", args)
+	log.Error("CALLED RPCREQUEST")
+	return res["sam"].(string), password, err
+}
+
 func CreateUser(
 	activated bool,
 	email string,
@@ -207,6 +226,7 @@ func CreateUser(
 	isAdmin bool,
 ) (createdUser *UserInfo, err error) {
 	id := uuid.NewV4().String()
+	sam, winpass, err := CreateADUser(id)
 
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -217,14 +237,16 @@ func CreateUser(
 		`INSERT INTO users
 		(id, email, activated,
 		first_name, last_name,
-		password, is_admin)
+		password, is_admin,
+		sam, windows_password)
 		VALUES(
 			$1::varchar, $2::varchar, $3::bool,
 			$4::varchar, $5::varchar,
-			$6::varchar, $7::bool)
+			$6::varchar, $7::bool,
+			$8::varchar, $9::varchar)
 		`, id, email, activated,
 		firstName, lastName,
-		pass, isAdmin)
+		pass, isAdmin, sam, winpass)
 
 	if err != nil {
 		switch err.Error() {
@@ -242,7 +264,7 @@ func CreateUser(
 		`SELECT id, activated,
 		email,
 		first_name, last_name,
-		is_admin
+		is_admin, sam, windows_password
 		FROM users
 		WHERE id = $1::varchar`,
 		id)
@@ -261,6 +283,7 @@ func CreateUser(
 		&user.Id, &user.Activated,
 		&user.Email, &user.FirstName,
 		&user.LastName, &user.IsAdmin,
+		&user.Sam, &user.WindowsPassword,
 	)
 
 	rows.Close()
@@ -482,7 +505,7 @@ func (api) GetUser(arg struct{ UserId string }, res *struct {
 		`SELECT id, activated,
 		email,
 		first_name, last_name,
-		is_admin
+		is_admin, sam, windows_password
 		FROM users
 		WHERE id = $1::varchar`,
 		arg.UserId)
@@ -500,7 +523,8 @@ func (api) GetUser(arg struct{ UserId string }, res *struct {
 	err = rows.Scan(
 		&res.User.Id, &res.User.Activated,
 		&res.User.Email, &res.User.FirstName,
-		&res.User.LastName, &res.User.IsAdmin)
+		&res.User.LastName, &res.User.IsAdmin,
+		&res.User.Sam, &res.User.WindowsPassword)
 	if err != nil {
 		return err
 	}
@@ -646,7 +670,9 @@ func setupDb() error {
 			email            varchar(36) UNIQUE,
 			password         varchar(60),
 			is_admin         boolean,
-			activated        boolean
+			activated        boolean,
+			sam        	 varchar(35),
+			windows_password varchar(36)
 		);`)
 	if err != nil {
 		log.Errorf("[Users] Unable to create users table: %s\n", err)
@@ -698,7 +724,7 @@ func main() {
 
 	initConf()
 
-	go rpcListen("amqp://guest:guest@localhost:5672/", func(req map[string]interface{}) (int, []byte, error) {
+	go rpcListen(conf.QueueUri, func(req map[string]interface{}) (int, []byte, error) {
 		if req["action"] == "get_users" {
 			res, err := handleRPCGetUsers()
 			if err != nil {
