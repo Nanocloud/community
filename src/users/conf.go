@@ -1,9 +1,9 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/user"
 	"runtime"
@@ -48,8 +48,9 @@ func initConf() {
 		log.Println(err)
 	}
 	home := usr.HomeDir
+
 	f := "users.yaml"
-	if runtime.GOOS == "linux" {
+	if runtime.GOOS != "windows" {
 		d := home + "/.config/nanocloud/"
 		err := os.MkdirAll(d, 0755)
 		if err == nil {
