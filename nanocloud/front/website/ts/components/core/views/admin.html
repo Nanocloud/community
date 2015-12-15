@@ -4,7 +4,7 @@
 	<md-sidenav class="md-sidenav-left md-whiteframe-z2 main-sidenav" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
 		
 		<header>
-			<a href="#/admin"><img class="logo" src="./img/logo.png" /></a>
+			<a href="#/admin"><img class="logo" src="./img/logo.png" style="margin:10px 0;" /></a>
 		</header>
 
 		<md-content role="navigation">
@@ -51,6 +51,12 @@
 		<md-progress-linear md-mode="query" id="coreSpinner" style="visibility:hidden;"></md-progress-linear>
 		
 		<md-content ui-view md-scroll-y flex layout-padding></md-content>
+
+		<footer>
+			<div layout="row" layout-align="end center">
+				<a href="http://www.nanocloud.com/" target="_blank">Powered by nanocloud</a>
+			</div>
+		</footer>
 
 	</div>
 
