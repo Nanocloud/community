@@ -36,6 +36,7 @@ cd community/dockerfiles
   git clone https://github.com/Nanocloud/iaas.git
   git clone https://github.com/Nanocloud/ldap.git
   git clone https://github.com/Nanocloud/history.git
+  git clone https://github.com/Nanocloud/apps.git
 )
 
 curl --progress-bar -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose

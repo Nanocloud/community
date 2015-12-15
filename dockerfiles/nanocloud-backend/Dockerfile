@@ -31,6 +31,9 @@ RUN make -C history
 RUN git clone --recursive /opt/repos/users users
 RUN make -C users
 
+RUN git clone --recursive /opt/repos/apps apps
+RUN make -C apps
+
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/bin
 
 RUN mkdir -p plugins/running

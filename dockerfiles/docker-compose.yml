@@ -24,6 +24,7 @@ nanocloud-backend:
   - ./nanocloud-backend/conf/history.yaml:/etc/nanocloud/history.yaml:ro
   - ./nanocloud-backend/conf/iaas.yaml:/etc/nanocloud/iaas.yaml:ro
   - ./nanocloud-backend/conf/ldap.yaml:/etc/nanocloud/ldap.yaml:ro
+  - ./nanocloud-backend/conf/apps.yaml:/etc/nanocloud/apps.yaml:ro
  volumes_from:
   - guacamole-client
 proxy:

@@ -1,0 +1,9 @@
+queueuri:             amqp://guest:guest@rabbitmq:5672/
+sshport:              22
+rdpport:              3389
+server:               62.210.56.76
+password:             ItsPass1942+
+xmlconfigurationFile: conf.xml
+windowsdomain:        intra.localdomain.intracom
+executionservers:     62.210.56.76
+user:                 Administrator
