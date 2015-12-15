@@ -59,6 +59,7 @@ You will need some tools to build Nanocloud
 * gcc
 * qemu
 * go
+* packer
 
 Also, Nanocloud's backend requires some golang dependencies you can easily download with `go get`
 
@@ -68,15 +69,18 @@ go get github.com/gorilla/rpc/json
 go get github.com/jteeuwen/go-bindata/...
 ```
 
-Then to build your own installer, follow these steps:
+Then to build your own installer, use this script:
 
 ```
-./build_nanocloud.sh
-packer build windows/windows-2012-R2-standard-amd64.json
+./build.sh
 ```
 
-And, that's it.
+It will build windows image, coreos image and then nanocloud tools. You can
+launch the following command to install your build on your system:
 
+```
+./nanocloud.sh
+```
 
 ## Known bugs
 

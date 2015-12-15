@@ -26,19 +26,22 @@ COREOS_BASE_URL="http://${CHANNEL}.release.core-os.net/amd64-usr/current"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 
-echo "$(date "${DATE_FMT}") Download CoreOS…"
-wget ${COREOS_BASE_URL}/coreos_production_qemu.sh
-wget ${COREOS_BASE_URL}/coreos_production_qemu.sh.sig
-wget ${COREOS_BASE_URL}/coreos_production_qemu_image.img.bz2
-wget ${COREOS_BASE_URL}/coreos_production_qemu_image.img.bz2.sig
+echo "$(date "${DATE_FMT}") Download CoreOS script…"
+curl --progress-bar "${COREOS_BASE_URL}/coreos_production_qemu.sh" --output coreos_production_qemu.sh
+echo "$(date "${DATE_FMT}") Download CoreOS image…"
+curl --progress-bar "${COREOS_BASE_URL}/coreos_production_qemu_image.img.bz2" --output coreos_production_qemu_image.img.bz2
 
-gpg --verify coreos_production_qemu.sh.sig
-gpg --verify coreos_production_qemu_image.img.bz2.sig
-
+echo "$(date "${DATE_FMT}") Unpacking CoreOS…"
 bzip2 -d coreos_production_qemu_image.img.bz2
 chmod +x coreos_production_qemu.sh
 
-nohup ./coreos_production_qemu.sh -nographic > /dev/null &
+echo "$(date "${DATE_FMT}") Generating SSH keys"
+(
+    echo -e "\n\n\n" | ssh-keygen -t rsa -N "" -f coreos.key
+    chmod 400 coreos.key
+) > /dev/null 2>&1
+
+nohup ./coreos_production_qemu.sh -a coreos.key.pub -- -nographic > /dev/null &
 
 echo "$(date "${DATE_FMT}") Testing connectivity…"
 sleep 10
@@ -49,7 +52,16 @@ if [ "$?" != "0" ]; then
 fi
 
 echo "$(date "${DATE_FMT}") Provisioning…"
-ssh -l core -p 2222 -A localhost -m "provision.sh"
+ssh \
+    -o StrictHostKeyChecking=no \
+    -i coreos.key \
+    -l core \
+    -p 2222 \
+    localhost < "provision-coreos.sh"
 
 echo "$(date "${DATE_FMT}") Compressing QCOW2 image…"
 qemu-img convert -c -f qcow2 -O qcow2 coreos_production_qemu_image.img coreos.qcow2
+
+
+
+

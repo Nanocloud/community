@@ -24,7 +24,6 @@
 NANOCLOUD_DIR="/var/lib/nanocloud"
 NANOCLOUD_BIN_URL="https://community.nanocloud.com/nanocloud"
 
-COREOS_QCOW2_URL="http://stable.release.core-os.net/amd64-usr/current/coreos_production_qemu_image.img.bz2"
 NANOCLOUD_QCOW2_URL="http://community.nanocloud.com/coreos.qcow2"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
@@ -69,27 +68,29 @@ if [ "$(sysctl --value net.ipv4.ip_forward)" != "1" ]; then
   sysctl --write net.ipv4.ip_forward=1 > /dev/null 2>&1
 fi
 
-if [ "${1}" != "local" ]; then
-  echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
-  download ${NANOCLOUD_BIN_URL} | nano_exec
-  if [ "$?" != "0" ]; then
-    echo "$(date "${DATE_FMT}") Installation failed, exiting…"
-    exit 1
-  fi
-  echo "$(date "${DATE_FMT}") Downloading Coreos…"
-  (
-    cd ${NANOCLOUD_DIR}/images
-    download ${NANOCLOUD_QCOW2_URL} > coreos.qcow2
-    echo "$(date "${DATE_FMT}") Coreos download finished"
-  )
+NANOCLOUD_BINARIES="${CURRENT_DIR}/nanocloud"
+if [ -f "${NANOCLOUD_BINARIES}" ]; then
+    echo "$(date "${DATE_FMT}") Local Nanocloud binaries available"
 else
-  ./nanocloud unpack
-  (
-    cd ${NANOCLOUD_DIR}/images
-    echo "$(date "${DATE_FMT}") Downloading CoreOS"
-    download ${COREOS_QCOW2_URL} | bzcat > coreos.qcow2
-  )
-  ./nanocloud launch
+    echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
+    download ${NANOCLOUD_BIN_URL} | nano_exec
+    if [ "$?" != "0" ]; then
+      echo "$(date "${DATE_FMT}") Installation failed, exiting…"
+      exit 1
+    fi
+fi
+
+COREOS_QCOW2_FILENAME="${CURRENT_DIR}/coreos/coreos.qcow2"
+if [ -f "${COREOS_QCOW2_FILENAME}" ]; then
+    echo "$(date "${DATE_FMT}") Local CoreOS disk available"
+    cp "${COREOS_QCOW2_FILENAME}" coreos.qcow2
+else
+    echo "$(date "${DATE_FMT}") Downloading Coreos…"
+    (
+      cd ${NANOCLOUD_DIR}/images
+      download ${NANOCLOUD_QCOW2_URL} > coreos.qcow2
+      echo "$(date "${DATE_FMT}") Coreos download finished"
+    )
 fi
 
 echo "$(date "${DATE_FMT}") Starting first VM…"
@@ -105,6 +106,12 @@ nc -v -z -w 10 localhost 2222 > /dev/null 2>&1
 if [ "$?" != "0" ]; then
   echo "$(date "${DATE_FMT}") CoreOS failed to boot, exiting"
   exit 1
+fi
+
+WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-2012R2-qemu"
+if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
+  echo "$(date "${DATE_FMT}") Local Windows image found, copying"
+  cp "${WINDOWS_QCOW2_FILENAME}" /var/lib/nanocloud/images/winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64.qcow2
 fi
 
 echo "$(date "${DATE_FMT}") Setup complete"
