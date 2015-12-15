@@ -21,21 +21,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-git clone https://github.com/Nanocloud/community.git
+git clone --depth 1 https://github.com/Nanocloud/community.git
 cd community/dockerfiles
 (
   mkdir repos_guacamole; cd repos_guacamole/
-  git clone https://github.com/Nanocloud/noauth-logged.git
+  git clone --depth 1 https://github.com/Nanocloud/noauth-logged.git
 )
 
 (
   mkdir repos_nanocloud; cd repos_nanocloud/
 
-  git clone https://github.com/Nanocloud/nanocloud.git
-  git clone https://github.com/Nanocloud/users.git
-  git clone https://github.com/Nanocloud/iaas.git
-  git clone https://github.com/Nanocloud/ldap.git
-  git clone https://github.com/Nanocloud/history.git
+  git clone --depth 1 https://github.com/Nanocloud/nanocloud.git
+  git clone --depth 1 https://github.com/Nanocloud/users.git
+  git clone --depth 1 https://github.com/Nanocloud/iaas.git
+  git clone --depth 1 https://github.com/Nanocloud/ldap.git
+  git clone --depth 1 https://github.com/Nanocloud/history.git
+  git clone --depth 1 https://github.com/Nanocloud/apps.git
 )
 
 curl -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
