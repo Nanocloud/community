@@ -28,6 +28,25 @@ IAAS_DIR="${CURRENT_DIR}/iaas"
 TOOLS_DIR="${IAAS_DIR}/tools/bin/"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
+
+COMMAND=${1}
+shift
+
+if [ "${COMMAND}" = "windows" ]; then
+    NANOCLOUD_SKIP_WINDOWS="false"
+    NANOCLOUD_SKIP_COREOS="true"
+    NANOCLOUD_SKIP="true"
+elif [ "${COMMAND}" = "coreos" ]; then
+    NANOCLOUD_SKIP_WINDOWS="true"
+    NANOCLOUD_SKIP_COREOS="false"
+    NANOCLOUD_SKIP="true"
+elif [ "${COMMAND}" = "nanocloud" ]; then
+    NANOCLOUD_SKIP_WINDOWS="true"
+    NANOCLOUD_SKIP_COREOS="true"
+    NANOCLOUD_SKIP="false"
+fi
+
+
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-2012R2-qemu"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" -o "${NANOCLOUD_SKIP_WINDOWS}" = "true" ]; then
     echo "$(date "${DATE_FMT}") Skip Windows build"
