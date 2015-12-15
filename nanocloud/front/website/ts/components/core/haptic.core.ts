@@ -66,7 +66,7 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 	});
 
 	// global error handler
-	$httpProvider.interceptors.push(["$injector", function($injector: angular.auto.IInjectorService) {
+	$httpProvider.interceptors.push(["$injector", "$q", function($injector: angular.auto.IInjectorService, $q: angular.IQService) {
 		return {
 			"responseError": function(rejection: angular.IHttpPromiseCallbackArg<any>) {
 				if (rejection.status === 401 || rejection.status === 403) {
@@ -79,7 +79,7 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 							.position("top right")
 					);
 				}
-				return rejection;
+				return $q.reject(rejection);
 			}
 		};
 	}]);
