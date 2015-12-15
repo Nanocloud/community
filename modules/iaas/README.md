@@ -1,4 +1,4 @@
-# Users module for Nanocloud community
+# IaaS module for Nanocloud community
 
 Experience the seamless transformation of your application.
 
