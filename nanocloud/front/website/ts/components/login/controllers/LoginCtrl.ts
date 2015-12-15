@@ -67,7 +67,7 @@ export class LoginCtrl {
 				(error: any) => {
 					this.$mdToast.show(
 						this.$mdToast.simple()
-						.content("Authentication failed: Email or Password incorrect")
+						.textContent("Authentication failed: Email or Password incorrect")
 						.position("top right"));
 				});
 	}
