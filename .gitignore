@@ -1,2 +1,11 @@
+
+.*
+*.log
+
 pkg
 bin
+
+front/node_modules
+front/bower_components
+front/typings
+front/website/js
