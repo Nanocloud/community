@@ -43,8 +43,8 @@ func writeConf(in interface{}, filename string) error {
 func getDefaultConf() Configuration {
 	return Configuration{
 		Username:  "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com",
-		Password:  "Nanocloud123+",
-		ServerURL: "ldaps://10.20.12.20",
+		Password:  "PASSWORD",
+		ServerURL: "ldaps://127.0.0.1",
 		QueueURI:  "amqp://guest:guest@localhost:5672/",
 	}
 }
@@ -59,7 +59,7 @@ func initConf() {
 	home := usr.HomeDir
 	f := "ldap.yaml"
 	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud"
+		d := home + "/.config/nanocloud/"
 		err := os.MkdirAll(d, 0755)
 		// creating necessary directories for configuration file if they do not exist
 
