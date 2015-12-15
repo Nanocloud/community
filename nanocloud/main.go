@@ -9,6 +9,7 @@ import (
 	"net/rpc/jsonrpc"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -143,6 +144,9 @@ func getPlugins() []string {
 			filenames = append(filenames, fileinfo.Name())
 		}
 	}
+
+	sort.Strings(filenames)
+
 	return filenames
 }
 
