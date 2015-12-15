@@ -47,7 +47,6 @@ func getList(args PlugRequest, reply *PlugRequest, empty string) {
 		log.Error("Marshalling of connections for all users failed: ", err)
 	}
 	reply.Body = string(rsp)
-
 }
 
 // Get a list of apps accessible by the user owning the SAMAccount sam

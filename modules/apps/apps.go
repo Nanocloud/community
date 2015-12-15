@@ -35,6 +35,10 @@ import (
 	"time"
 )
 
+const (
+	windowsUserPassword = "12345abcDEF+"
+)
+
 type GuacamoleXMLConfigs struct {
 	XMLName xml.Name             `xml:configs`
 	Config  []GuacamoleXMLConfig `xml:"config"`
@@ -77,7 +81,44 @@ type UserInfo struct {
 	LastName  string
 	IsAdmin   bool
 	Sam       string
-	Password  string
+}
+
+func getUsers() ([]UserInfo, error) {
+	d, err := rpcRequest("users", "get_users", nil)
+
+	res := d.(map[string]interface{})
+
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	d = res["users"]
+	users := d.([]interface{})
+	length := len(users)
+	rt := make([]UserInfo, length)
+
+	for i := 0; i < length; i++ {
+		user := users[i].(map[string]interface{})
+		id := user["Id"].(string)
+		activated := user["Activated"].(bool)
+		email := user["Email"].(string)
+		firstName := user["FirstName"].(string)
+		lastName := user["LastName"].(string)
+		isAdmin := user["IsAdmin"].(bool)
+
+		rt[i] = UserInfo{
+			Id:        id,
+			Activated: activated,
+			Email:     email,
+			FirstName: firstName,
+			LastName:  lastName,
+			IsAdmin:   isAdmin,
+			Sam:       "",
+		}
+	}
+
+	return rt, nil
 }
 
 // ========================================================================================================================
@@ -108,7 +149,7 @@ func createConnections() error {
 	bashConfigFile.Write([]byte(fmt.Sprintf("USER=\"%s\"\n", conf.User)))
 	bashConfigFile.Write([]byte(fmt.Sprintf("SERVER=\"%s\"\n", conf.Server)))
 	bashConfigFile.Write([]byte(fmt.Sprintf("PORT=\"%s\"\n", conf.SSHPort)))
-	bashConfigFile.Write([]byte(fmt.Sprintf("PASSWORD=\"%s\"\n", conf.Password)))
+	bashConfigFile.Write([]byte(fmt.Sprintf("PASSWORD=\"%s\"\n", windowsUserPassword)))
 	bashConfigFile.Close()
 	bashExecScript := "../src/nanocloud/scripts/exec.sh"
 	cmd := exec.Command(bashExecScript, "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"")
@@ -130,13 +171,11 @@ func createConnections() error {
 	}
 
 	//	users, _ := g_Db.GetUsers()
-	users := make([]UserInfo, 1)
-
-	users[0] = UserInfo{ //////////////TODO: Real Connection to the user database
-		Email:    "mail",
-		Sam:      "sam",
-		Password: "lala",
+	users, err := getUsers()
+	if err != nil {
+		return err
 	}
+
 	for _, user := range users {
 		for _, application := range applications {
 			if application.Alias == "hapticPowershell" {
@@ -168,7 +207,7 @@ func createConnections() error {
 					},
 					GuacamoleXMLParam{
 						ParamName:  "password",
-						ParamValue: user.Password,
+						ParamValue: windowsUserPassword,
 					},
 					GuacamoleXMLParam{
 						ParamName:  "remote-app",
