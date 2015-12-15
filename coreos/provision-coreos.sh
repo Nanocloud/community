@@ -38,13 +38,16 @@ cd community/dockerfiles
   git clone https://github.com/Nanocloud/history.git
 )
 
-curl -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
+curl --progress-bar -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
 chmod +x docker-compose
 
+echo ""
 echo "TODO : Check nginx     conf => nginx/conf/nginx.conf"
 echo "TODO : Check LDAP      conf => nanocloud-backend/conf/ldaprc"
 echo "TODO : Check Haptic    conf => nanocloud-backend/conf/config.json"
 echo "TODO : Check Guacamole conf => guacamole-client/guac_home/noauth-config.xml"
+
+df -h
 
 mkdir -p postgres
 ./docker-compose build
