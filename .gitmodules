@@ -18,3 +18,6 @@
 [submodule "vendor/src/github.com/Sirupsen/logrus"]
 	path = vendor/src/github.com/Sirupsen/logrus
 	url = https://github.com/Sirupsen/logrus
+[submodule "vendor/src/github.com/streamrail/concurrent-map"]
+	path = vendor/src/github.com/streamrail/concurrent-map
+	url = https://github.com/streamrail/concurrent-map
