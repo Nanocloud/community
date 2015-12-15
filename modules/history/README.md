@@ -1,4 +1,4 @@
-# Users module for Nanocloud community
+# History module for Nanocloud community
 
 Experience the seamless transformation of your application.
 
