@@ -65,4 +65,23 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 		};
 	});
 
+	// global error handler
+	$httpProvider.interceptors.push(["$injector", function($injector: angular.auto.IInjectorService) {
+		return {
+			"responseError": function(rejection: angular.IHttpPromiseCallbackArg<any>) {
+				if (rejection.status === 401 || rejection.status === 403) {
+					document.location.href = "/#/login";
+				} else {
+					var $mdToast = <angular.material.IToastService>$injector.get("$mdToast");
+					$mdToast.show(
+						$mdToast.simple()
+							.textContent(rejection.statusText)
+							.position("top right")
+					);
+				}
+				return rejection;
+			}
+		};
+	}]);
+
 }]);
