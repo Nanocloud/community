@@ -55,6 +55,7 @@ func readConfFromHome() error {
 }
 
 func initConf() {
+	conf = getDefaultConf()
 	err := readConfFromHome()
 	if err == nil {
 		return
