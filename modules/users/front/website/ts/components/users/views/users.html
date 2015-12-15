@@ -3,7 +3,7 @@
 	<md-card-content>
 		<md-list>
 			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
-				<ng-md-icon icon="person"></ng-md-icon>
+				<ng-md-icon icon="{{ user.IsAdmin ? 'supervisor_account' : 'person' }}"></ng-md-icon>
 				<div class="md-list-item-text">
 					<h3>{{ user.Firstname }} {{ user.Lastname }}</h3>
 					<p>{{ user.Email }}</p>
