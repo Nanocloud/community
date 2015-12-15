@@ -36,7 +36,7 @@ type GetApplicationsListReply struct {
 }
 
 // Set return codes and content type of response, and list apps
-func getList(args PlugRequest, reply *PlugRequest, name string) {
+func getList(args PlugRequest, reply *PlugRequest, empty string) {
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
 	reply.Status = 200
@@ -51,7 +51,8 @@ func getList(args PlugRequest, reply *PlugRequest, name string) {
 }
 
 // Get a list of apps accessible by the user owning the SAMAccount sam
-func getListForCurrentUser(args PlugRequest, reply *PlugRequest, sam string) {
+func getListForCurrentUser(args PlugRequest, reply *PlugRequest, empty string) {
+	var sam string // todo: sould be obtain from pq db
 
 	reply.HeadVals = make(map[string]string, 1)
 	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
@@ -90,7 +91,7 @@ var tab = []struct {
 }{
 	{`^\/api\/apps\/{0,1}$`, "GET", getList},
 	{`^\/api\/apps\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", unpublishApplication},
-	{`^\/api\/apps\/(?P<id>[^\/]+)\/{0,1}$`, "GET", getListForCurrentUser},
+	{`^\/api\/apps\/me\/{0,1}$`, "GET", getListForCurrentUser},
 }
 
 // Will receive all http requests starting by /api/history from the
@@ -132,18 +133,11 @@ func (api) Unplug(args interface{}, reply *bool) error {
 }
 
 func main() {
-	var err error
-
-	log.SetOutput(os.Stderr)
-	log.SetLevel(log.DebugLevel)
-
-	srv = pie.NewProvider()
-
-	if err = srv.RegisterName(name, api{}); err != nil {
-		log.Fatal("Failed to register %s: %s", name, err)
-	}
-
 	initConf()
 
+	srv = pie.NewProvider()
+	if err := srv.RegisterName(name, api{}); err != nil {
+		log.Fatal("Failed to register ", name, ": ", err)
+	}
 	srv.ServeCodec(jsonrpc.NewServerCodec)
 }

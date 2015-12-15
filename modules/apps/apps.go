@@ -115,7 +115,7 @@ func createConnections() error {
 	cmd.Dir = "."
 	response, err := cmd.Output()
 	if err != nil {
-		log.Error("Failed to run script exec.sh, error: %s, output: %s\n", err, string(response))
+		log.Error("Failed to run script exec.sh, error: ", err, ", output: ", string(response))
 		response = []byte("[]")
 	} else if string(response) == "" {
 		response = []byte("[]")

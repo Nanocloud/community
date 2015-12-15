@@ -22,9 +22,7 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../../applications/services/ApplicationsSvc" />
-/// <amd-dependency path="../../core/services/AuthenticationSvc" />
 import { ApplicationsSvc, IApplication } from "../../applications/services/ApplicationsSvc";
-import { AuthenticationSvc } from "../../core/services/AuthenticationSvc";
 
 "use strict";
 
@@ -36,15 +34,13 @@ export class PresenterCtrl {
 	static $inject = [
 		"$state",
 		"$cookies",
-		"ApplicationsSvc",
-		"AuthenticationSvc"
+		"ApplicationsSvc"
 	];
 
 	constructor(
 		private $state: angular.ui.IStateService,
 		private $cookies: angular.cookies.ICookiesService,
-		private appsSvc: ApplicationsSvc,
-		private authSvc: AuthenticationSvc
+		private appsSvc: ApplicationsSvc
 	) {
 		this.loadApplications();
 		this.user = sessionStorage.getItem("user");
@@ -67,9 +63,7 @@ export class PresenterCtrl {
 	}
 
 	logout() {
-		this.authSvc.logout().then(() => {
-			this.$state.go("login");
-		});
+		this.$state.go("logout");
 	}
 
 }

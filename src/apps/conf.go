@@ -4,9 +4,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"os"
 	"os/user"
-	"runtime"
+	"path/filepath"
 )
 
 const confFilename string = "apps.yaml"
@@ -58,36 +57,28 @@ func getDefaultConf() Configuration {
 	}
 }
 
+func readConfFromPath(path string) error {
+	f := filepath.Join(path, confFilename)
+	return readMergeConf(&conf, f)
+}
+
+func readConfFromHome() error {
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(u.HomeDir, "/.config/nanocloud")
+	return readConfFromPath(path)
+}
+
 func initConf() {
 	conf = getDefaultConf()
-	usr, err := user.Current()
+	err := readConfFromHome()
+	if err == nil {
+		return
+	}
+	err = readConfFromPath(filepath.Join("/etc/nanocloud", confFilename))
 	if err != nil {
-		log.Println(err)
-	}
-	home := usr.HomeDir
-	f := "apps.yaml"
-	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud/apps/"
-		err := os.MkdirAll(d, 0755)
-		// creating necessary directories for configuration file if they do not exist
-		if err == nil {
-			f = d + f
-		} else {
-			log.Println(err)
-		}
-	}
-
-	// look in ~/.config/nanocloud for config file
-	if err := readMergeConf(&conf, f); err != nil {
-		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
-		alt := "/etc/nanocloud/apps/apps.yaml"
-		// if the config file is not found in ~/.config/nanocloud, look in /etc/nanocloud
-		if err := readMergeConf(&conf, alt); err != nil {
-			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
-		}
-	}
-	// finally write the final configuration used in ./config/nanocloud
-	if err := writeConf(conf, f); err != nil {
-		log.Error("Failed to write configuration file for plugin apps: ", err)
+		log.Info(confFilename, " is neither found in ~/.config/nanocloud nor in /etc/nanocloud. use default configuration.")
 	}
 }

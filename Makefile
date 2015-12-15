@@ -21,5 +21,6 @@ go:
 npm:
 	@echo "==== build front"
 	cd front && npm run build
+	ln -s ../front/website bin/front
 	@echo
 
