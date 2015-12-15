@@ -10,7 +10,7 @@ var dbInstance *sql.DB = nil
 func GetDB() (*sql.DB, error) {
 	var err error
 	if dbInstance == nil {
-		dbInstance, err = sql.Open("postgres", "postgres://nanocloud@localhost/nanocloud?sslmode=disable")
+		dbInstance, err = sql.Open("postgres", conf.DatabaseUri)
 	}
 	return dbInstance, err
 }

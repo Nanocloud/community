@@ -99,8 +99,8 @@ func main() {
 	log.SetOutput(os.Stderr)
 	log.SetLevel(log.DebugLevel)
 
-	setupDb()
 	initConf()
+	setupDb()
 
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
