@@ -96,7 +96,6 @@
              "scripts": [
                             "floppy/windows-2012-standard-amd64/AD-create-OU.ps1",
                             "floppy/windows-2012-standard-amd64/adcs-cert.ps1",
-                            "floppy/windows-2012-standard-amd64/upload-cert.ps1",
                             "floppy/windows-2012-standard-amd64/prepareWindows.ps1"
              ],
              "pause_before": "120s"
