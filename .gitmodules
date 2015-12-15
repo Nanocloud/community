@@ -19,3 +19,6 @@
 [submodule "vendor/src/gopkg.in/yaml.v2"]
 	path = vendor/src/gopkg.in/yaml.v2
 	url = https://gopkg.in/yaml.v2
+[submodule "vendor/src/github.com/streamrail/concurrent-map"]
+	path = vendor/src/github.com/streamrail/concurrent-map
+	url = https://github.com/streamrail/concurrent-map
