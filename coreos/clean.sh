@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Nanocloud Community, a comprehensive platform to turn any application
+# into a cloud solution.
+#
+# Copyright (C) 2015 Nanocloud Software
+#
+# This file is part of Nanocloud community.
+#
+# Nanocloud community is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Nanocloud community is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+[ -f "coreos.key" ] && rm -rf "coreos.key"
+[ -f "coreos.key.pub" ] && rm -rf "coreos.key.pub"
+[ -f "coreos.qcow2" ] && rm -rf "coreos.qcow2"
+[ -f "coreos_production_qemu_image.img" ] && rm -rf "coreos_production_qemu_image.img"
+[ -f "coreos_production_qemu.sh" ] && rm -rf "coreos_production_qemu.sh"
+
+NC_QEMU_PID=$(pgrep -fa qemu-system-x86 | awk '/coreos_production_qemu/ { print $1; }')
+[ "${NC_QEMU_PID}" != "" ] && kill "${NC_QEMU_PID}"
