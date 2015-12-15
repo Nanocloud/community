@@ -4,22 +4,21 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"os"
 	"os/user"
-	"runtime"
+	"path/filepath"
 )
 
 const confFilename string = "history.yaml"
 
-type Configuration struct {
+type configuration struct {
 	ConnectionString string
 	DatabaseName     string
 }
 
-var conf Configuration
+var conf configuration
 
 // Read a configuration file and unmarshal the data in its first parameter
-func ReadMergeConf(out interface{}, filename string) error {
+func readMergeConf(out interface{}, filename string) error {
 	d, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -28,7 +27,7 @@ func ReadMergeConf(out interface{}, filename string) error {
 }
 
 // Write the new configuration on the configuration file
-func WriteConf(in interface{}, filename string) error {
+func writeConf(in interface{}, filename string) error {
 	d, err := yaml.Marshal(in)
 	if err != nil {
 		return err
@@ -37,42 +36,35 @@ func WriteConf(in interface{}, filename string) error {
 }
 
 // Default configuration to use if no configuration files are found
-func getDefaultConf() Configuration {
-	return Configuration{
+func getDefaultConf() configuration {
+	return configuration{
 		ConnectionString: "history.db",
 		DatabaseName:     "bolt",
 	}
 }
 
-func initConf() {
+func readConfFromPath(path string) error {
+	f := filepath.Join(path, confFilename)
+	return readMergeConf(&conf, f)
+}
 
-	conf = getDefaultConf()
-	usr, err := user.Current()
+func readConfFromHome() error {
+	u, err := user.Current()
 	if err != nil {
-		log.Error("Failed to get data on current user: ", err)
+		return err
 	}
-	home := usr.HomeDir
+	path := filepath.Join(u.HomeDir, "/.config/nanocloud")
+	return readConfFromPath(path)
+}
 
-	f := "history.yaml"
-	if runtime.GOOS == "linux" {
-		d := home + "/.config/nanocloud"
-		// Creating necessary directories for configuration file if they do not exist
-		err := os.MkdirAll(d, 0755)
-		if err == nil {
-			f = d + f
-		} else {
-			log.Error("Failed to create necessary directories for config files: ", err)
-		}
+func initConf() {
+	conf = getDefaultConf()
+	err := readConfFromHome()
+	if err == nil {
+		return
 	}
-
-	//Look in ~/.config/nanocloud for config file
-	if err := ReadMergeConf(&conf, f); err != nil {
-		log.Warn("No Configuration file found in ~/.config/nanocloud, now looking in /etc/nanocloud")
-		alt := "/etc/nanocloud/history.yaml"
-		// If the config file is not found in ~/.config/nanocloud, look in /etc/nanocloud
-		if err := ReadMergeConf(&conf, alt); err != nil {
-			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
-		}
-
+	err = readConfFromPath(filepath.Join("/etc/nanocloud", confFilename))
+	if err != nil {
+		log.Info(confFilename, " is neither found in ~/.config/nanocloud nor in /etc/nanocloud. using default configuration.")
 	}
 }

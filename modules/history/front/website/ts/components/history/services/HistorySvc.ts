@@ -21,8 +21,6 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
-/// <amd-dependency path="../../core/services/RpcSvc" />
-import { RpcSvc, IRpcResponse } from "../../core/services/RpcSvc";
 
 "use strict";
 
@@ -40,38 +38,27 @@ export interface IHistoryAtom {
 export class HistorySvc {
 
 	static $inject = [
-		"RpcSvc",
+		"$http",
 		"$mdToast"
 	];
 	constructor(
-		private rpc: RpcSvc,
+		private $http: angular.IHttpService,
 		private $mdToast: angular.material.IToastService
 	) {
 
 	}
 
 	getAll(): angular.IPromise<IHistoryInfo[]> {
-		return this.rpc.call({ method: "ServiceHistory.GetList", id: 1 })
-			.then((res: IRpcResponse) => {
-				if (this.isError(res) || res.result.Histories === null) {
-					return [];
-				}
-				return res.result.Histories;
-			});
+		return this.$http.get("/api/history")
+			.then(
+				function(res: angular.IHttpPromiseCallbackArg<IHistoryInfo[]>) {
+					let h = res.data || [];
+					return h;
+				},
+				() => []
+			);
 	}
 
-	private isError(res: IRpcResponse): boolean {
-		if (res.error == null) {
-			return false;
-		}
-		this.$mdToast.show(
-			this.$mdToast.simple()
-				.content(res.error.code === 0 ? "Internal Error" : JSON.stringify(res.error))
-				.position("top right")
-		);
-		return true;
-	}
-	
 }
 
 angular.module("haptic.history").service("HistorySvc", HistorySvc);
