@@ -72,7 +72,7 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 				if (rejection.status === 401 || rejection.status === 403) {
 					document.location.href = "/#/login";
 				} else {
-					var $mdToast = <angular.material.IToastService>$injector.get("$mdToast");
+					let $mdToast = <angular.material.IToastService>$injector.get("$mdToast");
 					$mdToast.show(
 						$mdToast.simple()
 							.textContent(rejection.statusText)
