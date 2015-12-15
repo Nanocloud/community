@@ -6,11 +6,11 @@ initial:
 	@echo "==== get gb"
 	go get -u github.com/constabulary/gb/...
 	@echo
-	
+
 	@echo "==== install npm"
 	cd front && npm install && npm run setup
 	@echo
-	
+
 build: go npm
 
 go:
@@ -21,5 +21,5 @@ go:
 npm:
 	@echo "==== build front"
 	cd front && npm run build
-	ln -s ../front/website bin/front
+	if [ ! -h "bin/front" ]; then ln -s ../front/website/ bin/front; fi
 	@echo
