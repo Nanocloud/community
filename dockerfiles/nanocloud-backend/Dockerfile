@@ -31,24 +31,26 @@ RUN make -C history
 RUN git clone --recursive /opt/repos/users users
 RUN make -C users
 
-RUN git clone --recursive /opt/repos/apps apps
-RUN make -C apps
+WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
 
-WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/bin
+RUN mkdir -p bin/plugins/running
 
-RUN mkdir -p plugins/running
+RUN ln -s ../../../../apps/bin/apps bin/plugins/running/apps
+RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas
+RUN ln -s ../../../../users/bin/users bin/plugins/running/users
+RUN ln -s ../../../../ldap/bin/ldap bin/plugins/running/ldap
+RUN ln -s ../../../../history/bin/history bin/plugins/running/history
 
-RUN ln -s ../../../../iaas/bin/iaas plugins/running/iaas
-RUN ln -s ../../../../ldap/bin/ldap plugins/running/ldap
-RUN ln -s ../../../../history/bin/history plugins/running/history
-RUN ln -s ../../../../users/bin/users plugins/running/users
-
-RUN ln -s ../../../../../iaas/front/website/js/components/iaas front/js/components/iaas
-RUN ln -s ../../../../../history/front/website/js/components/history front/js/components/history
-RUN ln -s ../../../../../users/front/website/js/components/users front/js/components/users
+RUN ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications
+RUN ln -s ../../../../../apps/front/website/js/components/presenter bin/front/js/components/presenter
+RUN ln -s ../../../../../iaas/front/website/js/components/services bin/front/js/components/services
+RUN ln -s ../../../../../users/front/website/js/components/users bin/front/js/components/users
+RUN ln -s ../../../../../history/front/website/js/components/history bin/front/js/components/history
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 
 EXPOSE 8081
+
+WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/bin
 
 CMD ["./nanocloud"]
