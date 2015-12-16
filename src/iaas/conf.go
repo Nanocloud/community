@@ -50,7 +50,7 @@ func readConfFromHome() error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(u.HomeDir, "/.config/nanocloud")
+	path := filepath.Join(u.HomeDir, ".config/nanocloud")
 	return readConfFromPath(path)
 }
 
@@ -60,7 +60,7 @@ func initConf() {
 	if err == nil {
 		return
 	}
-	err = readConfFromPath(filepath.Join("/etc/nanocloud", confFilename))
+	err = readConfFromPath("/etc/nanocloud")
 	if err != nil {
 		log.Info(confFilename, " is neither found in ~/.config/nanocloud nor in /etc/nanocloud. using default configuration.")
 	}
