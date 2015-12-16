@@ -38,7 +38,7 @@ func (c oauthConnector) AuthenticateUser(username, password string) (interface{}
 
 	err := plugins[userModule].client.Call("users.AuthenticateUser", args, &res)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("[Users] AuthenticateUser failed: %s\n", err)
 		return nil, err
 	}
 
