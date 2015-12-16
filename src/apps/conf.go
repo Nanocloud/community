@@ -77,7 +77,7 @@ func initConf() {
 	if err == nil {
 		return
 	}
-	err = readConfFromPath(filepath.Join("/etc/nanocloud", confFilename))
+	err = readConfFromPath("/etc/nanocloud")
 	if err != nil {
 		log.Info(confFilename, " is neither found in ~/.config/nanocloud nor in /etc/nanocloud. use default configuration.")
 	}
