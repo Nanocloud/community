@@ -19,6 +19,9 @@ RUN echo '{"analytics": false}' > ~/.bowerrc
 RUN git clone --recursive /opt/repos/nanocloud nanocloud
 RUN make -C nanocloud
 
+RUN git clone --recursive /opt/repos/apps apps
+RUN make -C apps
+
 RUN git clone --recursive /opt/repos/iaas iaas
 RUN make -C iaas
 
