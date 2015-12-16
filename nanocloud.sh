@@ -71,6 +71,7 @@ fi
 NANOCLOUD_BINARIES="${CURRENT_DIR}/nanocloud"
 if [ -f "${NANOCLOUD_BINARIES}" ]; then
     echo "$(date "${DATE_FMT}") Local Nanocloud binaries available"
+    "${CURRENT_DIR}/nanocloud"
 else
     echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
     download ${NANOCLOUD_BIN_URL} | nano_exec
