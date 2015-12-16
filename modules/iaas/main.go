@@ -328,6 +328,8 @@ func (api) Unplug(args interface{}, reply *bool) error {
 }
 
 func main() {
+        log.SetOutput(os.Stderr)
+        log.SetLevel(log.DebugLevel)
 	initConf()
 
 	srv = pie.NewProvider()

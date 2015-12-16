@@ -42,6 +42,7 @@ func getDefaultConf() configuration {
 
 func readConfFromPath(path string) error {
 	f := filepath.Join(path, confFilename)
+	log.Debugf("[IAAS] read conf file %s\n", f)
 	return readMergeConf(&conf, f)
 }
 
@@ -63,5 +64,6 @@ func initConf() {
 	err = readConfFromPath("/etc/nanocloud")
 	if err != nil {
 		log.Info(confFilename, " is neither found in ~/.config/nanocloud nor in /etc/nanocloud. using default configuration.")
+		log.Debug(err)
 	}
 }
