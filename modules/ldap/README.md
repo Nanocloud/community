@@ -12,10 +12,12 @@ This repository contain a module to interact with ActiveDirectory LDAP.
 
 ## Quickinstall
 
-Run the following command to build this module:
+1. Make sure your local environment has the following software installed:
+ - Go 1.5+
+ - Nodejs 4+
 
+1. Run the following command to build this module:
 ```
-make initial
 make
 ```
 
