@@ -84,7 +84,8 @@ func rpcRequest(module string, action string, args interface{}) (interface{}, er
 }
 
 func init() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	initConf()
+	conn, err := amqp.Dial(conf.QueueUri)
 
 	if err != nil {
 		log.Fatalf("%s: %s", "Unable to connect to RabbitMQ", err)
