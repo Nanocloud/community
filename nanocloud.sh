@@ -21,6 +21,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
+
 NANOCLOUD_DIR="/var/lib/nanocloud"
 NANOCLOUD_BIN_URL="https://community.nanocloud.com/nanocloud"
 
