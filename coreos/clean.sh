@@ -21,11 +21,29 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-[ -f "coreos.key" ] && rm -rf "coreos.key"
-[ -f "coreos.key.pub" ] && rm -rf "coreos.key.pub"
-[ -f "coreos.qcow2" ] && rm -rf "coreos.qcow2"
-[ -f "coreos_production_qemu_image.img" ] && rm -rf "coreos_production_qemu_image.img"
-[ -f "coreos_production_qemu.sh" ] && rm -rf "coreos_production_qemu.sh"
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
+
+BUILD_ARTIFACTS="
+    coreos.key
+    coreos.key.pub
+    coreos.qcow2
+    coreos_production_qemu_image.img
+    coreos_production_qemu.sh
+"
+
+for ARTIFACT in ${BUILD_ARTIFACTS}; do
+    ARTIFACT_FILENAME=${CURRENT_DIR}/${ARTIFACT}
+    if [ -f "${ARTIFACT_FILENAME}" ]; then
+        echo "Removing ${ARTIFACT_FILENAME}"
+        rm -rf "${ARTIFACT_FILENAME}"
+    fi
+done
 
 NC_QEMU_PID=$(pgrep -fa qemu-system-x86 | awk '/coreos_production_qemu/ { print $1; }')
-[ "${NC_QEMU_PID}" != "" ] && kill "${NC_QEMU_PID}"
+if [ -n "${NC_QEMU_PID}" ]; then
+    for PID in ${NC_QEMU_PID}; do
+        echo "Killing process ${PID}"
+        kill "${PID}"
+    done
+fi
