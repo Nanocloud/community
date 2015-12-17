@@ -6,8 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/user"
-	"path"
-	"runtime"
+	"path/filepath"
 )
 
 const confFilename string = "nanocloud.yaml"
@@ -18,6 +17,7 @@ type configuration struct {
 	InstDir     string
 	Port        string
 	FrontDir    string
+	UploadDir   string
 	DatabaseUri string
 	QueueUri    string
 }
@@ -46,35 +46,42 @@ func getDefaultConf() configuration {
 		StagDir:     "plugins/staging/",
 		InstDir:     "plugins/installed/",
 		FrontDir:    "front/",
+		UploadDir:   "uploads/",
 		Port:        "8080",
-		DatabaseUri: "postgres://localhost/nanocloud?sslmode=disable",
+		DatabaseUri: "postgres://nanocloud@localhost/nanocloud?sslmode=disable",
 		QueueUri:    "amqp://guest:guest@localhost:5672/",
 	}
 }
 
+func readConfFromPath(path string) error {
+	f := filepath.Join(path, confFilename)
+	err := readMergeConf(&conf, f)
+	if !os.IsNotExist(err) {
+		log.WithFields(log.Fields{
+			"module": moduleName,
+			"error":  err,
+		}).Error("Unable to read from the configuration file.")
+	}
+	return err
+}
+
+func readConfFromHome() error {
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(u.HomeDir, ".config/nanocloud")
+	return readConfFromPath(path)
+}
+
+// Trying at first to read and merge from home, then from etc.
+// If both failed then keep the default.
 func initConf() {
 	conf = getDefaultConf()
-	usr, err := user.Current()
-	if err != nil {
-		log.Println(err)
-	}
-	home := usr.HomeDir
-	f := "nanocloud.yaml"
-	if runtime.GOOS != "windows" {
-		d := path.Join(home, "/.config/nanocloud/")
-		err := os.MkdirAll(d, 0755)
-		if err == nil {
-			f = path.Join(d, f)
-		} else {
-			log.Error(err)
-		}
-	}
-
-	if err := readMergeConf(&conf, f); err != nil {
-		log.Warnf("No Configuration file found in %s, now looking in /etc/nanocloud\n", f)
-		alt := "/etc/nanocloud/nanocloud.yaml"
-		if err := readMergeConf(&conf, alt); err != nil {
-			log.Warn("No Configuration file found in /etc/nanocloud, using default configuration")
-		}
-	}
+	readConfFromHome()
+	readConfFromPath("/etc/nanocloud")
+	log.WithFields(log.Fields{
+		"module": moduleName,
+		"conf":   conf,
+	}).Info("Configuration used")
 }

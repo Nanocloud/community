@@ -13,6 +13,10 @@ import (
 	"strings"
 )
 
+const (
+	moduleName = "nanocloud"
+)
+
 var (
 	plugins = make(map[string]plugin)
 )
