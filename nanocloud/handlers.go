@@ -123,3 +123,11 @@ func getComponentsHandler(c *echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, comps)
 }
+
+// get the version of the nanocloud application
+func getVersionHandler(c *echo.Context) error {
+	info := map[string]string{
+		"version": appversion,
+	}
+	return c.JSON(http.StatusOK, info)
+}

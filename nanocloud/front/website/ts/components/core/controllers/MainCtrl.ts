@@ -34,18 +34,21 @@ export class MainCtrl {
 	user: string;
 	menus: INavMenu[] = [];
 	activeMenu: INavMenu = {};
+	appInfo: any = {};
 
 	static $inject = [
 		"$state",
 		"$mdSidenav",
 		"AuthenticationSvc",
-		"$rootScope"
+		"$rootScope",
+		"$http"
 	];
 	constructor(
 		private $state: angular.ui.IStateService,
 		private $mdSidenav: angular.material.ISidenavService,
 		private authSvc: AuthenticationSvc,
-		$rootScope: angular.IRootScopeService
+		$rootScope: angular.IRootScopeService,
+		$http: angular.IHttpService
 	) {
 		this.user = sessionStorage.getItem("user");
 
@@ -53,6 +56,10 @@ export class MainCtrl {
 		this.checkMenuState($state.current);
 		$rootScope.$on("$stateChangeSuccess", (event: angular.IAngularEvent, toState: angular.ui.IState) => {
 			this.checkMenuState(toState);
+		});
+		
+		$http.get("/api/version").success((res: any) => {
+			this.appInfo = res;
 		});
 	}
 

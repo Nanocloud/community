@@ -117,6 +117,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Static("/", conf.FrontDir)
 	e.Get("/api/me", getMeHandler)
+	e.Get("/api/version", getVersionHandler)
 	e.Any("/api/*", genericHandler)
 	e.Any("/oauth/*", genericHandler)
 
