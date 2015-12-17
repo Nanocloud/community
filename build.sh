@@ -25,7 +25,6 @@ SCRIPT_FULL_PATH=$(readlink -e "${0}")
 CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 IAAS_DIR="${CURRENT_DIR}/iaas"
 
-TOOLS_DIR="${IAAS_DIR}/tools/bin/"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 
@@ -51,10 +50,7 @@ WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/window
 if [ -f "${WINDOWS_QCOW2_FILENAME}" -o "${NANOCLOUD_SKIP_WINDOWS}" = "true" ]; then
     echo "$(date "${DATE_FMT}") Skip Windows build"
 else
-    (
-        cd windows/
-        packer build --only=windows-2012R2-qemu windows_2012_r2.json
-    )
+    "${CURRENT_DIR}/windows/build-windows.sh"
 fi
 
 COREOS_QCOW2_FILENAME="${CURRENT_DIR}/coreos/coreos.qcow2"

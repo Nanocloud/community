@@ -50,24 +50,16 @@ You also need to install the following packages on your distribution:
 * *curl* or *wget*
 * *netcat*
 
-
 ## How to build
 
 You will need some tools to build Nanocloud
 
-* git
 * gcc
-* qemu
+* git
 * go
 * packer
-
-Also, Nanocloud's backend requires some golang dependencies you can easily download with `go get`
-
-```
-go get github.com/gorilla/rpc
-go get github.com/gorilla/rpc/json
-go get github.com/jteeuwen/go-bindata/...
-```
+* qemu-system-x86_64
+* ssh_pass
 
 Then to build your own installer, use this script:
 
@@ -81,6 +73,8 @@ launch the following command to install your build on your system:
 ```
 ./nanocloud.sh
 ```
+
+> Note: for now, you have to be *root* to execute the lase command. This will change in next release
 
 ## Known bugs
 
