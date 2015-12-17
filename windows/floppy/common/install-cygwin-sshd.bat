@@ -10,9 +10,9 @@ bitsadmin /transfer CygwinSetupExe /download /priority normal %URL% %SystemDrive
 cd /D %SystemDrive%\windows\temp
 
 :: packages -- comma separated
-set PACKAGES=cygrunsrv,makepasswd,nano,openssh,rsync
+set PACKAGES=openssh
 
-SET CYGWIN_MIRROR=http://mirrors.kernel.org/sourceware/cygwin
+SET CYGWIN_MIRROR=http://mirrors.chauf.net/cygwin
 :: %SystemDrive%\cygwin\cygwin-setup-x86_64.exe -a x86_64 -q -R %SystemDrive%\cygwin -P %PACKAGES% -s http://cygwin.mirrors.pair.com
 %SystemDrive%\cygwin\cygwin-setup-x86_64.exe -a x86_64 -q -R %SystemDrive%\cygwin -P %PACKAGES% -s %CYGWIN_MIRROR%
 
