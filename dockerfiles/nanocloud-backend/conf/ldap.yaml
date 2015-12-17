@@ -1,4 +1,4 @@
 username:  CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
 password:  Nanocloud123+
-serverurl: ldaps://10.20.12.20
+serverurl: ldaps://10.0.2.2:6360
 queueuri:  amqp://guest:guest@rabbitmq:5672/
