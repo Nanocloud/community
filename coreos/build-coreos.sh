@@ -59,6 +59,9 @@ ssh \
     -p 2222 \
     localhost < "provision-coreos.sh"
 
+echo "$(date "${DATE_FMT}") Adding disk space to CoreOS…"
+qemu-img resize coreos_production_qemu_image.img +5G
+
 echo "$(date "${DATE_FMT}") Compressing QCOW2 image…"
 qemu-img convert -c -f qcow2 -O qcow2 coreos_production_qemu_image.img coreos.qcow2
 

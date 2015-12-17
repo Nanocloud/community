@@ -19,6 +19,7 @@ nanocloud-backend:
  volumes:
   - ./nanocloud-backend/conf/ldaprc:/etc/ldap/ldap.conf:ro
   - ./nanocloud-backend/conf/ad2012.cer:/opt/conf/ad2012.cer:ro
+  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
   - ./nanocloud-backend/conf/nanocloud.yaml:/etc/nanocloud/nanocloud.yaml:ro
   - ./nanocloud-backend/conf/users.yaml:/etc/nanocloud/users.yaml:ro
   - ./nanocloud-backend/conf/history.yaml:/etc/nanocloud/history.yaml:ro

@@ -62,8 +62,21 @@ nano_exec() {
 
 # Check if current user is root
 if [ "$(id -u)" != "0" ]; then
-   echo "$(date "${DATE_FMT}") You must be root to run this script"
-   exit 1
+  echo "$(date "${DATE_FMT}") You must be root to run this script"
+  exit 1
+fi
+
+if [ -z "$(which qemu-system-x86_64)" ]; then
+  echo "$(date "${DATE_FMT}") Qemu is missing, please install *qemu-system-x86_64*"
+  exit 2
+fi
+if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
+  echo "$(date "${DATE_FMT}") No download method found, please install *curl* or *wget*"
+  exit 2
+fi
+if [ -z "$(which nc)" -o -z "$(which netcat)" ]; then
+  echo "$(date "${DATE_FMT}") Netcat not found, please install *nc* or *netcat* command"
+  exit 2
 fi
 
 echo "$(date "${DATE_FMT}") Activating *ip_forward*"
@@ -87,7 +100,9 @@ fi
 COREOS_QCOW2_FILENAME="${CURRENT_DIR}/coreos/coreos.qcow2"
 if [ -f "${COREOS_QCOW2_FILENAME}" ]; then
     echo "$(date "${DATE_FMT}") Local CoreOS disk available"
-    cp "${COREOS_QCOW2_FILENAME}" coreos.qcow2
+    cp "${COREOS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/coreos.qcow2"
+    cp "${CURRENT_DIR}/coreos/coreos.key" "${NANOCLOUD_DIR}/coreos.key"
+    cp "${CURRENT_DIR}/coreos/coreos.key.pub" "${NANOCLOUD_DIR}/coreos.key.pub"
 else
     echo "$(date "${DATE_FMT}") Downloading Coreos…"
     (
@@ -102,7 +117,7 @@ echo "$(date "${DATE_FMT}") Starting first VM…"
   cd ${NANOCLOUD_DIR}
   nohup scripts/launch-coreos.sh > start.log & 2>&1
 )
-chmod 400 /var/lib/nanocloud/coreos.key
+chmod 400 "${NANOCLOUD_DIR}/coreos.key"
 
 echo "$(date "${DATE_FMT}") Testing connectivity…"
 sleep 10
@@ -112,10 +127,10 @@ if [ "$?" != "0" ]; then
   exit 1
 fi
 
-WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-2012R2-qemu"
+WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
   echo "$(date "${DATE_FMT}") Local Windows image found, copying"
-  cp "${WINDOWS_QCOW2_FILENAME}" /var/lib/nanocloud/images/winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64.qcow2
+  cp "${WINDOWS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64.qcow2"
 fi
 
 echo "$(date "${DATE_FMT}") Setup complete"
@@ -126,6 +141,6 @@ printf "%s \tPassword: admin\n" "$(date "${DATE_FMT}")"
 echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
 echo ""
 echo "$(date "${DATE_FMT}") Use the following commands as root to start, stop or get status information"
-echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/start.sh"
-echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/stop.sh"
-echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/status.sh"
+echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/start.sh"
+echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/stop.sh"
+echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/status.sh"

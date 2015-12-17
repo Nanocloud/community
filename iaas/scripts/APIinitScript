@@ -29,11 +29,12 @@
 # Description:       API controlling iaas
 ### END INIT INFO
 
-SCRIPT=/var/lib/nanocloud/scripts/api
+NANOCLOUD_DIR="/var/lib/nanocloud"
+SCRIPT="${NANOCLOUD_DIR}/scripts/api"
 RUNAS=root
 
-export PATH=${PATH}:/var/lib/nanocloud/tools/bin/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64:/usr/lib64:/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/var/lib/nanocloud/qemu/lib
+export PATH=${PATH}:${NANOCLOUD_DIR}/tools/bin/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64:/usr/lib64:/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:${NANOCLOUD_DIR}/qemu/lib
 
 PIDFILE=/var/run/iaasAPI.pid
 LOGFILE=/var/log/iaasAPI.log

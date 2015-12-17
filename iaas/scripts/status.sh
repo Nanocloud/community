@@ -22,6 +22,7 @@
 
 
 # Check if current user is root
+NANOCLOUD_DIR="/var/lib/nanocloud"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 NC_QEMU_PID=$(pgrep -fl nanocloud | awk '/qemu-system-x86/ { print $1; }')
 
@@ -41,7 +42,7 @@ else
   echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
   echo ""
   echo "$(date "${DATE_FMT}") Use the following commands as root to start, stop or get status information"
-  echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/start.sh"
-  echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/stop.sh"
-  echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/status.sh"
+  echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/start.sh"
+  echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/stop.sh"
+  echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/status.sh"
 fi
