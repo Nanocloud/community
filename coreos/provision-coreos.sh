@@ -45,8 +45,9 @@ chmod +x docker-compose
 mkdir -p postgres
 ./docker-compose build
 
+sudo cp nanocloud.architecture.service /etc/systemd/system/nanocloud.architecture.service
 sudo cp nanocloud.service /etc/systemd/system/nanocloud.service
+sudo systemctl enable /etc/systemd/system/nanocloud.architecture.service
 sudo systemctl enable /etc/systemd/system/nanocloud.service
-sudo systemctl start nanocloud
 
 sudo shutdown
