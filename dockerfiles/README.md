@@ -1,16 +1,19 @@
 # Nanocloud dockerfiles
 
 ## Introduction
-This project aims to deploy *Nanocloud Community* using an architecture split into connected micro services.
+
+This project aims to deploy *Nanocloud Community* using an architecture split
+into connected micro services.
 
 These services are:
 
-- a streaming server,
-- a streaming client,
-- a backend server,
-- a frontend web server.
+* a streaming server,
+* a streaming client,
+* a backend server,
+* a frontend web server.
 
-In this architecture, each service runs in a Docker container. The following commands show how to deploy and run these containers.
+In this architecture, each service runs in a Docker container. The following
+commands show how to deploy and run these containers.
 
 
 ## Configuration
@@ -18,57 +21,47 @@ In this architecture, each service runs in a Docker container. The following com
 The first step consists in downloading Nanocloud dockerfiles:
 
 ```
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/dockerfiles.git
-$ cd dockerfiles
-$ ls -F
-docker-compose.yml  guacamole-client/  nanocloud-backend/  nginx/  README.md
+$ git clone https://github.com/Nanocloud/community.git
+$ cd community/dockerfiles
 ```
 
-### Execution server network
-Before deploying the **nanocloud-backend** container, you must specify the IP adress of your **execution environment** instances. 
-To do so, modify values of *AppServer.Server* and *AppServer.ExecutionServer* in the following lines of the file **nanocloud-backend/conf/config.json**.
-
-```
-…
-    "AppServer": {
-      "User" : "Administrator",
-      "Server" : "<execution-manager-IPadress>",
-      "ExecutionServers" : [
-        "<execution-environment-IPadress>"
-      ],
-…
-```
+And check content of all files in
+*community/dockerfiles/nanocloud-backend/conf*.
 
 ### Web server
-If you need to set a specific hostname for the **nginx** proxy, you can do it by setting the directives *server_name* in the file **nginx/conf/nginx.conf**. 
+If you need to set a specific hostname for the **nginx** proxy, you can do it
+by setting the directives *server_name* in the file **nginx/conf/nginx.conf**.
 
 
 ## Deployment
 
-You can then deploy the services, in the *dockerfiles* directory, with the following commands.
+You can then deploy the services, in the *dockerfiles* directory, with the
+following commands.
 
 ```
 $ mkdir repos_guacamole; cd repos_guacamole/
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/noauth-logged.git
+$ git clone --depth 1 https://github.com/Nanocloud/noauth-logged.git
 $ cd ..
 ```
 
 ```
 $ mkdir repos_nanocloud; cd repos_nanocloud/
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/core.git
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/front.git
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/plugin_iaas.git
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/plugin_ldap.git
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/plugin_history.git
-$ git clone ssh://git@git.nanocloud.com:7999/nanocloud/plugin_owncloud.git
+$ git clone --depth 1 https://github.com/Nanocloud/nanocloud.git
+$ git clone --depth 1 https://github.com/Nanocloud/users.git
+$ git clone --depth 1 https://github.com/Nanocloud/iaas.git
+$ git clone --depth 1 https://github.com/Nanocloud/ldap.git
+$ git clone --depth 1 https://github.com/Nanocloud/history.git
+$ git clone --depth 1 https://github.com/Nanocloud/apps.git
 $ cd ..
 ```
 
-
 ## Running
 
-You need to have a working installation of **docker-compose** to build and launch all the services.
-Detailed information on **docker-compose** installation may be found <a href="https://docs.docker.com/compose/install/" target="_blank">here</a>.
+You need to have a working installation of **docker-compose** to build and
+launch all the services.
+
+Detailed information on **docker-compose** installation may be found
+[here]("https://docs.docker.com/compose/install/").
 
 Otherwise, you can just type the two following commands :
 
@@ -80,13 +73,11 @@ $ chmod +x docker-compose
 Then, start **Nanocloud Community** with :
 
 ```
-$ ./docker-compose up
+$ ./docker-compose up -d
 ```
 
-This command will build all docker containers, if they're not already, and start them. 
-Use CTRL-C in this command console to stop all the containers.
-
-
+This command will build all docker containers, if they're not already, and start
+them.
 
 #### Licence
 
