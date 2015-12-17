@@ -6,14 +6,14 @@
 			<img src="./img/logo.png" class="logo" />
 			<span flex=""></span>
 			<div class="md-toolbar-item" ng-if="presenterCtrl.user">
-				<md-select aria-label="{{presenterCtrl.user}}" aria-invalid="false"
-						aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
-						ng-model="relatedPage" placeholder="{{presenterCtrl.user}}"
-						class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
-					<md-option>
-						<md-button ng-click="presenterCtrl.logout()">Sign out</md-button>
-					</md-option>
-				</md-select>
+				<md-input-container>
+					<label>{{presenterCtrl.user}}</label>
+					<md-select ng-model="usermenu" ng-change="presenterCtrl.logout()">
+						<md-optgroup label="{{presenterCtrl.user}}">
+							<md-option value="logout">Sign out</md-option>
+						</md-optgroup>
+					</md-select>
+				</md-input-container>
 			</div>
 		</div>
 	</md-toolbar>
