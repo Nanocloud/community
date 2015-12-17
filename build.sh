@@ -77,50 +77,13 @@ else
     [ -d iaas/images ] || mkdir -p iaas/images
     [ -d iaas/logs ] || mkdir -p iaas/logs
     [ -d iaas/pid ] || mkdir -p iaas/pid
-    [ -d iaas/qemu ] || mkdir -p iaas/qemu
     [ -d iaas/scripts ] || mkdir -p iaas/scripts
     [ -d iaas/sockets ] || mkdir -p iaas/sockets
-    [ -d iaas/tools ] || mkdir -p iaas/tools
 
     if [ -d data ]; then
       echo "$(date "${DATE_FMT}") Erasing previous build artifact"
       rm -rf data
     fi
-
-    echo "$(date "${DATE_FMT}") Compiling Tools"
-
-    echo -n "$(date "${DATE_FMT}") ## tunctl…  "
-    (
-    mkdir uml-utilities
-    cd uml-utilities
-    apt-get source uml-utilities
-    cd "$(ls -d ./*/)"
-    cd tunctl
-
-    sed -i '3 a\LDFLAGS ?= -static' Makefile
-    sed -i '/CFLAGS) -o / c\\t$(CC) $(CFLAGS) -o $(BIN) $(OBJS) $(LDFLAGS)' Makefile
-
-    make
-
-    cp tunctl "${TOOLS_DIR}"
-    ) > /dev/null 2>&1
-    echo "BUILD OK"
-    rm -rf uml-utilities
-
-    echo -n "$(date "${DATE_FMT}") ## screen…  "
-    (
-    mkdir screen
-    cd screen
-    apt-get source screen
-    cd "$(ls -d ./*/)"
-    ./autogen.sh
-    ./configure LDFLAGS="-static"
-    make
-
-    cp screen "${TOOLS_DIR}"
-    ) > /dev/null 2>&1
-    echo "BUILD OK"
-    rm -rf screen
 
     (
     echo "$(date "${DATE_FMT}") Building Iaas API"
