@@ -70,7 +70,8 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "$urlRout
 		return {
 			"responseError": function(rejection: angular.IHttpPromiseCallbackArg<any>) {
 				if (rejection.status === 401 || rejection.status === 403) {
-					document.location.href = "/#/login";
+					let $location = <angular.ILocationService>$injector.get("$location");
+					$location.path("/login");
 				} else {
 					let $mdToast = <angular.material.IToastService>$injector.get("$mdToast");
 					$mdToast.show(

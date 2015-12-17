@@ -35,14 +35,14 @@
 				<span flex></span>
 
 				<div class="md-toolbar-item" ng-if="mainCtrl.user">
-					<md-select aria-label="{{mainCtrl.user}}" aria-invalid="false"
-							aria-expanded="false" role="combobox" aria-disabled="false" tabindex="0"
-							ng-model="relatedPage" placeholder="{{mainCtrl.user}}"
-							class="md-body-1 ng-pristine ng-valid ng-scope md-default-theme ng-touched">
-						<md-option>
-							<md-button ng-click="mainCtrl.logout()">Sign out</md-button>
-						</md-option>
-					</md-select>
+					<md-input-container>
+						<label>{{mainCtrl.user}}</label>
+						<md-select ng-model="usermenu" ng-change="mainCtrl.logout()">
+							<md-optgroup label="{{mainCtrl.user}}">
+								<md-option value="logout">Sign out</md-option>
+							</md-optgroup>
+						</md-select>
+					</md-input-container>
 				</div>
 				
 			</div>

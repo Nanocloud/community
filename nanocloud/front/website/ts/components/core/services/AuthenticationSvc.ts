@@ -60,6 +60,7 @@ export class AuthenticationSvc {
 		let dfr = this.$q.defer<void>();
 		sessionStorage.clear();
 		localStorage.clear();
+		this.$http.defaults.headers.common["Authorization"] = "";
 		dfr.resolve();
 		return dfr.promise;
 	}

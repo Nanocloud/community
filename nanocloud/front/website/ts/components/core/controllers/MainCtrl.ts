@@ -39,14 +39,12 @@ export class MainCtrl {
 	static $inject = [
 		"$state",
 		"$mdSidenav",
-		"AuthenticationSvc",
 		"$rootScope",
 		"$http"
 	];
 	constructor(
 		private $state: angular.ui.IStateService,
 		private $mdSidenav: angular.material.ISidenavService,
-		private authSvc: AuthenticationSvc,
 		$rootScope: angular.IRootScopeService,
 		$http: angular.IHttpService
 	) {
@@ -81,9 +79,7 @@ export class MainCtrl {
 	}
 
 	logout() {
-		this.authSvc.logout().then(() => {
-			this.$state.go("login");
-		});
+		this.$state.go("logout");
 	}
 
 }

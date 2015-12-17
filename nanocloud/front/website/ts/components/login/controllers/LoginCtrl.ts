@@ -34,19 +34,25 @@ export class LoginCtrl {
 		"$location",
 		"$mdToast",
 		"$http",
-		"AuthenticationSvc"
+		"AuthenticationSvc",
+		"$stateParams"
 	];
 
 	constructor(
 		private $location: angular.ILocationService,
 		private $mdToast: angular.material.IToastService,
 		private $http: angular.IHttpService,
-		private authSvc: AuthenticationSvc
+		private authSvc: AuthenticationSvc,
+		$stateParams: angular.ui.IStateParamsService
 	) {
 		this.credentials = {
 			"email": "",
 			"password": ""
 		};
+		
+		if ($stateParams["logout"]) {
+			authSvc.logout();
+		}
 	}
 
 	signIn() {
@@ -56,8 +62,8 @@ export class LoginCtrl {
 			.then(
 				() => {
 					this.$http.get("/api/me")
-						.then((res: angular.IHttpPromiseCallbackArg<any>) => {
-							if (res.data.isAdmin === true) {
+						.success((res: any) => {
+							if (res.isAdmin === true) {
 								this.$location.path("/admin");
 							} else {
 								this.$location.path("/");

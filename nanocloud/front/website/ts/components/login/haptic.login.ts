@@ -19,6 +19,13 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", function(
 		controller: "LoginCtrl",
 		controllerAs: "loginCtrl",
 		templateUrl: getTemplateUrl(componentName, "login.html")
+	}, {
+		name: "logout",
+		url: "/logout",
+		controller: "LoginCtrl",
+		controllerAs: "loginCtrl",
+		templateUrl: getTemplateUrl(componentName, "login.html"),
+		params: { logout: true }
 	}];
 	registerCtrlFutureStates(componentName, $futureStateProvider, states);
 
