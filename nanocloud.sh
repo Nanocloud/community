@@ -101,6 +101,8 @@ COREOS_QCOW2_FILENAME="${CURRENT_DIR}/coreos/coreos.qcow2"
 if [ -f "${COREOS_QCOW2_FILENAME}" ]; then
     echo "$(date "${DATE_FMT}") Local CoreOS disk available"
     cp "${COREOS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/coreos.qcow2"
+    cp "${CURRENT_DIR}/coreos/coreos.key" "${NANOCLOUD_DIR}/coreos.key"
+    cp "${CURRENT_DIR}/coreos/coreos.key.pub" "${NANOCLOUD_DIR}/coreos.key.pub"
 else
     echo "$(date "${DATE_FMT}") Downloading Coreos…"
     (
