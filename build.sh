@@ -25,7 +25,6 @@ SCRIPT_FULL_PATH=$(readlink -e "${0}")
 CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 IAAS_DIR="${CURRENT_DIR}/iaas"
 
-TOOLS_DIR="${IAAS_DIR}/tools/bin/"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 
