@@ -39,9 +39,6 @@ Any arguments after -a and -p will be passed through to qemu, -- may be
 used as an explicit separator. See the qemu(1) man page for more details.
 "
 
-export PATH=${NANOCLOUD_DIR}/qemu/bin:${NANOCLOUD_DIR}/tools/bin:$PATH
-export LD_LIBRARY_PATH=${NANOCLOUD_DIR}/qemu/lib:$LD_LIBRARY_PATH
-
 check_conflict() {
     if [ -n "${CONFIG_FILE}${CONFIG_IMAGE}${SSH_KEYS}" ]; then
         echo "The -u -c and -a options cannot be combined!" >&2

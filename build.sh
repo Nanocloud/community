@@ -47,7 +47,7 @@ elif [ "${COMMAND}" = "nanocloud" ]; then
 fi
 
 
-WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-2012R2-qemu"
+WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" -o "${NANOCLOUD_SKIP_WINDOWS}" = "true" ]; then
     echo "$(date "${DATE_FMT}") Skip Windows build"
 else

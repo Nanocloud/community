@@ -62,8 +62,21 @@ nano_exec() {
 
 # Check if current user is root
 if [ "$(id -u)" != "0" ]; then
-   echo "$(date "${DATE_FMT}") You must be root to run this script"
-   exit 1
+  echo "$(date "${DATE_FMT}") You must be root to run this script"
+  exit 1
+fi
+
+if [ -z "$(which qemu-system-x86_64)" ]; then
+  echo "$(date "${DATE_FMT}") Qemu is missing, please install *qemu-system-x86_64*"
+  exit 2
+fi
+if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
+  echo "$(date "${DATE_FMT}") No download method found, please install *curl* or *wget*"
+  exit 2
+fi
+if [ -z "$(which nc)" -o -z "$(which netcat)" ]; then
+  echo "$(date "${DATE_FMT}") Netcat not found, please install *nc* or *netcat* command"
+  exit 2
 fi
 
 echo "$(date "${DATE_FMT}") Activating *ip_forward*"
@@ -112,7 +125,7 @@ if [ "$?" != "0" ]; then
   exit 1
 fi
 
-WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-2012R2-qemu"
+WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
   echo "$(date "${DATE_FMT}") Local Windows image found, copying"
   cp "${WINDOWS_QCOW2_FILENAME}" /var/lib/nanocloud/images/winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64.qcow2
