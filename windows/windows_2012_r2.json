@@ -65,7 +65,7 @@
 			"floppy_files": [
 				"floppy/drivers/virtio-win-0.1-81/WIN7/AMD64/*",
 				"floppy/windows-2012-standard-amd64/Autounattend.xml",
-				"floppy/windows-2012-standard-amd64/configure-winrm.ps1",
+				"floppy/windows-2012-standard-amd64/configure-winrm.ps1"
 			]
 		}
 	],

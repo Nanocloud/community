@@ -5,7 +5,7 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/home/core/community/dockerfiles/docker-compose -f /home/core/community/dockerfiles/docker-compose.yml start guacamole-server guacamole-client ambassador rabbitmq postgres
+ExecStart=/home/core/community/dockerfiles/docker-compose -f /home/core/community/dockerfiles/docker-compose.yml up -d guacamole-server guacamole-client ambassador rabbitmq postgres
 
 [Install]
 WantedBy=multi-user.target
