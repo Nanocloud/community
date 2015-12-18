@@ -37,9 +37,7 @@
 
 			"floppy_files": [
 				"floppy/windows-2012-standard-amd64/Autounattend.xml",
-				"floppy/windows-2012-standard-amd64/configure-winrm.ps1",
-				"floppy/windows-2012-standard-amd64/configure.bat",
-				"floppy/common/*"
+				"floppy/windows-2012-standard-amd64/configure-winrm.ps1"
 			]
 		},
 		{
@@ -68,15 +66,20 @@
 				"floppy/drivers/virtio-win-0.1-81/WIN7/AMD64/*",
 				"floppy/windows-2012-standard-amd64/Autounattend.xml",
 				"floppy/windows-2012-standard-amd64/configure-winrm.ps1",
-				"floppy/windows-2012-standard-amd64/configure.bat",
-				"floppy/common/*"
 			]
 		}
 	],
 	"provisioners": [
 		{
+			"type": "file",
+			"source": "floppy/common/install-cygwin-sshd.sh",
+			"destination": "C:\\install-cygwin-sshd.sh"
+		},
+		{
 			"type": "powershell",
 			"scripts": [
+				"floppy/windows-2012-standard-amd64/configure.ps1",
+				"floppy/windows-2012-standard-amd64/config-cygwin.ps1",
 				"floppy/windows-2012-standard-amd64/Disable-WU.ps1",
 				"floppy/windows-2012-standard-amd64/AD-install.ps1",
 				"floppy/windows-2012-standard-amd64/enable-RDP.ps1",
