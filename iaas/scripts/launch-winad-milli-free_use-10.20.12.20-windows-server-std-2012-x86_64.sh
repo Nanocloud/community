@@ -33,7 +33,6 @@ LDAPS_PORT=6360
 
 QEMU=$(which qemu-system-x86_64)
 SYSTEM_VHD="${NANOCLOUD_DIR}/images/${VM_NAME}.qcow2"
-SYSTEM_VHD="/data/launch_windows_script/winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64.qcow2"
 VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 
 $QEMU \
