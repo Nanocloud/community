@@ -10,12 +10,12 @@ bitsadmin /transfer CygwinSetupExe /download /priority normal %URL% %SystemDrive
 cd /D %SystemDrive%\windows\temp
 
 :: packages -- comma separated
-set PACKAGES=openssh
+set PACKAGES=cygrunsrv,makepasswd,openssh,rsync
 
 SET CYGWIN_MIRROR=http://mirrors.chauf.net/cygwin
 :: %SystemDrive%\cygwin\cygwin-setup-x86_64.exe -a x86_64 -q -R %SystemDrive%\cygwin -P %PACKAGES% -s http://cygwin.mirrors.pair.com
-%SystemDrive%\cygwin\cygwin-setup-x86_64.exe -a x86_64 -q -R %SystemDrive%\cygwin -P %PACKAGES% -s %CYGWIN_MIRROR%
-
+::%SystemDrive%\cygwin\cygwin-setup-x86_64.exe -a x86_64 -q -R %SystemDrive%\cygwin -P %PACKAGES% -s %CYGWIN_MIRROR%
+C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "C:\cygwin\cygwin-setup-x86_64.exe -a x86_64 -q -R C:\cygwin -P openssh -s http://mirrors.chauf.net/cygwin"
 :: Resolve the path with %~dp0 - for easy execution in both test and prod.
 set _PATH=%~dp0install-cygwin-sshd.sh
 
