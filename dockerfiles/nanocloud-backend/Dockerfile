@@ -11,6 +11,24 @@ COPY repos_nanocloud /opt/repos
 
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y nodejs
 
+RUN npm install -g \
+    bower \
+    grunt-cli \
+    grunt \
+    grunt-contrib-concat \
+    grunt-contrib-copy \
+    grunt-contrib-less \
+    grunt-contrib-uglify \
+    grunt-contrib-watch \
+    grunt-ts \
+    tslint \
+    grunt-tslint \
+    grunt-sync \
+    tsd \
+    http-server \
+    concurrently \
+    load-grunt-tasks
+
 RUN mkdir -p /opt/build/backend/src/nanocloud.com
 WORKDIR /opt/build/backend/src/nanocloud.com
 

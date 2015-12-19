@@ -45,6 +45,12 @@ chmod +x docker-compose
 mkdir -p postgres
 ./docker-compose build
 
+docker pull glyptodon/guacd
+docker pull nginx
+docker pull cpuguy83/docker-grand-ambassador
+docker pull rabbitmq
+docker pull postgres
+
 sudo cp nanocloud.service /etc/systemd/system/nanocloud.service
 sudo systemctl enable /etc/systemd/system/nanocloud.service
 
