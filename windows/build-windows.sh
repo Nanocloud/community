@@ -26,6 +26,7 @@ CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
+WINDOWS_PASSWORD="Nanocloud123+"
 VM_HOSTNAME="windows-2012R2"
 VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 SSH_PORT=1119
@@ -70,11 +71,17 @@ if [ "$?" != "0" ]; then
 fi
 
 echo "$(date "${DATE_FMT}") Installing new Remote Desktop session deployment…"
-sshpass -p Nanocloud123+ ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost > provisioning.log << EOF
+sshpass -p "${WINDOWS_PASSWORD}" ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost << EOF
 cd ../..
 Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker adapps.intra.localdomain.com -WebAccessServer adapps.intra.localdomain.com -SessionHost adapps.intra.localdomain.com; New-RDSessionCollection -CollectionName collection -SessionHost adapps.intra.localdomain.com -CollectionDescription 'Nanocloud collection' -ConnectionBroker adapps.intra.localdomain.com; New-RDRemoteApp -CollectionName collection -DisplayName hapticPowershell -FilePath 'C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe' -Alias hapticPowershell -CommandLineSetting Require -RequiredCommandLine '-ExecutionPolicy Bypass c:\publishApplication.ps1'"
 Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "shutdown.exe /s /f /d p:4:1 /c 'Provisioning Shutdown'"
 EOF
+
+echo "$(date "${DATE_FMT}") Retrieving Active Directory certificates…"
+sshpass -p "${WINDOWS_PASSWORD}" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost:/cygdrive/c/users/administrator/ad2012.cer "${CURRENT_DIR}"
+
+echo "$(date "${DATE_FMT}") Waiting for windows to shutdown…"
+sleep 20
 
 echo "$(date "${DATE_FMT}") Compressing QCOW2 image…"
 qemu-img convert -c -f qcow2 -O qcow2 "${WINDOWS_QCOW2_FILENAME}" "${WINDOWS_QCOW2_FILENAME}.mini"

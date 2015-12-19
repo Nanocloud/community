@@ -1,11 +1,11 @@
 [Unit]
-Description=Nanocloud
-After=nanocloud.architecture.service
-Requires=nanocloud.architecture.service
+Description=Nanocloud Architecture
+After=docker.service
+Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/home/core/community/dockerfiles/docker-compose -f /home/core/community/dockerfiles/docker-compose.yml up -d nanocloud-backend proxy
+ExecStart=/home/core/community/dockerfiles/docker-compose -f /home/core/community/dockerfiles/docker-compose.yml up
 
 [Install]
 WantedBy=multi-user.target
