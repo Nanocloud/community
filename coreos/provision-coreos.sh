@@ -45,9 +45,9 @@ chmod +x docker-compose
 mkdir -p postgres
 ./docker-compose build
 
-docker pull glyptodon/guacd
+docker pull glyptodon/guacd:0.9.8
 docker pull nginx:1.9
-docker pull cpuguy83/docker-grand-ambassador
+docker pull cpuguy83/docker-grand-ambassador:0.9.1
 docker pull rabbitmq:3.5
 docker pull postgres:9.4
 
