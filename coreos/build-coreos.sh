@@ -41,6 +41,9 @@ echo "$(date "${DATE_FMT}") Generating SSH keys"
     chmod 400 coreos.key
 ) > /dev/null 2>&1
 
+echo "$(date "${DATE_FMT}") Adding disk space to CoreOS…"
+qemu-img resize coreos_production_qemu_image.img +5G
+
 nohup ./coreos_production_qemu.sh -a coreos.key.pub -- -nographic > /dev/null &
 
 echo "$(date "${DATE_FMT}") Testing connectivity…"
@@ -58,9 +61,6 @@ ssh \
     -l core \
     -p 2222 \
     localhost < "provision-coreos.sh"
-
-echo "$(date "${DATE_FMT}") Adding disk space to CoreOS…"
-qemu-img resize coreos_production_qemu_image.img +5G
 
 echo "$(date "${DATE_FMT}") Compressing QCOW2 image…"
 qemu-img convert -c -f qcow2 -O qcow2 coreos_production_qemu_image.img coreos.qcow2
