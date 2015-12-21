@@ -26,6 +26,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path/filepath"
 )
