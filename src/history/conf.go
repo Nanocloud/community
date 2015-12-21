@@ -26,7 +26,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"os"
 	"os/user"
 	"path/filepath"
 )
@@ -34,8 +33,8 @@ import (
 const confFilename string = "history.yaml"
 
 type configuration struct {
-	ConnectionString string
-	DatabaseName     string
+	DatabaseUri string
+	QueueUri    string
 }
 
 var conf configuration
