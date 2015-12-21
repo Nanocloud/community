@@ -1,6 +1,3 @@
-[submodule "dockerfiles/repos_nanocloud/community"]
-	path = dockerfiles/repos_nanocloud/community
-	url = https://github.com/Nanocloud/nanocloud.git
 [submodule "dockerfiles/repos_nanocloud/users"]
 	path = dockerfiles/repos_nanocloud/users
 	url = https://github.com/Nanocloud/users.git

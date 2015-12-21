@@ -22,6 +22,7 @@
 
 
 git clone --recursive --depth 1 https://github.com/Nanocloud/community.git
+git submodule foreach git submodule update --init --depth 1
 
 curl --progress-bar -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
 chmod +x docker-compose
