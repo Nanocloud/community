@@ -33,39 +33,26 @@ RUN echo '{"analytics": false}' > ~/.bowerrc
 
 WORKDIR /opt/build/backend/src/nanocloud.com
 
-RUN rm -rf nanocloud/.git
-RUN make -C nanocloud
+RUN rm -rf nanocloud/.git && make -C nanocloud
+RUN rm -rf apps/.git      && make -C apps
+RUN rm -rf iaas/.git      && make -C iaas
+RUN rm -rf ldap/.git      && make -C ldap
+RUN rm -rf history/.git   && make -C history
+RUN rm -rf users/.git     && make -C users
 
-RUN rm -rf apps/.git
-RUN make -C apps
-
-RUN rm -rf iaas/.git
-RUN make -C iaas
-
-RUN rm -rf ldap/.git
-RUN make -C ldap
-
-RUN rm -rf history/.git
-RUN make -C history
-
-RUN rm -rf users/.git
-RUN make -C users
- 
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
 
 RUN mkdir -p bin/plugins/running
- 
-RUN ln -s ../../../../apps/bin/apps bin/plugins/running/apps
-RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas
-RUN ln -s ../../../../users/bin/users bin/plugins/running/users
-RUN ln -s ../../../../ldap/bin/ldap bin/plugins/running/ldap
-RUN ln -s ../../../../history/bin/history bin/plugins/running/history
 
-RUN ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications
-RUN ln -s ../../../../../apps/front/website/js/components/presenter bin/front/js/components/presenter
-RUN ln -s ../../../../../iaas/front/website/js/components/services bin/front/js/components/services
-RUN ln -s ../../../../../users/front/website/js/components/users bin/front/js/components/users
-RUN ln -s ../../../../../history/front/website/js/components/history bin/front/js/components/history
+RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas && \
+    ln -s ../../../../users/bin/users bin/plugins/running/users && \
+    ln -s ../../../../ldap/bin/ldap bin/plugins/running/ldap && \
+    ln -s ../../../../history/bin/history bin/plugins/running/history && \
+    ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications && \
+    ln -s ../../../../../apps/front/website/js/components/presenter bin/front/js/components/presenter && \
+    ln -s ../../../../../iaas/front/website/js/components/services bin/front/js/components/services && \
+    ln -s ../../../../../users/front/website/js/components/users bin/front/js/components/users && \
+    ln -s ../../../../../history/front/website/js/components/history bin/front/js/components/history
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 
