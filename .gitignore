@@ -9,4 +9,3 @@ iaas/tools/
 iaas/scripts/api
 installer/bindata.go
 installer/installer
-nanocloud
