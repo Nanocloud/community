@@ -1,4 +1,4 @@
-FROM golang:1.4.3
+FROM golang:1.5.1
 MAINTAINER \
   Romain Soufflet <romain.soufflet@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
@@ -7,7 +7,7 @@ MAINTAINER \
 RUN apt-get update && \
     apt-get -y install git libldap2-dev sshpass
 
-COPY repos_nanocloud /opt/repos
+COPY repos_nanocloud /opt/build/backend/src/nanocloud.com
 
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y nodejs
 
@@ -29,33 +29,32 @@ RUN npm install -g \
     concurrently \
     load-grunt-tasks
 
-RUN mkdir -p /opt/build/backend/src/nanocloud.com
-WORKDIR /opt/build/backend/src/nanocloud.com
-
 RUN echo '{"analytics": false}' > ~/.bowerrc
 
-RUN git clone --recursive /opt/repos/nanocloud nanocloud
+WORKDIR /opt/build/backend/src/nanocloud.com
+
+RUN rm -rf nanocloud/.git
 RUN make -C nanocloud
 
-RUN git clone --recursive /opt/repos/apps apps
+RUN rm -rf apps/.git
 RUN make -C apps
 
-RUN git clone --recursive /opt/repos/iaas iaas
+RUN rm -rf iaas/.git
 RUN make -C iaas
 
-RUN git clone --recursive /opt/repos/ldap ldap
+RUN rm -rf ldap/.git
 RUN make -C ldap
 
-RUN git clone --recursive /opt/repos/history history
+RUN rm -rf history/.git
 RUN make -C history
 
-RUN git clone --recursive /opt/repos/users users
+RUN rm -rf users/.git
 RUN make -C users
-
+ 
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
 
 RUN mkdir -p bin/plugins/running
-
+ 
 RUN ln -s ../../../../apps/bin/apps bin/plugins/running/apps
 RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas
 RUN ln -s ../../../../users/bin/users bin/plugins/running/users
