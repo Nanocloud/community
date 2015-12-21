@@ -10,3 +10,6 @@
 [submodule "vendor/src/github.com/Sirupsen/logrus"]
 	path = vendor/src/github.com/Sirupsen/logrus
 	url = https://github.com/Sirupsen/logrus
+[submodule "vendor/src/github.com/lib/pq"]
+	path = vendor/src/github.com/lib/pq
+	url = https://github.com/lib/pq
