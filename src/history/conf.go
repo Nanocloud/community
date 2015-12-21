@@ -26,6 +26,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path/filepath"
 )
@@ -60,8 +61,8 @@ func writeConf(in interface{}, filename string) error {
 // Default configuration to use if no configuration files are found
 func getDefaultConf() configuration {
 	return configuration{
-		ConnectionString: "history.db",
-		DatabaseName:     "bolt",
+		DatabaseUri: "postgres://nanocloud@localhost/nanocloud?sslmode=disable",
+		QueueUri:    "amqp://guest:guest@localhost:5672/",
 	}
 }
 
