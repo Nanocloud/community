@@ -149,7 +149,7 @@ func createConnections() error {
 	bashConfigFile.Write([]byte(fmt.Sprintf("USER=\"%s\"\n", conf.User)))
 	bashConfigFile.Write([]byte(fmt.Sprintf("SERVER=\"%s\"\n", conf.Server)))
 	bashConfigFile.Write([]byte(fmt.Sprintf("PORT=\"%s\"\n", conf.SSHPort)))
-	bashConfigFile.Write([]byte(fmt.Sprintf("PASSWORD=\"%s\"\n", windowsUserPassword)))
+	bashConfigFile.Write([]byte(fmt.Sprintf("PASSWORD=\"%s\"\n", conf.Password)))
 	bashConfigFile.Close()
 	bashExecScript := "../src/nanocloud/scripts/exec.sh"
 	cmd := exec.Command(bashExecScript, "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"")
