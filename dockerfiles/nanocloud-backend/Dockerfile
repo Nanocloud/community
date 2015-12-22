@@ -7,8 +7,6 @@ MAINTAINER \
 RUN apt-get update && \
     apt-get -y install git libldap2-dev sshpass
 
-COPY repos_nanocloud /opt/build/backend/src/nanocloud.com
-
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y nodejs
 
 RUN npm install -g \
@@ -31,14 +29,15 @@ RUN npm install -g \
 
 RUN echo '{"analytics": false}' > ~/.bowerrc
 
+RUN mkdir -p /opt/build/backend/src/nanocloud.com
 WORKDIR /opt/build/backend/src/nanocloud.com
 
-RUN rm -rf nanocloud/.git && make -C nanocloud
-RUN rm -rf apps/.git      && make -C apps
-RUN rm -rf iaas/.git      && make -C iaas
-RUN rm -rf ldap/.git      && make -C ldap
-RUN rm -rf history/.git   && make -C history
-RUN rm -rf users/.git     && make -C users
+RUN git clone --depth=1 https://github.com/Nanocloud/nanocloud.git    && rm -rf nanocloud/.git && make -C nanocloud
+RUN git clone --depth=1 https://github.com/Nanocloud/apps.git         && rm -rf apps/.git      && make -C apps
+RUN git clone --depth=1 https://github.com/Nanocloud/iaas.git         && rm -rf iaas/.git      && make -C iaas
+RUN git clone --depth=1 https://github.com/Nanocloud/ldap.git         && rm -rf ldap/.git      && make -C ldap
+RUN git clone --depth=1 https://github.com/Nanocloud/history.git      && rm -rf history/.git   && make -C history
+RUN git clone --depth=1 https://github.com/Nanocloud/users.git        && rm -rf users/.git     && make -C users
 
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
 
