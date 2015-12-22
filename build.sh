@@ -59,7 +59,7 @@ if [ -f "${COREOS_QCOW2_FILENAME}" -o "${NANOCLOUD_SKIP_COREOS}" = "true" ]; the
 else
     (
         cd coreos/
-        source build-coreos.sh
+        ./build-coreos.sh
     )
 fi
 
