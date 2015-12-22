@@ -58,12 +58,6 @@ if [ "$?" != "0" ]; then
   exit 1
 fi
 
-echo "$(date "${DATE_FMT}") Updating submodules…"
-(
-    cd "${CURRENT_DIR}/.."
-    git submodule update --init --recursive --depth=1
-)
-
 echo "$(date "${DATE_FMT}") Provisioning…"
 scp \
     -o StrictHostKeyChecking=no \
