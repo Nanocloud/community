@@ -7,8 +7,6 @@ MAINTAINER \
 RUN apt-get update && \
     apt-get -y install git libldap2-dev sshpass
 
-COPY repos_nanocloud /opt/build/backend/src/nanocloud.com
-
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y nodejs
 
 RUN npm install -g \
@@ -31,28 +29,29 @@ RUN npm install -g \
 
 RUN echo '{"analytics": false}' > ~/.bowerrc
 
+RUN mkdir -p /opt/build/backend/src/nanocloud.com
 WORKDIR /opt/build/backend/src/nanocloud.com
 
-RUN rm -rf nanocloud/.git && make -C nanocloud
-RUN rm -rf apps/.git      && make -C apps
-RUN rm -rf iaas/.git      && make -C iaas
-RUN rm -rf ldap/.git      && make -C ldap
-RUN rm -rf history/.git   && make -C history
-RUN rm -rf users/.git     && make -C users
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/nanocloud.git     && make -C nanocloud
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/apps.git          && make -C apps
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/iaas.git          && make -C iaas
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/ldap.git          && make -C ldap
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/history.git       && make -C history
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/users.git         && make -C users
 
-WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
+RUN mkdir -p nanocloud/bin/plugins/running
 
-RUN mkdir -p bin/plugins/running
+RUN mv iaas/bin/iaas nanocloud/bin/plugins/running/iaas && \
+    mv users/bin/users nanocloud/bin/plugins/running/users && \
+    mv ldap/bin/ldap nanocloud/bin/plugins/running/ldap && \
+    mv history/bin/history nanocloud/bin/plugins/running/history && \
+    mv apps/front/website/js/components/applications nanocloud/bin/front/js/components/applications && \
+    mv apps/front/website/js/components/presenter nanocloud/bin/front/js/components/presenter && \
+    mv iaas/front/website/js/components/services nanocloud/bin/front/js/components/services && \
+    mv users/front/website/js/components/users nanocloud/bin/front/js/components/users && \
+    mv history/front/website/js/components/history nanocloud/bin/front/js/components/history
 
-RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas && \
-    ln -s ../../../../users/bin/users bin/plugins/running/users && \
-    ln -s ../../../../ldap/bin/ldap bin/plugins/running/ldap && \
-    ln -s ../../../../history/bin/history bin/plugins/running/history && \
-    ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications && \
-    ln -s ../../../../../apps/front/website/js/components/presenter bin/front/js/components/presenter && \
-    ln -s ../../../../../iaas/front/website/js/components/services bin/front/js/components/services && \
-    ln -s ../../../../../users/front/website/js/components/users bin/front/js/components/users && \
-    ln -s ../../../../../history/front/website/js/components/history bin/front/js/components/history
+RUN rm -rf iaas users ldap history nanocloud apps && apt-get clean
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 

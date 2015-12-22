@@ -24,8 +24,10 @@
 set -e
 cd dockerfiles
 
-curl --progress-bar -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
-chmod +x docker-compose
+if [ ! -f docker-compose ]; then
+    curl --progress-bar -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
+    chmod +x docker-compose
+fi
 
 mkdir -p postgres
 ./docker-compose build
@@ -38,5 +40,3 @@ docker pull postgres:9.4
 
 sudo cp nanocloud.service /etc/systemd/system/nanocloud.service
 sudo systemctl enable /etc/systemd/system/nanocloud.service
-
-sudo shutdown
