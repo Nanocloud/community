@@ -40,5 +40,3 @@ docker pull postgres:9.4
 
 sudo cp nanocloud.service /etc/systemd/system/nanocloud.service
 sudo systemctl enable /etc/systemd/system/nanocloud.service
-
-sudo shutdown

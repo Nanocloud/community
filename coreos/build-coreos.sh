@@ -78,5 +78,13 @@ ssh \
     -p 2222 \
     localhost < "provision-coreos.sh"
 
+ssh \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -i coreos.key \
+    -l core \
+    -p 2222 \
+    localhost -- sudo shutdown || true
+
 echo "$(date "${DATE_FMT}") Compressing QCOW2 image…"
 qemu-img convert -c -f qcow2 -O qcow2 coreos_production_qemu_image.img coreos.qcow2
