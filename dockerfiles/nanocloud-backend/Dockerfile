@@ -44,15 +44,16 @@ WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
 
 RUN mkdir -p bin/plugins/running
 
-RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas && \
-    ln -s ../../../../users/bin/users bin/plugins/running/users && \
-    ln -s ../../../../ldap/bin/ldap bin/plugins/running/ldap && \
-    ln -s ../../../../history/bin/history bin/plugins/running/history && \
-    ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications && \
-    ln -s ../../../../../apps/front/website/js/components/presenter bin/front/js/components/presenter && \
-    ln -s ../../../../../iaas/front/website/js/components/services bin/front/js/components/services && \
-    ln -s ../../../../../users/front/website/js/components/users bin/front/js/components/users && \
-    ln -s ../../../../../history/front/website/js/components/history bin/front/js/components/history
+RUN cp iaas/bin/iaas bin/plugins/running/iaas && \
+    cp users/bin/users bin/plugins/running/users && \
+    cp ldap/bin/ldap bin/plugins/running/ldap && \
+    cp history/bin/history bin/plugins/running/history && \
+    cp apps/front/website/js/components/applications bin/front/js/components/applications && \
+    cp apps/front/website/js/components/presenter bin/front/js/components/presenter && \
+    cp iaas/front/website/js/components/services bin/front/js/components/services && \
+    cp users/front/website/js/components/users bin/front/js/components/users && \
+    cp history/front/website/js/components/history bin/front/js/components/history
+
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 
