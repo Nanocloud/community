@@ -32,24 +32,24 @@ RUN echo '{"analytics": false}' > ~/.bowerrc
 RUN mkdir -p /opt/build/backend/src/nanocloud.com
 WORKDIR /opt/build/backend/src/nanocloud.com
 
-RUN git clone --depth=1 https://github.com/Nanocloud/nanocloud.git    && rm -rf nanocloud/.git && make -C nanocloud
-RUN git clone --depth=1 https://github.com/Nanocloud/apps.git         && rm -rf apps/.git      && make -C apps
-RUN git clone --depth=1 https://github.com/Nanocloud/iaas.git         && rm -rf iaas/.git      && make -C iaas
-RUN git clone --depth=1 https://github.com/Nanocloud/ldap.git         && rm -rf ldap/.git      && make -C ldap
-RUN git clone --depth=1 https://github.com/Nanocloud/history.git      && rm -rf history/.git   && make -C history
-RUN git clone --depth=1 https://github.com/Nanocloud/users.git        && rm -rf users/.git     && make -C users
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/nanocloud.git     && make -C nanocloud
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/apps.git          && make -C apps
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/iaas.git          && make -C iaas
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/ldap.git          && make -C ldap
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/history.git       && make -C history
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/users.git         && make -C users
 
 RUN mkdir -p nanocloud/bin/plugins/running
 
-RUN cp iaas/bin/iaas bin/plugins/running/iaas && \
-    cp users/bin/users bin/plugins/running/users && \
-    cp ldap/bin/ldap bin/plugins/running/ldap && \
-    cp history/bin/history bin/plugins/running/history && \
-    cp apps/front/website/js/components/applications bin/front/js/components/applications && \
-    cp apps/front/website/js/components/presenter bin/front/js/components/presenter && \
-    cp iaas/front/website/js/components/services bin/front/js/components/services && \
-    cp users/front/website/js/components/users bin/front/js/components/users && \
-    cp history/front/website/js/components/history bin/front/js/components/history
+RUN mv iaas/bin/iaas nanocloud/bin/plugins/running/iaas && \
+    mv users/bin/users nanocloud/bin/plugins/running/users && \
+    mv ldap/bin/ldap nanocloud/bin/plugins/running/ldap && \
+    mv history/bin/history nanocloud/bin/plugins/running/history && \
+    mv apps/front/website/js/components/applications nanocloud/bin/front/js/components/applications && \
+    mv apps/front/website/js/components/presenter nanocloud/bin/front/js/components/presenter && \
+    mv iaas/front/website/js/components/services nanocloud/bin/front/js/components/services && \
+    mv users/front/website/js/components/users nanocloud/bin/front/js/components/users && \
+    mv history/front/website/js/components/history nanocloud/bin/front/js/components/history
 
 RUN rm -rf iaas users ldap history nanocloud apps && apt-get clean
 
