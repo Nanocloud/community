@@ -71,7 +71,7 @@ if [ "$?" != "0" ]; then
 fi
 
 echo "$(date "${DATE_FMT}") Installing new Remote Desktop session deployment…"
-sshpass -p "${WINDOWS_PASSWORD}" ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost << EOF
+sshpass -p "${WINDOWS_PASSWORD}" ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null Administrator@localhost << EOF
 cd ../..
 Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker adapps.intra.localdomain.com -WebAccessServer adapps.intra.localdomain.com -SessionHost adapps.intra.localdomain.com; New-RDSessionCollection -CollectionName collection -SessionHost adapps.intra.localdomain.com -CollectionDescription 'Nanocloud collection' -ConnectionBroker adapps.intra.localdomain.com; New-RDRemoteApp -CollectionName collection -DisplayName hapticPowershell -FilePath 'C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe' -Alias hapticPowershell -CommandLineSetting Require -RequiredCommandLine '-ExecutionPolicy Bypass c:\publishApplication.ps1'"
 Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "shutdown.exe /s /f /d p:4:1 /c 'Provisioning Shutdown'"
