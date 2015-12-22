@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
@@ -20,6 +20,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
+DOCKERFILES_DIR="${CURRENT_DIR}/../dockerfiles"
 
 CHANNEL="beta"
 COREOS_BASE_URL="http://${CHANNEL}.release.core-os.net/amd64-usr/current"
@@ -54,9 +58,24 @@ if [ "$?" != "0" ]; then
   exit 1
 fi
 
+echo "$(date "${DATE_FMT}") Updating submodules…"
+(
+    cd "${CURRENT_DIR}/.."
+    git submodule update --init --recursive --depth=1
+)
+
 echo "$(date "${DATE_FMT}") Provisioning…"
+scp \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -i coreos.key \
+    -P 2222 \
+    -r \
+    "${DOCKERFILES_DIR}" core@localhost:
+
 ssh \
     -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
     -i coreos.key \
     -l core \
     -p 2222 \
@@ -64,7 +83,3 @@ ssh \
 
 echo "$(date "${DATE_FMT}") Compressing QCOW2 image…"
 qemu-img convert -c -f qcow2 -O qcow2 coreos_production_qemu_image.img coreos.qcow2
-
-
-
-
