@@ -33,13 +33,11 @@ export class PresenterCtrl {
 
 	static $inject = [
 		"$state",
-		"$cookies",
 		"ApplicationsSvc"
 	];
 
 	constructor(
 		private $state: angular.ui.IStateService,
-		private $cookies: angular.cookies.ICookiesService,
 		private appsSvc: ApplicationsSvc
 	) {
 		this.loadApplications();
@@ -53,7 +51,6 @@ export class PresenterCtrl {
 	}
 
 	openApplication(application: IApplication, e: MouseEvent) {
-		this.$cookies.remove("JSESSIONID");
 		let appToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
 		let url = "/guacamole/#/client/" + appToken;
 		if (localStorage["accessToken"]) {
