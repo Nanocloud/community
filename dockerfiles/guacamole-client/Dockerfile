@@ -8,10 +8,7 @@ RUN apt-get update && apt-get -y install maven \
 ENV GUAC_VERSION=0.9.8
 ENV GUACAMOLE_HOME="/etc/guacamole"
 
-RUN mkdir -p /opt/build \
-    && curl -fsSL http://sourceforge.net/projects/guacamole/files/current/source/guacamole-client-$GUAC_VERSION.tar.gz/download | tar xzf - -C /opt/build \
-    && mvn package \
-    && cp ./guacamole/target/guacamole-${GUAC_VERSION}.war /usr/local/tomcat/webapps/guacamole.war
+RUN wget http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-${GUAC_VERSION}.war/download -O /usr/local/tomcat/webapps/guacamole.war
 
 WORKDIR /opt/build/extensions
 RUN git clone https://github.com/Nanocloud/noauth-logged.git
