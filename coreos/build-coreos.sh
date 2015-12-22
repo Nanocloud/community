@@ -29,24 +29,27 @@ CHANNEL="beta"
 COREOS_BASE_URL="http://${CHANNEL}.release.core-os.net/amd64-usr/current"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
+if [ -f coreos_production_qemu_image.img ]; then
+    echo "$(date "${DATE_FMT}") CoreOS found using previously created artifacts. Run clean.sh to start from scratch"
+else
+    echo "$(date "${DATE_FMT}") Download CoreOS script…"
+    curl --progress-bar "${COREOS_BASE_URL}/coreos_production_qemu.sh" --output coreos_production_qemu.sh
+    echo "$(date "${DATE_FMT}") Download CoreOS image…"
+    curl --progress-bar "${COREOS_BASE_URL}/coreos_production_qemu_image.img.bz2" --output coreos_production_qemu_image.img.bz2
 
-echo "$(date "${DATE_FMT}") Download CoreOS script…"
-curl --progress-bar "${COREOS_BASE_URL}/coreos_production_qemu.sh" --output coreos_production_qemu.sh
-echo "$(date "${DATE_FMT}") Download CoreOS image…"
-curl --progress-bar "${COREOS_BASE_URL}/coreos_production_qemu_image.img.bz2" --output coreos_production_qemu_image.img.bz2
+    echo "$(date "${DATE_FMT}") Unpacking CoreOS…"
+    bzip2 -d coreos_production_qemu_image.img.bz2
+    chmod +x coreos_production_qemu.sh
 
-echo "$(date "${DATE_FMT}") Unpacking CoreOS…"
-bzip2 -d coreos_production_qemu_image.img.bz2
-chmod +x coreos_production_qemu.sh
+    echo "$(date "${DATE_FMT}") Generating SSH keys"
+    (
+	echo -e "\n\n\n" | ssh-keygen -t rsa -N "" -f coreos.key
+	chmod 400 coreos.key
+    ) > /dev/null 2>&1
 
-echo "$(date "${DATE_FMT}") Generating SSH keys"
-(
-    echo -e "\n\n\n" | ssh-keygen -t rsa -N "" -f coreos.key
-    chmod 400 coreos.key
-) > /dev/null 2>&1
-
-echo "$(date "${DATE_FMT}") Adding disk space to CoreOS…"
-qemu-img resize coreos_production_qemu_image.img +5G
+    echo "$(date "${DATE_FMT}") Adding disk space to CoreOS…"
+    qemu-img resize coreos_production_qemu_image.img +5G
+fi
 
 nohup ./coreos_production_qemu.sh -a coreos.key.pub -- -nographic > /dev/null &
 
