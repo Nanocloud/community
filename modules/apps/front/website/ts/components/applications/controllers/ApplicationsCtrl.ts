@@ -32,14 +32,12 @@ export class ApplicationsCtrl {
 
 	static $inject = [
 		"ApplicationsSvc",
-		"$mdDialog",
-		"$cookies"
+		"$mdDialog"
 	];
 
 	constructor(
 		private applicationsSrv: ApplicationsSvc,
-		private $mdDialog: angular.material.IDialogService,
-		private $cookies: angular.cookies.ICookiesService
+		private $mdDialog: angular.material.IDialogService
 	) {
 		this.gridOptions = {
 			data: [],
@@ -102,10 +100,14 @@ export class ApplicationsCtrl {
 	}
 
 	openApplication(e: MouseEvent, application: IApplication) {
-		this.$cookies.remove("JSESSIONID");
-		let applicationToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
-		window.open("/guacamole/#/client/" + applicationToken, "_blank");
+		let appToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
+		let url = "/guacamole/#/client/" + appToken;
+		if (localStorage["accessToken"]) {
+			url += "?access_token=" + localStorage["accessToken"];
+		}
+		window.open(url, "_blank");
 	}
+
 }
 
 angular.module("haptic.applications").controller("ApplicationsCtrl", ApplicationsCtrl);
