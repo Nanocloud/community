@@ -39,9 +39,7 @@ RUN git clone --depth=1 https://github.com/Nanocloud/ldap.git         && rm -rf 
 RUN git clone --depth=1 https://github.com/Nanocloud/history.git      && rm -rf history/.git   && make -C history
 RUN git clone --depth=1 https://github.com/Nanocloud/users.git        && rm -rf users/.git     && make -C users
 
-WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
-
-RUN mkdir -p bin/plugins/running
+RUN mkdir -p nanocloud/bin/plugins/running
 
 RUN cp iaas/bin/iaas bin/plugins/running/iaas && \
     cp users/bin/users bin/plugins/running/users && \
@@ -53,6 +51,7 @@ RUN cp iaas/bin/iaas bin/plugins/running/iaas && \
     cp users/front/website/js/components/users bin/front/js/components/users && \
     cp history/front/website/js/components/history bin/front/js/components/history
 
+RUN rm -rf iaas users ldap history nanocloud apps && apt-get clean
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 
