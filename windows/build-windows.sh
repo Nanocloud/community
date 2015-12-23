@@ -78,7 +78,7 @@ Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "shutdown.exe /s
 EOF
 
 echo "$(date "${DATE_FMT}") Retrieving Active Directory certificates…"
-sshpass -p "${WINDOWS_PASSWORD}" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost:/cygdrive/c/users/administrator/ad2012.cer "${CURRENT_DIR}"
+sshpass -p "${WINDOWS_PASSWORD}" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null Administrator@localhost:/cygdrive/c/users/administrator/ad2012.cer "${CURRENT_DIR}"
 
 echo "$(date "${DATE_FMT}") Waiting for windows to shutdown…"
 sleep 20
