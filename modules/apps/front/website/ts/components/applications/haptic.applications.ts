@@ -25,11 +25,12 @@
 /// <amd-dependency path="angular-ui-router-extras" />
 /// <amd-dependency path="angular-cookies" />
 /// <amd-dependency path="angular-ui-grid" />
+/// <amd-dependency path="ng-flow" />
 import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "AmdTools";
 import { MainMenu } from "MainMenu";
 
 let componentName = "applications";
-let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ui.grid", "ngCookies"]);
+let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ui.grid", "ngCookies", "flow"]);
 
 let states: angular.ui.IState[] = [{
 	name: "admin.applications",
@@ -45,13 +46,20 @@ MainMenu.add({
 	ico: "apps"
 });
 
-app.config(["$controllerProvider", "$provide", "$futureStateProvider", function(
+app.config(["$controllerProvider", "$provide", "$futureStateProvider", "flowFactoryProvider", function(
 	$controllerProvider: angular.IControllerProvider,
 	$provide: angular.auto.IProvideService,
-	$futureStateProvider: any) {
+	$futureStateProvider: any,
+	flowFactoryProvider: any) {
 
 	overrideModuleRegisterer(app, $controllerProvider, $provide);
 
 	registerCtrlFutureStates(componentName, $futureStateProvider, states);
+
+	flowFactoryProvider.defaults = {
+		headers: {
+			"Authorization": "Bearer " + localStorage["accessToken"]
+		}
+	}
 
 }]);
