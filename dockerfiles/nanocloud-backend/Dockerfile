@@ -51,7 +51,7 @@ RUN mv iaas/bin/iaas nanocloud/bin/plugins/running/iaas && \
     mv users/front/website/js/components/users nanocloud/bin/front/js/components/users && \
     mv history/front/website/js/components/history nanocloud/bin/front/js/components/history
 
-RUN rm -rf iaas users ldap history nanocloud apps && apt-get clean
+RUN rm -rf iaas users ldap history apps && apt-get clean
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 
