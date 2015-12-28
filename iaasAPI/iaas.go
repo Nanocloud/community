@@ -51,7 +51,7 @@ type GetIaasListReply struct {
 func (p *Iaas) GetList(r *http.Request, args *NoArgs, reply *GetIaasListReply) error {
 	var vmIP string
 
-	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", IaasInstallationDir))
+	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", conf.InstallationDir))
 	for _, file := range files {
 		vmIP = strings.Split(file.Name(), "-")[3]
 		if checkPort(vmIP, 22) || checkPort(vmIP, 443) || checkPort(vmIP, 3389) {
@@ -61,12 +61,12 @@ func (p *Iaas) GetList(r *http.Request, args *NoArgs, reply *GetIaasListReply) e
 		}
 	}
 
-	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/images/", IaasInstallationDir))
+	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/images/", conf.InstallationDir))
 	for _, file := range files {
 		reply.AvailableVMNames = append(reply.AvailableVMNames, file.Name()[0:len(file.Name())-6])
 	}
 
-	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", IaasInstallationDir))
+	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", conf.InstallationDir))
 	for _, file := range files {
 		reply.DownloadingVmNames = append(reply.DownloadingVmNames, file.Name()[0:len(file.Name())-6])
 	}
@@ -83,11 +83,11 @@ func (p *Iaas) GetStatus(r *http.Request, args *VMName, reply *StatusReply) erro
 
 	if checkPort(vmIP, 443) {
 		reply.status = "running"
-	} else if Exists(fmt.Sprintf("%s/pid/%s.pid", IaasInstallationDir, args.Name)) {
+	} else if Exists(fmt.Sprintf("%s/pid/%s.pid", conf.InstallationDir, args.Name)) {
 		reply.status = "booting"
-	} else if Exists(fmt.Sprintf("%s/images/%s.qcow2", IaasInstallationDir, args.Name)) {
+	} else if Exists(fmt.Sprintf("%s/images/%s.qcow2", conf.InstallationDir, args.Name)) {
 		reply.status = "available"
-	} else if Exists(fmt.Sprintf("%s/downloads/%s.qcow2", IaasInstallationDir, args.Name)) {
+	} else if Exists(fmt.Sprintf("%s/downloads/%s.qcow2", conf.InstallationDir, args.Name)) {
 		reply.status = "downloading"
 	} else {
 		reply.status = "unknown"
@@ -102,7 +102,7 @@ type BoolReply struct {
 
 func (p *Iaas) Stop(r *http.Request, args *VMName, reply *BoolReply) error {
 	var (
-		socketFile string = strings.TrimSpace(fmt.Sprintf("%s/sockets/%s.socket\n", IaasInstallationDir, args.Name))
+		socketFile string = strings.TrimSpace(fmt.Sprintf("%s/sockets/%s.socket\n", conf.InstallationDir, args.Name))
 	)
 	fmt.Printf("Shut down VM: «%s»\n", socketFile)
 
@@ -138,7 +138,7 @@ func (p *Iaas) Stop(r *http.Request, args *VMName, reply *BoolReply) error {
 func (p *Iaas) Start(r *http.Request, args *VMName, reply *BoolReply) error {
 
 	fmt.Println("Starting : ", args)
-	cmd := exec.Command("nohup", fmt.Sprintf("%s/scripts/launch-%s.sh", IaasInstallationDir, args.Name), "&")
+	cmd := exec.Command("nohup", fmt.Sprintf("%s/scripts/launch-%s.sh", conf.InstallationDir, args.Name), "&")
 	err := cmd.Start()
 	if err != nil {
 		fmt.Printf("Failed to start vm, error: %s\n", err)
@@ -157,12 +157,9 @@ type ImageArgs struct {
 func (p *Iaas) Download(r *http.Request, args *ImageArgs, reply *BoolReply) error {
 
 	fmt.Println("Download Amin Start")
-	var (
-		baseUrl string = "http://community.nanocloud.com/"
-	)
 	go downloadFromUrl(
-		baseUrl+args.VMName+".qcow2",
-		IaasInstallationDir+"/images/"+args.VMName+".qcow2")
+		conf.ArtifactURL+args.VMName+".qcow2",
+		conf.InstallationDir+"/images/"+args.VMName+".qcow2")
 
 	reply.Success = true
 
