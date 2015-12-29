@@ -44,20 +44,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Nanocloud/nano"
 	"gopkg.in/ldap.v2"
-	"net/http"
-	"net/rpc/jsonrpc"
-	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"unicode"
 	"unicode/utf16"
 	"unsafe"
-
-	log "github.com/Sirupsen/logrus"
-	"github.com/natefinch/pie"
-	"github.com/streadway/amqp"
 )
 
 const (
@@ -79,12 +72,16 @@ const (
 	LDAP_SCOPE_DEFAULT     = -1     // openLDAP extension
 )
 
-var (
-	name = "ldap"
-	srv  pie.Server
-)
+var module nano.Module
 
-type api struct{}
+var conf struct {
+	Username  string
+	Password  string
+	ServerURL string
+	QueueURI  string
+}
+
+type hash map[string]interface{}
 
 type AccountParams struct {
 	UserEmail string
@@ -117,24 +114,20 @@ type ldap_conf struct {
 	ou             string
 }
 
-// Structure used for exchanges with the core, faking a request/responsewriter
-type PlugRequest struct {
-	Body     string
-	Header   http.Header
-	Form     url.Values
-	PostForm url.Values
-	Url      string
-	Method   string
-	Status   int
-	HeadVals map[string]string
-}
-
 // Strucutre used in return messages sent to RabbitMQ
 type ReturnMsg struct {
 	Method string
 	Err    string
 	Plugin string
 	Email  string
+}
+
+func env(key, def string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		return def
+	}
+	return v
 }
 
 // Setting LDAP version and referrals
@@ -145,42 +138,27 @@ func setOptions(ldapConnection *C.LDAP) error {
 	opt = 0
 	err := C.ldap_set_option(ldapConnection, LDAP_OPT_PROTOCOL_VERSION, unsafe.Pointer(&version))
 	if err != LDAP_SUCCESS {
-		return answerWithError("Options settings error: "+C.GoString(C.ldap_err2string(err)), nil)
+		return errors.New("Options settings error: " + C.GoString(C.ldap_err2string(err)))
 	}
 	err = C.ldap_set_option(ldapConnection, LDAP_OPT_REFERRALS, unsafe.Pointer(&opt))
 	if err != LDAP_SUCCESS {
-		return answerWithError("Options settings error: "+C.GoString(C.ldap_err2string(err)), nil)
+		return errors.New("Options settings error: " + C.GoString(C.ldap_err2string(err)))
 	}
 	return nil
-
 }
 
-func answerWithError(msg string, e error) error {
-
-	answer := "plugin Ldap: " + msg
-	if e != nil {
-		answer += e.Error()
-	}
-
-	log.Error(answer)
-
-	return errors.New(answer)
-}
-
-func listUsers(args PlugRequest, reply *PlugRequest, id string) error {
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
-	reply.Status = 500
+func listUsers(req nano.Request) (*nano.Response, error) {
 	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return answerWithError("Dial error: ", err)
+		return nil, errors.New("Dial error: " + err.Error())
 	}
+
 	err = ldapConnection.Bind(conf.Username, conf.Password)
 	if err != nil {
-		return answerWithError("Binding error: ", err)
+		return nil, errors.New("Binding error: " + err.Error())
 	}
 
 	defer ldapConnection.Close()
@@ -193,7 +171,7 @@ func listUsers(args PlugRequest, reply *PlugRequest, id string) error {
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return answerWithError("Search error: ", err)
+		return nil, errors.New("Search error: " + err.Error())
 	}
 	// Struct needed for JSON encoding
 	var res struct {
@@ -221,10 +199,8 @@ func listUsers(args PlugRequest, reply *PlugRequest, id string) error {
 
 		i++
 	}
-	g, _ := json.Marshal(res)
-	reply.Body = string(g)
-	reply.Status = 200
-	return nil
+
+	return nano.JSONResponse(200, res), nil
 }
 
 func test_password(pass string) bool {
@@ -272,48 +248,46 @@ func deleteUsers(mails []string) error {
 	v = 0
 	err := C.ldap_set_option(tconf.ldapConnection, LDAP_OPT_PROTOCOL_VERSION, unsafe.Pointer(&version))
 	if err != LDAP_SUCCESS {
-		return answerWithError("Options settings error: "+C.GoString(C.ldap_err2string(err)), nil)
+		return errors.New("Options settings error: " + C.GoString(C.ldap_err2string(err)))
 	}
 
 	err = C.ldap_set_option(tconf.ldapConnection, LDAP_OPT_REFERRALS, unsafe.Pointer(&v))
 	if err != LDAP_SUCCESS {
-		return answerWithError("Deletion error: "+C.GoString(C.ldap_err2string(err)), nil)
+		return errors.New("Deletion error: " + C.GoString(C.ldap_err2string(err)))
 	}
 
 	rc := C.ldap_initialize(&tconf.ldapConnection, C.CString(tconf.host+":636"))
 	if tconf.ldapConnection == nil {
-		return answerWithError("Initialization error: ", nil)
+		return errors.New("Initialization error")
 	}
 	rc = C.ldap_simple_bind_s(tconf.ldapConnection, C.CString(tconf.login), C.CString(tconf.passwd))
 	if rc != LDAP_SUCCESS {
-		return answerWithError("Binding error: "+C.GoString(C.ldap_err2string(rc)), nil)
+		return errors.New("Binding error: " + C.GoString(C.ldap_err2string(rc)))
 	}
 	c := 0
 	for c < len(mails) {
 		rc := C.ldap_delete_s(tconf.ldapConnection, C.CString(mails[c]))
 		if rc != 0 {
-			return answerWithError("Deletion error: "+C.GoString(C.ldap_err2string(rc)), nil)
+			return errors.New("Deletion error: " + C.GoString(C.ldap_err2string(rc)))
 		}
 		c++
 	}
 	return nil
-
 }
-func initialize(conf *ldap_conf) error {
 
+func initialize(conf *ldap_conf) error {
 	if setOptions(nil) != nil {
-		return answerWithError("Options error", nil)
+		return errors.New("Options error")
 	}
 	rc := C.ldap_initialize(&conf.ldapConnection, C.CString(conf.host+":636"))
 	if conf.ldapConnection == nil {
-		return answerWithError("Initialization error: "+C.GoString(C.ldap_err2string(rc)), nil)
+		return errors.New("Initialization error: " + C.GoString(C.ldap_err2string(rc)))
 	}
 	rc = C.ldap_simple_bind_s(conf.ldapConnection, C.CString(conf.login), C.CString(conf.passwd))
 	if rc != LDAP_SUCCESS {
-		return answerWithError("Binding error: "+C.GoString(C.ldap_err2string(rc)), nil)
+		return errors.New("Binding error: " + C.GoString(C.ldap_err2string(rc)))
 	}
 	return nil
-
 }
 
 // Checks if there is at least one sam account available, to use it to create a new user instead of generating a new sam account
@@ -328,14 +302,14 @@ func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return answerWithError("Search error: ", err), "", 0
+		return errors.New("Search error: " + err.Error()), "", 0
 	}
 	count := len(sr.Entries)
 	cn := ""
 	for _, entry := range sr.Entries {
 		h, err := strconv.Atoi(entry.GetAttributeValue("userAccountControl"))
 		if err != nil {
-			return answerWithError("Atoi conversion error: ", err), "", 0
+			return errors.New("Atoi conversion error: " + err.Error()), "", 0
 		}
 		if h&0x0002 == 0 { //0x0002 means disabled account
 		} else {
@@ -346,19 +320,20 @@ func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	return nil, cn, count
 }
 
-func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn, reply *PlugRequest) (string, error) {
+func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn) (*nano.Response, error) {
 	var sam string
 	if !test_password(params.Password) {
-		reply.Status = 400
-		return "", answerWithError("Password does not meet minimum requirements", nil)
-
+		return nano.JSONResponse(400, hash{
+			"error": "Password does not meet minimum requirements",
+		}), nil
 	}
+
 	dn := "cn=" + fmt.Sprintf("%d", count+1) + "," + conf2.ou
 
 	rc := C._ldap_add(conf2.ldapConnection, C.CString(dn), &mods[0])
 
 	if rc != LDAP_SUCCESS {
-		return "", answerWithError("Adding error: "+C.GoString(C.ldap_err2string(rc)), nil)
+		return nil, errors.New("Adding error: " + C.GoString(C.ldap_err2string(rc)))
 	}
 	pwd := encodePassword(params.Password)
 	modify := ldap.NewModifyRequest("cn=" + fmt.Sprintf("%d", count+1) + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
@@ -366,18 +341,18 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 	modify.Replace("userAccountControl", []string{"512"})
 	err := ldapConnection.Modify(modify)
 	if err != nil {
-		return "", answerWithError("Modify error: ", err)
+		return nil, errors.New("Modify error: " + err.Error())
 	}
 	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return "", answerWithError("Dial error: ", err)
+		return nil, errors.New("Dial error: " + err.Error())
 	}
 	err = ldapConnection.Bind(conf.Username, conf.Password)
 	if err != nil {
-		return "", answerWithError("Binding error: ", err)
+		return nil, errors.New("Binding error: " + err.Error())
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
@@ -389,15 +364,15 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return "", answerWithError("Search error: ", err)
+		return nil, errors.New("Search error: " + err.Error())
 	}
 	for _, entry := range sr.Entries {
-		log.Info(entry.GetAttributeValue("sAMAccountName"))
+		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
 		sam = entry.GetAttributeValue("sAMAccountName")
-
 	}
-	return sam, nil
-
+	return nano.JSONResponse(200, hash{
+		"sam": sam,
+	}), nil
 }
 
 func encodePassword(pass string) []byte {
@@ -418,7 +393,7 @@ func encodePassword(pass string) []byte {
 }
 
 // Uses a deactivated sam account to create a new user with it
-func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (string, error) {
+func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*nano.Response, error) {
 	var sam string
 	pwd := encodePassword(params.Password)
 	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
@@ -427,7 +402,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (str
 	modify.Replace("mail", []string{params.UserEmail})
 	err := ldapConnection.Modify(modify)
 	if err != nil {
-		return "", answerWithError("Modify error: ", err)
+		return nil, errors.New("Modify error: " + err.Error())
 	}
 
 	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
@@ -435,11 +410,11 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (str
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return "", answerWithError("Dial error: ", err)
+		return nil, errors.New("Dial error: " + err.Error())
 	}
 	err = ldapConnection.Bind(conf.Username, conf.Password)
 	if err != nil {
-		return "", answerWithError("Binding error: ", err)
+		return nil, errors.New("Binding error: " + err.Error())
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
@@ -451,30 +426,35 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (str
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return "", answerWithError("Search error: ", err)
+		return nil, errors.New("Search error: " + err.Error())
 	}
 	for _, entry := range sr.Entries {
-		log.Info(entry.GetAttributeValue("sAMAccountName"))
+		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
 		sam = entry.GetAttributeValue("sAMAccountName")
 	}
-	return sam, nil
+	return nano.JSONResponse(200, hash{
+		"sam": sam,
+	}), nil
 }
 
-func modifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
-
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
-	reply.Status = 500
-
-	var params AccountParams
-
-	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
-		reply.Status = 400
-		return answerWithError("modify password failed: ", e)
+func updatePassword(req nano.Request) (*nano.Response, error) {
+	var params struct {
+		UserEmail string
+		Password  string
 	}
-	if id != "" {
-		params.UserEmail = id
+	err := json.Unmarshal(req.Body, &params)
+	if err != nil {
+		return nil, err
 	}
+
+	if len(req.Params["user_id"]) < 1 {
+		return nano.JSONResponse(400, hash{
+			"error": "user id is missing",
+		}), nil
+	}
+
+	params.UserEmail = req.Params["user_id"]
+
 	bindusername := conf.Username
 	bindpassword := conf.Password
 	c := 0
@@ -491,7 +471,7 @@ func modifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 
 	err = ldapConnection.Bind(bindusername, bindpassword)
 	if err != nil {
-		return answerWithError("Binding error: ", err)
+		return nil, errors.New("Binding error: " + err.Error())
 	}
 
 	defer ldapConnection.Close()
@@ -506,12 +486,12 @@ func modifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return answerWithError("Search error: ", err)
+		return nil, errors.New("Search error: " + err.Error())
 	}
 
 	var cn string
 	if len(sr.Entries) != 1 {
-		return answerWithError("invalid Email", nil)
+		return nil, errors.New("invalid Email")
 	}
 	for _, entry := range sr.Entries {
 		cn = entry.GetAttributeValue("cn")
@@ -523,41 +503,31 @@ func modifyPassword(args PlugRequest, reply *PlugRequest, id string) error {
 	modify.Replace("unicodePwd", []string{string(pwd)})
 	err = ldapConnection.Modify(modify)
 	if err != nil {
-		return answerWithError("Password modification failed: ", err)
+		return nil, errors.New("Password modification failed: " + err.Error())
 	}
-	reply.Status = 202
-	return nil
 
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
-func addUser(args PlugRequest, reply *PlugRequest, id string) error {
-	_, err := createUser(args, reply, id)
-	return err
-}
-
-func createUser(args PlugRequest, reply *PlugRequest, id string) (string, error) {
-	log.Error("CONF")
-	log.Error(conf)
-	log.Error("PLUGRREQUEST")
-	log.Error(args)
-	reply.Status = 201
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
-	var params AccountParams
-
-	if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
-		reply.Status = 400
-		return "", answerWithError("addUser() failed: ", e)
+func createUser(req nano.Request) (*nano.Response, error) {
+	var params struct {
+		UserEmail string
+		Password  string
 	}
+
+	err := json.Unmarshal(req.Body, &params)
+
 	// openLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
 	tconf.host = conf.ServerURL
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
 	tconf.ou = "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
-	err := initialize(&tconf)
+	err = initialize(&tconf)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	var mods [3]*C.LDAPModStr
 	var modClass, modCN C.LDAPModStr
@@ -597,26 +567,25 @@ func createUser(args PlugRequest, reply *PlugRequest, id string) (string, error)
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return "", answerWithError("DialTLS failed: ", err)
+		return nil, errors.New("DialTLS failed: " + err.Error())
 	}
 	err = ldapConnection.Bind(bindusername, bindpassword)
 	if err != nil {
-		return "", answerWithError("Binding error: ", err)
+		return nil, errors.New("Binding error: " + err.Error())
 	}
 
 	defer ldapConnection.Close()
 
 	err, cn, count := checkSamAvailability(ldapConnection) // if an account is disabled, this function will look for his CN
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	var sam string
 	// if no disabled accounts were found, a real new user is created
 	if cn == "" {
-		sam, err = createNewUser(tconf, params, count, mods, ldapConnection, reply)
+		res, err := createNewUser(tconf, params, count, mods, ldapConnection)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		// freeing various structures needed for adding entry with OpenLDAP
 		C.free(unsafe.Pointer(vclass[0]))
@@ -626,28 +595,20 @@ func createUser(args PlugRequest, reply *PlugRequest, id string) (string, error)
 		C.free(unsafe.Pointer(vcn[0]))
 		C.free(unsafe.Pointer(modCN.mod_type))
 		//C._ldap_mods_free(&mods[0], 1)   Should work but doesnt
-	} else {
-		// if a disabled account is found, modifying this account instead of creating a new one
-		sam, err = recycleSam(params, ldapConnection, cn)
-		if err != nil {
-			return "", err
-		}
-
+		return res, nil
 	}
-	reply.Status = 201
-	return sam, nil
+
+	// if a disabled account is found, modifying this account instead of creating a new one
+	return recycleSam(params, ldapConnection, cn)
 }
 
-func forcedisableAccount(args PlugRequest, reply *PlugRequest, id string) error {
-	reply.Status = 202
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "text/html; charset=UTF-8"
-	var params AccountParams
-	if id != "" {
-		params.UserEmail = id
-	} else if e := json.Unmarshal([]byte(args.Body), &params); e != nil {
-		reply.Status = 400
-		return answerWithError("forcedisableAccount() failed ", e)
+func forcedisableAccount(req nano.Request) (*nano.Response, error) {
+	userId := req.Params["user_id"]
+
+	if len(userId) < 1 {
+		return nano.JSONResponse(400, hash{
+			"error": "User id is missing",
+		}), nil
 	}
 
 	bindusername := conf.Username
@@ -665,345 +626,58 @@ func forcedisableAccount(args PlugRequest, reply *PlugRequest, id string) error 
 		})
 
 	if err != nil {
-		return answerWithError("DialTLS error: ", err)
+		return nil, errors.New("DialTLS error: " + err.Error())
 	}
 	err = ldapConnection.Bind(bindusername, bindpassword)
 	if err != nil {
-		return answerWithError("Binding error: ", err)
+		return nil, errors.New("Binding error: " + err.Error())
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
 		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectCategory=person)(mail="+params.UserEmail+"))",
+		"(&(objectCategory=person)(mail="+userId+"))",
 		[]string{"userAccountControl", "cn"},
 		nil,
 	)
 
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
-		return answerWithError("Searching error: ", err)
+		return nil, errors.New("Searching error: " + err.Error())
 	}
 
 	if len(sr.Entries) != 1 {
 		// means entered mail was not valid, or several user have the same mail
-		return answerWithError("Email does not match any user, or several users have the same mail adress", nil)
-	} else {
-		var cn string
-		for _, entry := range sr.Entries {
-			cn = entry.GetAttributeValue("cn")
-		}
-		modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
-		modify.Replace("userAccountControl", []string{"514"}) // 512 is a normal account, 514 is disabled ( 512 + 0x0002 )
-		err = ldapConnection.Modify(modify)
-		if err != nil {
-			return answerWithError("Modify error: ", err)
-		}
-
+		return nil, errors.New("Email does not match any user, or several users have the same mail adress")
 	}
-	return nil
-}
-
-func disableAccount(args PlugRequest, reply *PlugRequest, id string) error {
-	var params AccountParams
-
-	if err := json.Unmarshal([]byte(args.Body), &params); err != nil {
-		log.Error("Failed to Unmarshall the parameters of the account to disable", err)
-		return err
+	var cn string
+	for _, entry := range sr.Entries {
+		cn = entry.GetAttributeValue("cn")
 	}
-
-	bindusername := conf.Username
-	bindpassword := conf.Password
-	c := 0
-	for i, val := range conf.ServerURL { // passing letters/symbols before IP adress ( ex : ldaps:// )
-		if unicode.IsDigit(val) {
-			c = i
-			break
-		}
-	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:]+":636",
-		&tls.Config{
-			InsecureSkipVerify: true,
-		})
+	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
+	modify.Replace("userAccountControl", []string{"514"}) // 512 is a normal account, 514 is disabled ( 512 + 0x0002 )
+	err = ldapConnection.Modify(modify)
 	if err != nil {
-		return answerWithError("DialTLS error: ", err)
-	}
-	err = ldapConnection.Bind(bindusername, bindpassword)
-	if err != nil {
-		return answerWithError("Binding error: ", err)
+		return nil, errors.New("Modify error: " + err.Error())
 	}
 
-	defer ldapConnection.Close()
-	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectCategory=person)(samaccountname="+params.UserEmail+"))",
-		[]string{"userAccountControl", "cn"},
-		nil,
-	)
-	sr, err := ldapConnection.Search(searchRequest)
-	if err != nil {
-		return answerWithError("Search error: ", err)
-	}
-
-	if len(sr.Entries) != 1 { // wrong samaccount
-		return answerWithError("SAMACCOUNT does not match any user", nil)
-	} else {
-		var cn string
-		for _, entry := range sr.Entries {
-			cn = entry.GetAttributeValue("cn")
-		}
-
-		modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
-		modify.Replace("userAccountControl", []string{"514"})
-		err = ldapConnection.Modify(modify)
-		if err != nil {
-			return answerWithError("Modify error: ", err)
-		}
-
-	}
-	return nil
-}
-
-var tab = []struct {
-	Url    string
-	Method string
-	f      func(PlugRequest, *PlugRequest, string) error
-}{
-	{`^\/api\/ldap\/users\/{0,1}$`, "POST", addUser},
-	{`^\/api\/ldap\/users\/{0,1}$`, "GET", listUsers},
-	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", modifyPassword},
-	{`^\/api\/ldap\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", forcedisableAccount},
-	//	{`^\/ldap\/users\/(?P<id>[^\/]+)\/forcedisable\/{0,1}$`, "POST", forcedisableAccount},
-}
-
-// Will receive all http requests starting by /api/history from the core and chose the correct handler function
-func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	var err error
-	for _, val := range tab {
-		re := regexp.MustCompile(val.Url)
-		match := re.MatchString(args.Url)
-		if val.Method == args.Method && match {
-			if len(re.FindStringSubmatch(args.Url)) == 2 {
-				err = val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
-			} else {
-				err = val.f(args, reply, "")
-			}
-			if err != nil {
-				if reply.Status == 201 {
-					reply.Status = 500
-				}
-			}
-		}
-	}
-	return nil
-}
-
-// When being contacted via a queue with RabbitMQ, send a return message informing whoever called this plugin that the operation succeeded or failed
-func sendReturn(msg ReturnMsg) {
-	Str, err := json.Marshal(msg)
-	if err != nil {
-		log.Error("Faile to Marshal the rabbitmq message to return", err)
-	}
-	conn, err := amqp.Dial(conf.QueueURI)
-	failOnError(err, "Failed to connect to RabbitMQ")
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	err = ch.ExchangeDeclare(
-		"users_topic", // name
-		"topic",       // type
-		true,          // durable
-		false,         // auto-deleted
-		false,         // internal
-		false,         // no-wait
-		nil,           // arguments
-	)
-	failOnError(err, "Failed to declare an exchange")
-	err = ch.Publish(
-		"users_topic",    // exchange
-		"owncloud.users", // routing key
-		false,            // mandatory
-		false,            // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        Str,
-		})
-	failOnError(err, "Failed to publish a message")
-
-	log.Printf(" [x] Sent return to users")
-
-}
-
-// Infinite loop, awaiting for messages from RabbitMQ
-func lookForMsg() {
-	conn, err := amqp.Dial(conf.QueueURI)
-	failOnError(err, "Failed to connect to RabbitMQ")
-
-	ch, err := conn.Channel()
-	defer ch.Close()
-	defer conn.Close()
-	failOnError(err, "Failed to open a channel")
-
-	err = ch.ExchangeDeclare(
-		"users_topic", // name
-		"topic",       // type
-		true,          // durable
-		false,         // auto-deleted
-		false,         // internal
-		false,         // no-wait
-		nil,           // arguments
-	)
-	failOnError(err, "Failed to declare an exchange")
-	_, err = ch.QueueDeclare(
-		"ldap", // name
-		true,   // durable
-		false,  // delete when usused
-		false,  // exclusive
-		false,  // no-wait
-		nil,    // arguments
-	)
-	failOnError(err, "Failed to declare an queue")
-
-	err = ch.QueueBind(
-		"ldap",        // queue name
-		"users.*",     // routing key
-		"users_topic", // exchange
-		false,
-		nil)
-	failOnError(err, "Failed to bind a queue")
-	msgs, err := ch.Consume(
-		"ldap", // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	failOnError(err, "Failed to register a consumer")
-
-	forever := make(chan bool)
-
-	go func() {
-		var msg Message
-		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
-			err := json.Unmarshal(d.Body, &msg)
-			if err != nil {
-				log.Error("Failed to Unmarshal the message received: ", err)
-			}
-			HandleRequest(msg)
-
-		}
-	}()
-
-	log.Printf(" [*] Waiting for messages from Users")
-	<-forever
-}
-
-func HandleError(err error, mail string, method string) {
-	if err != nil {
-		log.Error(err)
-		sendReturn(ReturnMsg{Method: method, Err: err.Error(), Plugin: "ldap", Email: mail})
-	} else {
-		sendReturn(ReturnMsg{Method: method, Err: "", Plugin: "ldap", Email: mail})
-	}
-}
-
-// Analyze the message received from RabbitMQ
-func HandleRequest(msg Message) {
-	initConf()
-	var args PlugRequest
-	var reply PlugRequest
-	var params AccountParams
-	params.UserEmail = msg.Email
-	params.Password = msg.Password
-	userjson, err := json.Marshal(params)
-	if err != nil {
-		log.Error(err)
-	}
-	args.Body = string(userjson)
-	if msg.Method == "Add" {
-		err = addUser(args, &reply, "")
-		HandleError(err, params.UserEmail, msg.Method)
-	} else if msg.Method == "disableAccount" {
-		err = forcedisableAccount(args, &reply, "")
-		HandleError(err, params.UserEmail, msg.Method)
-	} else if msg.Method == "ChangePassword" {
-		err := modifyPassword(args, &reply, "")
-		HandleError(err, params.UserEmail, msg.Method)
-	}
-
-}
-
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Error(msg, err)
-	}
-}
-
-// Plug the plugin to the core
-func (api) Plug(args interface{}, reply *bool) error {
-	*reply = true
-	go lookForMsg()
-	return nil
-}
-
-// Will contain various verifications for the plugin. If the core can call the function and receives "true" in the reply, it means the plugin is functionning correctly
-func (api) Check(args interface{}, reply *bool) error {
-	*reply = true
-	return nil
-}
-
-// Unplug the plugin from the core
-func (api) Unplug(args interface{}, reply *bool) error {
-	defer os.Exit(0)
-	*reply = true
-	return nil
-}
-
-func handleRPCCreateUser(args map[string]interface{}) ([]byte, error) {
-	id := args["id"].(string)
-	password := args["password"].(string)
-	params := AccountParams{UserEmail: id, Password: password}
-	str, err := json.Marshal(params)
-	if err != nil {
-		log.Error("Failed to marshal params: ", err)
-	}
-	sam, err := createUser(PlugRequest{Body: string(str)}, &PlugRequest{}, "")
-
-	if err != nil {
-		log.Error("Failed to add a user: ", err)
-	}
-
-	res := make(map[string]string)
-	res["sam"] = sam
-	log.Error("SAM   :", res)
-	return json.Marshal(res)
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
 func main() {
-	initConf()
+	module = nano.RegisterModule("ldap")
 
-	go rpcListen(conf.QueueURI, "rmq_ldap", func(req map[string]interface{}) (int, []byte, error) {
-		log.Error("LDAP LISTENNING")
-		if req["action"] == "create_user" {
-			log.Error("CREATE USER EVENT")
-			res, err := handleRPCCreateUser(req["args"].(map[string]interface{}))
-			log.Error("CAME HERE")
-			if err != nil {
-				return 500, nil, err
-			}
-			return 200, res, nil
-		}
-		return 400, []byte(`{"error": "invalid action"}`), nil
-	})
-	srv = pie.NewProvider()
+	conf.Username = env("USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
+	conf.Password = env("PASSWORD", "PASSWORD")
+	conf.ServerURL = env("SERVER_URL", "ldaps://127.0.0.1")
+	conf.QueueURI = env("QUEUE_URI", "amqp://guest:guest@localhost:5672/")
 
-	if err := srv.RegisterName(name, api{}); err != nil {
-		log.Fatal("Failed to register ", name, err)
-	}
+	module.Post("/ldap/users", createUser)
+	module.Get("/ldap/users", listUsers)
+	module.Put("/ldap/users/:user_id", updatePassword)
+	module.Post("/ldap/users/:user_id/disable", forcedisableAccount)
 
-	srv.ServeCodec(jsonrpc.NewServerCodec)
+	module.Listen()
 }
