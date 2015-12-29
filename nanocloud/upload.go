@@ -27,10 +27,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/nanocloud/oauth"
 )
 
@@ -52,7 +54,7 @@ func checkUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// uploadHandler tries to upload a chunk.
+// uploadHandler tries to get and save a chunk.
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	user := oauth.GetUserOrFail(w, r)
 	if user == nil {
@@ -61,6 +63,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userPath := filepath.Join(conf.UploadDir, user.(*UserInfo).Id)
 
+	// get the multipart data
 	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -69,35 +72,56 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	chunkNum := r.FormValue("flowChunkNumber")
 	totalChunks := r.FormValue("flowTotalChunks")
 	filename := r.FormValue("flowFilename")
+	// module := r.FormValue("module")
 
-	chunkDirPath := filepath.Join(userPath, "incomplete", filename)
-	err = os.MkdirAll(chunkDirPath, 02750)
+	err = writeChunk(filepath.Join(userPath, "incomplete", filename), chunkNum, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// it's done if it's not the last chunk
+	if chunkNum < totalChunks {
+		return
+	}
+
+	upPath := filepath.Join(userPath, filename)
+
+	// now finish the job
+	err = assembleUpload(userPath, filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.WithFields(log.Fields{"module": moduleName, "error": err}).Error("unable to assemble the uploaded chunks")
+		return
+	}
+	log.WithFields(log.Fields{"path": upPath}).Info("file uploaded")
+
+	syncOut, err := syncUploadedFile(upPath)
+	if err != nil {
+		log.WithFields(log.Fields{"module": moduleName, "output": syncOut, "error": err}).Error("unable to scp the uploaded file to Windows")
+	}
+	log.WithFields(log.Fields{"path": upPath, "output": syncOut}).Info("file synced")
+}
+
+func writeChunk(path, chunkNum string, r *http.Request) error {
+	// prepare the chunk folder
+	err := os.MkdirAll(path, 02750)
+	if err != nil {
+		return err
+	}
+	// write the chunk
 	fileIn, _, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	defer fileIn.Close()
-	fileOut, err := os.Create(filepath.Join(chunkDirPath, chunkNum))
+	fileOut, err := os.Create(filepath.Join(path, chunkNum))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
-	io.Copy(fileOut, fileIn)
-	fileOut.Close()
-
-	if chunkNum == totalChunks {
-		err = assembleUpload(userPath, filename)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	defer fileOut.Close()
+	_, err = io.Copy(fileOut, fileIn)
+	return err
 }
 
 func assembleUpload(path, filename string) error {
@@ -129,6 +153,20 @@ func assembleUpload(path, filename string) error {
 	os.RemoveAll(chunkDirPath)
 
 	return nil
+}
+
+func syncUploadedFile(path string) (string, error) {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return "", err
+	}
+	cmd := exec.Command(filepath.Join(dir, "scripts", "copy.sh"), filepath.Join(dir, path))
+	cmd.Dir = filepath.Join(dir, "scripts")
+	output, err := cmd.Output()
+	if err != nil {
+		return string(output), err
+	}
+	return string(output), nil
 }
 
 type byChunk []os.FileInfo
