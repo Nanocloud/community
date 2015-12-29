@@ -1,33 +1,33 @@
 {
-	"name": "HapticFrontCore",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
+  "name": "HapticFrontCore",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
 		"setup": "bower install --allow-root && tsd install && grunt build-libs && grunt build",
-		"start": "concurrent 'grunt watch-xy' 'grunt watch-ts'",
-		"build": "grunt build",
-		"update": "bower update && tsd reinstall -o && grunt build-libs",
-		"serve": "http-server website",
-		"bower": "bower",
-		"grunt": "grunt",
-		"tsd": "tsd"
-	},
-	"devDependencies": {
+    "start": "concurrent 'grunt watch-xy' 'grunt watch-ts'",
+    "build": "grunt build",
+    "update": "bower update && tsd reinstall -o && grunt build-libs",
+    "serve": "http-server website",
+    "bower": "bower",
+    "grunt": "grunt",
+    "tsd": "tsd"
+  },
+  "devDependencies": {
 		"bower": "1.x",
-		"grunt-cli": "latest",
-		"grunt": "~0.4.5",
-		"grunt-contrib-concat": "0.5.x",
-		"grunt-contrib-copy": "0.8.x",
-		"grunt-contrib-less": "1.0.x",
-		"grunt-contrib-uglify": "0.9.x",
-		"grunt-contrib-watch": "0.6.x",
-		"grunt-ts": "5.x",
-		"tslint": "2.5.x",
-		"grunt-tslint": "2.5.x",
-		"grunt-sync": "0.4.x",
-		"tsd": "0.6.x",
-		"http-server": "latest",
-		"concurrently": "latest",
-		"load-grunt-tasks": "latest"
-	}
+    "grunt-cli": "latest",
+    "grunt": "~0.4.5",
+    "grunt-contrib-concat": "0.5.x",
+    "grunt-contrib-copy": "0.8.x",
+    "grunt-contrib-less": "1.0.x",
+    "grunt-contrib-uglify": "0.9.x",
+    "grunt-contrib-watch": "0.6.x",
+    "grunt-ts": "5.x",
+    "tslint": "2.5.x",
+    "grunt-tslint": "2.5.x",
+    "grunt-sync": "0.4.x",
+    "tsd": "0.6.x",
+    "http-server": "latest",
+    "concurrently": "latest",
+    "load-grunt-tasks": "latest"
+  }
 }

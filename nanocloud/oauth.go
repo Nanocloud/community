@@ -24,8 +24,8 @@ package main
 
 import (
 	"encoding/json"
-	log "github.com/Sirupsen/logrus"
-	"github.com/nanocloud/oauth"
+	"github.com/Nanocloud/nano"
+	"github.com/Nanocloud/oauth"
 )
 
 type oauthConnector struct{}
@@ -42,33 +42,30 @@ type AccessToken struct {
 }
 
 func (c oauthConnector) AuthenticateUser(username, password string) (interface{}, error) {
-	userModule := conf.RunDir + "users"
+	m := make(map[string]string)
+	m["username"] = username
+	m["password"] = password
 
-	args := struct {
-		Username string
-		Password string
-	}{
-		username,
-		password,
-	}
-
-	res := struct {
-		Success      bool
-		ErrorMessage string
-		User         UserInfo
-	}{}
-
-	err := plugins[userModule].client.Call("users.AuthenticateUser", args, &res)
+	res, err := module.JSONRequest("POST", "/users/login", m, nil)
 	if err != nil {
-		log.Errorf("[Users] AuthenticateUser failed: %s\n", err)
+		module.Log.Error(err)
 		return nil, err
 	}
 
-	if !res.Success {
+	module.Log.Debug(res.StatusCode)
+	if res.StatusCode != 200 {
 		return nil, nil
 	}
 
-	return &res.User, nil
+	user := nano.User{}
+
+	module.Log.Debug(string(res.Body))
+	err = json.Unmarshal(res.Body, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{}, error) {
@@ -99,31 +96,24 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 		return nil, err
 	}
 
-	userModule := conf.RunDir + "users"
-
-	args := struct {
-		UserId string
-	}{
-		userId,
-	}
-
-	res := struct {
-		Success      bool
-		ErrorMessage string
-		User         UserInfo
-	}{}
-
-	err = plugins[userModule].client.Call("users.GetUser", args, &res)
+	res, err := module.Request("GET", "/users/"+userId, "", nil, nil)
 	if err != nil {
-		log.Error(err)
+		module.Log.Error(err)
 		return nil, err
 	}
 
-	if !res.Success {
+	if res.StatusCode != 200 {
 		return nil, nil
 	}
 
-	return &res.User, nil
+	user := nano.User{}
+
+	err = json.Unmarshal(res.Body, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (c oauthConnector) GetClient(key string, secret string) (interface{}, error) {
@@ -143,19 +133,12 @@ func (c oauthConnector) GetClient(key string, secret string) (interface{}, error
 	if err != nil {
 		return nil, err
 	}
-	log.Debug(key)
-	log.Debug(secret)
 
 	defer rows.Close()
 	if rows.Next() {
 		client := Client{}
 
 		err = rows.Scan(&client.Id, &client.Name, &client.Key)
-		if err != nil {
-			log.Debug(err)
-		}
-		log.Debugf("Client id = %d\n", client.Id)
-		log.Debug(client.Name)
 		return &client, nil
 	}
 	return nil, nil
@@ -170,7 +153,7 @@ func (at AccessToken) ToJSON() ([]byte, error) {
 }
 
 func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JSONAble, error) {
-	user := rawUser.(*UserInfo)
+	user := rawUser.(*nano.User)
 	client := rawClient.(*Client)
 
 	db, err := GetDB()
@@ -200,7 +183,6 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JS
 
 	token := randomString(25)
 
-	log.Debugf("Client id = %d\n", client.Id)
 	rows, err = db.Query(
 		`INSERT INTO oauth_access_tokens
 		(token, oauth_client_id, user_id)
