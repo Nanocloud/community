@@ -1,9 +1,6 @@
-[submodule "vendor/src/github.com/natefinch/pie"]
-	path = vendor/src/github.com/natefinch/pie
-	url = https://github.com/natefinch/pie
-[submodule "vendor/src/gopkg.in/yaml.v2"]
-	path = vendor/src/gopkg.in/yaml.v2
-	url = https://gopkg.in/yaml.v2
+[submodule "vendor/src/github.com/Nanocloud/nano"]
+	path = vendor/src/github.com/Nanocloud/nano
+	url = https://github.com/Nanocloud/nano
 [submodule "vendor/src/github.com/Sirupsen/logrus"]
 	path = vendor/src/github.com/Sirupsen/logrus
 	url = https://github.com/Sirupsen/logrus

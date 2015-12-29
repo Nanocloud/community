@@ -1,23 +1,23 @@
 /*
-* Nanocloud Community, a comprehensive platform to turn any application
-* into a cloud solution.
-*
-* Copyright (C) 2015 Nanocloud Software
-*
-* This file is part of Nanocloud community.
-*
-* Nanocloud community is free software; you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* Nanocloud community is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Nanocloud Community, a comprehensive platform to turn any application
+ * into a cloud solution.
+ *
+ * Copyright (C) 2015 Nanocloud Software
+ *
+ * This file is part of Nanocloud community.
+ *
+ * Nanocloud community is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Nanocloud community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package main
@@ -26,8 +26,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	"github.com/Nanocloud/nano"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -73,30 +74,28 @@ type ApplicationParams struct {
 	FilePath       string
 }
 
-type UserInfo struct {
-	Id        string
-	Activated bool
-	Email     string
-	FirstName string
-	LastName  string
-	IsAdmin   bool
-	Sam       string
-}
-
-func getUsers() ([]UserInfo, error) {
-	d, err := rpcRequest("users", "get_users", nil)
-
-	res := d.(map[string]interface{})
-
+func getUsers() ([]nano.User, error) {
+	res, err := module.Request("GET", "/users", "", nil, nil)
 	if err != nil {
-		log.Error(err)
 		return nil, err
 	}
 
-	d = res["users"]
+	if res.StatusCode != 200 {
+		return nil, errors.New("invalid status code")
+	}
+
+	m := make(map[string]interface{})
+	err = json.Unmarshal(res.Body, &m)
+
+	if err != nil {
+		module.Log.Error(err)
+		return nil, err
+	}
+
+	d := m["users"]
 	users := d.([]interface{})
 	length := len(users)
-	rt := make([]UserInfo, length)
+	rt := make([]nano.User, length)
 
 	for i := 0; i < length; i++ {
 		user := users[i].(map[string]interface{})
@@ -107,7 +106,7 @@ func getUsers() ([]UserInfo, error) {
 		lastName := user["LastName"].(string)
 		isAdmin := user["IsAdmin"].(bool)
 
-		rt[i] = UserInfo{
+		rt[i] = nano.User{
 			Id:        id,
 			Activated: activated,
 			Email:     email,
@@ -141,7 +140,7 @@ func createConnections() error {
 
 	bashConfigFile, err := os.Create("../src/nanocloud/scripts/configuration.sh")
 	if err != nil {
-		log.Error("Failed to configure bash scripts : ", err)
+		module.Log.Error("Failed to configure bash scripts : ", err)
 		return err
 	}
 
@@ -156,7 +155,7 @@ func createConnections() error {
 	cmd.Dir = "."
 	response, err := cmd.Output()
 	if err != nil {
-		log.Error("Failed to run script exec.sh, error: ", err, ", output: ", string(response))
+		module.Log.Error("Failed to run script exec.sh, error: ", err, ", output: ", string(response))
 		response = []byte("[]")
 	} else if string(response) == "" {
 		response = []byte("[]")
@@ -269,11 +268,12 @@ func createConnections() error {
 
 	output, err := xml.MarshalIndent(connections, "  ", "    ")
 	if err != nil {
-		log.Error("xml Marshalling of connections failed: ", err)
+		module.Log.Error("xml Marshalling of connections failed: ", err)
+		return err
 	}
 
 	if err = ioutil.WriteFile(conf.XMLConfigurationFile, output, 0777); err != nil {
-		log.Error("Failed to save connections in ", conf.XMLConfigurationFile, " params: ", err)
+		module.Log.Error("Failed to save connections in ", conf.XMLConfigurationFile, " params: ", err)
 		return err
 	}
 
@@ -286,7 +286,7 @@ func createConnections() error {
 // Does:
 // - Return list of applications published by Active Directory
 // ========================================================================================================================
-func listApplications(reply *PlugRequest) []Connection {
+func listApplications(req nano.Request) (*nano.Response, error) {
 	var (
 		guacamoleConfigs GuacamoleXMLConfigs
 		connections      []Connection
@@ -296,19 +296,17 @@ func listApplications(reply *PlugRequest) []Connection {
 
 	err = createConnections()
 	if err != nil {
-		reply.Status = 500
+		return nil, err
 	}
 
 	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
-		reply.Status = 500
-		log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
+		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
+		return nil, err
 	}
 
 	err = xml.Unmarshal(bytesRead, &guacamoleConfigs)
 	if err != nil {
-		log.Error("XML Unmarshalling failed of guacamoleConfigs: ", err)
-		reply.Status = 500
-		return nil
+		return nil, err
 	}
 
 	for _, config := range guacamoleConfigs.Config {
@@ -337,7 +335,7 @@ func listApplications(reply *PlugRequest) []Connection {
 		connections = append(connections, connection)
 	}
 
-	return connections
+	return nano.JSONResponse(200, connections), nil
 }
 
 // ========================================================================================================================
@@ -346,8 +344,7 @@ func listApplications(reply *PlugRequest) []Connection {
 // Does:
 // - Return list of applications available for a particular SAM account
 // ========================================================================================================================
-func listApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection {
-
+func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 	var (
 		guacamoleConfigs GuacamoleXMLConfigs
 		connections      []Connection
@@ -356,15 +353,13 @@ func listApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection 
 	)
 
 	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
-		reply.Status = 500
-		log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
+		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
+		return nil, err
 	}
 
 	err = xml.Unmarshal(bytesRead, &guacamoleConfigs)
 	if err != nil {
-		fmt.Printf("error: %v", err)
-		reply.Status = 500
-		return nil
+		return nil, err
 	}
 
 	for _, config := range guacamoleConfigs.Config {
@@ -390,12 +385,12 @@ func listApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection 
 			}
 		}
 
-		if connection.Username == fmt.Sprintf("%s@%s", sam, conf.WindowsDomain) {
+		if connection.Username == fmt.Sprintf("%s@%s", req.User.Sam, conf.WindowsDomain) {
 			connections = append(connections, connection)
 		}
 	}
 
-	return connections
+	return nano.JSONResponse(200, connections), nil
 }
 
 // ========================================================================================================================
@@ -404,7 +399,7 @@ func listApplicationsForSamAccount(sam string, reply *PlugRequest) []Connection 
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
-func unpublishApp(Alias string) {
+func unpublishApp(Alias string) error {
 	var powershellCmd string
 
 	bashExecScript := "../src/nanocloud/scripts/exec.sh"
@@ -416,8 +411,9 @@ func unpublishApp(Alias string) {
 	cmd.Dir = (".")
 	response, err := cmd.Output()
 	if err != nil {
-		log.Error("Failed to run script exec.sh, error: ", err, " output: ", string(response))
+		module.Log.Error("Failed to run script exec.sh, error: ", err, " output: ", string(response))
 	}
+	return err
 }
 
 /*

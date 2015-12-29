@@ -23,142 +23,71 @@
 package main
 
 import (
-	"encoding/json"
-	log "github.com/Sirupsen/logrus"
-	"github.com/natefinch/pie"
-	"net/http"
-	"net/rpc/jsonrpc"
-	"net/url"
+	"github.com/Nanocloud/nano"
 	"os"
-	"regexp"
+	"strings"
 )
 
-var (
-	name = "apps"
-	srv  pie.Server
-)
+var module nano.Module
 
-// Structure used for exchanges with the core, faking a request/responsewriter
-type PlugRequest struct {
-	Body     string
-	Header   http.Header
-	Form     url.Values
-	PostForm url.Values
-	Url      string
-	Method   string
-	HeadVals map[string]string
-	Status   int
+var conf struct {
+	User                 string
+	Server               string
+	ExecutionServers     []string
+	SSHPort              string
+	RDPPort              string
+	Password             string
+	WindowsDomain        string
+	XMLConfigurationFile string
 }
 
-// Plugin Structure
-type api struct{}
-
+type hash map[string]interface{}
 type GetApplicationsListReply struct {
 	Applications []Connection
 }
 
-// Set return codes and content type of response, and list apps
-func getList(args PlugRequest, reply *PlugRequest, empty string) {
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
-	reply.Status = 200
-	connections := listApplications(reply)
-	rsp, err := json.Marshal(connections)
-	if err != nil {
-		reply.Status = 500
-		log.Error("Marshalling of connections for all users failed: ", err)
+func env(key, def string) string {
+	v := os.Getenv(key)
+	if len(v) == 0 {
+		v = def
 	}
-	reply.Body = string(rsp)
-}
-
-// Get a list of apps accessible by the user owning the SAMAccount sam
-func getListForCurrentUser(args PlugRequest, reply *PlugRequest, empty string) {
-	var sam string // todo: sould be obtain from pq db
-
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
-	reply.Status = 200
-	connections := listApplicationsForSamAccount(sam, reply)
-
-	rsp, err := json.Marshal(connections)
-	if err != nil {
-		reply.Status = 500
-		log.WithFields(log.Fields{
-			"SAMAccount": sam,
-		}).Error("Marshalling of connections for current user failed: ", err)
-
-	}
-	reply.Body = string(rsp)
+	return v
 }
 
 // Make an application unusable
-func unpublishApplication(args PlugRequest, reply *PlugRequest, name string) {
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
-	reply.Status = 200
-	if name != "" {
-		unpublishApp(name)
-	} else {
-		reply.Status = 500
-		log.Error("No Application name to unpublish")
+func unpublishApplication(req nano.Request) (*nano.Response, error) {
+	appId := req.Params["app_id"]
+	if len(appId) < 1 {
+		return nano.JSONResponse(400, hash{
+			"error": "App id must be specified",
+		}), nil
 	}
-}
 
-// slice of available handler functions
-var tab = []struct {
-	Url    string
-	Method string
-	f      func(PlugRequest, *PlugRequest, string)
-}{
-	{`^\/api\/apps\/{0,1}$`, "GET", getList},
-	{`^\/api\/apps\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", unpublishApplication},
-	{`^\/api\/apps\/me\/{0,1}$`, "GET", getListForCurrentUser},
-}
-
-// Will receive all http requests starting by /api/history from the
-// core and chose the correct handler function
-func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	for _, val := range tab {
-		re := regexp.MustCompile(val.Url)
-		match := re.MatchString(args.Url)
-		if val.Method == args.Method && match {
-			if len(re.FindStringSubmatch(args.Url)) == 2 {
-				val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
-			} else {
-				val.f(args, reply, "")
-			}
-		}
+	err := unpublishApp(appId)
+	if err != nil {
+		return nil, err
 	}
-	return nil
-}
 
-// Plug the plugin to the core
-func (api) Plug(args interface{}, reply *bool) error {
-	*reply = true
-	return nil
-}
-
-// Will contain various verifications for the plugin. If the core can
-// call the function and receives "true" in the reply, it means the
-// plugin is functionning correctly
-func (api) Check(args interface{}, reply *bool) error {
-	*reply = true
-	return nil
-}
-
-// Unplug the plugin from the core
-func (api) Unplug(args interface{}, reply *bool) error {
-	defer os.Exit(0)
-	*reply = true
-	return nil
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
 func main() {
-	initConf()
+	module = nano.RegisterModule("apps")
 
-	srv = pie.NewProvider()
-	if err := srv.RegisterName(name, api{}); err != nil {
-		log.Fatal("Failed to register ", name, ": ", err)
-	}
-	srv.ServeCodec(jsonrpc.NewServerCodec)
+	conf.User = env("USER", "Administrator")
+	conf.SSHPort = env("SSH_PORT", "22")
+	conf.RDPPort = env("RDP_PORT", "3389")
+	conf.Server = env("SERVER", "62.210.56.76")
+	conf.Password = env("PASSWORD", "ItsPass1942+")
+	conf.XMLConfigurationFile = env("XML_CONFIGURATION_FILE", "conf.xml")
+	conf.WindowsDomain = env("WINDOWS_DOMAIN", "intra.localdomain.com")
+	conf.ExecutionServers = strings.Split(env("EXECUTION_SERVERS", "62.210.56.76"), ",")
+
+	module.Get("/aps", listApplications)
+	module.Delete("/apps/:app_id", unpublishApplication)
+	module.Get("/apps/me", listApplicationsForSamAccount)
+
+	module.Listen()
 }
