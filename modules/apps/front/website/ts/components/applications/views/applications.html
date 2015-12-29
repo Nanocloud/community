@@ -6,8 +6,8 @@
 		<div flow-init="{target: '/upload'}"
 				flow-files-submitted="$flow.upload()"
 				flow-file-success="$file.msg = $message">
-			<div class="drop-box" flow-drag-leave="style={}" ng-style="style"
-					flow-drag-enter="style={border: '5px dashed #4183D7'}"
+			<div class="drop-box" ng-style="style"
+					flow-drag-enter="style={border:'4px solid #4183D7'}" flow-drag-leave="style={}"
 					flow-drop flow-btn>
 				Drag And Drop your file here
 			</div>
@@ -16,8 +16,8 @@
 				<md-list-item ng-repeat="file in $flow.files" class="md-2-line">
 					<md-icon md-svg-icon="file"></md-icon>
 					<div class="md-list-item-text">
-						<h3>{{ $index + 1 }} - {{ file.name }} </h3>
-						<p> {{ file.msg }} </p>
+						<h3>{{ $index + 1 }} - {{ file.name }} {{ applicationsCtrl.percentDone(file) }}%</h3>
+						<md-progress-linear md-mode="determinate" value="{{applicationsCtrl.percentDone(file)}}"></md-progress-linear>
 					</div>
 				</md-list-item>
 			</md-list>
@@ -26,17 +26,27 @@
 
 	<md-card-actions layout="row" layout-align="end center">
 		<md-button href="/guacamole/#/client/aGFwdGljRGVza3RvcABjAG5vYXV0aGxvZ2dlZA=="
-				title="Open Windows desktop to install your application"
 				target="_blank" class="md-raised">
+			<md-tooltip>Open Windows desktop to install your application</md-tooltip>
 			<ng-md-icon icon="windows"></ng-md-icon> Desktop
 		</md-button>
 		<md-button href="/guacamole/#/client/aGFwdGljUG93ZXJzaGVsbABjAG5vYXV0aGxvZ2dlZA=="
-				title="Publish an application"
 				target="_blank" class="md-raised md-primary">
+			<md-tooltip>Publish an application</md-tooltip>
 			<ng-md-icon icon="cloud_done"></ng-md-icon> Publish
 		</md-button>
 	</md-card-actions>
 
 </md-card>
+
+<div>
+	<md-card>
+		<md-card-content>
+			<p>
+				<strong>Windows</strong> can take some time to start all services, if you can't access <em>Desktop</em> right now, wait a minute before retrying.
+			</p>
+		</md-card-content>
+	</md-card>
+</div>
 
 <div ui-grid="applicationsCtrl.gridOptions" ui-grid-selection ui-grid-auto-resize></div>

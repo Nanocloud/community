@@ -108,6 +108,10 @@ export class ApplicationsCtrl {
 		window.open(url, "_blank");
 	}
 
+	percentDone(file: any) {
+		return Math.round(file._prevUploadedSize / file.size * 100).toString();
+	}
+
 }
 
 angular.module("haptic.applications").controller("ApplicationsCtrl", ApplicationsCtrl);
