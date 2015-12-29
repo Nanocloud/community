@@ -67,6 +67,8 @@ func main() {
 	e.Get("/api/version", getVersionHandler)
 	e.Any("/api/*", genericHandler)
 	e.Any("/oauth/*", genericHandler)
+	e.Post("/upload", uploadHandler)
+	e.Get("/upload", checkUploadHandler)
 
 	addr := ":" + conf.Port
 	log.Info("Server running at ", addr)
