@@ -5,7 +5,7 @@ MAINTAINER \
   William Riancho <william.riancho@nanocloud.com>
 
 RUN apt-get update && \
-    apt-get -y install git libldap2-dev sshpass
+    apt-get -y install git sshpass
 
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash - && apt-get install -y nodejs
 

@@ -20,6 +20,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"/var/lib/nanocloud"}
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 echo "# Erasing previous install"
@@ -34,5 +35,5 @@ echo "$(date "${DATE_FMT}") Stoping API"
 /etc/init.d/iaasAPI stop > /dev/null 2>&1
 
 echo "$(date "${DATE_FMT}") Removing installed files"
-[ -d /var/lib/nanocloud ] && rm -rf /var/lib/nanocloud
+[ -d "${NANOCLOUD_DIR}" ] && rm -rf "${NANOCLOUD_DIR}"
 [ -h /etc/init.d/iaasAPI ] && rm -rf /etc/init.d/iaasAPI
