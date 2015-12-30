@@ -54,8 +54,8 @@ postgres:
   - PGDATA=/var/lib/postgresql/data/pgdata
   - POSTGRES_USER=nanocloud
 apps-module:
- dockerfile: Dockerfile
- build: ./repos_nanocloud/apps
+ dockerfile: Dockerfile-apps
+ build: .
  links:
   - rabbitmq:rabbitmq
  environment:
@@ -70,8 +70,8 @@ apps-module:
   - WINDOWS_DOMAIN=intra.localdomain.com
   - EXECUTION_SERVERS=10.0.2.2
 history-module:
- dockerfile: Dockerfile
- build: ./repos_nanocloud/history
+ dockerfile: Dockerfile-history
+ build: .
  links:
   - postgres:postgres
   - rabbitmq:rabbitmq
@@ -80,8 +80,8 @@ history-module:
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
 iaas-module:
- dockerfile: Dockerfile
- build: ./repos_nanocloud/iaas
+ dockerfile: Dockerfile-iaas
+ build: .
  links:
   - rabbitmq:rabbitmq
  environment:
@@ -90,8 +90,8 @@ iaas-module:
   - API_URL=http://10.0.2.2
   - API_PORT=8082
 ldap-module:
- dockerfile: Dockerfile
- build: ./repos_nanocloud/ldap
+ dockerfile: Dockerfile-ldap
+ build: .
  links:
   - rabbitmq:rabbitmq
  environment:
@@ -100,21 +100,9 @@ ldap-module:
   - USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
   - PASSWORD=Nanocloud123+
   - SERVER_URL=ldaps://10.0.2.2:6360
-# nanocloud-module:
-# dockerfile: Dockerfile
-# build: ./repos_nanocloud/nanocloud
-# links:
-#  - postgres:postgres
-#  - rabbitmq:rabbitmq
-# environment:
-#  - ENV=production
-#  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-#  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-#  - PORT=8081
-#  - FRONT_DIR=front/
 users-module:
- dockerfile: Dockerfile
- build: ./repos_nanocloud/users
+ dockerfile: Dockerfile-users
+ build: .
  links:
   - postgres:postgres
   - rabbitmq:rabbitmq
