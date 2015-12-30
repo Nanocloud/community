@@ -10,6 +10,5 @@ initial:
 build:
 	@echo "==== build front"
 	cd front && npm run build
-	if [ ! -h "bin/front" ]; then ln -s ../front/website/ bin/front; fi
+	if [ ! -h "bin/front" ]; then mkdir -p bin && ln -s ../front/website/ bin/front; fi
 	@echo
-

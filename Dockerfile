@@ -5,7 +5,7 @@ MAINTAINER \
 RUN go get -u github.com/constabulary/gb/...
 
 COPY . /app
-RUN gb build
 WORKDIR /app
+RUN gb build
 
 CMD ["./bin/apps"]
