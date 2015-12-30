@@ -11,15 +11,8 @@ initial:
 	cd front && npm install && npm run setup
 	@echo
 
-build: go npm
-
-go:
-	@echo "==== build back"
-	$(GOPATH)/bin/gb build
-	@echo
-
-npm:
+build:
 	@echo "==== build front"
 	cd front && npm run build
-	if [ ! -h "bin/front" ]; then ln -s ../front/website/ bin/front; fi
+	if [ ! -h "bin/front" ]; then mkdir -p bin && ln -s ../front/website/ bin/front; fi
 	@echo
