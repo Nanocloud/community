@@ -39,13 +39,7 @@ RUN git clone --depth=1 --recursive https://github.com/Nanocloud/ldap.git       
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/history.git       && make -C history
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/users.git         && make -C users
 
-RUN mkdir -p nanocloud/bin/plugins/running
-
-RUN mv iaas/bin/iaas nanocloud/bin/plugins/running/iaas && \
-    mv users/bin/users nanocloud/bin/plugins/running/users && \
-    mv ldap/bin/ldap nanocloud/bin/plugins/running/ldap && \
-    mv history/bin/history nanocloud/bin/plugins/running/history && \
-    mv apps/front/website/js/components/applications nanocloud/bin/front/js/components/applications && \
+RUN mv apps/front/website/js/components/applications nanocloud/bin/front/js/components/applications && \
     mv apps/front/website/js/components/presenter nanocloud/bin/front/js/components/presenter && \
     mv iaas/front/website/js/components/services nanocloud/bin/front/js/components/services && \
     mv users/front/website/js/components/users nanocloud/bin/front/js/components/users && \
