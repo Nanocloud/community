@@ -5,7 +5,7 @@ MAINTAINER \
   William Riancho <william.riancho@nanocloud.com>
 
 RUN apt-get update && \
-    apt-get -y install git libldap2-dev sshpass
+    apt-get -y install git sshpass
 
 COPY repos_nanocloud /opt/build/backend/src/nanocloud.com
 
@@ -36,19 +36,15 @@ WORKDIR /opt/build/backend/src/nanocloud.com
 RUN rm -rf nanocloud/.git && make -C nanocloud
 RUN rm -rf apps/.git      && make -C apps
 RUN rm -rf iaas/.git      && make -C iaas
-RUN rm -rf ldap/.git      && make -C ldap
 RUN rm -rf history/.git   && make -C history
 RUN rm -rf users/.git     && make -C users
 
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/
 
-RUN mkdir -p bin/plugins/running
+RUN go get -u github.com/constabulary/gb/...
+RUN gb build
 
-RUN ln -s ../../../../iaas/bin/iaas bin/plugins/running/iaas && \
-    ln -s ../../../../users/bin/users bin/plugins/running/users && \
-    ln -s ../../../../ldap/bin/ldap bin/plugins/running/ldap && \
-    ln -s ../../../../history/bin/history bin/plugins/running/history && \
-    ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications && \
+RUN ln -s ../../../../../apps/front/website/js/components/applications bin/front/js/components/applications && \
     ln -s ../../../../../apps/front/website/js/components/presenter bin/front/js/components/presenter && \
     ln -s ../../../../../iaas/front/website/js/components/services bin/front/js/components/services && \
     ln -s ../../../../../users/front/website/js/components/users bin/front/js/components/users && \
