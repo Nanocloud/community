@@ -35,7 +35,6 @@ WORKDIR /opt/build/backend/src/nanocloud.com
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/nanocloud.git     && make -C nanocloud
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/apps.git          && make -C apps
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/iaas.git          && make -C iaas
-RUN git clone --depth=1 --recursive https://github.com/Nanocloud/ldap.git          && make -C ldap
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/history.git       && make -C history
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/users.git         && make -C users
 
@@ -45,7 +44,7 @@ RUN mv apps/front/website/js/components/applications nanocloud/bin/front/js/comp
     mv users/front/website/js/components/users nanocloud/bin/front/js/components/users && \
     mv history/front/website/js/components/history nanocloud/bin/front/js/components/history
 
-RUN rm -rf iaas users ldap history apps && apt-get clean
+RUN rm -rf iaas users history apps && apt-get clean
 
 ENV GOPATH="$GOPATH:/opt/build/backend"
 
