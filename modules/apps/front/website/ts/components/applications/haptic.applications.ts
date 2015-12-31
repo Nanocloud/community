@@ -60,6 +60,6 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "flowFact
 		headers: {
 			"Authorization": "Bearer " + localStorage["accessToken"]
 		}
-	}
+	};
 
 }]);
