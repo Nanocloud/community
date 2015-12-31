@@ -39,10 +39,16 @@ func env(key, def string) string {
 	return v
 }
 
+var conf struct {
+	UploadDir string
+}
+
 func main() {
+	module = nano.RegisterModule("router")
+
 	setupDb()
 
-	module = nano.RegisterModule("router")
+	conf.UploadDir = env("UPLOAD_DIR", "uploads/")
 
 	handler := httpHandler{
 		URLPrefix: "/api",

@@ -23,6 +23,9 @@
 package main
 
 import (
+	"github.com/Nanocloud/nano"
+	"github.com/Nanocloud/oauth"
+	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -31,9 +34,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
-
-	log "github.com/Sirupsen/logrus"
-	"github.com/nanocloud/oauth"
 )
 
 // documentation for flowjs: https://github.com/flowjs/flow.js
@@ -47,7 +47,7 @@ func checkUploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	chunkPath := filepath.Join(conf.UploadDir, user.(*UserInfo).Id, "incomplete", r.FormValue("flowFilename"), r.FormValue("flowChunkNumber"))
+	chunkPath := filepath.Join(conf.UploadDir, user.(*nano.User).Id, "incomplete", r.FormValue("flowFilename"), r.FormValue("flowChunkNumber"))
 	if _, err := os.Stat(chunkPath); err != nil {
 		http.Error(w, "chunk not found", http.StatusSeeOther)
 		return
@@ -61,7 +61,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
-	userPath := filepath.Join(conf.UploadDir, user.(*UserInfo).Id)
+	userPath := filepath.Join(conf.UploadDir, user.(*nano.User).Id)
 
 	// get the multipart data
 	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
@@ -91,16 +91,26 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	err = assembleUpload(userPath, filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.WithFields(log.Fields{"module": moduleName, "error": err}).Error("unable to assemble the uploaded chunks")
+		module.Log.WithFields(log.Fields{
+			"error": err,
+		}).Error("unable to assemble the uploaded chunks")
 		return
 	}
-	log.WithFields(log.Fields{"path": upPath}).Info("file uploaded")
+	module.Log.WithFields(log.Fields{
+		"path": upPath,
+	}).Info("file uploaded")
 
 	syncOut, err := syncUploadedFile(upPath)
 	if err != nil {
-		log.WithFields(log.Fields{"module": moduleName, "output": syncOut, "error": err}).Error("unable to scp the uploaded file to Windows")
+		module.Log.WithFields(log.Fields{
+			"output": syncOut,
+			"error":  err,
+		}).Error("unable to scp the uploaded file to Windows")
 	}
-	log.WithFields(log.Fields{"path": upPath, "output": syncOut}).Info("file synced")
+	module.Log.WithFields(log.Fields{
+		"path":   upPath,
+		"output": syncOut,
+	}).Info("file synced")
 }
 
 func writeChunk(path, chunkNum string, r *http.Request) error {
