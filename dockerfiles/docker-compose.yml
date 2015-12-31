@@ -34,7 +34,7 @@ proxy:
   - ./nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
   - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
  links:
-  - nanocloud-backend:haptic
+  - nanocloud-backend:nanocloud-api
   - ambassador:guacamole-client
  ports:
   - 80:80
