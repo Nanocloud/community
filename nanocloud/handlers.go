@@ -23,6 +23,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/Nanocloud/oauth"
 	"github.com/labstack/echo"
 	"io/ioutil"
@@ -30,12 +31,17 @@ import (
 	"path/filepath"
 )
 
-func getMeHandler(c *echo.Context) error {
-	user := oauth.GetUserOrFail(c.Response().Writer(), c.Request())
-	if user == nil {
-		return echo.NewHTTPError(http.StatusNotFound)
+func getMeHandler(w http.ResponseWriter, r *http.Request) {
+	user := oauth.GetUserOrFail(w, r)
+	if user != nil {
+		b, err := json.Marshal(user)
+		if err != nil {
+			module.Log.Error(err)
+			w.WriteHeader(500)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
 	}
-	return c.JSON(http.StatusOK, user)
 }
 
 func oauthHandler(w http.ResponseWriter, r *http.Request) {
