@@ -367,8 +367,6 @@ func userLogin(req nano.Request) (*nano.Response, error) {
 		Password string
 	}
 
-	module.Log.Debug(string(req.Body))
-
 	err := json.Unmarshal(req.Body, &body)
 	if err != nil {
 		return nil, err
