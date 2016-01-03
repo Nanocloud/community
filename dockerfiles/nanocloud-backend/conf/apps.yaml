@@ -1,9 +1,0 @@
-queueuri:             amqp://guest:guest@rabbitmq:5672/
-sshport:              1119
-rdpport:              3389
-server:               10.0.2.2
-password:             Nanocloud123+
-xmlconfigurationFile: /opt/conf/noauth.xml
-windowsdomain:        intra.localdomain.com
-executionservers:     10.0.2.2
-user:                 Administrator

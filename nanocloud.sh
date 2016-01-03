@@ -24,8 +24,8 @@
 SCRIPT_FULL_PATH=$(readlink -e "${0}")
 CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 
-NANOCLOUD_DIR="/var/lib/nanocloud"
-NANOCLOUD_BIN_URL="https://community.nanocloud.com/nanocloud"
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"/var/lib/nanocloud"}
+NANOCLOUD_BIN_URL=${NANOCLOUD_DIR:-"https://community.nanocloud.com/nanocloud"}
 
 NANOCLOUD_QCOW2_URL="http://community.nanocloud.com/coreos.qcow2"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
