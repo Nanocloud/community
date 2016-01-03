@@ -50,7 +50,7 @@ ambassador:
  command: "-name dockerfiles_guacamole-client_1 -name dockerfiles_proxy_1 "
  restart: always
 rabbitmq:
-  image: rabbitmq:3.5
+ image: rabbitmq:3.5
  restart: always
 postgres:
  image: postgres:9.4
