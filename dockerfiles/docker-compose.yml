@@ -7,8 +7,10 @@ guacamole-client:
  volumes:
   - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
   - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
+ restart: always
 guacamole-server:
  image: glyptodon/guacd:0.9.8
+ restart: always
 nanocloud-backend:
  build: ./
  dockerfile: Dockerfile-nanocloud
@@ -28,6 +30,7 @@ nanocloud-backend:
   - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
  volumes_from:
   - guacamole-client
+ restart: always
 proxy:
  image: nginx:1.9
  volumes:
@@ -39,13 +42,20 @@ proxy:
  ports:
   - 80:80
   - 443:443
+ restart: always
 ambassador:
  image: cpuguy83/docker-grand-ambassador:0.9.1
  volumes:
  - "/var/run/docker.sock:/var/run/docker.sock"
  command: "-name dockerfiles_guacamole-client_1 -name dockerfiles_proxy_1 "
+ restart: always
 rabbitmq:
+<<<<<<< HEAD
   image: rabbitmq:3.5
+=======
+ image: rabbitmq
+ restart: always
+>>>>>>> c6fd04a13986ecbf842a0bd2d04ce3b8900a2dd1
 postgres:
  image: postgres:9.4
  volumes:
@@ -53,6 +63,7 @@ postgres:
  environment:
   - PGDATA=/var/lib/postgresql/data/pgdata
   - POSTGRES_USER=nanocloud
+ restart: always
 apps-module:
  dockerfile: Dockerfile-apps
  build: .
@@ -69,6 +80,7 @@ apps-module:
   - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
   - WINDOWS_DOMAIN=intra.localdomain.com
   - EXECUTION_SERVERS=10.0.2.2
+ restart: always
 history-module:
  dockerfile: Dockerfile-history
  build: .
@@ -79,6 +91,7 @@ history-module:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+ restart: always
 iaas-module:
  dockerfile: Dockerfile-iaas
  build: .
@@ -89,6 +102,7 @@ iaas-module:
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - API_URL=http://10.0.2.2
   - API_PORT=8082
+ restart: always
 ldap-module:
  dockerfile: Dockerfile-ldap
  build: .
@@ -100,6 +114,7 @@ ldap-module:
   - USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
   - PASSWORD=Nanocloud123+
   - SERVER_URL=ldaps://10.0.2.2:6360
+ restart: always
 users-module:
  dockerfile: Dockerfile-users
  build: .
@@ -110,3 +125,4 @@ users-module:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+ restart: always
