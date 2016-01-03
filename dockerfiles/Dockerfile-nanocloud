@@ -1,4 +1,4 @@
-FROM golang:1.5.1
+FROM golang:1.5.2
 MAINTAINER \
   Romain Soufflet <romain.soufflet@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
@@ -46,10 +46,10 @@ RUN mv apps/front/website/js/components/applications nanocloud/bin/front/js/comp
 
 RUN rm -rf iaas users history apps && apt-get clean
 
-ENV GOPATH="$GOPATH:/opt/build/backend"
-
-EXPOSE 8081
+RUN go get -u github.com/constabulary/gb/...
+WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud
+RUN gb build
 
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/bin
-
+EXPOSE 8080
 CMD ["./nanocloud"]

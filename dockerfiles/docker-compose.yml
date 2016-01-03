@@ -11,20 +11,20 @@ guacamole-server:
  image: glyptodon/guacd
 nanocloud-backend:
  build: ./
- dockerfile: nanocloud-backend/Dockerfile
+ dockerfile: Dockerfile-nanocloud
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-  - PORT=8081
+  - PORT=8080
   - FRONT_DIR=front/
  links:
   - guacamole-client:guacamole
   - postgres:postgres
   - rabbitmq:rabbitmq
  volumes:
-  - ./nanocloud-backend/conf/ldaprc:/etc/ldap/ldap.conf:ro
-  - ./nanocloud-backend/conf/ad2012.cer:/opt/conf/ad2012.cer:ro
+  - ./conf/ldaprc:/etc/ldap/ldap.conf:ro
+  - ./conf/ad2012.cer:/opt/conf/ad2012.cer:ro
   - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
  volumes_from:
   - guacamole-client
