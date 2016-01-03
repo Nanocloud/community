@@ -57,15 +57,22 @@ func (c oauthConnector) AuthenticateUser(username, password string) (interface{}
 		return nil, nil
 	}
 
-	user := nano.User{}
+	var r struct {
+		Success bool
+		User    nano.User
+	}
 
 	module.Log.Debug(string(res.Body))
-	err = json.Unmarshal(res.Body, &user)
+	err = json.Unmarshal(res.Body, &r)
 	if err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	if !r.Success {
+		return nil, nil
+	}
+
+	return &r.User, nil
 }
 
 func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{}, error) {

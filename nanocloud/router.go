@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/Nanocloud/nano"
+	"github.com/Nanocloud/oauth"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -59,16 +60,14 @@ func (h httpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	user := nano.User{
-		Id: "-1",
-	}
+	user := oauth.GetUserOrFail(res, req)
 
 	response, err := h.Module.Request(
 		req.Method,
 		path+"?"+req.URL.RawQuery,
 		contentType,
 		body,
-		&user,
+		user.(*nano.User),
 	)
 
 	res.Header().Set("Access-Control-Allow-Origin", "*")
