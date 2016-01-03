@@ -26,71 +26,40 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
-	log "github.com/Sirupsen/logrus"
+	"github.com/Nanocloud/nano"
 	_ "github.com/lib/pq"
-	"github.com/natefinch/pie"
 	"github.com/satori/go.uuid"
-	"github.com/streadway/amqp"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"net/rpc/jsonrpc"
-	"net/url"
 	"os"
-	"regexp"
-)
-
-var (
-	name = "users"
-	srv  pie.Server
+	"time"
 )
 
 type hash map[string]interface{}
 
-type api struct{}
+var module nano.Module
 
 var db *sql.DB
 
-type UserInfo struct {
-	Id              string
-	Activated       bool
-	Email           string
-	FirstName       string
-	LastName        string
-	Password        string
-	IsAdmin         bool
-	Sam             string
-	WindowsPassword string
+func dbConnect() {
+	databaseURI := os.Getenv("DATABASE_URI")
+	if len(databaseURI) == 0 {
+		databaseURI = "postgres://localhost/nanocloud?sslmode=disable"
+	}
+
+	var err error
+
+	for try := 0; try < 10; try++ {
+		db, err = sql.Open("postgres", databaseURI)
+		if err == nil {
+			return
+		}
+		time.Sleep(time.Second * 5)
+	}
+
+	module.Log.Fatalf("Cannot connect to Postgres Database: %s", err)
 }
 
-type Message struct {
-	Method    string
-	Name      string
-	Email     string
-	Activated string
-	Sam       string
-	Password  string
-}
-
-type PlugRequest struct {
-	Body     string
-	Header   http.Header
-	Form     url.Values
-	PostForm url.Values
-	Url      string
-	Method   string
-	HeadVals map[string]string
-	Status   int
-}
-
-type ReturnMsg struct {
-	Method string
-	Err    string
-	Plugin string
-	Email  string
-}
-
-func GetUsers() (*[]UserInfo, error) {
+func findUsers() (*[]nano.User, error) {
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
@@ -102,11 +71,11 @@ func GetUsers() (*[]UserInfo, error) {
 		return nil, err
 	}
 
-	var users []UserInfo
+	var users []nano.User
 
 	defer rows.Close()
 	for rows.Next() {
-		user := UserInfo{}
+		user := nano.User{}
 
 		rows.Scan(
 			&user.Id,
@@ -128,16 +97,14 @@ func GetUsers() (*[]UserInfo, error) {
 	return &users, nil
 }
 
-func GetUser(args PlugRequest, reply *PlugRequest, userId string) (err error) {
-	reply.Status = 400
+func getUser(req nano.Request) (*nano.Response, error) {
+	userId := req.Params["id"]
 	if userId == "" {
-		err = errors.New("User id needed to retrieve account informations")
-
-		log.Error(err)
-		return
+		return nano.JSONResponse(400, hash{
+			"error": "User id needed to retrieve account informations",
+		}), nil
 	}
 
-	reply.Status = 500
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
@@ -147,17 +114,12 @@ func GetUser(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 		WHERE id = $1::varchar`,
 		userId)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	defer rows.Close()
 	if rows.Next() {
-		reply.Status = 200
-
-		reply.HeadVals = make(map[string]string, 1)
-		reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
-
-		var user UserInfo
+		var user nano.User
 		rows.Scan(
 			&user.Id,
 			&user.FirstName, &user.LastName,
@@ -167,76 +129,25 @@ func GetUser(args PlugRequest, reply *PlugRequest, userId string) (err error) {
 			&user.Sam,
 			&user.WindowsPassword,
 		)
-
-		var res []byte
-		res, err = json.Marshal(user)
-		if err != nil {
-			reply.Status = 500
-			return
-		}
-
-		reply.Status = 200
-		reply.Body = string(res)
-	} else {
-		reply.Status = 404
-		err = errors.New("User Not Found")
+		return nano.JSONResponse(200, user), nil
 	}
 
-	return
-}
-
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Error("%s: %s", msg, err)
-	}
-}
-
-func SendMsg(msg Message) {
-	conn, err := amqp.Dial(conf.QueueUri)
-	failOnError(err, "Failed to connect to RabbitMQ")
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	err = ch.ExchangeDeclare(
-		"users_topic", // name
-		"topic",       // type
-		true,          // durable
-		false,         // auto-deleted
-		false,         // internal
-		false,         // no-wait
-		nil,           // arguments
-	)
-	failOnError(err, "Failed to declare an exchange")
-	str, err := json.Marshal(msg)
-	if err != nil {
-		log.Error(err)
-	}
-	err = ch.Publish(
-		"users_topic", // exchange
-		"users.req",   // routing key
-		false,         // mandatory
-		false,         // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        []byte(str),
-		})
-	failOnError(err, "Failed to publish a message")
-
-	log.Info(" [x] Sent order to plugin")
-	defer ch.Close()
-	defer conn.Close()
-
+	return nano.JSONResponse(404, hash{
+		"error": "User Not Found",
+	}), nil
 }
 
 func CreateADUser(id string) (string, string, error) {
-	password := randomString(8) + "s4D+"
-	args := make(map[string]string, 2)
-	args["id"] = id
-	args["password"] = password
-	log.Error("CALLING RPCREQUEST")
-	res, err := rpcRequest("rmq_ldap", "create_user", args)
-	log.Error("CALLED RPCREQUEST")
-	return res["sam"].(string), password, err
+	/*
+		password := randomString(8) + "s4D+"
+		args := make(map[string]string, 2)
+		args["id"] = id
+		args["password"] = password
+		log.Error("CALLING RPCREQUEST")
+		res, err := rpcRequest("rmq_ldap", "create_user", args)
+		log.Error("CALLED RPCREQUEST")
+	*/
+	return "", "", nil
 }
 
 func CreateUser(
@@ -246,7 +157,7 @@ func CreateUser(
 	lastName string,
 	password string,
 	isAdmin bool,
-) (createdUser *UserInfo, err error) {
+) (createdUser *nano.User, err error) {
 	id := uuid.NewV4().String()
 	sam, winpass, err := CreateADUser(id)
 
@@ -300,7 +211,7 @@ func CreateUser(
 		return
 	}
 
-	var user UserInfo
+	var user nano.User
 	rows.Scan(
 		&user.Id, &user.Activated,
 		&user.Email, &user.FirstName,
@@ -314,48 +225,26 @@ func CreateUser(
 	return
 }
 
-func Add(args PlugRequest, reply *PlugRequest, mail string) (err error) {
-	var user UserInfo
-	err = json.Unmarshal([]byte(args.Body), &user)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	_, err = CreateUser(
-		true,
-		user.Email,
-		user.FirstName,
-		user.LastName,
-		user.Password,
-		false,
-	)
-	if err == nil {
-		reply.Status = 202
-	} else {
-		reply.Status = 400
-	}
-	return
-}
-
-func UpdatePassword(args PlugRequest, reply *PlugRequest, userId string) (err error) {
-	reply.Status = 400
+func updateUserPassword(req nano.Request) (*nano.Response, error) {
+	userId := req.Params["id"]
 	if userId == "" {
-		err = errors.New("Email needed to modify account")
-		return
+		return nano.JSONResponse(400, hash{
+			"error": "Email needed to modify account",
+		}), nil
 	}
-	reply.Status = 500
 
-	var user UserInfo
-	err = json.Unmarshal([]byte(args.Body), &user)
+	var user struct {
+		Password string
+	}
+
+	err := json.Unmarshal(req.Body, &user)
 	if err != nil {
-		log.Error(err)
-		return
+		return nil, err
 	}
 
 	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	rows, err := db.Query(
@@ -364,24 +253,24 @@ func UpdatePassword(args PlugRequest, reply *PlugRequest, userId string) (err er
 		WHERE id = $2::varchar`,
 		pass, userId)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	rows.Close()
 
-	reply.Status = 202
-	// SendMsg(Message{Method: "ChangePassword", Name: t.Name, Password: t.Password, Email: mail})
-	return
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
-func DisableAccount(args PlugRequest, reply *PlugRequest, userId string) (err error) {
-	reply.Status = 404
+func disableUser(req nano.Request) (*nano.Response, error) {
+	userId := req.Params["id"]
 	if userId == "" {
-		err = errors.New("User id needed for desactivation")
-		return
+		return nano.JSONResponse(404, hash{
+			"error": "User id needed for desactivation",
+		}), nil
 	}
 
-	reply.Status = 500
 	rows, err := db.Query(
 		`UPDATE users
 		SET activated = false
@@ -389,95 +278,49 @@ func DisableAccount(args PlugRequest, reply *PlugRequest, userId string) (err er
 		userId)
 
 	if err != nil {
-		return
+		return nil, err
 	}
 	rows.Close()
-	reply.Status = 202
 
-	return
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
-func Delete(args PlugRequest, reply *PlugRequest, userId string) (err error) {
+func deleteUser(req nano.Request) (*nano.Response, error) {
+	userId := req.Params["id"]
 	if len(userId) == 0 {
-		reply.Status = 400
-		err = errors.New("User id needed for deletion")
-		log.Warn(err)
-		return
+		return nano.JSONResponse(400, hash{
+			"error": "User id needed for deletion",
+		}), nil
 	}
 
-	reply.Status = 500
 	rows, err := db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
 	if err != nil {
-		log.Error(err)
-		return
+		module.Log.Error(err)
+		return nil, err
 	}
 	rows.Close()
 	// SendMsg(Message{Method: "Delete", Email: mail})
 
-	reply.Status = 202
-	return
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
-func ListCall(args PlugRequest, reply *PlugRequest, mail string) error {
-	users, err := GetUsers()
+func getUsers(req nano.Request) (*nano.Response, error) {
+	users, err := findUsers()
 	if err != nil {
-		return err
+		return nil, err
+	}
+	return nano.JSONResponse(200, users), nil
+}
+
+func getUserFromEmailPassword(email, password string) (*nano.User, string, error) {
+	if len(email) < 1 || len(password) < 1 {
+		return nil, "user not found", nil
 	}
 
-	rsp, err := json.Marshal(users)
-	reply.Body = string(rsp)
-	reply.HeadVals = make(map[string]string, 1)
-	reply.HeadVals["Content-Type"] = "application/json; charset=UTF-8"
-	if err == nil {
-		reply.Status = 200
-	} else {
-		reply.Status = 400
-	}
-	return nil
-}
-
-var tab = []struct {
-	Url    string
-	Method string
-	f      func(PlugRequest, *PlugRequest, string) error
-}{
-	{`^\/api\/users\/(?P<id>[^\/]+)\/disable\/{0,1}$`, "POST", DisableAccount},
-	{`^\/api\/users\/{0,1}$`, "GET", ListCall},
-	{`^\/api\/users\/{0,1}$`, "POST", Add},
-	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "DELETE", Delete},
-	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "PUT", UpdatePassword},
-	{`^\/api\/users\/(?P<id>[^\/]+)\/{0,1}$`, "GET", GetUser},
-}
-
-func (api) Receive(args PlugRequest, reply *PlugRequest) error {
-	for _, val := range tab {
-		re := regexp.MustCompile(val.Url)
-		match := re.MatchString(args.Url)
-		if val.Method == args.Method && match {
-			fmt.Fprintf(os.Stderr, ">> %s\n", val.Url)
-			if len(re.FindStringSubmatch(args.Url)) == 2 {
-				err := val.f(args, reply, re.FindStringSubmatch(args.Url)[1])
-				if err != nil {
-					log.Error(err)
-				}
-			} else {
-				err := val.f(args, reply, "")
-
-				if err != nil {
-					log.Error(err)
-				}
-			}
-		}
-	}
-	return nil
-}
-
-type Queue struct {
-	Name string
-}
-
-func getUserFromEmailPassword(email, password string) (*UserInfo, string, error) {
-	log.Debug("getUserFromEmailPassword")
 	rows, err := db.Query(
 		`SELECT id, activated,
 		email, password,
@@ -495,7 +338,7 @@ func getUserFromEmailPassword(email, password string) (*UserInfo, string, error)
 		return nil, "user not found", nil
 	}
 
-	var user UserInfo
+	var user nano.User
 	var passwordHash string
 	rows.Scan(
 		&user.Id, &user.Activated,
@@ -518,186 +361,66 @@ func getUserFromEmailPassword(email, password string) (*UserInfo, string, error)
 	return &user, "", nil
 }
 
-func (api) GetUser(arg struct{ UserId string }, res *struct {
-	Success      bool
-	ErrorMessage string
-	User         UserInfo
-}) error {
-	rows, err := db.Query(
-		`SELECT id, activated,
-		email,
-		first_name, last_name,
-		is_admin, sam, windows_password
-		FROM users
-		WHERE id = $1::varchar`,
-		arg.UserId)
-
-	if err != nil {
-		return err
+func userLogin(req nano.Request) (*nano.Response, error) {
+	var body struct {
+		Username string
+		Password string
 	}
 
-	defer rows.Close()
-	if !rows.Next() {
-		res.ErrorMessage = "User not found"
-		return nil
+	module.Log.Debug(string(req.Body))
+
+	err := json.Unmarshal(req.Body, &body)
+	if err != nil {
+		return nil, err
 	}
 
-	err = rows.Scan(
-		&res.User.Id, &res.User.Activated,
-		&res.User.Email, &res.User.FirstName,
-		&res.User.LastName, &res.User.IsAdmin,
-		&res.User.Sam, &res.User.WindowsPassword)
+	user, message, err := getUserFromEmailPassword(body.Username, body.Password)
 	if err != nil {
-		return err
-	}
-	res.Success = true
-	return nil
-}
-
-func (api) AuthenticateUser(info struct {
-	Username string
-	Password string
-}, res *struct {
-	Success      bool
-	ErrorMessage string
-	User         UserInfo
-}) error {
-	user, message, err := getUserFromEmailPassword(info.Username, info.Password)
-
-	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if user != nil {
-		res.Success = true
-		res.User = *user
-		return nil
+		return nano.JSONResponse(200, hash{
+			"success": true,
+			"user":    user,
+		}), nil
 	}
 
-	res.ErrorMessage = message
-	return nil
-}
-
-func ListenToQueue() {
-	conn, err := amqp.Dial(conf.QueueUri)
-	failOnError(err, "Failed to connect to RabbitMQ")
-	//defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-
-	err = ch.ExchangeDeclare(
-		"users_topic", // name
-		"topic",       // type
-		true,          // durable
-		false,         // auto-deleted
-		false,         // internal
-		false,         // no-wait
-		nil,           // arguments
-	)
-	failOnError(err, "Failed to declare an exchange")
-	_, err = ch.QueueDeclare(
-		"users", // name
-		false,   // durable
-		false,   // delete when usused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err, "Failed to declare an queue")
-	err = ch.QueueBind(
-		"users",       // queue name
-		"*.users",     // routing key
-		"users_topic", // exchange
-		false,
-		nil)
-	failOnError(err, "Failed to bind a queue")
-	responses, err := ch.Consume(
-		"users", // queue
-		"",      // consumer
-		true,    // auto-ack
-		false,   // exclusive
-		false,   // no-local
-		false,   // no-wait
-		nil,     // args
-	)
-	failOnError(err, "Failed to register a consumer")
-	forever := make(chan bool)
-	go func() {
-		for d := range responses {
-			HandleReturns(d.Body)
-		}
-	}()
-	log.Println("Waiting for responses of other plugins")
-	defer ch.Close()
-	defer conn.Close()
-	<-forever
-}
-
-func HandleReturns(ret []byte) {
-	var Msg ReturnMsg
-	err := json.Unmarshal(ret, &Msg)
-	if err != nil {
-		log.Println(err)
-	}
-	if Msg.Err == "" {
-		log.Println("Request:", Msg.Method, "Successfully completed by plugin", Msg.Plugin)
-	} else {
-		if Msg.Method == "Add" {
-			log.Println("Request:", Msg.Method, "Didn't complete by plugin", Msg.Plugin, ", now reversing process")
-			Delete(PlugRequest{}, &PlugRequest{}, Msg.Email)
-		} else {
-			log.Println("Request:", Msg.Method, "Didn't complete by plugin", Msg.Plugin)
-		}
-	}
-}
-
-func (api) Plug(args interface{}, reply *bool) error {
-	go ListenToQueue()
-	*reply = true
-	return nil
-}
-
-func (api) Check(args interface{}, reply *bool) error {
-	*reply = true
-	return nil
-}
-
-func (api) Unplug(args interface{}, reply *bool) error {
-	defer os.Exit(0)
-	*reply = true
-	return nil
+	return nano.JSONResponse(400, hash{
+		"success": false,
+		"error":   message,
+	}), nil
 }
 
 func setupDb() error {
 	rows, err := db.Query(
 		`SELECT table_name
-		FROM information_schema.tables
-		WHERE table_name = 'users'`)
+			FROM information_schema.tables
+			WHERE table_name = 'users'`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
 	if rows.Next() {
-		log.Info("[Users] users table already set up\n")
+		module.Log.Info("Users table already set up")
 		return nil
 	}
 
 	rows, err = db.Query(
 		`CREATE TABLE users (
-			id               varchar(36) PRIMARY KEY,
-			first_name       varchar(36),
-			last_name        varchar(36),
-			email            varchar(36) UNIQUE,
-			password         varchar(60),
-			is_admin         boolean,
-			activated        boolean,
-			sam        	 varchar(35),
-			windows_password varchar(36)
-		);`)
+				id               varchar(36) PRIMARY KEY,
+				first_name       varchar(36),
+				last_name        varchar(36),
+				email            varchar(36) UNIQUE,
+				password         varchar(60),
+				is_admin         boolean,
+				activated        boolean,
+				sam        	 varchar(35),
+				windows_password varchar(36)
+			);`)
 	if err != nil {
-		log.Errorf("[Users] Unable to create users table: %s\n", err)
+		module.Log.Errorf("Unable to create users table: %s", err)
 		return err
 	}
 
@@ -713,60 +436,66 @@ func setupDb() error {
 	)
 
 	if err != nil {
-		log.Errorf("[Users] Unable to create the default user: %s\n", err)
+		module.Log.Errorf("Unable to create the default user: %s", err)
 		return err
 	}
-
 	return nil
 }
 
-func handleRPCGetUsers() ([]byte, error) {
-	users, err := GetUsers()
+func postUsers(req nano.Request) (*nano.Response, error) {
+	var user struct {
+		Email     string
+		FirstName string
+		LastName  string
+		Password  string
+	}
+
+	err := json.Unmarshal([]byte(req.Body), &user)
+	if err != nil {
+		module.Log.Error(err)
+		return nil, err
+	}
+
+	_, err = CreateUser(
+		true,
+		user.Email,
+		user.FirstName,
+		user.LastName,
+		user.Password,
+		false,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	res := make(map[string]interface{})
-	res["users"] = users
-
-	return json.Marshal(res)
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
 func main() {
 	var err error
+	module = nano.RegisterModule("users")
 
-	log.SetOutput(os.Stderr)
-	log.SetLevel(log.DebugLevel)
-
-	srv = pie.NewProvider()
-
-	if err = srv.RegisterName(name, api{}); err != nil {
-		log.Fatalf("Failed to register %s: %s", name, err)
-	}
-
-	initConf()
-
-	go rpcListen(conf.QueueUri, func(req map[string]interface{}) (int, []byte, error) {
-		if req["action"] == "get_users" {
-			res, err := handleRPCGetUsers()
-			if err != nil {
-				return 500, nil, err
-			}
-			return 200, res, nil
-		}
-		return 400, []byte(`{"error": "invalid action"}`), nil
-	})
-
-	db, err = sql.Open("postgres", conf.DatabaseUri)
-	if err != nil {
-		log.Fatalf("Cannot connect to Postgres Database: %s", err)
-	}
+	dbConnect()
 
 	err = setupDb()
 	if err != nil {
-		log.Fatalf("[Users] unable to setup users table: %s", err)
+		module.Log.Fatalf("Unable to setup users table: %s", err)
+		return
 	}
 
-	srv.ServeCodec(jsonrpc.NewServerCodec)
+	module.Post("/users/login", userLogin)
 
+	module.Post("/users/:id/disable", disableUser)
+	module.Get("/users", getUsers)
+
+	// Create a User
+	module.Post("/users", postUsers)
+
+	module.Delete("/users/:id", deleteUser)
+	module.Put("/users/:id", updateUserPassword)
+	module.Get("/users/:id", getUser)
+
+	module.Listen()
 }
