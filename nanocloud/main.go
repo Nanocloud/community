@@ -46,7 +46,10 @@ var conf struct {
 func main() {
 	module = nano.RegisterModule("router")
 
-	setupDb()
+	err := setupDb()
+	if err != nil {
+		module.Log.Fatal(err)
+	}
 
 	conf.UploadDir = env("UPLOAD_DIR", "uploads/")
 
