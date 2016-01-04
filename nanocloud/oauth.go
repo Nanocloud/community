@@ -76,11 +76,6 @@ func (c oauthConnector) AuthenticateUser(username, password string) (interface{}
 }
 
 func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{}, error) {
-	db, err := GetDB()
-	if err != nil {
-		return nil, err
-	}
-
 	rows, err := db.Query(
 		`SELECT user_id
 		FROM oauth_access_tokens
@@ -124,11 +119,6 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 }
 
 func (c oauthConnector) GetClient(key string, secret string) (interface{}, error) {
-	db, err := GetDB()
-	if err != nil {
-		return nil, err
-	}
-
 	rows, err := db.Query(
 		`SELECT id, name,
 		key
@@ -162,11 +152,6 @@ func (at AccessToken) ToJSON() ([]byte, error) {
 func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JSONAble, error) {
 	user := rawUser.(*nano.User)
 	client := rawClient.(*Client)
-
-	db, err := GetDB()
-	if err != nil {
-		return nil, err
-	}
 
 	rows, err := db.Query(
 		`SELECT token

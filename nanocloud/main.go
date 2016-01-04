@@ -46,7 +46,12 @@ var conf struct {
 func main() {
 	module = nano.RegisterModule("router")
 
-	err := setupDb()
+	err := dbConnect()
+	if err != nil {
+		module.Log.Fatal(err)
+	}
+
+	err = setupDb()
 	if err != nil {
 		module.Log.Fatal(err)
 	}

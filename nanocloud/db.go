@@ -29,38 +29,31 @@ import (
 	"time"
 )
 
-var dbInstance *sql.DB = nil
+var db *sql.DB = nil
 
-func GetDB() (*sql.DB, error) {
+func dbConnect() error {
 	var err error
-	if dbInstance == nil {
-		uri := env("DATABASE_URI", "postgres://localhost/nanocloud?sslmode=disable")
+	uri := env("DATABASE_URI", "postgres://localhost/nanocloud?sslmode=disable")
 
-		for try := 0; try < 10; try++ {
-			dbInstance, err = sql.Open("postgres", uri)
-			if err != nil {
-				return nil, err
-			}
-
-			err = dbInstance.Ping()
-			if err == nil {
-				module.Log.Info("Connected to Postgres")
-				return dbInstance, nil
-			}
-
-			module.Log.Info("Unable to connect to Postgres. Will retry in 5 sec")
-			time.Sleep(time.Second * 5)
+	for try := 0; try < 10; try++ {
+		db, err = sql.Open("postgres", uri)
+		if err != nil {
+			return err
 		}
+
+		err = db.Ping()
+		if err == nil {
+			module.Log.Info("Connected to Postgres")
+			return nil
+		}
+
+		module.Log.Info("Unable to connect to Postgres. Will retry in 5 sec")
+		time.Sleep(time.Second * 5)
 	}
-	return nil, err
+	return err
 }
 
 func setupDb() error {
-	db, err := GetDB()
-	if err != nil {
-		return err
-	}
-
 	// oauth_clients table
 	rows, err := db.Query(
 		`SELECT table_name
