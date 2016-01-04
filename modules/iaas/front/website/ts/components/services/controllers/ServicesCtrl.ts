@@ -22,28 +22,27 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/ServicesSvc" />
+/// <amd-dependency path="../services/ServicesFct" />
 /// <amd-dependency path="./ServiceCtrl" />
 import { ServicesSvc, IService } from "../services/ServicesSvc";
+import { ServicesFct } from "../services/ServicesFct";
 
 "use strict";
 
 export class ServicesCtrl {
 
-	services: any;
 	colors: any;
 
 	static $inject = [
 		"ServicesSvc",
-		"$mdDialog",
-		"$interval",
-		"$scope"
+		"ServicesFct",
+		"$mdDialog"
 	];
 
 	constructor(
-		private servicesSrv: ServicesSvc,
-		private $mdDialog: angular.material.IDialogService,
-		$interval: ng.IIntervalService,
-		$scope: angular.IScope
+		private servicesSvc: ServicesSvc,
+		private servicesFct: ServicesFct,
+		private $mdDialog: angular.material.IDialogService
 	) {
 		this.colors = {
 			downloading: "#4183D7",
@@ -51,18 +50,10 @@ export class ServicesCtrl {
 			booting: "#EB9532",
 			running: "#26A65B"
 		};
-
-		this.loadServices();
-		let intervalPrms = $interval(this.loadServices.bind(this), 10 * 1000);
-		$scope.$on("$destroy", function () {
-			$interval.cancel(intervalPrms);
-		});
 	}
 
-	loadServices(): angular.IPromise<void> {
-		return this.servicesSrv.getAll().then((services: IService[]) => {
-			this.services = services;
-		});
+	get services(): IService[] {
+		return this.servicesFct.services; 
 	}
 
 	startWindowsDownload(e: MouseEvent, service: IService) {
@@ -72,11 +63,11 @@ export class ServicesCtrl {
 	}
 
 	toggle(service: IService) {
-		if (! service.Locked) {
+		if (!service.Locked) {
 			if (service.Status === "running") {
-				this.servicesSrv.startStopService(service);
+				this.servicesSvc.startStopService(service);
 			} else {
-				this.servicesSrv.start(service);
+				this.servicesSvc.start(service);
 			}
 		}
 	}
