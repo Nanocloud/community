@@ -130,7 +130,7 @@ fi
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
   echo "$(date "${DATE_FMT}") Local Windows image found, copying"
-  cp "${WINDOWS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64.qcow2"
+  cp "${WINDOWS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/windows-server-2012R2-amd64.qcow2"
 fi
 
 echo "$(date "${DATE_FMT}") Setup complete"

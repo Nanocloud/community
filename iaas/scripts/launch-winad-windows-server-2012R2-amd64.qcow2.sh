@@ -23,8 +23,8 @@
 
 NANOCLOUD_DIR="/var/lib/nanocloud"
 
-VM_NAME="winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64"
-VM_HOSTNAME="winad-milli-free_use-10.20.12.20-windows-server-std-2012-x86_64"
+VM_NAME="windows-server-2012R2-amd64"
+VM_HOSTNAME="windows-server-2012R2-amd64"
 
 # Port map
 SSH_PORT=1119
