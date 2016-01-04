@@ -40,7 +40,7 @@ var module nano.Module
 
 var db *sql.DB
 
-func dbConnect() {
+func dbConnect() error {
 	databaseURI := os.Getenv("DATABASE_URI")
 	if len(databaseURI) == 0 {
 		databaseURI = "postgres://localhost/nanocloud?sslmode=disable"
@@ -50,13 +50,21 @@ func dbConnect() {
 
 	for try := 0; try < 10; try++ {
 		db, err = sql.Open("postgres", databaseURI)
-		if err == nil {
-			return
+		if err != nil {
+			return err
 		}
+
+		err = db.Ping()
+		if err == nil {
+			module.Log.Info("Connected to Postgres")
+			return nil
+		}
+
+		module.Log.Info("Unable to connect to Postgres. Will retry in 5 sec")
 		time.Sleep(time.Second * 5)
 	}
 
-	module.Log.Fatalf("Cannot connect to Postgres Database: %s", err)
+	return err
 }
 
 func findUsers() (*[]nano.User, error) {
@@ -472,10 +480,12 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 }
 
 func main() {
-	var err error
 	module = nano.RegisterModule("users")
 
-	dbConnect()
+	err := dbConnect()
+	if err != nil {
+		module.Log.Fatalf("Cannot connect to Postgres Database: %s", err)
+	}
 
 	err = setupDb()
 	if err != nil {
