@@ -31,6 +31,12 @@ func replyError(res http.ResponseWriter, statusCode int, message string) {
 }
 
 func (h httpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Access-Control-Allow-Origin", "*")
+	res.Header().Set("Cashe-Control", "no-store")
+	res.Header().Set("Connection", "keep-alive")
+	res.Header().Set("Expires", "Sat, 01 Jan 2000 00:00:00 GMT")
+	res.Header().Set("Pragma", "no-cache")
+
 	path := strings.TrimPrefix(req.URL.Path, h.URLPrefix)
 	path = strings.TrimRight(path, "/")
 
@@ -61,6 +67,9 @@ func (h httpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	user := oauth.GetUserOrFail(res, req)
+	if user == nil {
+		return
+	}
 
 	response, err := h.Module.Request(
 		req.Method,
@@ -69,12 +78,6 @@ func (h httpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		body,
 		user.(*nano.User),
 	)
-
-	res.Header().Set("Access-Control-Allow-Origin", "*")
-	res.Header().Set("Cashe-Control", "no-store")
-	res.Header().Set("Connection", "keep-alive")
-	res.Header().Set("Expires", "Sat, 01 Jan 2000 00:00:00 GMT")
-	res.Header().Set("Pragma", "no-cache")
 
 	if err != nil {
 		module.Log.Error(err)

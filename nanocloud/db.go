@@ -26,6 +26,7 @@ import (
 	"database/sql"
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq"
+	"time"
 )
 
 var dbInstance *sql.DB = nil
@@ -34,9 +35,24 @@ func GetDB() (*sql.DB, error) {
 	var err error
 	if dbInstance == nil {
 		uri := env("DATABASE_URI", "postgres://localhost/nanocloud?sslmode=disable")
-		dbInstance, err = sql.Open("postgres", uri)
+
+		for try := 0; try < 10; try++ {
+			dbInstance, err = sql.Open("postgres", uri)
+			if err != nil {
+				return nil, err
+			}
+
+			err = dbInstance.Ping()
+			if err == nil {
+				module.Log.Info("Connected to Postgres")
+				return dbInstance, nil
+			}
+
+			module.Log.Info("Unable to connect to Postgres. Will retry in 5 sec")
+			time.Sleep(time.Second * 5)
+		}
 	}
-	return dbInstance, err
+	return nil, err
 }
 
 func setupDb() error {
