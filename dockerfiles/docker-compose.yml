@@ -77,6 +77,8 @@ apps-module:
   - WINDOWS_DOMAIN=intra.localdomain.com
   - EXECUTION_SERVERS=10.0.2.2
  restart: always
+ volumes:
+  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
 history-module:
  dockerfile: Dockerfile-history
  build: .
