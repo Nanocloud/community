@@ -172,7 +172,7 @@ func syncUploadedFile(path string) (string, error) {
 	}
 	cmd := exec.Command(filepath.Join(dir, "scripts", "copy.sh"), filepath.Join(dir, path))
 	cmd.Dir = filepath.Join(dir, "scripts")
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(output), err
 	}
