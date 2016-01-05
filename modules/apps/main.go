@@ -23,9 +23,10 @@
 package main
 
 import (
-	"github.com/Nanocloud/nano"
 	"os"
 	"strings"
+
+	"github.com/Nanocloud/nano"
 )
 
 var module nano.Module
@@ -85,9 +86,13 @@ func main() {
 	conf.WindowsDomain = env("WINDOWS_DOMAIN", "intra.localdomain.com")
 	conf.ExecutionServers = strings.Split(env("EXECUTION_SERVERS", "62.210.56.76"), ",")
 
-	module.Get("/aps", listApplications)
+	module.Get("/apps", listApplications)
 	module.Delete("/apps/:app_id", unpublishApplication)
 	module.Get("/apps/me", listApplicationsForSamAccount)
+	err := createConnections()
+	if err != nil {
+		module.Log.Error(err)
+	}
 
 	module.Listen()
 }
