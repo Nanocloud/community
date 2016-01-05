@@ -51,5 +51,6 @@ WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud
 RUN gb build
 
 WORKDIR /opt/build/backend/src/nanocloud.com/nanocloud/bin
+RUN mkdir scripts && cp ../src/nanocloud/scripts/copy.sh ./scripts
 EXPOSE 8080
 CMD ["./nanocloud"]
