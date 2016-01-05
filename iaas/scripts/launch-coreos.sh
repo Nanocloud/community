@@ -180,15 +180,14 @@ if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
         -drive if=pflash,file="${SCRIPT_DIR}/${VM_PFLASH_RW}",format=raw "$@"
 fi
 
-# Default to KVM, fall back on full emulation
 QEMU=$(which qemu-system-x86_64)
-$QEMU \
+
+# Default to KVM, fall back on full emulation
+${QEMU} \
     -nodefaults \
     -name "$VM_NAME" \
     -m ${VM_MEMORY} \
     -vnc :1 \
-    -pidfile ${NANOCLOUD_DIR}/pid/noauth-mini-free_use-10.104.16.190-linux-alpine-3.2-x86_64.pid  \
-    -chardev socket,id=monitor,path=${NANOCLOUD_DIR}/sockets/noauth-mini-free_use-10.104.16.190-linux-alpine-3.2-x86_64.socket,server,nowait \
     -net nic,vlan=0,model=virtio \
     -net user,vlan=0,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${HTTP_PORT}"-:80,hostfwd=tcp::"${HTTPS_PORT}"-:443,hostname="${VM_NAME}" \
     "$@"
