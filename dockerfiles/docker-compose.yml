@@ -20,6 +20,10 @@ nanocloud-backend:
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
   - PORT=8080
   - FRONT_DIR=front/
+  - WIN_PASSWORD=Nanocloud123+
+  - WIN_PORT=1119
+  - WIN_USER=Administrator
+  - WIN_SERVER=10.0.2.2
  links:
   - guacamole-client:guacamole
   - postgres:postgres
