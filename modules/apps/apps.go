@@ -30,7 +30,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/Nanocloud/nano"
@@ -84,7 +86,8 @@ func getUsers() ([]nano.User, error) {
 		return nil, errors.New("invalid status code")
 	}
 
-	m := make(map[string]interface{})
+	var m []nano.User
+	module.Log.Error(string(res.Body))
 	err = json.Unmarshal(res.Body, &m)
 
 	if err != nil {
@@ -92,32 +95,7 @@ func getUsers() ([]nano.User, error) {
 		return nil, err
 	}
 
-	d := m["users"]
-	users := d.([]interface{})
-	length := len(users)
-	rt := make([]nano.User, length)
-
-	for i := 0; i < length; i++ {
-		user := users[i].(map[string]interface{})
-		id := user["Id"].(string)
-		activated := user["Activated"].(bool)
-		email := user["Email"].(string)
-		firstName := user["FirstName"].(string)
-		lastName := user["LastName"].(string)
-		isAdmin := user["IsAdmin"].(bool)
-
-		rt[i] = nano.User{
-			Id:        id,
-			Activated: activated,
-			Email:     email,
-			FirstName: firstName,
-			LastName:  lastName,
-			IsAdmin:   isAdmin,
-			Sam:       "",
-		}
-	}
-
-	return rt, nil
+	return m, nil
 }
 
 // ========================================================================================================================
@@ -137,9 +115,14 @@ func createConnections() error {
 
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
-	bashExecScript := "../src/apps/scripts/exec.sh"
+
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return err
+	}
+	bashExecScript := filepath.Join(dir, "exec.sh")
 	cmd := exec.Command(bashExecScript, "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"")
-	cmd.Dir = "."
+	cmd.Dir = dir
 	response, err := cmd.Output()
 	if err != nil {
 		module.Log.Error("Failed to run script exec.sh, error: ", err, ", output: ", string(response))
@@ -218,11 +201,19 @@ func createConnections() error {
 			},
 			GuacamoleXMLParam{
 				ParamName:  "username",
-				ParamValue: fmt.Sprintf("%s@%s", conf.User, conf.WindowsDomain),
+				ParamValue: conf.User,
 			},
 			GuacamoleXMLParam{
 				ParamName:  "password",
 				ParamValue: conf.Password,
+			},
+			GuacamoleXMLParam{
+				ParamName:  "security",
+				ParamValue: "nla",
+			},
+			GuacamoleXMLParam{
+				ParamName:  "ignore-cert",
+				ParamValue: "true",
 			},
 		},
 	})
@@ -240,7 +231,7 @@ func createConnections() error {
 			},
 			GuacamoleXMLParam{
 				ParamName:  "username",
-				ParamValue: fmt.Sprintf("%s@%s", conf.User, conf.WindowsDomain),
+				ParamValue: conf.User,
 			},
 			GuacamoleXMLParam{
 				ParamName:  "password",
@@ -249,6 +240,14 @@ func createConnections() error {
 			GuacamoleXMLParam{
 				ParamName:  "remote-app",
 				ParamValue: "||hapticPowershell",
+			},
+			GuacamoleXMLParam{
+				ParamName:  "security",
+				ParamValue: "nla",
+			},
+			GuacamoleXMLParam{
+				ParamName:  "ignore-cert",
+				ParamValue: "true",
 			},
 		},
 	})
@@ -321,7 +320,6 @@ func listApplications(req nano.Request) (*nano.Response, error) {
 
 		connections = append(connections, connection)
 	}
-
 	return nano.JSONResponse(200, connections), nil
 }
 
@@ -389,11 +387,15 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 func unpublishApp(Alias string) error {
 	var powershellCmd string
 
-	bashExecScript := "../src/apps/scripts/exec.sh"
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return err
+	}
+	bashExecScript := filepath.Join(dir, "exec.sh")
 	powershellCmd = fmt.Sprintf(
 		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias %s -CollectionName %s -Force\"",
 		Alias,
-		"appscollection")
+		"collection")
 	cmd := exec.Command(bashExecScript, powershellCmd)
 	cmd.Dir = (".")
 	response, err := cmd.Output()
