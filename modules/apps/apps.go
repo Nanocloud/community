@@ -28,12 +28,13 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/Nanocloud/nano"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/Nanocloud/nano"
 )
 
 const (
@@ -138,7 +139,7 @@ func createConnections() error {
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	bashConfigFile, err := os.Create("../src/nanocloud/scripts/configuration.sh")
+	bashConfigFile, err := os.Create("../src/apps/scripts/configuration.sh")
 	if err != nil {
 		module.Log.Error("Failed to configure bash scripts : ", err)
 		return err
@@ -150,7 +151,7 @@ func createConnections() error {
 	bashConfigFile.Write([]byte(fmt.Sprintf("PORT=\"%s\"\n", conf.SSHPort)))
 	bashConfigFile.Write([]byte(fmt.Sprintf("PASSWORD=\"%s\"\n", conf.Password)))
 	bashConfigFile.Close()
-	bashExecScript := "../src/nanocloud/scripts/exec.sh"
+	bashExecScript := "../src/apps/scripts/exec.sh"
 	cmd := exec.Command(bashExecScript, "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"")
 	cmd.Dir = "."
 	response, err := cmd.Output()
@@ -206,7 +207,7 @@ func createConnections() error {
 					},
 					GuacamoleXMLParam{
 						ParamName:  "password",
-						ParamValue: windowsUserPassword,
+						ParamValue: conf.Password,
 					},
 					GuacamoleXMLParam{
 						ParamName:  "remote-app",
@@ -402,7 +403,7 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 func unpublishApp(Alias string) error {
 	var powershellCmd string
 
-	bashExecScript := "../src/nanocloud/scripts/exec.sh"
+	bashExecScript := "../src/apps/scripts/exec.sh"
 	powershellCmd = fmt.Sprintf(
 		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias %s -CollectionName %s -Force\"",
 		Alias,
