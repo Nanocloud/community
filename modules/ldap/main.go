@@ -1,21 +1,21 @@
 /*
- * Nanocloud Community, a comprehensive platform to turn any application
- * into a cloud solution.
- *
- * Copyright (C) 2015 Nanocloud Software
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+* Nanocloud Community, a comprehensive platform to turn any application
+* into a cloud solution.
+*
+* Copyright (C) 2015 Nanocloud Software
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Affero General Public License as
+* published by the Free Software Foundation, either version 3 of the
+* License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Affero General Public License for more details.
+*
+* You should have received a copy of the GNU Affero General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package main
@@ -44,13 +44,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Nanocloud/nano"
-	"gopkg.in/ldap.v2"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
+	"time"
 	"unicode"
 	"unicode/utf16"
 	"unsafe"
+
+	"github.com/Nanocloud/nano"
+	"gopkg.in/ldap.v2"
 )
 
 const (
@@ -276,11 +280,12 @@ func deleteUsers(mails []string) error {
 }
 
 func initialize(conf *ldap_conf) error {
+
 	if setOptions(nil) != nil {
 		return errors.New("Options error")
 	}
 	rc := C.ldap_initialize(&conf.ldapConnection, C.CString(conf.host))
-	if conf.ldapConnection == nil {
+	if conf.ldapConnection == nil || rc != LDAP_SUCCESS {
 		return errors.New("Initialization error: " + C.GoString(C.ldap_err2string(rc)))
 	}
 	rc = C.ldap_simple_bind_s(conf.ldapConnection, C.CString(conf.login), C.CString(conf.passwd))
@@ -666,6 +671,23 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
+func getCert() error {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		module.Log.Error(err)
+		return err
+	}
+	bashExecScript := filepath.Join(dir, "getcert.sh")
+	cmd := exec.Command(bashExecScript)
+	cmd.Dir = dir
+	response, err := cmd.CombinedOutput()
+	if err != nil {
+		module.Log.Error("Failed to execute script ", err, string(response))
+		return err
+	}
+	return nil
+}
+
 func main() {
 	module = nano.RegisterModule("ldap")
 
@@ -673,6 +695,20 @@ func main() {
 	conf.Password = env("PASSWORD", "PASSWORD")
 	conf.ServerURL = env("SERVER_URL", "ldaps://127.0.0.1:636")
 	conf.QueueURI = env("AMQP_URI", "amqp://guest:guest@localhost:5672/")
+
+	try := 0
+	for try = 0; try < 10; try++ {
+		err := getCert()
+		if err == nil {
+			break
+		}
+		time.Sleep(time.Second * 5)
+
+	}
+
+	if try == 10 {
+		module.Log.Fatal("Not able to connect to windows")
+	}
 
 	module.Post("/ldap/users", createUser)
 	module.Get("/ldap/users", listUsers)
