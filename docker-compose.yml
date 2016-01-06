@@ -4,8 +4,8 @@ guacamole-client:
   - guacamole-server:guacd
   - ambassador:proxy
  volumes:
-  - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
-  - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
+  - ./dockerfiles/guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
+  - ./dockerfiles/guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
  restart: always
 guacamole-server:
  image: glyptodon/guacd:0.9.8
@@ -27,15 +27,15 @@ nanocloud-backend:
   - postgres:postgres
   - rabbitmq:rabbitmq
  volumes:
-  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
+  - ./dockerfiles/guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
  volumes_from:
   - guacamole-client
  restart: always
 proxy:
  image: nginx:1.9
  volumes:
-  - ./nginx/conf/:/etc/nginx/conf.d:ro
-  - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
+  - ./dockerfiles/nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  - ./dockerfiles/nginx/conf/certificates:/etc/nginx/ssl/:ro
  links:
   - nanocloud-backend:nanocloud-api
   - ambassador:guacamole-client
@@ -77,7 +77,7 @@ apps-module:
   - EXECUTION_SERVERS=10.20.12.20
  restart: always
  volumes:
-  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
+  - ./dockerfiles/guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
 history-module:
  image: nanocloud/history-module
  links:
