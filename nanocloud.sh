@@ -27,7 +27,7 @@ CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"/var/lib/nanocloud"}
 NANOCLOUD_BIN_URL=${NANOCLOUD_DIR:-"https://community.nanocloud.com/nanocloud"}
 
-NANOCLOUD_QCOW2_URL="http://community.nanocloud.com/coreos.qcow2"
+NANOCLOUD_REPOS_URL="http://releases.nanocloud.org:8080/indiana"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 download() {
@@ -107,7 +107,13 @@ else
     echo "$(date "${DATE_FMT}") Downloading Coreos…"
     (
       cd "${NANOCLOUD_DIR}/images"
-      download "${NANOCLOUD_QCOW2_URL}" > coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64.qcow2
+      download "${NANOCLOUD_REPOS_URL}/coreos.qcow2" > coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64.qcow2
+      echo "$(date "${DATE_FMT}") Coreos download finished"
+    )
+    (
+      cd "${NANOCLOUD_DIR}"
+      download "${NANOCLOUD_REPOS_URL}/coreos.key" > coreos.key
+      download "${NANOCLOUD_REPOS_URL}/coreos.key.pub" > coreos.key.pub
       echo "$(date "${DATE_FMT}") Coreos download finished"
     )
 fi
