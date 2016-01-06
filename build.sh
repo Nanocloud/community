@@ -67,6 +67,7 @@ else
     echo "# Building Nanocloud"
     echo "$(date "${DATE_FMT}") Creating Iaas directories"
 
+    [ -d iaas/downloads ] || mkdir -p iaas/downloads
     [ -d iaas/images ] || mkdir -p iaas/images
     [ -d iaas/logs ] || mkdir -p iaas/logs
     [ -d iaas/pid ] || mkdir -p iaas/pid
