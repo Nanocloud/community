@@ -172,15 +172,23 @@ func createConnections() error {
 					},
 					GuacamoleXMLParam{
 						ParamName:  "username",
-						ParamValue: fmt.Sprintf("%s@%s", user.Sam, conf.WindowsDomain),
+						ParamValue: user.Sam,
 					},
 					GuacamoleXMLParam{
 						ParamName:  "password",
-						ParamValue: conf.Password,
+						ParamValue: user.WindowsPassword,
 					},
 					GuacamoleXMLParam{
 						ParamName:  "remote-app",
 						ParamValue: fmt.Sprintf("||%s", application.Alias),
+					},
+					GuacamoleXMLParam{
+						ParamName:  "security",
+						ParamValue: "nla",
+					},
+					GuacamoleXMLParam{
+						ParamName:  "ignore-cert",
+						ParamValue: "true",
 					},
 				},
 			})
