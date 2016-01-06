@@ -75,11 +75,11 @@ apps-module:
   - USER=Administrator
   - SSH_PORT=1119
   - RDP_PORT=3389
-  - SERVER=10.0.2.2
+  - SERVER=10.20.12.20
   - PASSWORD=Nanocloud123+
   - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
   - WINDOWS_DOMAIN=intra.localdomain.com
-  - EXECUTION_SERVERS=10.0.2.2
+  - EXECUTION_SERVERS=10.20.12.20
  restart: always
  volumes:
   - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
@@ -115,7 +115,7 @@ ldap-module:
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
   - PASSWORD=Nanocloud123+
-  - SERVER_URL=ldaps://10.0.2.2:6360
+  - SERVER_URL=ldaps://10.20.12.20
  restart: always
 users-module:
  dockerfile: Dockerfile-users
