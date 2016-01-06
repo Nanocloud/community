@@ -26,12 +26,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"math/rand"
+	"os"
+	"time"
+
 	"github.com/Nanocloud/nano"
 	_ "github.com/lib/pq"
 	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
-	"os"
-	"time"
 )
 
 type hash map[string]interface{}
@@ -145,17 +147,50 @@ func getUser(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
+// randomString
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+func randomString(n int) string {
+	var src = rand.NewSource(time.Now().UnixNano())
+	b := make([]byte, n)
+
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return string(b)
+}
+
 func CreateADUser(id string) (string, string, error) {
-	/*
-		password := randomString(8) + "s4D+"
-		args := make(map[string]string, 2)
-		args["id"] = id
-		args["password"] = password
-		log.Error("CALLING RPCREQUEST")
-		res, err := rpcRequest("rmq_ldap", "create_user", args)
-		log.Error("CALLED RPCREQUEST")
-	*/
-	return "Administrator", "Nanocloud123+", nil
+	password := randomString(8) + "s4D+"
+	res, err := module.JSONRequest("POST", "/ldap/users", hash{
+		"userEmail": id,
+		"password":  password,
+	}, nil)
+	if err != nil {
+		return "", "", err
+	}
+	var r struct {
+		Sam string
+	}
+	err = json.Unmarshal(res.Body, &r)
+	if err != nil {
+		return "", "", err
+	}
+	return r.Sam, password, nil
 }
 
 func CreateUser(
@@ -168,7 +203,6 @@ func CreateUser(
 ) (createdUser *nano.User, err error) {
 	id := uuid.NewV4().String()
 	sam, winpass, err := CreateADUser(id)
-
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return
