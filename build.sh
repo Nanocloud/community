@@ -79,9 +79,9 @@ else
     fi
 
     (
-    echo "$(date "${DATE_FMT}") Building Iaas API"
-    cd iaasAPI
-    go build -a -o "${IAAS_DIR}/scripts/api"
+        echo "$(date "${DATE_FMT}") Building Iaas API"
+        cd iaasAPI
+        go build -o "${IAAS_DIR}/scripts/api"
     )
 
     (
