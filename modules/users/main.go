@@ -155,7 +155,7 @@ func CreateADUser(id string) (string, string, error) {
 		res, err := rpcRequest("rmq_ldap", "create_user", args)
 		log.Error("CALLED RPCREQUEST")
 	*/
-	return "", "", nil
+	return "Administrator", "Nanocloud123+", nil
 }
 
 func CreateUser(
