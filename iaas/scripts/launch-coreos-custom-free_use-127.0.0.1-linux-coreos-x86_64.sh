@@ -1,9 +1,9 @@
 #!/bin/sh
 
 SCRIPT_DIR="$(dirname "$0")"
-VM_NAME='coreos_production_qemu-766-5-0'
+VM_NAME='coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64'
 VM_UUID=
-VM_IMAGE='../images/coreos.qcow2'
+VM_IMAGE='../images/coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64.qcow2'
 VM_KERNEL=
 VM_INITRD=
 VM_MEMORY='1024'
@@ -18,7 +18,6 @@ SSH_KEYS="${SCRIPT_DIR}/../coreos.key.pub"
 CONFIG_FILE=""
 CONFIG_IMAGE=""
 SAFE_ARGS=0
-NANOCLOUD_DIR="/var/lib/nanocloud"
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -u FILE     Cloudinit user-data as either a cloud config or script.
@@ -182,6 +181,9 @@ fi
 
 QEMU=$(which qemu-system-x86_64)
 
+touch "${SCRIPT_DIR}/../pid/${VM_NAME}.pid"
+touch "${SCRIPT_DIR}/../sockets/${VM_NAME}.socket"
+
 # Default to KVM, fall back on full emulation
 ${QEMU} \
     -nodefaults \
@@ -192,3 +194,6 @@ ${QEMU} \
     -net user,vlan=0,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${HTTP_PORT}"-:80,hostfwd=tcp::"${HTTPS_PORT}"-:443,hostname="${VM_NAME}" \
     "$@"
 exit $?
+
+rm "${SCRIPT_DIR}/../pid/${VM_NAME}.pid"
+rm "${SCRIPT_DIR}/../sockets/${VM_NAME}.socket"

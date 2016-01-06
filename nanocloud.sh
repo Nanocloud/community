@@ -90,7 +90,7 @@ if [ -f "${NANOCLOUD_BINARIES}" ]; then
     "${CURRENT_DIR}/nanocloud"
 else
     echo "$(date "${DATE_FMT}") Downloading Nanocloud binaries"
-    download ${NANOCLOUD_BIN_URL} | nano_exec
+    download "${NANOCLOUD_BIN_URL}" | nano_exec
     if [ "$?" != "0" ]; then
       echo "$(date "${DATE_FMT}") Installation failed, exiting…"
       exit 1
@@ -100,22 +100,22 @@ fi
 COREOS_QCOW2_FILENAME="${CURRENT_DIR}/coreos/coreos.qcow2"
 if [ -f "${COREOS_QCOW2_FILENAME}" ]; then
     echo "$(date "${DATE_FMT}") Local CoreOS disk available"
-    cp "${COREOS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/coreos.qcow2"
+    cp "${COREOS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64.qcow2"
     cp "${CURRENT_DIR}/coreos/coreos.key" "${NANOCLOUD_DIR}/coreos.key"
     cp "${CURRENT_DIR}/coreos/coreos.key.pub" "${NANOCLOUD_DIR}/coreos.key.pub"
 else
     echo "$(date "${DATE_FMT}") Downloading Coreos…"
     (
-      cd ${NANOCLOUD_DIR}/images
-      download ${NANOCLOUD_QCOW2_URL} > coreos.qcow2
+      cd "${NANOCLOUD_DIR}/images"
+      download "${NANOCLOUD_QCOW2_URL}" > coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64.qcow2
       echo "$(date "${DATE_FMT}") Coreos download finished"
     )
 fi
 
 echo "$(date "${DATE_FMT}") Starting first VM…"
 (
-  cd ${NANOCLOUD_DIR}
-  nohup scripts/launch-coreos.sh > start.log & 2>&1
+  cd "${NANOCLOUD_DIR}"
+  nohup scripts/launch-coreos-custom-free_use-127.0.0.1-linux-coreos-x86_64.sh > start.log & 2>&1
 )
 chmod 400 "${NANOCLOUD_DIR}/coreos.key"
 
