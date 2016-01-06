@@ -148,7 +148,7 @@ func setOptions(ldapConnection *C.LDAP) error {
 }
 
 func listUsers(req nano.Request) (*nano.Response, error) {
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[8:],
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -256,7 +256,7 @@ func deleteUsers(mails []string) error {
 		return errors.New("Deletion error: " + C.GoString(C.ldap_err2string(err)))
 	}
 
-	rc := C.ldap_initialize(&tconf.ldapConnection, C.CString(tconf.host+":636"))
+	rc := C.ldap_initialize(&tconf.ldapConnection, C.CString(tconf.host))
 	if tconf.ldapConnection == nil {
 		return errors.New("Initialization error")
 	}
@@ -279,7 +279,7 @@ func initialize(conf *ldap_conf) error {
 	if setOptions(nil) != nil {
 		return errors.New("Options error")
 	}
-	rc := C.ldap_initialize(&conf.ldapConnection, C.CString(conf.host+":636"))
+	rc := C.ldap_initialize(&conf.ldapConnection, C.CString(conf.host))
 	if conf.ldapConnection == nil {
 		return errors.New("Initialization error: " + C.GoString(C.ldap_err2string(rc)))
 	}
@@ -343,7 +343,7 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 	if err != nil {
 		return nil, errors.New("Modify error: " + err.Error())
 	}
-	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:],
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -405,7 +405,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 		return nil, errors.New("Modify error: " + err.Error())
 	}
 
-	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:]+":636",
+	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:],
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -464,7 +464,7 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 			break
 		}
 	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:]+":636",
+	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:],
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -562,7 +562,7 @@ func createUser(req nano.Request) (*nano.Response, error) {
 			break
 		}
 	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:]+":636",
+	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:],
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -620,7 +620,7 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 			break
 		}
 	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:]+":636",
+	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:],
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -671,8 +671,8 @@ func main() {
 
 	conf.Username = env("USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
 	conf.Password = env("PASSWORD", "PASSWORD")
-	conf.ServerURL = env("SERVER_URL", "ldaps://127.0.0.1")
-	conf.QueueURI = env("QUEUE_URI", "amqp://guest:guest@localhost:5672/")
+	conf.ServerURL = env("SERVER_URL", "ldaps://127.0.0.1:636")
+	conf.QueueURI = env("AMQP_URI", "amqp://guest:guest@localhost:5672/")
 
 	module.Post("/ldap/users", createUser)
 	module.Get("/ldap/users", listUsers)
