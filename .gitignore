@@ -1,11 +1,5 @@
 # Packer
 packer_cache/
-data/
 
-# Ignore binary files
-coreos.key*
-iaas/qemu/
-iaas/tools/
-iaas/scripts/api
-installer/bindata.go
-installer/installer
+# Ignore build outputs
+dockerfiles/build_output
