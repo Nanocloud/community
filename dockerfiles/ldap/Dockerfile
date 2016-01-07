@@ -5,8 +5,7 @@ MAINTAINER \
 RUN go get -u github.com/constabulary/gb/...
 RUN mkdir -p /build/
 
-#RUN git clone --depth=1 --recursive https://github.com/Nanocloud/ldap.git /build/ldap
-COPY ./ldap /build/ldap
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/ldap.git /build/ldap
 
 RUN apt-get update && apt-get install libldap2-dev sshpass
 
