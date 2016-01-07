@@ -21,7 +21,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-NANOCLOUD_DIR="/var/lib/nanocloud"
+NANOCLOUD_DIR="${NANOCLOUD_DIR:-"/var/lib/nanocloud"}"
 
 VM_NAME="windows-server-2012R2-amd64"
 VM_HOSTNAME="windows-server-2012R2-amd64"
@@ -44,13 +44,13 @@ $QEMU \
     -machine accel=kvm \
     -drive if=virtio,file="${SYSTEM_VHD}" \
     -vnc :2 \
-    -pidfile ${NANOCLOUD_DIR}/pid/${VM_NAME}.pid  \
-    -chardev socket,id=monitor,path=${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket,server,nowait \
+    -pidfile "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid" \
+    -chardev socket,id=monitor,path="${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket",server,nowait \
     -net nic,vlan=0,model=virtio \
     -net user,vlan=0,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${RDP_PORT}"-:3389,hostfwd=tcp::"${LDAPS_PORT}"-:636,hostname="${VM_HOSTNAME}" \
     -vga qxl \
     -global qxl-vga.vram_size=33554432 \
     "${@}"
 
-/bin/rm ${NANOCLOUD_DIR}/pid/${VM_NAME}.pid
-/bin/rm ${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket
+/bin/rm "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid"
+/bin/rm "${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket"

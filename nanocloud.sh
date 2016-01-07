@@ -25,7 +25,7 @@ SCRIPT_FULL_PATH=$(readlink -e "${0}")
 CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-NANOCLOUD_DIR=${NANOCLOUD_DIR:-"/var/lib/nanocloud"}
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/dockerfiles/build_output"
 
 download() {
@@ -76,7 +76,7 @@ done
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
   echo "$(date "${DATE_FMT}") Local Windows image found, copying"
-  cp "${WINDOWS_QCOW2_FILENAME}" "${NANOCLOUD_DIR}/images/windows-server-2012R2-amd64.qcow2"
+  cp "${WINDOWS_QCOW2_FILENAME}" "${CURRENT_DIR}installation_dir/images/windows-server-2012R2-amd64.qcow2"
 fi
 
 echo "$(date "${DATE_FMT}") Setup complete"
