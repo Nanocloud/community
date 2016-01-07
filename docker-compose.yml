@@ -1,142 +1,72 @@
 guacamole-client:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: guacamole-client
  image: nanocloud/guacamole-client
- links:
-  - guacamole-server:guacd
-  - ambassador:proxy
- volumes:
-  - ./dockerfiles/guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
-  - ./dockerfiles/guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
- restart: always
 
 guacamole-server:
- image: glyptodon/guacd:0.9.8
- restart: always
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: guacamole-server
 
 nanocloud-backend:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: nanocloud-backend
  image: nanocloud/nanocloud-backend
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-  - PORT=8080
-  - FRONT_DIR=front/
-  - WIN_PASSWORD=Nanocloud123+
-  - WIN_PORT=1119
-  - WIN_USER=Administrator
-  - WIN_SERVER=10.0.2.2
- links:
-  - guacamole-client:guacamole
-  - postgres:postgres
-  - rabbitmq:rabbitmq
- volumes:
-  - ./dockerfiles/guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
- volumes_from:
-  - guacamole-client
- restart: always
 
 proxy:
- image: nginx:1.9
- volumes:
-  - ./dockerfiles/nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-  - ./dockerfiles/nginx/conf/certificates:/etc/nginx/ssl/:ro
- links:
-  - nanocloud-backend:nanocloud-api
-  - ambassador:guacamole-client
- ports:
-  - 80:80
-  - 443:443
- restart: always
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: proxy
 
 ambassador:
- image: cpuguy83/docker-grand-ambassador:0.9.1
- volumes:
- - "/var/run/docker.sock:/var/run/docker.sock"
- command: "-name dockerfiles_guacamole-client_1 -name dockerfiles_proxy_1 "
- restart: always
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: ambassador
 
 rabbitmq:
- image: rabbitmq:3.5
- restart: always
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: rabbitmq
 
 postgres:
- image: postgres:9.4
- volumes:
-  - ./postgres:/var/lib/postgresql/data/pgdata
- environment:
-  - PGDATA=/var/lib/postgresql/data/pgdata
-  - POSTGRES_USER=nanocloud
- restart: always
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: postgres
 
 apps-module:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: apps-module
  image: nanocloud/apps-module
- links:
-  - rabbitmq:rabbitmq
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - USER=Administrator
-  - SSH_PORT=1119
-  - RDP_PORT=3389
-  - SERVER=10.20.12.20
-  - PASSWORD=Nanocloud123+
-  - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
-  - WINDOWS_DOMAIN=intra.localdomain.com
-  - EXECUTION_SERVERS=10.20.12.20
- restart: always
- volumes:
-  - ./dockerfiles/guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
 
 history-module:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: history-module
  image: nanocloud/history-module
- links:
-  - postgres:postgres
-  - rabbitmq:rabbitmq
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
- restart: always
 
 iaas-module:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: iaas-module
  image: nanocloud/iaas-module
- links:
-  - rabbitmq:rabbitmq
-  - apiiaas-module:apiiaas
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - API_URL=http://apiiaas
-  - API_PORT=8082
- restart: always
 
 apiiaas-module:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: apiiaas-module
  image: nanocloud/apiiaas-module
- environment:
-  - NANOCLOUD_DIR=/var/lib/nanocloud
-  - API_PORT=8082
- volumes:
-  - installation_dir:/var/lib/nanocloud/
- restart: always
 
 ldap-module:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: ldap-module
  image: nanocloud/ldap-module
- links:
-  - rabbitmq:rabbitmq
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
-  - PASSWORD=Nanocloud123+
-  - SERVER_URL=ldaps://10.20.12.20
- restart: always
 
 users-module:
+ extends:
+  file: ./dockerfiles/docker-compose.yml
+  service: users-module
  image: nanocloud/users-module
- links:
-  - postgres:postgres
-  - rabbitmq:rabbitmq
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
- restart: always
