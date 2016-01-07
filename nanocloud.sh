@@ -40,7 +40,7 @@ download() {
   else
     echo "You need *curl* or *wget* to run this script, exiting"
     exit 2
-  fi
+ fi
 }
 
 if [ -z "$(which docker)" ]; then
@@ -70,11 +70,11 @@ fi
 
 echo "$(date "${DATE_FMT}") Testing connectivity"
 NANOCLOUD_STATUS=""
-while [ ${NANOCLOUD_STATUS} != 200 ]; do
+while [ "${NANOCLOUD_STATUS}" != "200" ]; do
     CURL_CMD=$(which curl)
     WGET_CMD=$(which wget)
     if [ -n "${CURL_CMD}" ]; then
-        NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --head --write-out '%{http_code}\n' "https://localhost")
+        NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
     elif [ -n "${WGET_CMD}" ]; then
         NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
     fi
