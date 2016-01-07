@@ -103,7 +103,7 @@ apiiaas-module:
   - NANOCLOUD_DIR=/var/lib/nanocloud
   - API_PORT=8082
  volumes:
-  - installation_dir:/var/lib/nanocloud/
+  - ../installation_dir:/var/lib/nanocloud/
  restart: always
  container_name: "apiiaas-module"
 
