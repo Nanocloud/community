@@ -12,5 +12,4 @@ RUN apt-get update && apt-get install libldap2-dev sshpass
 WORKDIR /build/ldap
 RUN gb build
 
-RUN cp /build/ldap/src/ldap/script/*.sh /build/ldap/bin && chmod +x /build/ldap/bin/*.sh
 CMD ["./bin/ldap"]
