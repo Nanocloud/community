@@ -153,7 +153,7 @@ func setOptions(ldapConnection *C.LDAP) error {
 	return nil
 }
 
-func listUsers() (*nano.Response, error) {
+func listUsers(req nano.Request) (*nano.Response, error) {
 	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
@@ -521,14 +521,17 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func createUser() (*nano.Response, error) {
+func createUser(req nano.Request) (*nano.Response, error) {
 	var params struct {
 		UserEmail string
 		Password  string
 	}
 
-	params.UserEmail = "michel@lol.fr"
-	params.Password = "Lolilo124+"
+	err := json.Unmarshal(req.Body, &params)
+
+	if err != nil {
+		return nil, err
+	}
 
 	// openLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
@@ -537,9 +540,8 @@ func createUser() (*nano.Response, error) {
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
 	tconf.ou = "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
-	err := initialize(&tconf)
+	err = initialize(&tconf)
 	if err != nil {
-		module.Log.Error("INITIALIZATION ERROR :", err)
 		return nil, err
 	}
 	var mods [3]*C.LDAPModStr
@@ -749,8 +751,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(sshServer.User)
-
 	conf.LDAPServer = *ldapServer
 
 	module = nano.RegisterModule("ldap")
@@ -770,21 +770,10 @@ func main() {
 		module.Log.Fatal("Unable to connect to windows")
 	}
 
-	users, err := createUser()
+	module.Post("/ldap/users", createUser)
+	module.Get("/ldap/users", listUsers)
+	module.Put("/ldap/users/:user_id", updatePassword)
+	module.Post("/ldap/users/:user_id/disable", forcedisableAccount)
 
-	if err != nil {
-		module.Log.Error(err)
-		return
-	}
-	module.Log.Info(users)
-
-	/*
-		module.Log.Erro("list err: ", err)
-		module.Post("/ldap/users", createUser)
-		module.Get("/ldap/users", listUsers)
-		module.Put("/ldap/users/:user_id", updatePassword)
-		module.Post("/ldap/users/:user_id/disable", forcedisableAccount)
-
-		module.Listen()
-	*/
+	module.Listen()
 }
