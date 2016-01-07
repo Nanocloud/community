@@ -69,12 +69,23 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	chunkNum := r.FormValue("flowChunkNumber")
-	totalChunks := r.FormValue("flowTotalChunks")
+
+	chunkNum, err := strconv.Atoi(r.FormValue("flowChunkNumber"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	totalChunks, err := strconv.Atoi(r.FormValue("flowTotalChunks"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	filename := r.FormValue("flowFilename")
 	// module := r.FormValue("module")
 
-	err = writeChunk(filepath.Join(userPath, "incomplete", filename), chunkNum, r)
+	err = writeChunk(filepath.Join(userPath, "incomplete", filename), strconv.Itoa(chunkNum), r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -170,6 +181,7 @@ func syncUploadedFile(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	cmd := exec.Command(filepath.Join(dir, "scripts", "copy.sh"), filepath.Join(dir, path))
 	cmd.Dir = filepath.Join(dir, "scripts")
 	output, err := cmd.CombinedOutput()
