@@ -8,9 +8,11 @@ guacamole-client:
   - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
   - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
  restart: always
+
 guacamole-server:
  image: glyptodon/guacd:0.9.8
  restart: always
+
 nanocloud-backend:
  build: ./
  dockerfile: Dockerfile-nanocloud
@@ -33,6 +35,7 @@ nanocloud-backend:
  volumes_from:
   - guacamole-client
  restart: always
+
 proxy:
  image: nginx:1.9
  volumes:
@@ -45,15 +48,18 @@ proxy:
   - 80:80
   - 443:443
  restart: always
+
 ambassador:
  image: cpuguy83/docker-grand-ambassador:0.9.1
  volumes:
  - "/var/run/docker.sock:/var/run/docker.sock"
  command: "-name dockerfiles_guacamole-client_1 -name dockerfiles_proxy_1 "
  restart: always
+
 rabbitmq:
  image: rabbitmq:3.5
  restart: always
+
 postgres:
  image: postgres:9.4
  volumes:
@@ -62,6 +68,7 @@ postgres:
   - PGDATA=/var/lib/postgresql/data/pgdata
   - POSTGRES_USER=nanocloud
  restart: always
+
 apps-module:
  dockerfile: Dockerfile-apps
  build: .
@@ -81,6 +88,7 @@ apps-module:
  restart: always
  volumes:
   - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
+
 history-module:
  dockerfile: Dockerfile-history
  build: .
@@ -92,6 +100,7 @@ history-module:
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
  restart: always
+
 iaas-module:
  dockerfile: Dockerfile-iaas
  build: .
@@ -104,6 +113,7 @@ iaas-module:
   - API_URL=http://apiiaas
   - API_PORT=8082
  restart: always
+
 apiiaas-module:
  dockerfile: Dockerfile-apiiaas
  build: .
@@ -113,6 +123,7 @@ apiiaas-module:
  volumes:
   - installation_dir:/var/lib/nanocloud/
  restart: always
+
 ldap-module:
  dockerfile: Dockerfile-ldap
  build: .
@@ -125,6 +136,7 @@ ldap-module:
   - PASSWORD=Nanocloud123+
   - SERVER_URL=ldaps://10.20.12.20
  restart: always
+
 users-module:
  dockerfile: Dockerfile-users
  build: .
