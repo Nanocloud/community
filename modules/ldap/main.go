@@ -44,10 +44,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 	"unicode/utf16"
@@ -79,10 +81,10 @@ const (
 var module nano.Module
 
 var conf struct {
-	Username  string
-	Password  string
-	ServerURL string
-	QueueURI  string
+	Username   string
+	Password   string
+	ServerURL  string
+	LDAPServer url.URL
 }
 
 type hash map[string]interface{}
@@ -152,13 +154,16 @@ func setOptions(ldapConnection *C.LDAP) error {
 }
 
 func listUsers(req nano.Request) (*nano.Response, error) {
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[8:],
+	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
 		return nil, errors.New("Dial error: " + err.Error())
 	}
+
+	module.Log.Info(conf.Username)
+	module.Log.Info(conf.Password)
 
 	err = ldapConnection.Bind(conf.Username, conf.Password)
 	if err != nil {
@@ -280,7 +285,6 @@ func deleteUsers(mails []string) error {
 }
 
 func initialize(conf *ldap_conf) error {
-
 	if setOptions(nil) != nil {
 		return errors.New("Options error")
 	}
@@ -348,7 +352,7 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 	if err != nil {
 		return nil, errors.New("Modify error: " + err.Error())
 	}
-	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:],
+	ldapConnection, err = ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -524,9 +528,13 @@ func createUser(req nano.Request) (*nano.Response, error) {
 
 	err := json.Unmarshal(req.Body, &params)
 
+	if err != nil {
+		return nil, err
+	}
+
 	// openLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
-	tconf.host = conf.ServerURL
+	tconf.host = conf.LDAPServer.Scheme + "://" + conf.LDAPServer.Host
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
 	tconf.ou = "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
@@ -560,19 +568,12 @@ func createUser(req nano.Request) (*nano.Response, error) {
 	bindusername := conf.Username
 	bindpassword := conf.Password
 	// return "", to ldap go API to set the password
-	c := 0
-	for i, val := range conf.ServerURL { // passing letters/symbols before IP adress ( ex : ldaps:// )
-		if unicode.IsDigit(val) {
-			c = i
-			break
-		}
-	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:],
+	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return nil, errors.New("DialTLS failed: " + err.Error())
+		return nil, errors.New(">> DialTLS failed: " + err.Error())
 	}
 	err = ldapConnection.Bind(bindusername, bindpassword)
 	if err != nil {
@@ -671,15 +672,35 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func getCert() error {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+func getCert(server url.URL) error {
+	err := os.MkdirAll("/opt/conf", 755)
 	if err != nil {
-		module.Log.Error(err)
 		return err
 	}
-	bashExecScript := filepath.Join(dir, "getcert.sh")
-	cmd := exec.Command(bashExecScript)
-	cmd.Dir = dir
+
+	if server.User == nil {
+		return errors.New("No authentication informations provided")
+	}
+
+	hostname := strings.SplitN(server.Host, ":", 2)
+
+	password, ok := server.User.Password()
+	if !ok {
+		return errors.New("Password not set")
+	}
+	cmd := exec.Command(
+		"sshpass", "-p", password,
+		"scp", "-P", hostname[1],
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		fmt.Sprintf(
+			"%s@%s:%s",
+			server.User.Username(),
+			hostname[0],
+			"/cygdrive/c/users/administrator/ad2012.cer",
+		),
+		"/opt/conf",
+	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
 		module.Log.Error("Failed to execute script ", err, string(response))
@@ -688,22 +709,59 @@ func getCert() error {
 	return nil
 }
 
+func genLdaprc(host string) error {
+	err := os.MkdirAll("/etc/ldap", 755)
+	if err != nil {
+		return err
+	}
+
+	base := env("BASE", "DC=intra,DC=localdomain,DC=com")
+	bindDn := env("BIND_DN", "CN=Administrator,DC=intra,DC=localdomain,DC=com")
+	tlsCacert := env("TLS_CACERT", "/opt/conf/ad2012.cer")
+
+	s := fmt.Sprintf(`
+BASE %s
+BINDDN %s
+URI %s
+TLS_CACERT %s
+TLS_REQCERT never
+`,
+		base,
+		bindDn,
+		host,
+		tlsCacert,
+	)
+
+	return ioutil.WriteFile("/etc/ldap/ldaprc", []byte(s), 0644)
+}
+
 func main() {
+	conf.Username = env("LDAP_USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
+	conf.Password = env("LDAP_PASSWORD", "Nanocloud123+")
+
+	ldapServer, err := url.Parse(env("LDAP_SERVER_URI", "ldaps://Administrator:Nanocloud123+@172.17.0.1:6003"))
+	if err != nil {
+		panic(err)
+	}
+
+	sshServer, err := url.Parse(env("SSH_SERVER_URI", "ssh://Administrator:Nanocloud123+@172.17.0.1:6001"))
+	if err != nil {
+		panic(err)
+	}
+
+	conf.LDAPServer = *ldapServer
+
 	module = nano.RegisterModule("ldap")
 
-	conf.Username = env("USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
-	conf.Password = env("PASSWORD", "PASSWORD")
-	conf.ServerURL = env("SERVER_URL", "ldaps://127.0.0.1:636")
-	conf.QueueURI = env("AMQP_URI", "amqp://guest:guest@localhost:5672/")
+	genLdaprc(ldapServer.Host)
 
 	try := 0
 	for try = 0; try < 10; try++ {
-		err := getCert()
+		err := getCert(*sshServer)
 		if err == nil {
 			break
 		}
 		time.Sleep(time.Second * 5)
-
 	}
 
 	if try == 10 {
