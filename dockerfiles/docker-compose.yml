@@ -1,6 +1,5 @@
 guacamole-client:
- build: ./
- dockerfile: guacamole-client/Dockerfile
+ build: ./guacamole-client
  volumes:
   - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
   - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
@@ -13,8 +12,7 @@ guacamole-server:
  container_name: "guacamole-server"
 
 nanocloud-backend:
- build: ./
- dockerfile: Dockerfile-nanocloud
+ build: ./nanocloud
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
@@ -25,10 +23,6 @@ nanocloud-backend:
   - WIN_PORT=1119
   - WIN_USER=Administrator
   - WIN_SERVER=10.0.2.2
- volumes:
-  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
- volumes_from:
-  - guacamole-client
  restart: always
  container_name: "nanocloud-api"
 
@@ -67,8 +61,7 @@ postgres:
  container_name: "postgres"
 
 apps-module:
- dockerfile: Dockerfile-apps
- build: .
+ build: ./apps
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
@@ -86,8 +79,7 @@ apps-module:
  container_name: "apps-module"
 
 history-module:
- dockerfile: Dockerfile-history
- build: .
+ build: ./history
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
@@ -96,8 +88,7 @@ history-module:
  container_name: "history-module"
 
 iaas-module:
- dockerfile: Dockerfile-iaas
- build: .
+ build: ./iaas
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
@@ -107,8 +98,7 @@ iaas-module:
  container_name: "iaas-module"
 
 apiiaas-module:
- dockerfile: Dockerfile-apiiaas
- build: .
+ build: ./apiiaas
  environment:
   - NANOCLOUD_DIR=/var/lib/nanocloud
   - API_PORT=8082
@@ -118,8 +108,7 @@ apiiaas-module:
  container_name: "apiiaas-module"
 
 ldap-module:
- dockerfile: Dockerfile-ldap
- build: .
+ build: ./ldap
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
@@ -130,8 +119,7 @@ ldap-module:
  container_name: "ldap-module"
 
 users-module:
- dockerfile: Dockerfile-users
- build: .
+ build: ./users
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
