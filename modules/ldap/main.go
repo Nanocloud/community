@@ -292,7 +292,6 @@ func initialize(conf *ldap_conf) error {
 	if conf.ldapConnection == nil || rc != LDAP_SUCCESS {
 		return errors.New("Initialization error: " + C.GoString(C.ldap_err2string(rc)))
 	}
-	module.Log.Error("DATA: ", conf)
 	rc = C.ldap_simple_bind_s(conf.ldapConnection, C.CString(conf.login), C.CString(conf.passwd))
 	if rc != LDAP_SUCCESS {
 		return errors.New("Binding error: " + C.GoString(C.ldap_err2string(rc)))
@@ -535,7 +534,6 @@ func createUser(req nano.Request) (*nano.Response, error) {
 
 	// openLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
-	module.Log.Info(conf.LDAPServer.Scheme + "://" + conf.LDAPServer.Host)
 	tconf.host = conf.LDAPServer.Scheme + "://" + conf.LDAPServer.Host
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
