@@ -47,6 +47,16 @@ export class ServiceCtrl {
 
 	accept(): void {
 		if (this.servicesSrv.downloadStarted === false) {
+			this.service = {
+				Ico: "windows",
+				Name: "windows-server-2012R2-amd64",
+				DisplayName: "Windows Applications",
+				Locked: false,
+				Status: "",
+				FontColor: "",
+				VM: "",
+			};
+
 			this.servicesSrv.download(this.service);
 			this.$mdDialog.hide(this.service);
 		} else {
