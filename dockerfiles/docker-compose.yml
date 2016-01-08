@@ -22,7 +22,7 @@ nanocloud-backend:
   - WIN_PASSWORD=Nanocloud123+
   - WIN_PORT=1119
   - WIN_USER=Administrator
-  - WIN_SERVER=10.0.2.2
+  - WIN_SERVER=apiiaas-module
  restart: always
  container_name: "nanocloud-api"
 
@@ -104,8 +104,10 @@ apiiaas-module:
   - API_PORT=8082
  volumes:
   - ../installation_dir:/var/lib/nanocloud/
+  - /dev/kvm:/dev/kvm
  restart: always
  container_name: "apiiaas-module"
+ privileged: true
 
 ldap-module:
  build: ./ldap
