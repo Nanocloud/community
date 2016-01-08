@@ -20,25 +20,6 @@
 
 package main
 
-/*#include <ldap.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include <lber.h>
-typedef struct ldapmod_str {
-	int	 mod_op;
-	char	  *mod_type;
-	char    **mod_vals;
-} LDAPModStr;
-int _ldap_add(LDAP *ld, char* dn, LDAPModStr **attrs){
-	return ldap_add_ext_s(ld, dn, (LDAPMod **)attrs, NULL, NULL);
-}
-*/
-// #cgo CFLAGS: -DLDAP_DEPRECATED=1
-// #cgo linux CFLAGS: -DLINUX=1
-// #cgo LDFLAGS: -lldap -llber
-import "C"
-
 import (
 	"crypto/tls"
 	"encoding/json"
@@ -53,29 +34,9 @@ import (
 	"time"
 	"unicode"
 	"unicode/utf16"
-	"unsafe"
 
 	"github.com/Nanocloud/nano"
 	"gopkg.in/ldap.v2"
-)
-
-const (
-	LDAP_OPT_SUCCESS          = 0
-	LDAP_OPT_ERROR            = -1
-	LDAP_VERSION3             = 3
-	LDAP_OPT_PROTOCOL_VERSION = 0x0011
-	LDAP_SUCCESS              = 0x00
-	LDAP_NO_LIMIT             = 0
-	LDAP_OPT_REFERRALS        = 0x0008
-	LDAP_MOD_REPLACE          = 0x0002
-)
-
-const (
-	LDAP_SCOPE_BASE        = 0x0000
-	LDAP_SCOPE_ONELEVEL    = 0x0001
-	LDAP_SCOPE_SUBTREE     = 0x0002
-	LDAP_SCOPE_SUBORDINATE = 0x0003 // openLDAP extension
-	LDAP_SCOPE_DEFAULT     = -1     // openLDAP extension
 )
 
 var module nano.Module
@@ -84,6 +45,7 @@ var conf struct {
 	Username   string
 	Password   string
 	ServerURL  string
+	Ou         string
 	LDAPServer url.URL
 }
 
@@ -113,11 +75,10 @@ type Message struct {
 type Ldap struct{}
 
 type ldap_conf struct {
-	ldapConnection *C.LDAP
-	host           string
-	login          string
-	passwd         string
-	ou             string
+	host   string
+	login  string
+	passwd string
+	ou     string
 }
 
 // Strucutre used in return messages sent to RabbitMQ
@@ -134,23 +95,6 @@ func env(key, def string) string {
 		return def
 	}
 	return v
-}
-
-// Setting LDAP version and referrals
-func setOptions(ldapConnection *C.LDAP) error {
-	var version C.int
-	var opt C.int
-	version = LDAP_VERSION3
-	opt = 0
-	err := C.ldap_set_option(ldapConnection, LDAP_OPT_PROTOCOL_VERSION, unsafe.Pointer(&version))
-	if err != LDAP_SUCCESS {
-		return errors.New("Options settings error: " + C.GoString(C.ldap_err2string(err)))
-	}
-	err = C.ldap_set_option(ldapConnection, LDAP_OPT_REFERRALS, unsafe.Pointer(&opt))
-	if err != LDAP_SUCCESS {
-		return errors.New("Options settings error: " + C.GoString(C.ldap_err2string(err)))
-	}
-	return nil
 }
 
 func listUsers(req nano.Request) (*nano.Response, error) {
@@ -172,7 +116,7 @@ func listUsers(req nano.Request) (*nano.Response, error) {
 
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(objectGUID=*))",
 		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
@@ -245,64 +189,11 @@ func test_password(pass string) bool {
 	}
 	return true
 }
-func deleteUsers(mails []string) error {
-	var tconf ldap_conf
-
-	tconf.host = conf.ServerURL
-	tconf.login = conf.Username
-	tconf.passwd = conf.Password
-	var version C.int
-	var v C.int
-	version = LDAP_VERSION3
-	v = 0
-	err := C.ldap_set_option(tconf.ldapConnection, LDAP_OPT_PROTOCOL_VERSION, unsafe.Pointer(&version))
-	if err != LDAP_SUCCESS {
-		return errors.New("Options settings error: " + C.GoString(C.ldap_err2string(err)))
-	}
-
-	err = C.ldap_set_option(tconf.ldapConnection, LDAP_OPT_REFERRALS, unsafe.Pointer(&v))
-	if err != LDAP_SUCCESS {
-		return errors.New("Deletion error: " + C.GoString(C.ldap_err2string(err)))
-	}
-
-	rc := C.ldap_initialize(&tconf.ldapConnection, C.CString(tconf.host))
-	if tconf.ldapConnection == nil {
-		return errors.New("Initialization error")
-	}
-	rc = C.ldap_simple_bind_s(tconf.ldapConnection, C.CString(tconf.login), C.CString(tconf.passwd))
-	if rc != LDAP_SUCCESS {
-		return errors.New("Binding error: " + C.GoString(C.ldap_err2string(rc)))
-	}
-	c := 0
-	for c < len(mails) {
-		rc := C.ldap_delete_s(tconf.ldapConnection, C.CString(mails[c]))
-		if rc != 0 {
-			return errors.New("Deletion error: " + C.GoString(C.ldap_err2string(rc)))
-		}
-		c++
-	}
-	return nil
-}
-
-func initialize(conf *ldap_conf) error {
-	if setOptions(nil) != nil {
-		return errors.New("Options error")
-	}
-	rc := C.ldap_initialize(&conf.ldapConnection, C.CString(conf.host))
-	if conf.ldapConnection == nil || rc != LDAP_SUCCESS {
-		return errors.New("Initialization error: " + C.GoString(C.ldap_err2string(rc)))
-	}
-	rc = C.ldap_simple_bind_s(conf.ldapConnection, C.CString(conf.login), C.CString(conf.passwd))
-	if rc != LDAP_SUCCESS {
-		return errors.New("Binding error: " + C.GoString(C.ldap_err2string(rc)))
-	}
-	return nil
-}
 
 // Checks if there is at least one sam account available, to use it to create a new user instead of generating a new sam account
 func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(objectGUID=*))",
 		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
@@ -329,7 +220,7 @@ func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	return nil, cn, count
 }
 
-func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.LDAPModStr, ldapConnection *ldap.Conn) (*nano.Response, error) {
+func createNewUser(conf2 ldap_conf, params AccountParams, count int, ldapConnection *ldap.Conn) (*nano.Response, error) {
 	var sam string
 	if !test_password(params.Password) {
 		return nano.JSONResponse(400, hash{
@@ -339,19 +230,17 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 
 	dn := "cn=" + fmt.Sprintf("%d", count+1) + "," + conf2.ou
 
-	rc := C._ldap_add(conf2.ldapConnection, C.CString(dn), &mods[0])
-
-	if rc != LDAP_SUCCESS {
-		return nil, errors.New("Adding error: " + C.GoString(C.ldap_err2string(rc)))
-	}
+	req := ldap.NewAddRequest(dn)
+	req.Attribute("objectclass", []string{"top", "person", "organizationalPerson", "User"})
+	req.Attribute("mail", []string{params.UserEmail})
 	pwd := encodePassword(params.Password)
-	modify := ldap.NewModifyRequest("cn=" + fmt.Sprintf("%d", count+1) + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
-	modify.Replace("unicodePwd", []string{string(pwd)}) // field where the windows password is stored
-	modify.Replace("userAccountControl", []string{"512"})
-	err := ldapConnection.Modify(modify)
+	req.Attribute("unicodePwd", []string{string(pwd)})
+	req.Attribute("userAccountControl", []string{"512"})
+	err := ldapConnection.Add(req)
 	if err != nil {
-		return nil, errors.New("Modify error: " + err.Error())
+		return nil, errors.New("Adding a user failed: " + err.Error())
 	}
+
 	ldapConnection, err = ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
@@ -365,7 +254,7 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, mods [3]*C.
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(cn="+fmt.Sprintf("%d", count+1)+"))",
 		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
@@ -405,7 +294,7 @@ func encodePassword(pass string) []byte {
 func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*nano.Response, error) {
 	var sam string
 	pwd := encodePassword(params.Password)
-	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
+	modify := ldap.NewModifyRequest("cn=" + cn + "," + conf.Ou)
 	modify.Replace("unicodePwd", []string{string(pwd)})
 	modify.Replace("userAccountControl", []string{"512"})
 	modify.Replace("mail", []string{params.UserEmail})
@@ -414,7 +303,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 		return nil, errors.New("Modify error: " + err.Error())
 	}
 
-	ldapConnection, err = ldap.DialTLS("tcp", conf.ServerURL[8:],
+	ldapConnection, err = ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -427,7 +316,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(cn="+cn+"))",
 		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
@@ -438,7 +327,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 		return nil, errors.New("Search error: " + err.Error())
 	}
 	for _, entry := range sr.Entries {
-		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
+		//module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
 		sam = entry.GetAttributeValue("sAMAccountName")
 	}
 	return nano.JSONResponse(200, hash{
@@ -466,14 +355,8 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 
 	bindusername := conf.Username
 	bindpassword := conf.Password
-	c := 0
-	for i, val := range conf.ServerURL { //Passing letters/symbols before IP adress ( ex : ldaps:// )
-		if unicode.IsDigit(val) {
-			c = i
-			break
-		}
-	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:],
+
+	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -486,7 +369,7 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 	defer ldapConnection.Close()
 
 	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(mail="+params.UserEmail+"))",
 		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
@@ -508,7 +391,7 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 	}
 	pwd := encodePassword(params.Password)
 
-	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
+	modify := ldap.NewModifyRequest("cn=" + cn + "," + conf.Ou)
 	modify.Replace("unicodePwd", []string{string(pwd)})
 	err = ldapConnection.Modify(modify)
 	if err != nil {
@@ -532,39 +415,11 @@ func createUser(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
-	// openLDAP and CGO needed here to add a new user
 	var tconf ldap_conf
 	tconf.host = conf.LDAPServer.Scheme + "://" + conf.LDAPServer.Host
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
-	tconf.ou = "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
-	err = initialize(&tconf)
-	if err != nil {
-		return nil, err
-	}
-	var mods [3]*C.LDAPModStr
-	var modClass, modCN C.LDAPModStr
-	var vclass [5]*C.char
-	var vcn [4]*C.char
-	modClass.mod_op = 0
-	modClass.mod_type = C.CString("objectclass")
-	vclass[0] = C.CString("top")
-	vclass[1] = C.CString("person")
-	vclass[2] = C.CString("organizationalPerson")
-	vclass[3] = C.CString("User")
-	vclass[4] = nil
-	modClass.mod_vals = &vclass[0]
-
-	modCN.mod_op = 0
-	modCN.mod_type = C.CString("mail")
-	vcn[0] = C.CString(params.UserEmail)
-	vcn[1] = nil
-	modCN.mod_vals = &vcn[0]
-
-	mods[0] = &modClass
-	mods[1] = &modCN
-	mods[2] = nil
-
+	tconf.ou = conf.Ou
 	bindusername := conf.Username
 	bindpassword := conf.Password
 	// return "", to ldap go API to set the password
@@ -589,18 +444,10 @@ func createUser(req nano.Request) (*nano.Response, error) {
 
 	// if no disabled accounts were found, a real new user is created
 	if cn == "" {
-		res, err := createNewUser(tconf, params, count, mods, ldapConnection)
+		res, err := createNewUser(tconf, params, count, ldapConnection)
 		if err != nil {
 			return nil, err
 		}
-		// freeing various structures needed for adding entry with OpenLDAP
-		C.free(unsafe.Pointer(vclass[0]))
-		C.free(unsafe.Pointer(vclass[1]))
-		C.free(unsafe.Pointer(vclass[2]))
-		C.free(unsafe.Pointer(vclass[3]))
-		C.free(unsafe.Pointer(vcn[0]))
-		C.free(unsafe.Pointer(modCN.mod_type))
-		//C._ldap_mods_free(&mods[0], 1)   Should work but doesnt
 		return res, nil
 	}
 
@@ -619,14 +466,8 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 
 	bindusername := conf.Username
 	bindpassword := conf.Password
-	c := 0
-	for i, val := range conf.ServerURL { // passing letters/symbols before IP adress ( ex : ldaps:// )
-		if unicode.IsDigit(val) {
-			c = i
-			break
-		}
-	}
-	ldapConnection, err := ldap.DialTLS("tcp", conf.ServerURL[c:],
+
+	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -640,7 +481,7 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
-		"OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com",
+		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(mail="+userId+"))",
 		[]string{"userAccountControl", "cn"},
@@ -660,7 +501,7 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	for _, entry := range sr.Entries {
 		cn = entry.GetAttributeValue("cn")
 	}
-	modify := ldap.NewModifyRequest("cn=" + cn + ",OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
+	modify := ldap.NewModifyRequest("cn=" + cn + "," + conf.Ou)
 	modify.Replace("userAccountControl", []string{"514"}) // 512 is a normal account, 514 is disabled ( 512 + 0x0002 )
 	err = ldapConnection.Modify(modify)
 	if err != nil {
@@ -738,6 +579,7 @@ TLS_REQCERT never
 func main() {
 	conf.Username = env("LDAP_USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
 	conf.Password = env("LDAP_PASSWORD", "Nanocloud123+")
+	conf.Ou = env("LDAP_OU", "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
 
 	ldapServer, err := url.Parse(env("LDAP_SERVER_URI", "ldaps://Administrator:Nanocloud123+@172.17.0.1:6003"))
 	if err != nil {
