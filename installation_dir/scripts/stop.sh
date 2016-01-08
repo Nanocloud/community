@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
@@ -21,22 +21,24 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-set -e
-cd dockerfiles
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
+DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-curl --progress-bar -L "https://github.com/docker/compose/releases/download/1.4.2/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
-chmod +x docker-compose
+ROOT_DIR=${CURRENT_DIR}/../..
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 
-mkdir -p postgres
-./docker-compose build
+if [ -z "$(which docker)" ]; then
+  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
+  exit 2
+fi
+if [ -z "$(which docker-compose)" ]; then
+  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
+  exit 2
+fi
 
-docker pull glyptodon/guacd:0.9.8
-docker pull nginx:1.9
-docker pull cpuguy83/docker-grand-ambassador:0.9.1
-docker pull rabbitmq:3.5
-docker pull postgres:9.4
+docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
 
-sudo cp nanocloud.service /etc/systemd/system/nanocloud.service
-sudo systemctl enable /etc/systemd/system/nanocloud.service
-
-sudo shutdown
+echo "$(date "${DATE_FMT}") Nanocloud stopped"
+echo "$(date "${DATE_FMT}") To start again Nanocloud, use :"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/start.sh)"

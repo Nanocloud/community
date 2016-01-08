@@ -25,21 +25,64 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gorilla/rpc"
 	"github.com/gorilla/rpc/json"
+	"gopkg.in/yaml.v2"
 )
 
-var (
-	IaasInstallationDir string = "/var/lib/nanocloud"
-)
+const configFilename string = "conf.yaml"
+
+type Configuration struct {
+	InstallationDir string
+	ArtifactURL     string
+}
+
+var conf Configuration
+
+func ReadMergeConf(out interface{}, filename string) error {
+	d, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	return yaml.Unmarshal(d, out)
+}
+
+func WriteConf(in interface{}, filename string) error {
+	log.Println(in)
+	d, err := yaml.Marshal(in)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filename, d, 0644)
+}
+
+func getDefaultConf() Configuration {
+	return Configuration{
+		InstallationDir: "/var/lib/nanocloud",
+		ArtifactURL:     "http://releases.nanocloud.org:8080/indiana/",
+	}
+}
+
+func initConf() {
+	conf = getDefaultConf()
+	f := "core.yaml"
+	if err := ReadMergeConf(&conf, f); err != nil {
+		log.Println(err)
+	}
+	if err := WriteConf(conf, f); err != nil {
+		log.Println(err)
+	}
+}
 
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
@@ -60,7 +103,8 @@ func downloadFromUrl(downloadUrl string, dst string) {
 		log.Fatal(err)
 	}
 
-	tempDst := filepath.Join(IaasInstallationDir, "downloads", u.Path)
+	splitedPath := strings.Split(u.Path, "/")
+	tempDst := filepath.Join(conf.InstallationDir, "downloads", splitedPath[len(splitedPath)-1])
 	tmpOutput, err := os.Create(tempDst)
 	if err != nil {
 		fmt.Println("Error while creating", tempDst, "-", err)
@@ -125,7 +169,9 @@ func Exists(name string) bool {
 
 func main() {
 
-	IaasBinDirExists, err := exists(IaasInstallationDir)
+	initConf()
+
+	IaasBinDirExists, err := exists(conf.InstallationDir)
 	if err != nil || !IaasBinDirExists {
 		log.Fatal("You need to run the install binary before running the API")
 		os.Exit(1)

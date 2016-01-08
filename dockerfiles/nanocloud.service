@@ -5,7 +5,7 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStart=/home/core/dockerfiles/docker-compose -f /home/core/dockerfiles/docker-compose.yml up
+ExecStart=/home/core/dockerfiles/docker-compose -f /home/core/dockerfiles/docker-compose.yml up -d
 
 [Install]
 WantedBy=multi-user.target

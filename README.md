@@ -1,6 +1,6 @@
 # Nanocloud community
 
-[![Build Status](https://bamboo.nanocloud.com/plugins/servlet/wittified/build-status/NC-COL)](https://bamboo.nanocloud.com/browse/NC-COL) Current version: **0.1**
+Current version: **0.1**
 
 Experience the seamless transformation of your application.
 
@@ -46,7 +46,6 @@ For your host computer
 
 You also need to install the following packages on your distribution:
 
-* *qemu-system-x86_64*
 * *curl* or *wget*
 * *netcat*
 

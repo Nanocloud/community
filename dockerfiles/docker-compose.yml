@@ -1,55 +1,134 @@
 guacamole-client:
- build: ./
- dockerfile: guacamole-client/Dockerfile
- links:
-  - guacamole-server:guacd
-  - ambassador:proxy
+ build: ./guacamole-client
  volumes:
   - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
   - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
+ restart: always
+ container_name: "guacamole-client"
+
 guacamole-server:
- image: glyptodon/guacd
+ image: glyptodon/guacd:0.9.8
+ restart: always
+ container_name: "guacamole-server"
+
 nanocloud-backend:
- build: ./
- dockerfile: nanocloud-backend/Dockerfile
- links:
-  - guacamole-client:guacamole
-  - postgres:postgres
-  - rabbitmq:rabbitmq
- volumes:
-  - ./nanocloud-backend/conf/ldaprc:/etc/ldap/ldap.conf:ro
-  - ./nanocloud-backend/conf/ad2012.cer:/opt/conf/ad2012.cer:ro
-  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
-  - ./nanocloud-backend/conf/nanocloud.yaml:/etc/nanocloud/nanocloud.yaml:ro
-  - ./nanocloud-backend/conf/users.yaml:/etc/nanocloud/users.yaml:ro
-  - ./nanocloud-backend/conf/history.yaml:/etc/nanocloud/history.yaml:ro
-  - ./nanocloud-backend/conf/iaas.yaml:/etc/nanocloud/iaas.yaml:ro
-  - ./nanocloud-backend/conf/ldap.yaml:/etc/nanocloud/ldap.yaml:ro
-  - ./nanocloud-backend/conf/apps.yaml:/etc/nanocloud/apps.yaml:ro
- volumes_from:
-  - guacamole-client
+ build: ./nanocloud
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+  - PORT=8080
+  - FRONT_DIR=front/
+  - WIN_PASSWORD=Nanocloud123+
+  - WIN_PORT=1119
+  - WIN_USER=Administrator
+  - WIN_SERVER=apiiaas-module
+ restart: always
+ container_name: "nanocloud-api"
+
 proxy:
- image: nginx
+ image: nginx:1.9
  volumes:
   - ./nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
   - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
- links:
-  - nanocloud-backend:haptic
-  - ambassador:guacamole-client
  ports:
   - 80:80
   - 443:443
+ restart: always
+ container_name: "proxy"
+
 ambassador:
- image: cpuguy83/docker-grand-ambassador
+ image: cpuguy83/docker-grand-ambassador:0.9.1
  volumes:
  - "/var/run/docker.sock:/var/run/docker.sock"
  command: "-name dockerfiles_guacamole-client_1 -name dockerfiles_proxy_1 "
+ restart: always
+ container_name: "ambassador"
+
 rabbitmq:
-  image: rabbitmq
+ image: rabbitmq:3.5
+ restart: always
+ container_name: "rabbitmq"
+
 postgres:
- image: postgres
+ image: postgres:9.4
  volumes:
   - ./postgres:/var/lib/postgresql/data/pgdata
  environment:
   - PGDATA=/var/lib/postgresql/data/pgdata
   - POSTGRES_USER=nanocloud
+ restart: always
+ container_name: "postgres"
+
+apps-module:
+ build: ./apps
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - USER=Administrator
+  - SSH_PORT=1119
+  - RDP_PORT=3389
+  - SERVER=10.20.12.20
+  - PASSWORD=Nanocloud123+
+  - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
+  - WINDOWS_DOMAIN=intra.localdomain.com
+  - EXECUTION_SERVERS=10.20.12.20
+ restart: always
+ volumes:
+  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
+ container_name: "apps-module"
+
+history-module:
+ build: ./history
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+ restart: always
+ container_name: "history-module"
+
+iaas-module:
+ build: ./iaas
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - API_URL=http://apiiaas-module
+  - API_PORT=8082
+ restart: always
+ container_name: "iaas-module"
+
+apiiaas-module:
+ build: ./apiiaas
+ environment:
+  - NANOCLOUD_DIR=/var/lib/nanocloud
+  - API_PORT=8082
+ volumes:
+  - ../installation_dir:/var/lib/nanocloud/
+  - /dev/kvm:/dev/kvm
+ restart: always
+ container_name: "apiiaas-module"
+ privileged: true
+
+ldap-module:
+ build: ./ldap
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - SSH_SERVER_URI=Administrator:Nanocloud123+@172.17.0.1:6001
+  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@172.17.0.1:6003
+  - BASE=DC=intra,DC=localdomain,DC=com
+  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
+  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
+  - PASSWORD=
+  - TLS_CACERT=/opt/conf/ad2012.cer
+ restart: always
+ container_name: "ldap-module"
+
+users-module:
+ build: ./users
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+ restart: always
+ container_name: "users-module"
