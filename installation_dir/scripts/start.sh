@@ -25,10 +25,6 @@ NANOCLOUD_DIR="/var/lib/nanocloud"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 
-# Check if current user is root
-if [ "$(id -u)" != "0" ]; then
-  echo "$(date "${DATE_FMT}") You must be root to run this script"
-  exit 1
 fi
 
 # Check ip_forward
