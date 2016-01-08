@@ -32,6 +32,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gorilla/rpc"
@@ -102,7 +103,8 @@ func downloadFromUrl(downloadUrl string, dst string) {
 		log.Fatal(err)
 	}
 
-	tempDst := filepath.Join(conf.InstallationDir, "downloads", u.Path)
+	splitedPath := strings.Split(u.Path, "/")
+	tempDst := filepath.Join(conf.InstallationDir, "downloads", splitedPath[len(splitedPath)-1])
 	tmpOutput, err := os.Create(tempDst)
 	if err != nil {
 		fmt.Println("Error while creating", tempDst, "-", err)
