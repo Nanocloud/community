@@ -46,7 +46,7 @@ echo "$(date "${DATE_FMT}") Starting host API"
 )
 
 echo "$(date "${DATE_FMT}") Nanocloud started"
-printf "%s \tURL: https://localhost:8443\n" "$(date "${DATE_FMT}")"
+printf "%s \tURL: https://localhost\n" "$(date "${DATE_FMT}")"
 printf "%s \tEmail: admin@nanocloud.com\n" "$(date "${DATE_FMT}")"
 printf "%s \tPassword: admin\n" "$(date "${DATE_FMT}")"
 echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
