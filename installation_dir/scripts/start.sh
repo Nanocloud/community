@@ -20,38 +20,64 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-NANOCLOUD_DIR="/var/lib/nanocloud"
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
+ROOT_DIR=${CURRENT_DIR}/../..
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
+DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
 
-# Check if current user is root
-if [ "$(id -u)" != "0" ]; then
-  echo "$(date "${DATE_FMT}") You must be root to run this script"
-  exit 1
+if [ -z "$(which docker)" ]; then
+  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
+  exit 2
+fi
+if [ -z "$(which docker-compose)" ]; then
+  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
+  exit 2
+fi
+if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
+  echo "$(date "${DATE_FMT}") No download method found, please install *curl* or *wget*"
+  exit 2
 fi
 
-# Check ip_forward
-echo "$(date "${DATE_FMT}") Activating *ip_forward*"
-if [ "$(sysctl --value net.ipv4.ip_forward)" != "1" ]; then
-  sysctl --write net.ipv4.ip_forward=1 > /dev/null 2>&1
+if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
+    echo "$(date "${DATE_FMT}") Starting nanocloud containers from local build"
+    docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" --x-networking up -d
+else
+    echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub"
+    docker-compose --file "${ROOT_DIR}/docker-compose.yml" --x-networking up -d
 fi
 
-echo "$(date "${DATE_FMT}") Starting host API"
-/etc/init.d/iaasAPI start > /dev/null 2>&1
+NANOCLOUD_STATUS=""
+echo "$(date "${DATE_FMT}") Testing connectivity"
+for run in $(seq 60) ; do
+    if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+	CURL_CMD=$(which curl)
+	WGET_CMD=$(which wget)
+	if [ -n "${CURL_CMD}" ]; then
+            NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
+	elif [ -n "${WGET_CMD}" ]; then
+            NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
+	fi
+    else
+	break ;
+    fi
+    sleep 1
+done
 
-(
-  cd ${NANOCLOUD_DIR}
-  nohup scripts/launch-coreos.sh > start.log &
-)
+if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+    echo "$(date "${DATE_FMT}") Cannot connect to Nanocloud"
+    exit 1
+fi
 
 echo "$(date "${DATE_FMT}") Nanocloud started"
-printf "%s \tURL: https://localhost:8443\n" "$(date "${DATE_FMT}")"
+printf "%s \tURL: https://localhost\n" "$(date "${DATE_FMT}")"
 printf "%s \tEmail: admin@nanocloud.com\n" "$(date "${DATE_FMT}")"
 printf "%s \tPassword: admin\n" "$(date "${DATE_FMT}")"
 echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
 echo ""
 echo "$(date "${DATE_FMT}") Use the following commands as root to start, stop or get status information"
-echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/start.sh"
-echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/stop.sh"
-echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/status.sh"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/start.sh)"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/stop.sh)"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/status.sh)"
