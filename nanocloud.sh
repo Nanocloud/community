@@ -68,18 +68,27 @@ else
     docker-compose --x-networking up -d
 fi
 
-echo "$(date "${DATE_FMT}") Testing connectivity"
 NANOCLOUD_STATUS=""
-while [ "${NANOCLOUD_STATUS}" != "200" ]; do
-    CURL_CMD=$(which curl)
-    WGET_CMD=$(which wget)
-    if [ -n "${CURL_CMD}" ]; then
-        NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
-    elif [ -n "${WGET_CMD}" ]; then
-        NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
+echo "$(date "${DATE_FMT}") Testing connectivity"
+for run in {1..60} ; do
+    if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+	CURL_CMD=$(which curl)
+	WGET_CMD=$(which wget)
+	if [ -n "${CURL_CMD}" ]; then
+            NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
+	elif [ -n "${WGET_CMD}" ]; then
+            NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
+	fi
+    else
+	break ;
     fi
     sleep 1
 done
+
+if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+    echo "$(date "${DATE_FMT}") Cannot connect to Nanocloud"
+    exit 1
+fi
 
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
