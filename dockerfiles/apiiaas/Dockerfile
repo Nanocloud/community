@@ -5,7 +5,7 @@ MAINTAINER \
   William Riancho <william.riancho@nanocloud.com>
 
 RUN apt-get update && \
-    apt-get -y install git
+    apt-get -y install git qemu-system-x86
 
 RUN go get "github.com/gorilla/rpc" && \
     go get "github.com/gorilla/rpc/json" && \
