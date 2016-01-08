@@ -21,30 +21,24 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-# Check if current user is root
-if [ "$(id -u)" != "0" ]; then
-  echo "$(date "${DATE_FMT}") You must be root to run this script"
-  exit 1
+ROOT_DIR=${CURRENT_DIR}/../..
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
+
+if [ -z "$(which docker)" ]; then
+  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
+  exit 2
+fi
+if [ -z "$(which docker-compose)" ]; then
+  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
+  exit 2
 fi
 
-NC_QEMU_PID=$(pgrep -fl nanocloud | awk '/qemu-system-x86/ { print $1; }')
-echo "$(date "${DATE_FMT}") Stopping Nanocloud virtual machines"
-for PID in $NC_QEMU_PID; do
-    kill "${PID}"
-    sleep 1
-done
-
-echo "$(date "${DATE_FMT}") Stopping host API"
-/etc/init.d/iaasAPI stop > /dev/null 2>&1
-
-# Check ip_forward
-if [ "$(sysctl --value net.ipv4.ip_forward)" != "0" ]; then
-    echo "$(date "${DATE_FMT}") Stoping IP Forward"
-    sysctl --write net.ipv4.ip_forward=0 > /dev/null 2>&1
-fi
+docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
 
 echo "$(date "${DATE_FMT}") Nanocloud stopped"
 echo "$(date "${DATE_FMT}") To start again Nanocloud, use :"
-echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/start.sh"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/start.sh)"
