@@ -23,8 +23,8 @@
 
 NANOCLOUD_DIR="${NANOCLOUD_DIR:-"/var/lib/nanocloud"}"
 
-VM_NAME="windows-server-2012R2-amd64"
-VM_HOSTNAME="windows-server-2012R2-amd64"
+VM_NAME="windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64"
+VM_HOSTNAME="windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64"
 
 # Port map
 SSH_PORT=1119
