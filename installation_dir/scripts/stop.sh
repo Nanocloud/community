@@ -40,10 +40,6 @@ if [ -z "$(which docker-compose)" ]; then
 echo "$(date "${DATE_FMT}") Stopping host API"
 /etc/init.d/iaasAPI stop > /dev/null 2>&1
 
-# Check ip_forward
-if [ "$(sysctl --value net.ipv4.ip_forward)" != "0" ]; then
-    echo "$(date "${DATE_FMT}") Stoping IP Forward"
-    sysctl --write net.ipv4.ip_forward=0 > /dev/null 2>&1
 fi
 
 echo "$(date "${DATE_FMT}") Nanocloud stopped"
