@@ -23,12 +23,6 @@
 
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-# Check if current user is root
-if [ "$(id -u)" != "0" ]; then
-  echo "$(date "${DATE_FMT}") You must be root to run this script"
-  exit 1
-fi
-
 NC_QEMU_PID=$(pgrep -fl nanocloud | awk '/qemu-system-x86/ { print $1; }')
 echo "$(date "${DATE_FMT}") Stopping Nanocloud virtual machines"
 for PID in $NC_QEMU_PID; do
