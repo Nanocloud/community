@@ -25,6 +25,17 @@ NANOCLOUD_DIR="/var/lib/nanocloud"
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 
+if [ -z "$(which docker)" ]; then
+  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
+  exit 2
+fi
+if [ -z "$(which docker-compose)" ]; then
+  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
+  exit 2
+fi
+if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
+  echo "$(date "${DATE_FMT}") No download method found, please install *curl* or *wget*"
+  exit 2
 fi
 
 # Check ip_forward
