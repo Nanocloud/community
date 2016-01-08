@@ -327,7 +327,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 		return nil, errors.New("Search error: " + err.Error())
 	}
 	for _, entry := range sr.Entries {
-		//module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
+		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
 		sam = entry.GetAttributeValue("sAMAccountName")
 	}
 	return nano.JSONResponse(200, hash{
