@@ -38,7 +38,7 @@ elif [ -n "${WGET_CMD}" ]; then
     NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
 fi
 
-if [ -z "$NC_QEMU_PID" ]; then
+if [ "${NANOCLOUD_STATUS}" != "200" ]; then
   echo "$(date "${DATE_FMT}") Nanocloud is *NOT* running"
 else
   echo "$(date "${DATE_FMT}") Nanocloud is running"
