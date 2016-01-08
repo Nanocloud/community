@@ -28,21 +28,6 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/dockerfiles/build_output"
 
-download() {
-  CURL_CMD=$(which curl)
-  WGET_CMD=$(which wget)
-
-  URL=${1}
-  if [ -n "${CURL_CMD}" ]; then
-    curl --progress-bar "${URL}"
-  elif [ -n "${WGET_CMD}" ]; then
-    wget --quiet "${URL}" -O -
-  else
-    echo "You need *curl* or *wget* to run this script, exiting"
-    exit 2
- fi
-}
-
 if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
   exit 2
