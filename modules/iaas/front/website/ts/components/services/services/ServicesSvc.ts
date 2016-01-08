@@ -71,8 +71,8 @@ export class ServicesSvc {
 			() => []);
 	}
 
-	download(service: IService): angular.IPromise<any> {
-		return this.$http.post("/api/iaas/" + service.Name + "/download", null)
+	download(serviceName: string): angular.IPromise<any> {
+		return this.$http.post("/api/iaas/" + serviceName + "/download", null)
 			.then(() => {
 				this.downloadStarted = true;
 			});
