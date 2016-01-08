@@ -46,13 +46,27 @@ else
     docker-compose --file "${ROOT_DIR}/docker-compose.yml" --x-networking up -d
 fi
 
-echo "$(date "${DATE_FMT}") Starting host API"
-/etc/init.d/iaasAPI start > /dev/null 2>&1
+NANOCLOUD_STATUS=""
+echo "$(date "${DATE_FMT}") Testing connectivity"
+for run in $(seq 60) ; do
+    if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+	CURL_CMD=$(which curl)
+	WGET_CMD=$(which wget)
+	if [ -n "${CURL_CMD}" ]; then
+            NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
+	elif [ -n "${WGET_CMD}" ]; then
+            NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
+	fi
+    else
+	break ;
+    fi
+    sleep 1
+done
 
-(
-  cd ${NANOCLOUD_DIR}
-  nohup scripts/launch-coreos.sh > start.log &
-)
+if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+    echo "$(date "${DATE_FMT}") Cannot connect to Nanocloud"
+    exit 1
+fi
 
 echo "$(date "${DATE_FMT}") Nanocloud started"
 printf "%s \tURL: https://localhost\n" "$(date "${DATE_FMT}")"
