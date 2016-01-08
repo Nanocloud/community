@@ -53,6 +53,10 @@ func (p *Iaas) GetList(r *http.Request, args *NoArgs, reply *GetIaasListReply) e
 
 	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", conf.InstallationDir))
 	for _, file := range files {
+		fileName := file.Name()
+		if !strings.Contains(fileName, ".pid") {
+			continue
+		}
 		vmIP = strings.Split(file.Name(), "-")[3]
 		if checkPort(vmIP, 22) || checkPort(vmIP, 443) || checkPort(vmIP, 3389) {
 			reply.RunningVmNames = append(reply.RunningVmNames, file.Name()[0:len(file.Name())-4])
@@ -63,11 +67,19 @@ func (p *Iaas) GetList(r *http.Request, args *NoArgs, reply *GetIaasListReply) e
 
 	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/images/", conf.InstallationDir))
 	for _, file := range files {
+		fileName := file.Name()
+		if !strings.Contains(fileName, ".qcow2") {
+			continue
+		}
 		reply.AvailableVMNames = append(reply.AvailableVMNames, file.Name()[0:len(file.Name())-6])
 	}
 
 	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", conf.InstallationDir))
 	for _, file := range files {
+		fileName := file.Name()
+		if !strings.Contains(fileName, ".qcow2") {
+			continue
+		}
 		reply.DownloadingVmNames = append(reply.DownloadingVmNames, file.Name()[0:len(file.Name())-6])
 	}
 
@@ -155,14 +167,11 @@ type ImageArgs struct {
 }
 
 func (p *Iaas) Download(r *http.Request, args *ImageArgs, reply *BoolReply) error {
-
-	fmt.Println("Download Amin Start")
 	go downloadFromUrl(
 		conf.ArtifactURL+args.VMName+".qcow2",
 		conf.InstallationDir+"/images/"+args.VMName+".qcow2")
 
 	reply.Success = true
 
-	fmt.Println("Download Amin End")
 	return nil
 }
