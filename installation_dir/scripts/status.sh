@@ -30,6 +30,12 @@ NC_QEMU_PID=$(pgrep -fl nanocloud | awk '/qemu-system-x86/ { print $1; }')
 if [ "$(sysctl --value net.ipv4.ip_forward)" != "1" ]; then
   echo "$(date "${DATE_FMT}") IP Forward is missing, please use the following command to fix it"
   echo "$(date "${DATE_FMT}")    # sysctl --write net.ipv4.ip_forward=1"
+CURL_CMD=$(which curl)
+WGET_CMD=$(which wget)
+if [ -n "${CURL_CMD}" ]; then
+    NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
+elif [ -n "${WGET_CMD}" ]; then
+    NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
 fi
 
 if [ -z "$NC_QEMU_PID" ]; then
