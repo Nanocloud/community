@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
@@ -38,10 +38,10 @@ QEMU=$(which qemu-system-x86_64)
 # TODO : need netcat & select nc commands
 
 if [ ! -f "${WINDOWS_QCOW2_FILENAME}" ]; then
-	(
-		cd "${CURRENT_DIR}"
-		packer build -only=windows-2012R2-qemu windows_2012_r2.json
-	)
+    (
+        cd "${CURRENT_DIR}"
+        packer build -only=windows-2012R2-qemu windows_2012_r2.json
+    )
 fi
 
 nohup "${QEMU}" \
@@ -71,14 +71,17 @@ if [ "$?" != "0" ]; then
 fi
 
 echo "$(date "${DATE_FMT}") Installing new Remote Desktop session deployment…"
-sshpass -p "${WINDOWS_PASSWORD}" ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost << EOF
+sshpass -p "${WINDOWS_PASSWORD}" ssh -p ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null Administrator@localhost << EOF
 cd ../..
 Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker adapps.intra.localdomain.com -WebAccessServer adapps.intra.localdomain.com -SessionHost adapps.intra.localdomain.com; New-RDSessionCollection -CollectionName collection -SessionHost adapps.intra.localdomain.com -CollectionDescription 'Nanocloud collection' -ConnectionBroker adapps.intra.localdomain.com; New-RDRemoteApp -CollectionName collection -DisplayName hapticPowershell -FilePath 'C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe' -Alias hapticPowershell -CommandLineSetting Require -RequiredCommandLine '-ExecutionPolicy Bypass c:\publishApplication.ps1'"
 Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command "shutdown.exe /s /f /d p:4:1 /c 'Provisioning Shutdown'"
 EOF
 
 echo "$(date "${DATE_FMT}") Retrieving Active Directory certificates…"
-sshpass -p "${WINDOWS_PASSWORD}" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no Administrator@localhost:/cygdrive/c/users/administrator/ad2012.cer "${CURRENT_DIR}"
+sshpass -p "${WINDOWS_PASSWORD}" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null Administrator@localhost:/cygdrive/c/users/administrator/ad2012.cer "${CURRENT_DIR}"
+
+echo "$(date "${DATE_FMT}") Pushing hapticPowershell script to Windows…"
+sshpass -p "${WINDOWS_PASSWORD}" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${CURRENT_DIR}/floppy/windows-2012-standard-amd64/publishApplication.ps1" Administrator@localhost:/cygdrive/c/publishApplication.ps1
 
 echo "$(date "${DATE_FMT}") Waiting for windows to shutdown…"
 sleep 20
