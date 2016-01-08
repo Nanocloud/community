@@ -17,15 +17,15 @@
 			</div>
 		</md-list-item>
 
-		<md-list-item class="md-3-line" ng-if="servicesCtrl.servicesSrv.windowsReady === false" ng-click="servicesCtrl.startWindowsDownload($event)">
+		<md-list-item class="md-3-line" ng-if="servicesCtrl.servicesSvc.windowsReady === false" ng-click="servicesCtrl.startWindowsDownload($event)">
 			<ng-md-icon icon="windows"></ng-md-icon>
 			<div class="md-list-item-text" layout="column">
 				<h3>Windows</h3>
-				<div ng-if="servicesCtrl.servicesSrv.downloadStarted">
+				<div ng-if="servicesCtrl.servicesSvc.downloadStarted">
 					<p>Download in progress (~6 GB). This may take a while.</p>
 					<md-progress-linear md-mode="indeterminate"></md-progress-linear>
 				</div>
-				<p ng-if="servicesCtrl.servicesSrv.downloadStarted === false">
+				<p ng-if="servicesCtrl.servicesSvc.downloadStarted === false">
 					<ng-md-icon icon="arrow_back"></ng-md-icon> Please click on the Windows button to install it
 				</p>
 			</div>
