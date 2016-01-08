@@ -20,10 +20,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-NANOCLOUD_DIR="/var/lib/nanocloud"
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
+ROOT_DIR=${CURRENT_DIR}/../..
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
+DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
 
 if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
@@ -75,6 +78,6 @@ printf "%s \tPassword: admin\n" "$(date "${DATE_FMT}")"
 echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
 echo ""
 echo "$(date "${DATE_FMT}") Use the following commands as root to start, stop or get status information"
-echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/start.sh"
-echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/stop.sh"
-echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/status.sh"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/start.sh)"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/stop.sh)"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/status.sh)"
