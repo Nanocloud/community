@@ -42,6 +42,8 @@ echo "$(date "${DATE_FMT}") Stopping host API"
 
 fi
 
+docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
+
 echo "$(date "${DATE_FMT}") Nanocloud stopped"
 echo "$(date "${DATE_FMT}") To start again Nanocloud, use :"
 echo "$(date "${DATE_FMT}")     # /var/lib/nanocloud/scripts/start.sh"

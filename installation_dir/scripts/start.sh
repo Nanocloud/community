@@ -38,6 +38,12 @@ if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
   exit 2
 fi
 
+if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
+    echo "$(date "${DATE_FMT}") Starting nanocloud containers from local build"
+    docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" --x-networking up -d
+else
+    echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub"
+    docker-compose --file "${ROOT_DIR}/docker-compose.yml" --x-networking up -d
 fi
 
 echo "$(date "${DATE_FMT}") Starting host API"
