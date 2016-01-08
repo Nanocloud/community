@@ -21,15 +21,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Check if current user is root
-NANOCLOUD_DIR="/var/lib/nanocloud"
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
-NC_QEMU_PID=$(pgrep -fl nanocloud | awk '/qemu-system-x86/ { print $1; }')
 
-# Check ip_forward
-if [ "$(sysctl --value net.ipv4.ip_forward)" != "1" ]; then
-  echo "$(date "${DATE_FMT}") IP Forward is missing, please use the following command to fix it"
-  echo "$(date "${DATE_FMT}")    # sysctl --write net.ipv4.ip_forward=1"
+ROOT_DIR=${CURRENT_DIR}/../..
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
+
 CURL_CMD=$(which curl)
 WGET_CMD=$(which wget)
 if [ -n "${CURL_CMD}" ]; then
@@ -48,7 +46,7 @@ else
   echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
   echo ""
   echo "$(date "${DATE_FMT}") Use the following commands as root to start, stop or get status information"
-  echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/start.sh"
-  echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/stop.sh"
-  echo "$(date "${DATE_FMT}")     # ${NANOCLOUD_DIR}/scripts/status.sh"
+  echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/start.sh)"
+  echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/stop.sh)"
+  echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/status.sh)"
 fi
