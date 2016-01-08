@@ -28,19 +28,6 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/dockerfiles/build_output"
 
-if [ -z "$(which docker)" ]; then
-  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
-  exit 2
-fi
-if [ -z "$(which docker-compose)" ]; then
-  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
-  exit 2
-fi
-if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
-  echo "$(date "${DATE_FMT}") No download method found, please install *curl* or *wget*"
-  exit 2
-fi
-
 if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from local build"
     docker-compose --file "${CURRENT_DIR}/dockerfiles/docker-compose.yml" --x-networking up -d
