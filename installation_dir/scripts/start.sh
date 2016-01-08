@@ -38,10 +38,6 @@ if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
   exit 2
 fi
 
-# Check ip_forward
-echo "$(date "${DATE_FMT}") Activating *ip_forward*"
-if [ "$(sysctl --value net.ipv4.ip_forward)" != "1" ]; then
-  sysctl --write net.ipv4.ip_forward=1 > /dev/null 2>&1
 fi
 
 echo "$(date "${DATE_FMT}") Starting host API"
