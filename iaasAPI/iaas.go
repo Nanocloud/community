@@ -148,9 +148,8 @@ func (p *Iaas) Stop(r *http.Request, args *VMName, reply *BoolReply) error {
 }
 
 func (p *Iaas) Start(r *http.Request, args *VMName, reply *BoolReply) error {
-
-	fmt.Println("Starting : ", args)
-	cmd := exec.Command("nohup", fmt.Sprintf("%s/scripts/launch-%s.sh", conf.InstallationDir, args.Name), "&")
+	fmt.Println("Starting : ", args.Name)
+	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", conf.InstallationDir, args.Name))
 	err := cmd.Start()
 	if err != nil {
 		fmt.Printf("Failed to start vm, error: %s\n", err)
