@@ -56,9 +56,6 @@ export class ServicesSvc {
 	getAll(): angular.IPromise<IService[]> {
 		return this.$http.get("/api/iaas").then(
 			(res: angular.IHttpPromiseCallbackArg<IService[]>) => {
-				if (!res.data) {
-					return [];
-				}
 				for (let srv of res.data) {
 					if (srv.Ico === "windows") {
 						this.downloadStarted = false;

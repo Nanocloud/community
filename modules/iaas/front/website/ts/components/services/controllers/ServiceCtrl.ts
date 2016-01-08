@@ -47,7 +47,7 @@ export class ServiceCtrl {
 
 	accept(): void {
 		if (this.servicesSrv.downloadStarted === false) {
-			this.servicesSrv.download("windows-server-2012R2-amd64");
+			this.servicesSrv.download("windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64");
 			this.$mdDialog.hide(this.service);
 		} else {
 			this.$mdDialog.cancel();
