@@ -32,10 +32,22 @@ VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 SSH_PORT=1119
 QEMU=$(which qemu-system-x86_64)
 
-# TODO : need packer
-# TODO : need qemu
-# TODO : need ssh_pass
-# TODO : need netcat & select nc commands
+if [ -z "$(which packer)" ]; then
+  echo "$(date "${DATE_FMT}") Packer is missing, please install *packer*"
+  exit 2
+fi
+if [ -z "$(which qemu-system-x86_64)" ]; then
+  echo "$(date "${DATE_FMT}") Qemu is missing, please install *qemu*"
+  exit 2
+fi
+if [ -z "$(which sshpass)" ]; then
+  echo "$(date "${DATE_FMT}") sshpass is missing, please install *sshpass*"
+  exit 2
+fi
+if [ -z "$(which netcat)" ]; then
+  echo "$(date "${DATE_FMT}") netcat is missing, please install *netcat*"
+  exit 2
+fi
 
 if [ ! -f "${WINDOWS_QCOW2_FILENAME}" ]; then
     (
