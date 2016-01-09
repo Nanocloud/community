@@ -14,7 +14,7 @@ RUN go get "github.com/gorilla/rpc" && \
 RUN mkdir -p /opt/build
 WORKDIR /opt/build/
 
-RUN git clone --branch dev --depth=1 --recursive https://github.com/Nanocloud/community.git
+RUN git clone --depth=1 --recursive https://github.com/Nanocloud/community.git
 
 WORKDIR /opt/build/community/iaasAPI
 
