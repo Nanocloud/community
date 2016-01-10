@@ -39,6 +39,8 @@ fi
 
 docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
 
+rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
+
 echo "$(date "${DATE_FMT}") Nanocloud stopped"
 echo "$(date "${DATE_FMT}") To start again Nanocloud, use :"
 echo "$(date "${DATE_FMT}")     # $(readlink -e ${NANOCLOUD_DIR}/scripts/start.sh)"
