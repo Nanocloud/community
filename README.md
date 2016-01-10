@@ -47,7 +47,6 @@ You also need to install the following packages on your distribution:
 * *docker*
 * *docker-compose*
 * *curl* or *wget*
-* *netcat*
 
 ## How to build
 
