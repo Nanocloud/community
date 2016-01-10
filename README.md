@@ -50,6 +50,13 @@ You also need to install the following packages on your distribution:
 
 ## How to build
 
+Building Windows from Nanocloud Community requires some packages :
+
+* *packer*
+* *qemu*
+* *sshpass*
+* *netcat*
+
 Then to build your own installer, use this script:
 
 ```
