@@ -207,7 +207,7 @@ func CreateUser(
 	id := uuid.NewV4().String()
 
 	if createAD == true {
-		sam, winpass, err := CreateADUser(id)
+		sam, winpass, err = CreateADUser(id)
 	}
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
