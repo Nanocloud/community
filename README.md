@@ -15,7 +15,7 @@ applications with new uses.
 Simply run the following command to install and run **Nanocloud**:
 
 ```
-curl --progress-bar "http://community.nanocloud.com/one-liner.sh" | sh
+curl --progress-bar "http://community.nanocloud.com/installer.sh" | sh
 ```
 
 > Read carefully outputs for this script, it will prodive you usefull
@@ -24,11 +24,11 @@ curl --progress-bar "http://community.nanocloud.com/one-liner.sh" | sh
 
 ### Alternative to curl
 
-If you don't want to or cannot use *curl*, you can launch the **one-liner** this
+If you don't want to or cannot use *curl*, you can launch the **installer** this
 way:
 
 ```
-wget "http://community.nanocloud.com/one-liner.sh" -q -O - | sh
+wget "http://community.nanocloud.com/installer.sh" -q -O - | sh
 ```
 
 ## Prerequisites
