@@ -68,11 +68,11 @@ apps-module:
   - USER=Administrator
   - SSH_PORT=1119
   - RDP_PORT=3389
-  - SERVER=10.20.12.20
+  - SERVER=apiiaas-module
   - PASSWORD=Nanocloud123+
   - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
   - WINDOWS_DOMAIN=intra.localdomain.com
-  - EXECUTION_SERVERS=10.20.12.20
+  - EXECUTION_SERVERS=apiiaas-module
  restart: always
  volumes:
   - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
