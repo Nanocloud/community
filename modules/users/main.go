@@ -200,9 +200,17 @@ func CreateUser(
 	lastName string,
 	password string,
 	isAdmin bool,
+	createAD bool,
 ) (createdUser *nano.User, err error) {
+var sam string
+var winpass string
+	var sam string
+	var winpass string
 	id := uuid.NewV4().String()
-	sam, winpass, err := CreateADUser(id)
+
+	if createAD == true {
+		sam, winpass, err := CreateADUser(id)
+	}
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return
@@ -473,6 +481,7 @@ func setupDb() error {
 		"Doe",
 		"admin",
 		true,
+		false,
 	)
 
 	if err != nil {
@@ -503,6 +512,7 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 		user.LastName,
 		user.Password,
 		false,
+		true,
 	)
 	if err != nil {
 		return nil, err
