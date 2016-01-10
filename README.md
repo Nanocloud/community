@@ -60,6 +60,13 @@ Building Windows from Nanocloud Community requires some packages :
 Then to build your own installer, use this script:
 
 ```
+./build.sh windows
+./build.sh nanocloud
+```
+
+Or simply to build both in one command :
+
+```
 ./build.sh
 ```
 
