@@ -33,5 +33,5 @@ if [ -z "$(which docker-compose)" ]; then
   exit 2
 fi
 
-docker run -e HOST_UID=$SCRIPT_UID -v $CURRENT_DIR/nanocloud:/var/lib/nanocloud community
+docker run -e HOST_UID=$SCRIPT_UID -v $CURRENT_DIR/nanocloud:/var/lib/nanocloud nanocloud/community:0.2
 $CURRENT_DIR/nanocloud/installation_dir/scripts/start.sh
