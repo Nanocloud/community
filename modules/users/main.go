@@ -202,8 +202,6 @@ func CreateUser(
 	isAdmin bool,
 	createAD bool,
 ) (createdUser *nano.User, err error) {
-var sam string
-var winpass string
 	var sam string
 	var winpass string
 	id := uuid.NewV4().String()
