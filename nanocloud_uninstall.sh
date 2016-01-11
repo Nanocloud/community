@@ -40,9 +40,9 @@ rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-20
 
 rm -rf ${CURRENT_DIR}/dockerfiles/build_output
 docker-compose -f ${CURRENT_DIR}/dockerfiles/docker-compose.yml rm -f > /dev/null 2>&1
-docker rmi -f guacamole-client \
+docker rmi -f dockerfiles_guacamole-client \
        dockerfiles_guacamole-server \
-       dockerfiles_nanocloud-api \
+       dockerfiles_nanocloud-backend \
        dockerfiles_proxy \
        dockerfiles_ambassador \
        dockerfiles_rabbitmq \
@@ -55,7 +55,7 @@ docker rmi -f guacamole-client \
        dockerfiles_users-module > /dev/null 2>&1
 docker rmi -f nanocloud/guacamole-client \
        nanocloud/guacamole-server \
-       nanocloud/nanocloud-api \
+       nanocloud/nanocloud-backend \
        nanocloud/proxy \
        nanocloud/ambassador \
        nanocloud/rabbitmq \
