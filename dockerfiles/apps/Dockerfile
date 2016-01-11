@@ -8,7 +8,6 @@ RUN mkdir -p /build/
 RUN git clone --depth=1 --recursive https://github.com/Nanocloud/apps.git /build/apps
 
 WORKDIR /build/apps
-RUN mkdir bin && cp ./src/apps/scripts/exec.sh ./bin
 RUN gb build
 
 CMD ["./bin/apps"]
