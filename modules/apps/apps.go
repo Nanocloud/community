@@ -116,19 +116,21 @@ func createConnections() error {
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	cmd := exec.Command(
+		"sshpass", "-p", conf.Password,
+		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-p", conf.SSHPort,
+		fmt.Sprintf(
+			"%s@%s",
+			conf.User,
+			conf.Server,
+		),
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
+	)
+	response, err := cmd.CombinedOutput()
 	if err != nil {
+		module.Log.Error("Failed to execute sshpass command ", err, string(response))
 		return err
-	}
-	bashExecScript := filepath.Join(dir, "exec.sh")
-	cmd := exec.Command(bashExecScript, "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"")
-	cmd.Dir = dir
-	response, err := cmd.Output()
-	if err != nil {
-		module.Log.Error("Failed to run script exec.sh, error: ", err, ", output: ", string(response))
-		response = []byte("[]")
-	} else if string(response) == "" {
-		response = []byte("[]")
 	}
 
 	if []byte(response)[0] != []byte("[")[0] {
