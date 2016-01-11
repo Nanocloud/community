@@ -23,6 +23,16 @@
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"/var/lib/nanocloud"}
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
+
+if [ -z "$(which docker)" ]; then
+  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
+  exit 2
+fi
+if [ -z "$(which docker-compose)" ]; then
+  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
+  exit 2
+fi
 echo "# Erasing previous install"
 echo "$(date "${DATE_FMT}") Killing Nanocloud qemu processes"
 NC_QEMU_PID=$(pgrep -fl nanocloud | grep qemu-system-x86 | awk '{ print $1; }')
