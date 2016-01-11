@@ -68,3 +68,5 @@ docker rmi -f nanocloud/guacamole-client \
        nanocloud/users-module > /dev/null 2>&1
 
 echo "$(date "${DATE_FMT}") Removing installed files"
+rm -f ${NANOCLOUD_DIR}/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+rm -f ${NANOCLOUD_DIR}/downloads/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
