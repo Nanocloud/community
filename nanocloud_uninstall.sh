@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
@@ -20,20 +20,57 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-NANOCLOUD_DIR=${NANOCLOUD_DIR:-"/var/lib/nanocloud"}
+
+SCRIPT_FULL_PATH=$(readlink -e "${0}")
+CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-echo "# Erasing previous install"
-echo "$(date "${DATE_FMT}") Killing Nanocloud qemu processes"
-NC_QEMU_PID=$(pgrep -fl nanocloud | grep qemu-system-x86 | awk '{ print $1; }')
-for PID in $NC_QEMU_PID; do
-    kill "${PID}"
-    sleep 1
-done
+NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
 
-echo "$(date "${DATE_FMT}") Stoping API"
-/etc/init.d/iaasAPI stop > /dev/null 2>&1
+if [ -z "$(which docker)" ]; then
+  echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
+  exit 2
+fi
+if [ -z "$(which docker-compose)" ]; then
+  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
+  exit 2
+fi
+
+rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
+
+rm -rf ${CURRENT_DIR}/dockerfiles/build_output
+docker-compose -f ${CURRENT_DIR}/dockerfiles/docker-compose.yml rm -f > /dev/null 2>&1
+docker rmi -f guacamole-client \
+       dockerfiles_guacamole-server \
+       dockerfiles_nanocloud-api \
+       dockerfiles_proxy \
+       dockerfiles_ambassador \
+       dockerfiles_rabbitmq \
+       dockerfiles_postgres \
+       dockerfiles_apps-module \
+       dockerfiles_history-module \
+       dockerfiles_iaas-module \
+       dockerfiles_apiiaas-module \
+       dockerfiles_ldap-module \
+       dockerfiles_users-module > /dev/null 2>&1
+docker rmi -f nanocloud/guacamole-client \
+       nanocloud/guacamole-server \
+       nanocloud/nanocloud-api \
+       nanocloud/proxy \
+       nanocloud/ambassador \
+       nanocloud/rabbitmq \
+       nanocloud/postgres \
+       nanocloud/apps-module \
+       nanocloud/history-module \
+       nanocloud/iaas-module \
+       nanocloud/apiiaas-module \
+       nanocloud/ldap-module \
+       nanocloud/users-module > /dev/null 2>&1
 
 echo "$(date "${DATE_FMT}") Removing installed files"
-[ -d "${NANOCLOUD_DIR}" ] && rm -rf "${NANOCLOUD_DIR}"
-[ -h /etc/init.d/iaasAPI ] && rm -rf /etc/init.d/iaasAPI
+rm -f ${NANOCLOUD_DIR}/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+rm -f ${NANOCLOUD_DIR}/downloads/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+
+echo "$(date "${DATE_FMT}") Nanocloud uninstalled"
+echo "$(date "${DATE_FMT}") To install Nanocloud again, use :"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${CURRENT_DIR}/nanocloud.sh)"
