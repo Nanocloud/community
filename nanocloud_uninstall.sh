@@ -70,3 +70,7 @@ docker rmi -f nanocloud/guacamole-client \
 echo "$(date "${DATE_FMT}") Removing installed files"
 rm -f ${NANOCLOUD_DIR}/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 rm -f ${NANOCLOUD_DIR}/downloads/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+
+echo "$(date "${DATE_FMT}") Nanocloud uninstalled"
+echo "$(date "${DATE_FMT}") To install Nanocloud again, use :"
+echo "$(date "${DATE_FMT}")     # $(readlink -e ${CURRENT_DIR}/nanocloud.sh)"
