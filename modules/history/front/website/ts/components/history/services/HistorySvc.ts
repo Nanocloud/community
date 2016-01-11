@@ -51,14 +51,26 @@ export class HistorySvc {
 	getAll(): angular.IPromise<IHistoryInfo[]> {
 		return this.$http.get("/api/history")
 			.then(
-				function(res: angular.IHttpPromiseCallbackArg<IHistoryInfo[]>) {
+				function(res: angular.IHttpPromiseCallbackArg<any[]>) {
 					let h = res.data || [];
-					return h;
+					let hist: IHistoryInfo[] = [];
+					for (let stat of h) {
+						let s: IHistoryAtom = {
+								StartDate: stat.StartDate,
+								EndDate: stat.EndDate,
+						};
+						let hist2: IHistoryInfo = {
+							UserId: stat.UserId,
+							ConnectionId: stat.ConnectionId,
+							Stats: [s],
+						};
+						hist.push(hist2);
+					}
+					return hist;
 				},
 				() => []
 			);
 	}
-
 }
 
 angular.module("haptic.history").service("HistorySvc", HistorySvc);
