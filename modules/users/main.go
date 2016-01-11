@@ -343,7 +343,29 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	rows, err := db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
+	rows, err := db.Query("SELECT `is_admin` FROM users WHERE id = $1::varchar", userId)
+	if err != nil {
+		module.Log.Error(err)
+		return nil, err
+	}
+
+	if !rows.Next() {
+		rows.Close()
+		return nano.JSONResponse(404, hash{
+			"error": "User not found",
+		}), nil
+	}
+
+	isAdmin := false
+	rows.Scan(&isAdmin)
+	rows.Close()
+	if isAdmin {
+		return nano.JSONResponse(403, hash{
+			"error": "Admins cannot be deleted",
+		}), nil
+	}
+
+	rows, err = db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
 	if err != nil {
 		module.Log.Error(err)
 		return nil, err
