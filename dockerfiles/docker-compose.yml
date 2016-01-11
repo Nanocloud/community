@@ -114,7 +114,7 @@ ldap-module:
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - SSH_SERVER_URI=Administrator:Nanocloud123+@172.17.0.1:6001
+  - SSH_SERVER_URI=ssh://Administrator:Nanocloud123+@172.17.0.1:6001
   - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@172.17.0.1:6003
   - BASE=DC=intra,DC=localdomain,DC=com
   - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
