@@ -36,6 +36,8 @@ if [ -z "$(which docker-compose)" ]; then
   exit 2
 fi
 
+rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
+
 rm -rf ${CURRENT_DIR}/dockerfiles/build_output
 docker-compose -f ${CURRENT_DIR}/dockerfiles/docker-compose.yml rm -f > /dev/null 2>&1
 docker rmi -f guacamole-client \
