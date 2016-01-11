@@ -2,6 +2,8 @@ FROM golang:1.5.1
 MAINTAINER \
   William Riancho <william.riancho@nanocloud.com>
 
+RUN apt-get update && apt-get install sshpass
+
 RUN go get -u github.com/constabulary/gb/...
 RUN mkdir -p /build/
 
