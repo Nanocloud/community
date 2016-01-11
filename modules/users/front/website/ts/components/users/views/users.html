@@ -10,12 +10,12 @@
 				</div>
 				<md-button class="md-icon-button" aria-label="Change password"
 						ng-click="usersCtrl.startEditUser($event, user)"
-						ng-show="user.Profile !== 'admin'">
+						ng-show="user.IsAdmin">
 					<ng-md-icon icon="edit"></ng-md-icon>
 				</md-button>
 				<md-button class="md-icon-button md-warn" aria-label="Delete this user"
 						ng-click="usersCtrl.startDeleteUser($event, user)"
-						ng-show="user.Profile !== 'admin'">
+						ng-show="user.IsAdmin">
 					<ng-md-icon icon="delete"></ng-md-icon>
 				</md-button>
 			</md-list-item>
