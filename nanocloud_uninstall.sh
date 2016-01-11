@@ -33,17 +33,6 @@ if [ -z "$(which docker-compose)" ]; then
   echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
   exit 2
 fi
-echo "# Erasing previous install"
-echo "$(date "${DATE_FMT}") Killing Nanocloud qemu processes"
-NC_QEMU_PID=$(pgrep -fl nanocloud | grep qemu-system-x86 | awk '{ print $1; }')
-for PID in $NC_QEMU_PID; do
-    kill "${PID}"
-    sleep 1
-done
 
-echo "$(date "${DATE_FMT}") Stoping API"
-/etc/init.d/iaasAPI stop > /dev/null 2>&1
 
 echo "$(date "${DATE_FMT}") Removing installed files"
-[ -d "${NANOCLOUD_DIR}" ] && rm -rf "${NANOCLOUD_DIR}"
-[ -h /etc/init.d/iaasAPI ] && rm -rf /etc/init.d/iaasAPI
