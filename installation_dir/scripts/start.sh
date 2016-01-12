@@ -27,6 +27,7 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 ROOT_DIR=${CURRENT_DIR}/../..
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
+CHANNEL_FILE=${NANOCLOUD_DIR}/channel
 
 COMMAND=${1}
 
@@ -35,6 +36,8 @@ if [ "${COMMAND}" = "indiana" ]; then
 else
     COMMUNITY_CHANNEL="stable"
 fi
+
+echo "$COMMUNITY_CHANNEL" > $CHANNEL_FILE
 
 if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
