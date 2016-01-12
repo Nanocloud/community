@@ -27,6 +27,12 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 ROOT_DIR=${CURRENT_DIR}/../..
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
+DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
+CHANNEL_FILE=${NANOCLOUD_DIR}/channel
+
+COMMAND=${1}
+
+COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
 
 if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
@@ -37,7 +43,17 @@ if [ -z "$(which docker-compose)" ]; then
   exit 2
 fi
 
-docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
+if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
+    echo "$(date "${DATE_FMT}") Stopping nanocloud containers from local build"
+    docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
+else
+    echo "$(date "${DATE_FMT}") Stopping nanocloud containers from docker hub $COMMUNITY_CHANNEL"
+    if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
+	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" stop
+    else
+	docker-compose --file "${ROOT_DIR}/docker-compose.yml" stop
+    fi
+fi
 
 rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
 
