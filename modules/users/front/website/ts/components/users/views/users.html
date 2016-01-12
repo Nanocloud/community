@@ -5,7 +5,7 @@
 			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
 				<ng-md-icon icon="{{ user.IsAdmin ? 'supervisor_account' : 'person' }}"></ng-md-icon>
 				<div class="md-list-item-text">
-					<h3>{{ user.Firstname }} {{ user.Lastname }}</h3>
+					<h3>{{ user.FirstName }} {{ user.LastName }}</h3>
 					<p>{{ user.Email }}</p>
 				</div>
 				<md-button class="md-icon-button" aria-label="Change password"
