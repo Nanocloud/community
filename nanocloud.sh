@@ -28,10 +28,18 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/dockerfiles/build_output"
 
+COMMAND=${1}
+
+if [ "${COMMAND}" = "indiana" ]; then
+    COMMUNITY_CHANNEL="indiana"
+else
+    COMMUNITY_CHANNEL="stable"
+fi
+
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
 if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
   echo "$(date "${DATE_FMT}") Local Windows image found, copying"
   cp "${WINDOWS_QCOW2_FILENAME}" "${CURRENT_DIR}/installation_dir/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2"
 fi
 
-bash $NANOCLOUD_DIR/scripts/start.sh
+bash $NANOCLOUD_DIR/scripts/start.sh ${COMMUNITY_CHANNEL}
