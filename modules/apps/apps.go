@@ -30,9 +30,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"time"
 
 	"github.com/Nanocloud/nano"
@@ -395,22 +393,20 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
 func unpublishApp(Alias string) error {
-	var powershellCmd string
-
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	cmd := exec.Command(
+		"sshpass", "-p", conf.Password,
+		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-p", conf.SSHPort,
+		fmt.Sprintf(
+			"%s@%s",
+			conf.User,
+			conf.Server,
+		),
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias "+Alias+" -CollectionName collection -Force\"",
+	)
+	response, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
-	}
-	bashExecScript := filepath.Join(dir, "exec.sh")
-	powershellCmd = fmt.Sprintf(
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias %s -CollectionName %s -Force\"",
-		Alias,
-		"collection")
-	cmd := exec.Command(bashExecScript, powershellCmd)
-	cmd.Dir = (".")
-	response, err := cmd.Output()
-	if err != nil {
-		module.Log.Error("Failed to run script exec.sh, error: ", err, " output: ", string(response))
+		module.Log.Error("Failed to execute sshpass command to unpublish an app", err, string(response))
 	}
 	return err
 }
