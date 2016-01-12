@@ -69,7 +69,7 @@ func WriteConf(in interface{}, filename string) error {
 func getDefaultConf() Configuration {
 	return Configuration{
 		InstallationDir: "/var/lib/nanocloud",
-		ArtifactURL:     "http://releases.nanocloud.org:8080/indiana/",
+		ArtifactURL:     "http://releases.nanocloud.org:8080/releases/0.2/",
 	}
 }
 
