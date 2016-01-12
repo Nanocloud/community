@@ -28,6 +28,14 @@ ROOT_DIR=${CURRENT_DIR}/../..
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
 
+COMMAND=${1}
+
+if [ "${COMMAND}" = "indiana" ]; then
+    COMMUNITY_CHANNEL="indiana"
+else
+    COMMUNITY_CHANNEL="stable"
+fi
+
 if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
   exit 2
@@ -45,8 +53,12 @@ if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from local build"
     docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" --x-networking up -d
 else
-    echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub"
-    docker-compose --file "${ROOT_DIR}/docker-compose.yml" --x-networking up -d
+    echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub $COMMUNITY_CHANNEL"
+    if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
+	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" --x-networking up -d
+    else
+	docker-compose --file "${ROOT_DIR}/docker-compose.yml" --x-networking up -d
+    fi
 fi
 
 NANOCLOUD_STATUS=""
