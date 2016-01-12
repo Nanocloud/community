@@ -57,6 +57,7 @@ docker rmi -f dockerfiles_guacamole-client \
        dockerfiles_users-module > /dev/null 2>&1
 
 if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
+    docker-compose -f ${CURRENT_DIR}/docker-compose-indiana.yml rm -f
     docker rmi -f nanocloud/guacamole-client:indiana \
 	   nanocloud/guacamole-server:indiana \
 	   nanocloud/nanocloud-backend:indiana \
@@ -71,6 +72,7 @@ if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
 	   nanocloud/ldap-module:indiana \
 	   nanocloud/users-module:indiana > /dev/null 2>&1
 else
+    docker-compose -f ${CURRENT_DIR}/docker-compose.yml rm -f
     docker rmi -f nanocloud/guacamole-client:0.2 \
 	   nanocloud/guacamole-server:0.2 \
 	   nanocloud/nanocloud-backend:0.2 \
