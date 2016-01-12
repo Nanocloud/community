@@ -93,7 +93,7 @@ func main() {
 	module.Get("/apps/me", listApplicationsForSamAccount)
 	err := errors.New("")
 	for err != nil {
-		err := createConnections()
+		err = createConnections()
 		module.Log.Error(err)
 		time.Sleep(time.Second * 3)
 	}
