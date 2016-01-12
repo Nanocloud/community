@@ -29,15 +29,20 @@ NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
 CHANNEL_FILE=${NANOCLOUD_DIR}/channel
 
-COMMAND=${1}
+COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
 
-if [ "${COMMAND}" = "indiana" ]; then
-    COMMUNITY_CHANNEL="indiana"
-else
-    COMMUNITY_CHANNEL="stable"
+if [ "${COMMUNITY_CHANNEL}" = "" ]; then
+    COMMAND=${1}
+
+    if [ "${COMMAND}" = "indiana" ]; then
+	COMMUNITY_CHANNEL="indiana"
+    else
+	COMMUNITY_CHANNEL="stable"
+    fi
+
+    echo "$(date "${DATE_FMT}") Starting Nanocloud $COMMUNITY_CHANNEL for the first time"
+    echo "$COMMUNITY_CHANNEL" > $CHANNEL_FILE
 fi
-
-echo "$COMMUNITY_CHANNEL" > $CHANNEL_FILE
 
 if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
