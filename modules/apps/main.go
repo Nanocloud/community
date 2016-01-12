@@ -23,8 +23,10 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Nanocloud/nano"
 )
@@ -89,9 +91,11 @@ func main() {
 	module.Get("/apps", listApplications)
 	module.Delete("/apps/:app_id", unpublishApplication)
 	module.Get("/apps/me", listApplicationsForSamAccount)
-	err := createConnections()
-	if err != nil {
+	err := errors.New("")
+	for err != nil {
+		err := createConnections()
 		module.Log.Error(err)
+		time.Sleep(time.Second * 3)
 	}
 
 	module.Listen()
