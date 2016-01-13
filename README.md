@@ -15,7 +15,7 @@ applications with new uses.
 Simply run the following command to install and run **Nanocloud**:
 
 ```
-curl --progress-bar "http://community.nanocloud.com/installer.sh" | sh
+curl --progress-bar "http://releases.nanocloud.org:8080/releases/latest/installer.sh" | sh
 ```
 
 > Read carefully outputs for this script, it will prodive you usefull
@@ -28,7 +28,7 @@ If you don't want to or cannot use *curl*, you can launch the **installer** this
 way:
 
 ```
-wget "http://community.nanocloud.com/installer.sh" -q -O - | sh
+wget "http://releases.nanocloud.org:8080/releases/latest/installer.sh" -q -O - | sh
 ```
 
 ## Prerequisites
