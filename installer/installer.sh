@@ -21,8 +21,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SCRIPT_UID=$(id -u)
-SCRIPT_FULL_PATH=$(readlink -e "${0}")
-CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 
 COMMUNITY_TAG="0.2"
 COMMAND=${1}
@@ -40,5 +38,5 @@ if [ -z "$(which docker-compose)" ]; then
   exit 2
 fi
 
-docker run -e HOST_UID=$SCRIPT_UID -v $CURRENT_DIR/nanocloud:/var/lib/nanocloud nanocloud/community:${COMMUNITY_TAG}
+docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud nanocloud/community:${COMMUNITY_TAG}
 $CURRENT_DIR/nanocloud/installation_dir/scripts/start.sh ${COMMUNITY_TAG}
