@@ -52,8 +52,6 @@ rabbitmq:
 
 postgres:
  image: postgres:9.4
- volumes:
-  - ./postgres:/var/lib/postgresql/data/pgdata
  environment:
   - PGDATA=/var/lib/postgresql/data/pgdata
   - POSTGRES_USER=nanocloud
