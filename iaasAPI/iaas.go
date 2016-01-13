@@ -25,11 +25,10 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os/exec"
 	"strings"
-	"time"
+	"os"
 )
 
 var ()
@@ -113,37 +112,12 @@ type BoolReply struct {
 }
 
 func (p *Iaas) Stop(r *http.Request, args *VMName, reply *BoolReply) error {
-	var (
-		socketFile string = strings.TrimSpace(fmt.Sprintf("%s/sockets/%s.socket\n", conf.InstallationDir, args.Name))
-	)
-	fmt.Printf("Shut down VM: «%s»\n", socketFile)
 
-	buf := make([]byte, 1024)
-	connection, err := net.Dial("unix", socketFile)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	defer connection.Close()
+	var pidFile string = strings.TrimSpace(fmt.Sprintf("%s/pid/%s.pid\n", conf.InstallationDir, args.Name))
+	fmt.Println("stopping : ", args.Name)
+	os.Remove(pidFile)
+	os.Exit(0)
 
-	_, err = connection.Read(buf[:])
-	if err != nil {
-		return err
-	}
-
-	time.Sleep(1000 * time.Millisecond)
-	_, err = connection.Write([]byte("system_powerdown\n"))
-	if err != nil {
-		fmt.Println("Write error:", err)
-	}
-
-	time.Sleep(1000 * time.Millisecond)
-	_, err = connection.Read(buf[:])
-	if err != nil {
-		return err
-	}
-
-	reply.Success = true
 	return nil
 }
 
