@@ -378,7 +378,7 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 			}
 		}
 
-		if connection.Username == fmt.Sprintf("%s@%s", req.User.Sam, conf.WindowsDomain) {
+		if connection.Username == req.User.Sam {
 			connections = append(connections, connection)
 		}
 	}
