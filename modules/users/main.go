@@ -343,9 +343,9 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	rows, err := db.Query("SELECT `is_admin` FROM users WHERE id = $1::varchar", userId)
+	rows, err := db.Query("SELECT is_admin FROM users WHERE id = $1::varchar", userId)
 	if err != nil {
-		module.Log.Error(err)
+		module.Log.Error("select user from postgres failed: ", err)
 		return nil, err
 	}
 
@@ -367,7 +367,7 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 
 	rows, err = db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
 	if err != nil {
-		module.Log.Error(err)
+		module.Log.Error("delete from postgres failed: ", err)
 		return nil, err
 	}
 	rows.Close()
