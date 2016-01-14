@@ -335,6 +335,12 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
+func disableADUser(id string) error {
+	_, err := module.JSONRequest("POST", "/ldap/users/"+id+"/disable", hash{}, nil)
+	return err
+
+}
+
 func deleteUser(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["id"]
 	if len(userId) == 0 {
@@ -363,6 +369,16 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 		return nano.JSONResponse(403, hash{
 			"error": "Admins cannot be deleted",
 		}), nil
+	}
+
+	err = disableADUser(userId)
+	if err != nil {
+		module.Log.Error("Error while deleting user from Active Directory: ", err)
+		return nano.JSONResponse(500, hash{
+			"error": "Error while deleting user from Active Directory",
+		}), nil
+
+		return nil, err
 	}
 
 	rows, err = db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
