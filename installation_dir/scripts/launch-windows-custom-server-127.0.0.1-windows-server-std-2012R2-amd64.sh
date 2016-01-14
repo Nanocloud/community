@@ -31,11 +31,7 @@ SSH_PORT=1119
 RDP_PORT=3389
 LDAPS_PORT=6360
 
-QEMU=$(which qemu-system-x86_64 || true)
-if [ -z "${QEMU}" ]; then
-    echo "You need *QEMU* to run this script, exiting"
-    exit 1
-fi
+QEMU=$(which qemu-system-x86_64)
 SYSTEM_VHD="${NANOCLOUD_DIR}/images/${VM_NAME}.qcow2"
 VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 

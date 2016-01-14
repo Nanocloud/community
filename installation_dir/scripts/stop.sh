@@ -34,11 +34,11 @@ COMMAND=${1}
 
 COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
 
-if [ -z "$(which docker || true)" ]; then
+if [ -z "$(which docker)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
   exit 2
 fi
-if [ -z "$(which docker-compose || true)" ]; then
+if [ -z "$(which docker-compose)" ]; then
   echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
   exit 2
 fi
