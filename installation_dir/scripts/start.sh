@@ -73,15 +73,15 @@ NANOCLOUD_STATUS=""
 echo "$(date "${DATE_FMT}") Testing connectivity"
 for run in $(seq 60) ; do
     if [ "${NANOCLOUD_STATUS}" != "200" ]; then
-        CURL_CMD=$(which curl)
-        WGET_CMD=$(which wget)
-        if [ -n "${CURL_CMD}" ]; then
+	CURL_CMD=$(which curl)
+	WGET_CMD=$(which wget)
+	if [ -n "${CURL_CMD}" ]; then
             NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
-        elif [ -n "${WGET_CMD}" ]; then
+	elif [ -n "${WGET_CMD}" ]; then
             NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
-        fi
+	fi
     else
-        break ;
+	break ;
     fi
     sleep 1
 done
