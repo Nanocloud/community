@@ -376,9 +376,7 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 		module.Log.Error("Error while deleting user from Active Directory: ", err)
 		return nano.JSONResponse(500, hash{
 			"error": "Error while deleting user from Active Directory",
-		}), nil
-
-		return nil, err
+		}), err
 	}
 
 	rows, err = db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
