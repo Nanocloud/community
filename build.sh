@@ -48,7 +48,7 @@ if [ -f "${NANOCLOUD_OUTPUT}" -o "${NANOCLOUD_SKIP}" = "true" ]; then
     echo "$(date "${DATE_FMT}") Skip Nanocloud build"
 else
     echo "# Building Nanocloud"
-    DOCKER_COMPOSE=$(which docker-compose)
+    DOCKER_COMPOSE=$(which docker-compose || true)
     if [ -z "${DOCKER_COMPOSE}" ]; then
         echo "You need *docker-compose* to run this script, exiting"
         exit 1
