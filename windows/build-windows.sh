@@ -30,21 +30,21 @@ WINDOWS_PASSWORD="Nanocloud123+"
 VM_HOSTNAME="windows-2012R2"
 VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 SSH_PORT=1119
-QEMU=$(which qemu-system-x86_64)
+QEMU=$(which qemu-system-x86_64 || true)
 
-if [ -z "$(which packer)" ]; then
+if [ -z "$(which packer || true)" ]; then
   echo "$(date "${DATE_FMT}") Packer is missing, please install *packer*"
   exit 2
 fi
-if [ -z "$(which qemu-system-x86_64)" ]; then
+if [ -z "${QEMU}" ]; then
   echo "$(date "${DATE_FMT}") Qemu is missing, please install *qemu*"
   exit 2
 fi
-if [ -z "$(which sshpass)" ]; then
+if [ -z "$(which sshpass || true)" ]; then
   echo "$(date "${DATE_FMT}") sshpass is missing, please install *sshpass*"
   exit 2
 fi
-if [ -z "$(which netcat)" ]; then
+if [ -z "$(which netcat || true)" ]; then
   echo "$(date "${DATE_FMT}") netcat is missing, please install *netcat*"
   exit 2
 fi
