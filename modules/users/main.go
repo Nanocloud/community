@@ -535,7 +535,9 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 		true,
 	)
 	if err != nil {
-		return nil, err
+		return nano.JSONResponse(409, hash{
+			"error": err.Error(),
+		}), nil
 	}
 
 	return nano.JSONResponse(200, hash{
