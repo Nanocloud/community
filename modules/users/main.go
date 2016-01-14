@@ -270,7 +270,7 @@ func CreateUser(
 	rows.Close()
 
 	createdUser = &user
-	return
+	return createdUser, err
 }
 
 func updateUserPassword(req nano.Request) (*nano.Response, error) {
@@ -525,7 +525,7 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
-	_, err = CreateUser(
+	newUser, err := CreateUser(
 		true,
 		user.Email,
 		user.FirstName,
@@ -539,7 +539,7 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 	}
 
 	return nano.JSONResponse(200, hash{
-		"success": true,
+		"Id": newUser.Id,
 	}), nil
 }
 
