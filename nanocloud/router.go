@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/Nanocloud/nano"
-	"github.com/Nanocloud/oauth"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/Nanocloud/nano"
+	"github.com/Nanocloud/oauth"
 )
 
 type httpHandler struct {
@@ -86,6 +87,6 @@ func (h httpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", response.ContentType)
-	res.Write(response.Body)
 	res.WriteHeader(response.StatusCode)
+	res.Write(response.Body)
 }
