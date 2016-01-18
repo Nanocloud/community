@@ -1,0 +1,64 @@
+
+<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
+	<md-card-content>
+		<md-list>
+			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
+				<ng-md-icon icon="{{ user.IsAdmin ? 'supervisor_account' : 'person' }}"></ng-md-icon>
+				<div class="md-list-item-text">
+					<h3>{{ user.FirstName }} {{ user.LastName }}</h3>
+					<p>{{ user.Email }}</p>
+				</div>
+				<md-button class="md-icon-button" aria-label="Change password"
+						ng-click="usersCtrl.startEditUser($event, user)"
+						ng-show=" !user.IsAdmin">
+					<ng-md-icon icon="edit"></ng-md-icon>
+				</md-button>
+				<md-button class="md-icon-button md-warn" aria-label="Delete this user"
+						ng-click="usersCtrl.startDeleteUser($event, user)"
+						ng-show=" !user.IsAdmin">
+					<ng-md-icon icon="delete"></ng-md-icon>
+				</md-button>
+			</md-list-item>
+		</md-list-item>
+	</md-card-content>
+</md-card>
+
+<div style="text-align: right;">
+	<md-button ng-click="usersCtrl.startAddUser($event)" class="md-primary"
+			aria-label="Add a new user">
+		<md-tooltip>Add a new user user</md-tooltip>
+		<ng-md-icon icon="person_add"></md-icon>
+	</md-button>
+
+	<md-button ng-click="usersCtrl.toggleHelp($event)" aria-label="Help">
+		<md-tooltip>Information about password policies</md-tooltip>
+		<ng-md-icon icon="help"></md-icon>
+	</md-button>
+</div>
+
+<div ng-if="usersCtrl.displayHelp === true">
+	<md-card>
+		<md-card-content>
+			<p>
+				Check if the password meets the following requirements:
+				<ul>
+					<li>At least 7 characters long</li>
+					<li>Less than 65 characters long</li>
+					<li>Has at least one digit</li>
+					<li>Has at least one Upper case Alphabet</li>
+					<li>Has at least one Lower case Alphabet</li>
+				</ul>
+				Allowed Characters set:
+				<ul>
+					<li>Any alphanumeric character 0 to 9 OR A to Z or a to z</li>
+					<li>
+						Punctuation symbols
+						<strong>
+							<blockquote style="display: inline;margin: 0 .5em;">. , " ' ? ! ; : # $ % &amp; ( ) * + - / &lt; &gt; = @ [ ] \ ^ _ { } |</blockquote>
+						</strong>
+					</li>
+				</ul>
+			</p>
+		</md-card-content>
+	</md-card>
+</div>
