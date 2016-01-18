@@ -123,7 +123,7 @@ ldap-module:
  container_name: "ldap-module"
 
 users-module:
- build: ./users
+ build: ../modules/users
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
