@@ -4,7 +4,6 @@ MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
 
 
-RUN apt-get update && apt-get install sshpass
 RUN mkdir -p /go/build/ldap
 
 COPY ./ /go/build/ldap
