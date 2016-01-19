@@ -1,0 +1,39 @@
+{
+	"version": "v4",
+	"repo": "borisyankov/DefinitelyTyped",
+	"ref": "master",
+	"path": "typings",
+	"bundle": "typings/tsd.d.ts",
+	"installed": {
+		"jquery/jquery.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"angularjs/angular.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"angularjs/angular-animate.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"angular-material/angular-material.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"angularjs/angular-cookies.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"lodash/lodash.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"requirejs/require.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"angular-ui-router/angular-ui-router.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"ui-router-extras/ui-router-extras.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		},
+		"ui-grid/ui-grid.d.ts": {
+			"commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
+		}
+	}
+}
