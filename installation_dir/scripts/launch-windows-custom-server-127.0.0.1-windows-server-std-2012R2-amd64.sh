@@ -49,7 +49,6 @@ $QEMU \
     -drive if=virtio,file="${SYSTEM_VHD}" \
     -vnc :2 \
     -pidfile "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid" \
-    -chardev socket,id=monitor,path="${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket",server,nowait \
     -net nic,vlan=0,model=virtio \
     -net user,vlan=0,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${RDP_PORT}"-:3389,hostfwd=tcp::"${LDAPS_PORT}"-:636,hostname="${VM_HOSTNAME}" \
     -vga qxl \
@@ -57,4 +56,3 @@ $QEMU \
     "${@}"
 
 /bin/rm "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid"
-/bin/rm "${NANOCLOUD_DIR}/sockets/${VM_NAME}.socket"
