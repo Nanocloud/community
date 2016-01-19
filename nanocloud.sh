@@ -26,7 +26,7 @@ CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
-DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/dockerfiles/build_output"
+DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/modules/build_output"
 
 COMMAND=${1}
 

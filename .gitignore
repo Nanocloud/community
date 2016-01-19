@@ -2,7 +2,7 @@
 packer_cache/
 
 # Ignore build outputs
-dockerfiles/build_output
+modules/build_output
 
 # Ignore currently used Nanocloud channel
 installation_dir/channel

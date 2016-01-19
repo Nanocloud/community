@@ -27,7 +27,7 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
 ROOT_DIR=${CURRENT_DIR}/../..
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
-DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/dockerfiles/build_output"
+DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/modules/build_output"
 CHANNEL_FILE=${NANOCLOUD_DIR}/channel
 
 COMMAND=${1}
@@ -45,7 +45,7 @@ fi
 
 if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     echo "$(date "${DATE_FMT}") Stopping nanocloud containers from local build"
-    docker-compose --file "${ROOT_DIR}/dockerfiles/docker-compose.yml" stop
+    docker-compose --file "${ROOT_DIR}/modules/docker-compose.yml" stop
 else
     echo "$(date "${DATE_FMT}") Stopping nanocloud containers from docker hub $COMMUNITY_CHANNEL"
     if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
