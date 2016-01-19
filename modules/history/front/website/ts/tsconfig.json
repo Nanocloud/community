@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"module": "amd",
+		"target": "es5",
+		"inlineSourceMap": true,
+		"noImplicitAny": true,
+		"removeComments": true,
+		"suppressImplicitAnyIndexErrors": true
+	},
+	"exclude": [
+		"node_modules",
+		"bower_components",
+		"typings"
+	]
+}
