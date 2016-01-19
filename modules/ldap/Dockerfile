@@ -1,15 +1,16 @@
-FROM golang:1.5.1
+FROM golang:1.5.2
 MAINTAINER \
   William Riancho <william.riancho@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
 
 
-RUN mkdir -p /go/build/history
+RUN mkdir -p /go/build/ldap
 
-COPY ./ /go/build/history
+COPY ./ /go/build/ldap
 
-WORKDIR /go/build/history
-ENV GOBIN $GOPATH/build/history
+WORKDIR /go/build/ldap
+ENV GOBIN $GOPATH/build/ldap
 RUN go get ./... && go build
 
-CMD ["./history"]
+CMD ["./ldap"]
+

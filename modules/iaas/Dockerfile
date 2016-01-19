@@ -4,12 +4,12 @@ MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
 
 
-RUN mkdir -p /go/build/history
+RUN mkdir -p /go/build/iaas
 
-COPY ./ /go/build/history
+COPY ./ /go/build/iaas
 
-WORKDIR /go/build/history
-ENV GOBIN $GOPATH/build/history
+WORKDIR /go/build/iaas
+ENV GOBIN $GOPATH/build/iaas
 RUN go get ./... && go build
 
-CMD ["./history"]
+CMD ["./iaas"]

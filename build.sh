@@ -43,7 +43,7 @@ else
     "${CURRENT_DIR}/windows/build-windows.sh"
 fi
 
-NANOCLOUD_OUTPUT="${CURRENT_DIR}/dockerfiles/build_output"
+NANOCLOUD_OUTPUT="${CURRENT_DIR}/modules/build_output"
 if [ -f "${NANOCLOUD_OUTPUT}" -o "${NANOCLOUD_SKIP}" = "true" ]; then
     echo "$(date "${DATE_FMT}") Skip Nanocloud build"
 else
@@ -54,13 +54,10 @@ else
         exit 1
     fi
 
-    (
-        cd dockerfiles
-        ${DOCKER_COMPOSE} build
-        if [ ${?} = 0 ]; then
-            echo "0" > build_output
-        fi
-    )
+    ${DOCKER_COMPOSE} -f modules/docker-compose-build.yml build
+    if [ ${?} = 0 ]; then
+        echo "0" > modules/build_output
+    fi
 
     echo "Build completed, use the following command to use it"
     echo "    > ./nanocloud.sh"

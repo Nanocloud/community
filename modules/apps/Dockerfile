@@ -1,15 +1,16 @@
 FROM golang:1.5.1
 MAINTAINER \
-  William Riancho <william.riancho@nanocloud.com>
+  William Riancho <william.riancho@nanocloud.com> \
+  Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
+
 
 RUN apt-get update && apt-get install sshpass
+RUN mkdir -p /go/build/apps
 
-RUN go get -u github.com/constabulary/gb/...
-RUN mkdir -p /build/
+COPY ./ /go/build/apps
 
-RUN git clone --depth=1 --recursive https://github.com/Nanocloud/apps.git /build/apps
+WORKDIR /go/build/apps
+ENV GOBIN $GOPATH/build/apps
+RUN go get ./... && go build
 
-WORKDIR /build/apps
-RUN gb build
-
-CMD ["./bin/apps"]
+CMD ["./apps"]

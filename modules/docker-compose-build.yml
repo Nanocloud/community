@@ -12,7 +12,7 @@ guacamole-server:
  container_name: "guacamole-server"
 
 nanocloud-backend:
- build: ./nanocloud
+ build: ../nanocloud
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
@@ -96,12 +96,12 @@ iaas-module:
  container_name: "iaas-module"
 
 apiiaas-module:
- build: ./apiiaas
+ build: ../iaasAPI
  environment:
   - NANOCLOUD_DIR=/var/lib/nanocloud
   - API_PORT=8082
  volumes:
-  - ../installation_dir:/var/lib/nanocloud/
+  - ./installation_dir:/var/lib/nanocloud/
   - /dev/kvm:/dev/kvm
  restart: always
  container_name: "apiiaas-module"
@@ -123,7 +123,7 @@ ldap-module:
  container_name: "ldap-module"
 
 users-module:
- build: ../modules/users
+ build: ./users
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/

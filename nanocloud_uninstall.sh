@@ -40,21 +40,21 @@ fi
 
 rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
 
-rm -rf ${CURRENT_DIR}/dockerfiles/build_output
-docker-compose -f ${CURRENT_DIR}/dockerfiles/docker-compose.yml rm -f > /dev/null 2>&1
-docker rmi -f dockerfiles_guacamole-client \
-       dockerfiles_guacamole-server \
-       dockerfiles_nanocloud-backend \
-       dockerfiles_proxy \
-       dockerfiles_ambassador \
-       dockerfiles_rabbitmq \
-       dockerfiles_postgres \
-       dockerfiles_apps-module \
-       dockerfiles_history-module \
-       dockerfiles_iaas-module \
-       dockerfiles_apiiaas-module \
-       dockerfiles_ldap-module \
-       dockerfiles_users-module > /dev/null 2>&1
+rm -rf ${CURRENT_DIR}/modules/build_output
+docker-compose -f ${CURRENT_DIR}/modules/docker-compose.yml rm -f > /dev/null 2>&1
+docker rmi -f modules_guacamole-client \
+       modules_guacamole-server \
+       modules_nanocloud-backend \
+       modules_proxy \
+       modules_ambassador \
+       modules_rabbitmq \
+       modules_postgres \
+       modules_apps-module \
+       modules_history-module \
+       modules_iaas-module \
+       modules_apiiaas-module \
+       modules_ldap-module \
+       modules_users-module > /dev/null 2>&1
 
 if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
     docker-compose -f ${CURRENT_DIR}/docker-compose-indiana.yml rm -f
