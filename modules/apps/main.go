@@ -93,11 +93,11 @@ func publishApplication(req nano.Request) (*nano.Response, error) {
 
 	trimmedpath := strings.TrimSpace(params.Path)
 	if trimmedpath == "" {
-		return nano.JSONResponse(400, hash{"error: ": "App path is empty"}), err
+		return nano.JSONResponse(400, hash{"error": "App path is empty"}), err
 	}
 	err = publishApp(trimmedpath)
 	if err != nil {
-		return nano.JSONResponse(500, hash{"error: ": err}), err
+		return nano.JSONResponse(500, hash{"error": err}), err
 	}
 
 	return nano.JSONResponse(200, hash{
