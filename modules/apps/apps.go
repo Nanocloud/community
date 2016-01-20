@@ -392,7 +392,6 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
 func unpublishApp(Alias string) error {
-	module.Log.Error("ALIAS ==== ", Alias)
 	cmd := exec.Command(
 		"sshpass", "-p", conf.Password,
 		"ssh", "-o", "StrictHostKeyChecking=no",
