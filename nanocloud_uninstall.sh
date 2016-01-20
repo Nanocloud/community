@@ -52,7 +52,6 @@ docker rmi -f modules_guacamole-client \
        modules_apps-module \
        modules_history-module \
        modules_iaas-module \
-       modules_apiiaas-module \
        modules_ldap-module \
        modules_users-module > /dev/null 2>&1
 
@@ -68,7 +67,6 @@ if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
 	   nanocloud/apps-module:indiana \
 	   nanocloud/history-module:indiana \
 	   nanocloud/iaas-module:indiana \
-	   nanocloud/apiiaas-module:indiana \
 	   nanocloud/ldap-module:indiana \
 	   nanocloud/users-module:indiana > /dev/null 2>&1
 else
@@ -83,7 +81,6 @@ else
 	   nanocloud/apps-module:0.2 \
 	   nanocloud/history-module:0.2 \
 	   nanocloud/iaas-module:0.2 \
-	   nanocloud/apiiaas-module:0.2 \
 	   nanocloud/ldap-module:0.2 \
 	   nanocloud/users-module:0.2 > /dev/null 2>&1
 fi

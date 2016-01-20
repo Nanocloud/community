@@ -53,12 +53,6 @@ iaas-module:
   service: iaas-module
  image: nanocloud/iaas-module:indiana
 
-apiiaas-module:
- extends:
-  file: ./dockerfiles/docker-compose.yml
-  service: apiiaas-module
- image: nanocloud/apiiaas-module:indiana
-
 ldap-module:
  extends:
   file: ./dockerfiles/docker-compose.yml
