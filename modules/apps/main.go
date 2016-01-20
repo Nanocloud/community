@@ -90,7 +90,12 @@ func publishApplication(req nano.Request) (*nano.Response, error) {
 			"error": "path to app must be specified",
 		}), err
 	}
-	err = publishApp(params.Path)
+
+	trimmedpath := strings.TrimSpace(params.Path)
+	if trimmedpath == "" {
+		return nano.JSONResponse(500, hash{"error: ": "App path is empty"}), err
+	}
+	err = publishApp(trimmedpath)
 	if err != nil {
 		return nano.JSONResponse(500, hash{"error: ": err}), err
 	}

@@ -439,7 +439,7 @@ func publishApp(path string) error {
 			conf.User,
 			conf.Server,
 		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe C:/publishApplication.ps1 "+path,
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe", "C:/publishApplication.ps1", path,
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
