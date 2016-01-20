@@ -25,7 +25,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -84,7 +83,6 @@ func publishApplication(req nano.Request) (*nano.Response, error) {
 		Path string
 	}
 
-	log.Println(string(req.Body))
 	err := json.Unmarshal(req.Body, &params)
 	if err != nil {
 		module.Log.Error("Umable to unmarshal application path: " + err.Error())
