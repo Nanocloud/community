@@ -85,7 +85,6 @@ func getUsers() ([]nano.User, error) {
 	}
 
 	var m []nano.User
-	module.Log.Error(string(res.Body))
 	err = json.Unmarshal(res.Body, &m)
 
 	if err != nil {
@@ -429,3 +428,22 @@ func syncUploadedFile(Filename string) {
 		Log("SCP upload success for file %s\n", Filename)
 	}
 }*/
+
+func publishApp(path string) error {
+	cmd := exec.Command(
+		"sshpass", "-p", conf.Password,
+		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-p", conf.SSHPort,
+		fmt.Sprintf(
+			"%s@%s",
+			conf.User,
+			conf.Server,
+		),
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe", "C:/publishApplication.ps1", path,
+	)
+	response, err := cmd.CombinedOutput()
+	if err != nil {
+		module.Log.Error("Failed to execute sshpass command to publish an app", err, string(response))
+	}
+	return err
+}
