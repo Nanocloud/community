@@ -92,7 +92,6 @@ func publishApplication(req nano.Request) (*nano.Response, error) {
 			"error": "path to app must be specified",
 		}), err
 	}
-	module.Log.Error("PARAMS ====" + params.Path)
 	err = publishApp(params.Path)
 	if err != nil {
 		return nano.JSONResponse(500, hash{"error: ": err}), err

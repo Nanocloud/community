@@ -430,7 +430,6 @@ func syncUploadedFile(Filename string) {
 }*/
 
 func publishApp(path string) error {
-	module.Log.Error("PATH ==== " + path)
 	cmd := exec.Command(
 		"sshpass", "-p", conf.Password,
 		"ssh", "-o", "StrictHostKeyChecking=no",
