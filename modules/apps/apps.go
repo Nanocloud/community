@@ -401,7 +401,7 @@ func unpublishApp(Alias string) error {
 			conf.User,
 			conf.Server,
 		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias "+Alias+" -CollectionName collection -Force\"",
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
