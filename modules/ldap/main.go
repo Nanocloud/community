@@ -97,23 +97,30 @@ func env(key, def string) string {
 	return v
 }
 
-func listUsers(req nano.Request) (*nano.Response, error) {
+func DialandBind() (*ldap.Conn, error) {
 	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	if err != nil {
-		return nil, errors.New("Dial error: " + err.Error())
+		return nil, err
 	}
-
-	module.Log.Info(conf.Username)
-	module.Log.Info(conf.Password)
 
 	err = ldapConnection.Bind(conf.Username, conf.Password)
 	if err != nil {
-		return nil, errors.New("Binding error: " + err.Error())
+		return nil, err
 	}
+	return ldapConnection, nil
+}
 
+func listUsers(req nano.Request) (*nano.Response, error) {
+	ldapConnection, err := DialandBind()
+	if err != nil {
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
+	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
 		conf.Ou,
@@ -202,6 +209,7 @@ func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
+		module.Log.Error("Search error:  " + err.Error())
 		return errors.New("Search error: " + err.Error()), "", 0
 	}
 	count := len(sr.Entries)
@@ -238,19 +246,16 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, ldapConnect
 	req.Attribute("userAccountControl", []string{"512"})
 	err := ldapConnection.Add(req)
 	if err != nil {
+		module.Log.Error("Adding error:  " + err.Error())
 		return nil, errors.New("Adding a user failed: " + err.Error())
 	}
 
-	ldapConnection, err = ldap.DialTLS("tcp", conf.LDAPServer.Host,
-		&tls.Config{
-			InsecureSkipVerify: true,
-		})
+	ldapConnection, err = DialandBind()
 	if err != nil {
-		return nil, errors.New("Dial error: " + err.Error())
-	}
-	err = ldapConnection.Bind(conf.Username, conf.Password)
-	if err != nil {
-		return nil, errors.New("Binding error: " + err.Error())
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
@@ -262,6 +267,7 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, ldapConnect
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
+		module.Log.Error("Search error:  " + err.Error())
 		return nil, errors.New("Search error: " + err.Error())
 	}
 	for _, entry := range sr.Entries {
@@ -303,17 +309,14 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 		return nil, errors.New("Modify error: " + err.Error())
 	}
 
-	ldapConnection, err = ldap.DialTLS("tcp", conf.LDAPServer.Host,
-		&tls.Config{
-			InsecureSkipVerify: true,
-		})
+	ldapConnection, err = DialandBind()
 	if err != nil {
-		return nil, errors.New("Dial error: " + err.Error())
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
 	}
-	err = ldapConnection.Bind(conf.Username, conf.Password)
-	if err != nil {
-		return nil, errors.New("Binding error: " + err.Error())
-	}
+
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
 		conf.Ou,
@@ -324,6 +327,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 	)
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
+		module.Log.Error("Search error:  " + err.Error())
 		return nil, errors.New("Search error: " + err.Error())
 	}
 	for _, entry := range sr.Entries {
@@ -342,6 +346,7 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 	}
 	err := json.Unmarshal(req.Body, &params)
 	if err != nil {
+		module.Log.Error("Unable to unmarshall params: " + err.Error())
 		return nil, err
 	}
 
@@ -353,17 +358,12 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 
 	params.UserEmail = req.Params["user_id"]
 
-	bindusername := conf.Username
-	bindpassword := conf.Password
-
-	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
-		&tls.Config{
-			InsecureSkipVerify: true,
-		})
-
-	err = ldapConnection.Bind(bindusername, bindpassword)
+	ldapConnection, err := DialandBind()
 	if err != nil {
-		return nil, errors.New("Binding error: " + err.Error())
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
 	}
 
 	defer ldapConnection.Close()
@@ -378,11 +378,13 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
+		module.Log.Error("Searching error: " + err.Error())
 		return nil, errors.New("Search error: " + err.Error())
 	}
 
 	var cn string
 	if len(sr.Entries) != 1 {
+		module.Log.Error("Invalid Email")
 		return nil, errors.New("invalid Email")
 	}
 	for _, entry := range sr.Entries {
@@ -395,6 +397,7 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 	modify.Replace("unicodePwd", []string{string(pwd)})
 	err = ldapConnection.Modify(modify)
 	if err != nil {
+		module.Log.Error("Password modification failed: " + err.Error())
 		return nil, errors.New("Password modification failed: " + err.Error())
 	}
 
@@ -412,6 +415,7 @@ func createUser(req nano.Request) (*nano.Response, error) {
 	err := json.Unmarshal(req.Body, &params)
 
 	if err != nil {
+		module.Log.Error("Unable to unmarshall params: " + err.Error())
 		return nil, err
 	}
 
@@ -420,25 +424,21 @@ func createUser(req nano.Request) (*nano.Response, error) {
 	tconf.login = conf.Username
 	tconf.passwd = conf.Password
 	tconf.ou = conf.Ou
-	bindusername := conf.Username
-	bindpassword := conf.Password
 	// return "", to ldap go API to set the password
-	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
-		&tls.Config{
-			InsecureSkipVerify: true,
-		})
+
+	ldapConnection, err := DialandBind()
 	if err != nil {
-		return nil, errors.New(">> DialTLS failed: " + err.Error())
-	}
-	err = ldapConnection.Bind(bindusername, bindpassword)
-	if err != nil {
-		return nil, errors.New("Binding error: " + err.Error())
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
 	}
 
 	defer ldapConnection.Close()
 
 	err, cn, count := checkSamAvailability(ldapConnection) // if an account is disabled, this function will look for his CN
 	if err != nil {
+		module.Log.Error("Error while checking sam availability: " + err.Error())
 		return nil, err
 	}
 
@@ -446,6 +446,7 @@ func createUser(req nano.Request) (*nano.Response, error) {
 	if cn == "" {
 		res, err := createNewUser(tconf, params, count, ldapConnection)
 		if err != nil {
+			module.Log.Error(err.Error())
 			return nil, err
 		}
 		return res, nil
@@ -459,26 +460,20 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["user_id"]
 
 	if len(userId) < 1 {
+		module.Log.Error("User ID missing")
 		return nano.JSONResponse(400, hash{
 			"error": "User id is missing",
 		}), nil
 	}
 
-	bindusername := conf.Username
-	bindpassword := conf.Password
-
-	ldapConnection, err := ldap.DialTLS("tcp", conf.LDAPServer.Host,
-		&tls.Config{
-			InsecureSkipVerify: true,
-		})
-
+	ldapConnection, err := DialandBind()
 	if err != nil {
-		return nil, errors.New("DialTLS error: " + err.Error())
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
 	}
-	err = ldapConnection.Bind(bindusername, bindpassword)
-	if err != nil {
-		return nil, errors.New("Binding error: " + err.Error())
-	}
+
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
 		conf.Ou,
@@ -490,10 +485,12 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
+		module.Log.Error("Searching error: " + err.Error())
 		return nil, errors.New("Searching error: " + err.Error())
 	}
 
 	if len(sr.Entries) != 1 {
+		module.Log.Error("Email does not match any user, or several users have the same mail adress")
 		// means entered mail was not valid, or several user have the same mail
 		return nil, errors.New("Email does not match any user, or several users have the same mail adress")
 	}
@@ -505,6 +502,7 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	modify.Replace("userAccountControl", []string{"514"}) // 512 is a normal account, 514 is disabled ( 512 + 0x0002 )
 	err = ldapConnection.Modify(modify)
 	if err != nil {
+		module.Log.Error("Modify  error: " + err.Error())
 		return nil, errors.New("Modify error: " + err.Error())
 	}
 
