@@ -54,6 +54,7 @@ docker rmi -f modules_guacamole-client \
        modules_iaas-module \
        modules_apiiaas-module \
        modules_ldap-module \
+       modules_nanocloud-frontend \
        modules_users-module > /dev/null 2>&1
 
 if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
@@ -70,6 +71,7 @@ if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
 	   nanocloud/iaas-module:indiana \
 	   nanocloud/apiiaas-module:indiana \
 	   nanocloud/ldap-module:indiana \
+	   nanocloud/nanocloud-frontend:indiana \
 	   nanocloud/users-module:indiana > /dev/null 2>&1
 else
     docker-compose -f ${CURRENT_DIR}/docker-compose.yml rm -f
@@ -85,6 +87,7 @@ else
 	   nanocloud/iaas-module:0.2 \
 	   nanocloud/apiiaas-module:0.2 \
 	   nanocloud/ldap-module:0.2 \
+	   nanocloud/nanocloud-frontend:0.2 \
 	   nanocloud/users-module:0.2 > /dev/null 2>&1
 fi
 
