@@ -23,7 +23,9 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -76,6 +78,31 @@ func unpublishApplication(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
+func publishApplication(req nano.Request) (*nano.Response, error) {
+
+	var params struct {
+		Path string
+	}
+
+	log.Println(string(req.Body))
+	err := json.Unmarshal(req.Body, &params)
+	if err != nil {
+		module.Log.Error("Umable to unmarshal application path: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": "path to app must be specified",
+		}), err
+	}
+	module.Log.Error("PARAMS ====" + params.Path)
+	err = publishApp(params.Path)
+	if err != nil {
+		return nano.JSONResponse(500, hash{"error: ": err}), err
+	}
+
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
+}
+
 func main() {
 	module = nano.RegisterModule("apps")
 
@@ -91,6 +118,7 @@ func main() {
 	module.Get("/apps", listApplications)
 	module.Delete("/apps/:app_id", unpublishApplication)
 	module.Get("/apps/me", listApplicationsForSamAccount)
+	module.Post("/apps", publishApplication)
 	err := errors.New("")
 	for err != nil {
 		err = createConnections()

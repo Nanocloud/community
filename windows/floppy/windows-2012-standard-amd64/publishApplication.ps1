@@ -15,7 +15,7 @@ Function Get-FileName($initialDirectory)
 Import-Module C:\windows\system32\windowspowershell\v1.0\Modules\RemoteDesktop\RemoteDesktop.psd1
 
 # *** Get our publish app filename ***
-$filename = Get-FileName -initialDirectory "C:\cygwin64\home\Administrator\"
+if ($args[0]) { $filename = $args[0] } else { $filename = Get-FileName -initialDirectory "C:\cygwin64\home\Administrator\" }
 
 # *** Find out the collection name ***
 $apps = Get-RDRemoteApp
