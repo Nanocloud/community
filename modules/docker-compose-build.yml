@@ -18,13 +18,19 @@ nanocloud-backend:
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
   - PORT=8080
-  - FRONT_DIR=front/
+  - FRONT_DIR=/opt/front/website
   - WIN_PASSWORD=Nanocloud123+
   - WIN_PORT=1119
   - WIN_USER=Administrator
   - WIN_SERVER=apiiaas-module
+ volumes_from:
+  - nanocloud-frontend
  restart: always
  container_name: "nanocloud-api"
+
+nanocloud-frontend:
+ build: ../webapp
+ container_name: "nanocloud-webapp"
 
 proxy:
  image: nginx:1.9
