@@ -1,8 +1,11 @@
 FROM golang:1.5.1
 MAINTAINER \
   William Riancho <william.riancho@nanocloud.com> \
-  Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
+  Olivier Berthonneau <olivier.berthonneau@nanocloud.com> 
 
+
+RUN apt-get update && \
+    apt-get -y install git qemu-system-x86
 
 RUN mkdir -p /go/build/iaas
 

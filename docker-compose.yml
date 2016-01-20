@@ -53,12 +53,6 @@ iaas-module:
   service: iaas-module
  image: nanocloud/iaas-module:0.2
 
-apiiaas-module:
- extends:
-  file: ./dockerfiles/docker-compose.yml
-  service: apiiaas-module
- image: nanocloud/apiiaas-module:0.2
-
 ldap-module:
  extends:
   file: ./dockerfiles/docker-compose.yml

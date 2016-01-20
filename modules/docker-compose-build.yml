@@ -22,7 +22,7 @@ nanocloud-backend:
   - WIN_PASSWORD=Nanocloud123+
   - WIN_PORT=1119
   - WIN_USER=Administrator
-  - WIN_SERVER=apiiaas-module
+  - WIN_SERVER=iaas-module
  restart: always
  container_name: "nanocloud-api"
 
@@ -66,11 +66,11 @@ apps-module:
   - USER=Administrator
   - SSH_PORT=1119
   - RDP_PORT=3389
-  - SERVER=apiiaas-module
+  - SERVER=iaas-module
   - PASSWORD=Nanocloud123+
   - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
   - WINDOWS_DOMAIN=intra.localdomain.com
-  - EXECUTION_SERVERS=apiiaas-module
+  - EXECUTION_SERVERS=iaas-module
  restart: always
  volumes:
   - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
@@ -90,21 +90,12 @@ iaas-module:
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - API_URL=http://apiiaas-module
-  - API_PORT=8082
- restart: always
- container_name: "iaas-module"
-
-apiiaas-module:
- build: ../iaasAPI
- environment:
-  - NANOCLOUD_DIR=/var/lib/nanocloud
-  - API_PORT=8082
+  - INSTALLATION_DIR=/var/lib/nanocloud
  volumes:
-  - ./installation_dir:/var/lib/nanocloud/
+  - ../installation_dir:/var/lib/nanocloud/
   - /dev/kvm:/dev/kvm
  restart: always
- container_name: "apiiaas-module"
+ container_name: "iaas-module"
  privileged: true
 
 ldap-module:
@@ -112,8 +103,8 @@ ldap-module:
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - SSH_SERVER_URI=ssh://Administrator:Nanocloud123+@apiiaas-module:1119
-  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@apiiaas-module:6360
+  - SSH_SERVER_URI=ssh://Administrator:Nanocloud123+@iaas-module:1119
+  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
   - BASE=DC=intra,DC=localdomain,DC=com
   - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
   - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com

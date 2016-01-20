@@ -21,19 +21,18 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/Nanocloud/nano"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"strings"
+
+	"github.com/Nanocloud/nano"
 )
 
 var module nano.Module
 
-var apiURL string
-var apiPort string
+type Configuration struct {
+	artURL  string
+	instDir string
+}
 
 type VmInfo struct {
 	Ico         string
@@ -49,6 +48,8 @@ type VmName struct {
 	Name string
 }
 
+var conf Configuration
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -61,14 +62,10 @@ func stringInSlice(a string, list []string) bool {
 func ListRunningVm(req nano.Request) (*nano.Response, error) {
 	var (
 		response struct {
-			Result struct {
-				DownloadingVmNames []string
-				AvailableVMNames   []string
-				BootingVmNames     []string
-				RunningVmNames     []string
-			}
-			Error string
-			Id    int
+			DownloadingVmNames []string
+			AvailableVMNames   []string
+			BootingVmNames     []string
+			RunningVmNames     []string
 		}
 		vmList      []VmInfo
 		icon        string
@@ -76,24 +73,26 @@ func ListRunningVm(req nano.Request) (*nano.Response, error) {
 		Status      string
 		displayName string
 	)
-	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", apiURL, apiPort),
-		"Iaas.GetList",
-		nil,
-	)
-	if err != nil {
-		module.Log.Error("RPC Call to Iaas API failed: ", err)
-		return nil, err
-	}
+	/*	jsonResponse, err := jsonRpcRequest(
+			fmt.Sprintf("%s:%s", conf.apiURL, conf.apiPort),
+			"Iaas.GetList",
+			nil,
+		)
+		if err != nil {
+			module.Log.Error("RPC Call to Iaas API failed: ", err)
+			return nil, err
+		}*/
 
-	err = json.Unmarshal([]byte(jsonResponse), &response)
+	response, err := GetList()
 	if err != nil {
-		module.Log.Error("Failed to Unmarshal response from Iaas API: ", err)
-		return nil, err
+		module.Log.Error("Unable to retrieve VM states list: " + err.Error())
+		return nano.JSONResponse(500, hash{
+			"error": "Unable te retrieve states of VMs",
+		}), err
 	}
 
 	// TODO: Lots of Data aren't from iaas API
-	for _, vmName := range response.Result.AvailableVMNames {
+	for _, vmName := range response.AvailableVMNames {
 
 		locked = false
 		if strings.Contains(vmName, "windows") {
@@ -118,13 +117,13 @@ func ListRunningVm(req nano.Request) (*nano.Response, error) {
 			}
 		}
 
-		if stringInSlice(vmName, response.Result.RunningVmNames) {
+		if stringInSlice(vmName, response.RunningVmNames) {
 			Status = "running"
-		} else if stringInSlice(vmName, response.Result.BootingVmNames) {
+		} else if stringInSlice(vmName, response.BootingVmNames) {
 			Status = "booting"
-		} else if stringInSlice(vmName, response.Result.DownloadingVmNames) {
+		} else if stringInSlice(vmName, response.DownloadingVmNames) {
 			Status = "download"
-		} else if stringInSlice(vmName, response.Result.AvailableVMNames) {
+		} else if stringInSlice(vmName, response.AvailableVMNames) {
 			Status = "available"
 		}
 		vmList = append(vmList, VmInfo{
@@ -144,20 +143,18 @@ func DownloadVm(req nano.Request) (*nano.Response, error) {
 		"vmname": req.Params["id"],
 	}
 
-	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", apiURL, apiPort),
-		"Iaas.Download",
-		params,
-	)
+	err := Download(params["vmname"])
 	if err != nil {
-		module.Log.Error("RPC Call to Iaas API failed: ", err)
-		return nil, err
+		module.Log.Error("Unable to download the specified vm: " + err.Error())
+		return nano.JSONResponse(500, hash{
+			"error": "Unable to download the specified vm",
+		}), err
 	}
 
 	return &nano.Response{
 		StatusCode:  200,
 		ContentType: "application/json",
-		Body:        jsonResponse,
+		Body:        []byte(`{"success":"true"}`),
 	}, nil
 }
 
@@ -165,20 +162,19 @@ func StartVm(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"name": req.Params["id"],
 	}
-	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", apiURL, apiPort),
-		"Iaas.Start",
-		params,
-	)
+
+	err := Start(params["name"])
 	if err != nil {
-		module.Log.Error("RPC Call to Iaas API failed: ", err)
-		return nil, err
+		module.Log.Error("Error while starting vm: " + err.Error())
+		return nano.JSONResponse(500, hash{
+			"error": "Unable to start the specified vm",
+		}), err
 	}
 
 	return &nano.Response{
 		StatusCode:  200,
 		ContentType: "application/json",
-		Body:        jsonResponse,
+		Body:        []byte(`{"success":"true"}`),
 	}, nil
 }
 
@@ -186,60 +182,33 @@ func StopVm(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"Name": req.Params["id"],
 	}
-	jsonResponse, err := jsonRpcRequest(
-		fmt.Sprintf("%s:%s", apiURL, apiPort),
-		"Iaas.Stop",
-		params,
-	)
+
+	err := Stop(params["Name"])
 	if err != nil {
-		module.Log.Error("RPC Call to Iaas API failed: ", err)
-		return nil, err
+		module.Log.Error("Error while stopping vm: " + err.Error())
+		return nano.JSONResponse(500, hash{
+			"error": "Unable to stop the specified vm",
+		}), err
 	}
+
 	return &nano.Response{
 		StatusCode:  200,
 		ContentType: "application/json",
-		Body:        jsonResponse,
+		Body:        []byte(`{"success":"true"}`),
 	}, nil
-}
-
-func jsonRpcRequest(url string, method string, param map[string]string) ([]byte, error) {
-	data, err := json.Marshal(map[string]interface{}{
-		"jsonrpc": "2.0",
-		"method":  method,
-		"id":      1,
-		"params":  []map[string]string{0: param},
-	})
-	if err != nil {
-		module.Log.Errorf("Marshal: %v", err)
-		return nil, err
-	}
-	resp, err := http.Post(url, "application/json", strings.NewReader(string(data)))
-	if err != nil {
-		module.Log.Errorf("Post: %v", err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		module.Log.Errorf("ReadAll: %v", err)
-		return nil, err
-	}
-
-	return body, nil
 }
 
 func main() {
 	module = nano.RegisterModule("iaas")
 
-	apiURL = os.Getenv("API_URL")
-	if len(apiURL) == 0 {
-		apiURL = "http://192.168.1.40"
+	conf.instDir = os.Getenv("INSTALLATION_DIR")
+	if len(conf.instDir) == 0 {
+		conf.instDir = "/var/lib/nanocloud"
 	}
 
-	apiPort = os.Getenv("API_PORT")
-	if len(apiPort) == 0 {
-		apiPort = "8082"
+	conf.artURL = os.Getenv("ARTIFACT_URL")
+	if len(conf.artURL) == 0 {
+		conf.artURL = "http://releases.nanocloud.org:8080/releases/0.2/"
 	}
 
 	module.Get("/iaas", ListRunningVm)
