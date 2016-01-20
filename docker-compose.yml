@@ -1,66 +1,66 @@
 guacamole-client:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: guacamole-client
  image: nanocloud/guacamole-client:0.2
 
 guacamole-server:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: guacamole-server
 
 nanocloud-backend:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: nanocloud-backend
  image: nanocloud/nanocloud-backend:0.2
 
 proxy:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: proxy
 
 ambassador:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: ambassador
 
 rabbitmq:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: rabbitmq
 
 postgres:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: postgres
 
 apps-module:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: apps-module
  image: nanocloud/apps-module:0.2
 
 history-module:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: history-module
  image: nanocloud/history-module:0.2
 
 iaas-module:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: iaas-module
  image: nanocloud/iaas-module:0.2
 
 ldap-module:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: ldap-module
  image: nanocloud/ldap-module:0.2
 
 users-module:
  extends:
-  file: ./dockerfiles/docker-compose.yml
+  file: ./modules/docker-compose.yml
   service: users-module
  image: nanocloud/users-module:0.2
