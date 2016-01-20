@@ -65,7 +65,7 @@ module.exports = function(grunt) {
 				tasks: ["sync"]
 			},
 			less: {
-				files: ["website/less/**/*.less"],
+				files: ["less/**/*.less"],
 				tasks: ["less"]
 			}
 		}
