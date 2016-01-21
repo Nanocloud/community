@@ -135,7 +135,9 @@ func AddCall(req nano.Request) (*nano.Response, error) {
 	var t HistoryInfo
 	err := json.Unmarshal([]byte(req.Body), &t)
 	if err != nil {
-		return nil, err
+		return nano.JSONResponse(400, hash{
+			"error": "Invalid parameters",
+		}), nil
 	}
 
 	rows, err := db.Query(
