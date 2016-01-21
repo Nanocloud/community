@@ -1,7 +1,7 @@
 FROM golang:1.5.2
 MAINTAINER \
   William Riancho <william.riancho@nanocloud.com> \
-  Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
+  Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
 
 RUN apt-get update && apt-get install libldap2-dev sshpass
