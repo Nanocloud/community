@@ -26,10 +26,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/Nanocloud/nano"
-	_ "github.com/lib/pq"
 	"os"
 	"time"
+
+	"github.com/Nanocloud/nano"
+	_ "github.com/lib/pq"
 )
 
 var module nano.Module
@@ -152,7 +153,7 @@ func AddCall(req nano.Request) (*nano.Response, error) {
 
 	rows.Close()
 
-	return nano.JSONResponse(200, hash{
+	return nano.JSONResponse(201, hash{
 		"success": true,
 	}), nil
 }
