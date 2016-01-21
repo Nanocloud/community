@@ -554,7 +554,7 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	return nano.JSONResponse(200, hash{
+	return nano.JSONResponse(201, hash{
 		"Id": newUser.Id,
 	}), nil
 }
