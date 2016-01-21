@@ -306,7 +306,9 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 	modify.Replace("mail", []string{params.UserEmail})
 	err := ldapConnection.Modify(modify)
 	if err != nil {
-		return nil, errors.New("Modify error: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), errors.New("Modify error: " + err.Error())
 	}
 
 	ldapConnection, err = DialandBind()
@@ -462,7 +464,12 @@ func createUser(req nano.Request) (*nano.Response, error) {
 	}
 
 	// if a disabled account is found, modifying this account instead of creating a new one
-	return recycleSam(params, ldapConnection, cn)
+	res, err := recycleSam(params, ldapConnection, cn)
+	if err != nil {
+		module.Log.Error(err.Error())
+		return res, nil
+	}
+	return res, nil
 }
 
 func forcedisableAccount(req nano.Request) (*nano.Response, error) {
