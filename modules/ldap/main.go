@@ -416,7 +416,16 @@ func createUser(req nano.Request) (*nano.Response, error) {
 
 	if err != nil {
 		module.Log.Error("Unable to unmarshall params: " + err.Error())
-		return nil, err
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
+	}
+
+	if params.UserEmail == "" || params.Password == "" {
+		module.Log.Error("Email or password missing")
+		return nano.JSONResponse(400, hash{
+			"error": "Email or password missing",
+		}), nil
 	}
 
 	var tconf ldap_conf
