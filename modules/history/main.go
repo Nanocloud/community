@@ -25,7 +25,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"os"
 	"time"
 
@@ -84,7 +83,7 @@ func setupDb() error {
 	rows, err = db.Query(
 		`CREATE TABLE histories (
 			userid		varchar(36),
-			connectionid	varchar(36) PRIMARY KEY,
+			connectionid	varchar(36),
 			startdate	varchar(36),
 			enddate		varchar(36)
 		);`)
@@ -146,11 +145,9 @@ func AddCall(req nano.Request) (*nano.Response, error) {
 		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar)
 		`, t.UserId, t.ConnectionId, t.StartDate, t.EndDate)
 	if err != nil {
-		switch err.Error() {
-		case "pq: duplicate key value violates unique constraint \"history_pkey\"":
-			err = errors.New("history connection id exists already")
-		}
-		return nil, err
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
 	}
 
 	rows.Close()
