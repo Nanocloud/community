@@ -30,8 +30,12 @@ import (
 var module nano.Module
 
 type Configuration struct {
-	artURL  string
-	instDir string
+	artURL   string
+	instDir  string
+	Server   string
+	User     string
+	SSHPort  string
+	Password string
 }
 
 type VmInfo struct {
@@ -198,8 +202,21 @@ func StopVm(req nano.Request) (*nano.Response, error) {
 	}, nil
 }
 
+func env(key, def string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		return def
+	}
+	return v
+}
+
 func main() {
 	module = nano.RegisterModule("iaas")
+
+	conf.Server = env("SERVER", "62.210.56.45")
+	conf.Password = env("PASSWORD", "ItsPass1942+")
+	conf.User = env("USER", "Administrator")
+	conf.SSHPort = env("SSH_PORT", "22")
 
 	conf.instDir = os.Getenv("INSTALLATION_DIR")
 	if len(conf.instDir) == 0 {
@@ -212,7 +229,7 @@ func main() {
 	}
 
 	module.Get("/iaas", ListRunningVm)
-	module.Post("/iaas/:id", StopVm)
+	module.Post("/iaas/:id/stop", StopVm)
 	module.Post("/iaas/:id/start", StartVm)
 	module.Post("/iaas/:id/download", DownloadVm)
 
