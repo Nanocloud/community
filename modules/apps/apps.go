@@ -327,6 +327,9 @@ func listApplications(req nano.Request) (*nano.Response, error) {
 
 		connections = append(connections, connection)
 	}
+	if len(connections) == 0 {
+		connections = []Connection{}
+	}
 	return nano.JSONResponse(200, connections), nil
 }
 
