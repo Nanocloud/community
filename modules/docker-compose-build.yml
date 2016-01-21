@@ -97,6 +97,10 @@ iaas-module:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - INSTALLATION_DIR=/var/lib/nanocloud
+  - SSH_PORT=1119
+  - PASSWORD=Nanocloud123+
+  - SERVER=localhost
+  - USER=Administrator
  volumes:
   - ../installation_dir:/var/lib/nanocloud/
   - /dev/kvm:/dev/kvm
