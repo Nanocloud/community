@@ -328,6 +328,13 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if !rows.Next() {
+		rows.Close()
+		return nano.JSONResponse(404, hash{
+			"error": "User not found",
+		}), nil
+	}
 	rows.Close()
 
 	return nano.JSONResponse(200, hash{
