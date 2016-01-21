@@ -274,7 +274,7 @@ func createNewUser(conf2 ldap_conf, params AccountParams, count int, ldapConnect
 		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
 		sam = entry.GetAttributeValue("sAMAccountName")
 	}
-	return nano.JSONResponse(200, hash{
+	return nano.JSONResponse(201, hash{
 		"sam": sam,
 	}), nil
 }
@@ -334,7 +334,7 @@ func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*na
 		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
 		sam = entry.GetAttributeValue("sAMAccountName")
 	}
-	return nano.JSONResponse(200, hash{
+	return nano.JSONResponse(201, hash{
 		"sam": sam,
 	}), nil
 }
