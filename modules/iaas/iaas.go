@@ -166,10 +166,24 @@ func Start(name string) error {
 
 func Stop(name string) error {
 
-	var pidFile string = strings.TrimSpace(fmt.Sprintf("%s/pid/%s.pid\n", conf.instDir, name))
-	fmt.Println("stopping : ", name)
-	os.Remove(pidFile)
-	os.Exit(0)
+	module.Log.Error("stopping : ", name)
+
+	cmd := exec.Command(
+		"sshpass", "-p", conf.Password,
+		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-p", conf.SSHPort,
+		fmt.Sprintf(
+			"%s@%s",
+			conf.User,
+			conf.Server,
+		),
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Stop-Computer -Force\"",
+	)
+	response, err := cmd.CombinedOutput()
+	if err != nil {
+		module.Log.Error("Failed to execute sshpass command to shutdown windows", err, string(response))
+		return err
+	}
 
 	return nil
 }
