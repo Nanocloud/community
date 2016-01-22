@@ -312,6 +312,19 @@ func updateUserPassword(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
+	exists, err := UserExists(userId)
+	if err != nil {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	}
+
+	if !exists {
+		return nano.JSONResponse(404, hash{
+			"error": "User not found",
+		}), nil
+	}
+
 	rows, err := db.Query(
 		`UPDATE users
 		SET password = $1::varchar
