@@ -1,5 +1,5 @@
 guacamole-client:
- build: ./guacamole-client
+ build: ./canva/guacamole-client
  volumes:
   - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
   - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
