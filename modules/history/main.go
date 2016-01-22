@@ -126,6 +126,10 @@ func ListCall(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
+	if len(histories) == 0 {
+		histories = []HistoryInfo{}
+	}
+
 	return nano.JSONResponse(200, histories), nil
 }
 
