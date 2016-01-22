@@ -107,6 +107,23 @@ func findUsers() (*[]nano.User, error) {
 	return &users, nil
 }
 
+func UserExists(id string) (bool, error) {
+	rows, err := db.Query(
+		`SELECT id
+		FROM users
+		WHERE id = $1::varchar`,
+		id)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		return true, nil
+	}
+	return false, nil
+}
+
 func getUser(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
@@ -319,6 +336,19 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
+	exists, err := UserExists(userId)
+	if err != nil {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	}
+
+	if !exists {
+		return nano.JSONResponse(404, hash{
+			"error": "User not found",
+		}), nil
+	}
+
 	rows, err := db.Query(
 		`UPDATE users
 		SET activated = false
@@ -326,17 +356,12 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 		userId)
 
 	if err != nil {
-		return nil, err
-	}
-
-	if !rows.Next() {
-		rows.Close()
-		return nano.JSONResponse(404, hash{
-			"error": "User not found",
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
 		}), nil
 	}
-	rows.Close()
 
+	defer rows.Close()
 	return nano.JSONResponse(200, hash{
 		"success": true,
 	}), nil
