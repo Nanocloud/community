@@ -508,7 +508,7 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	if len(sr.Entries) != 1 {
 		module.Log.Error("Email does not match any user, or several users have the same mail adress")
 		// means entered mail was not valid, or several user have the same mail
-		return nano.JSONResponse(400, hash{
+		return nano.JSONResponse(404, hash{
 			"error": "Email does not match any user, or several users have the same mail adress",
 		}), nil
 	}
