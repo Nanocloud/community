@@ -155,11 +155,9 @@ func DownloadVm(req nano.Request) (*nano.Response, error) {
 		}), err
 	}
 
-	return &nano.Response{
-		StatusCode:  200,
-		ContentType: "application/json",
-		Body:        []byte(`{"success":"true"}`),
-	}, nil
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
 func StartVm(req nano.Request) (*nano.Response, error) {
@@ -175,11 +173,9 @@ func StartVm(req nano.Request) (*nano.Response, error) {
 		}), err
 	}
 
-	return &nano.Response{
-		StatusCode:  200,
-		ContentType: "application/json",
-		Body:        []byte(`{"success":"true"}`),
-	}, nil
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
 func StopVm(req nano.Request) (*nano.Response, error) {
@@ -195,11 +191,9 @@ func StopVm(req nano.Request) (*nano.Response, error) {
 		}), err
 	}
 
-	return &nano.Response{
-		StatusCode:  200,
-		ContentType: "application/json",
-		Body:        []byte(`{"success":"true"}`),
-	}, nil
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
 }
 
 func env(key, def string) string {
