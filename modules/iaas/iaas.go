@@ -25,39 +25,13 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
-
-func checkPort(adress string, port int) bool {
-	var one []byte
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", adress, port))
-	if err != nil {
-		return false
-	}
-	conn.SetReadDeadline(time.Now())
-	if _, err := conn.Read(one); err == io.EOF {
-		fmt.Printf("Detected closed LAN connection")
-		conn.Close()
-		conn = nil
-		return false
-	} else {
-		conn.SetReadDeadline(time.Time{})
-	}
-	defer conn.Close()
-
-	if neterr, ok := err.(net.Error); ok && neterr.Timeout() {
-		return false
-	}
-
-	return true
-}
 
 type VMstatus struct {
 	DownloadingVmNames []string
@@ -66,9 +40,33 @@ type VMstatus struct {
 	RunningVmNames     []string
 }
 
+func CheckRDS() (bool, error) {
+
+	cmd := exec.Command(
+		"sshpass", "-p", conf.Password,
+		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-p", conf.SSHPort,
+		fmt.Sprintf(
+			"%s@%s",
+			conf.User,
+			conf.Server,
+		),
+		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Write-Host (Get-Service -Name RDMS).status\"",
+	)
+	response, err := cmd.CombinedOutput()
+	if err != nil {
+		module.Log.Error("Failed to check windows' state", err, string(response))
+		return false, err
+	}
+
+	if string(response) == "Running\n" {
+		return true, nil
+	}
+	return false, nil
+}
+
 func GetList() (VMstatus, error) {
 	var status VMstatus
-	var vmIP string
 
 	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", conf.instDir))
 	for _, file := range files {
@@ -76,8 +74,12 @@ func GetList() (VMstatus, error) {
 		if !strings.Contains(fileName, ".pid") {
 			continue
 		}
-		vmIP = strings.Split(file.Name(), "-")[3]
-		if checkPort(vmIP, 22) || checkPort(vmIP, 443) || checkPort(vmIP, 3389) {
+		running, err := CheckRDS()
+		if err != nil {
+			module.Log.Error(err.Error())
+			return status, err
+		}
+		if running {
 			status.RunningVmNames = append(status.RunningVmNames, file.Name()[0:len(file.Name())-4])
 		} else {
 			status.BootingVmNames = append(status.BootingVmNames, file.Name()[0:len(file.Name())-4])
