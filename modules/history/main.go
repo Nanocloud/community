@@ -143,6 +143,12 @@ func AddCall(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
+	if t.UserId == "" || t.ConnectionId == "" || t.StartDate == "" || t.EndDate == "" {
+		return nano.JSONResponse(400, hash{
+			"error": "Missing parameters",
+		}), nil
+	}
+
 	rows, err := db.Query(
 		`INSERT INTO histories
 		(userid, connectionid, startdate, enddate)
