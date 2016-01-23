@@ -347,6 +347,12 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 		err              error
 	)
 
+	err = createConnections()
+	if err != nil {
+		module.Log.Error("Connection to windows failed: ", err.Error())
+		return nil, err
+	}
+
 	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
 		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
 		return nil, err
