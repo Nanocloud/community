@@ -1,8 +1,8 @@
 guacamole-client:
  build: ./canva/guacamole-client
  volumes:
-  - ./guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
-  - ./guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
+  - ./canva/guacamole-client/guac_home/guacamole.properties:/etc/guacamole/guacamole.properties
+  - ./canva/guacamole-client/guac_home/noauth-config.xml:/etc/guacamole/noauth-config.xml
  restart: always
  container_name: "guacamole-client"
 
@@ -79,7 +79,7 @@ apps-module:
   - EXECUTION_SERVERS=iaas-module
  restart: always
  volumes:
-  - ./guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
+  - ./canva/guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
  container_name: "apps-module"
 
 history-module:

@@ -11,3 +11,8 @@ installation_dir/channel
 installation_dir/downloads/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 installation_dir/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 installation_dir/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
+
+# Ignore Java IDE file
+modules/canva/guacamole-client/noauth-logged/.idea
+modules/canva/guacamole-client/noauth-logged/target
+modules/canva/guacamole-client/noauth-logged/*.iml
