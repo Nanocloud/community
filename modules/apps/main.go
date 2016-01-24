@@ -118,6 +118,7 @@ func main() {
 	conf.ExecutionServers = strings.Split(env("EXECUTION_SERVERS", "62.210.56.76"), ",")
 
 	module.Get("/apps", listApplications)
+	module.Get("/apps/all", listAllApplications)
 	module.Delete("/apps/:app_id", unpublishApplication)
 	module.Get("/apps/me", listApplicationsForSamAccount)
 	module.Post("/apps", publishApplication)

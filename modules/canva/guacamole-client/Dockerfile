@@ -2,23 +2,25 @@ FROM tomcat:8.0.20-jre7
 MAINTAINER Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
 RUN apt-get update && apt-get -y install maven \
-    openjdk-7-jdk \
-    git
+    openjdk-7-jdk
 
 ENV GUAC_VERSION=0.9.8
 ENV GUACAMOLE_HOME="/etc/guacamole"
 
 RUN wget http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-${GUAC_VERSION}.war/download -O /usr/local/tomcat/webapps/guacamole.war
 
-WORKDIR /opt/
-RUN git clone https://github.com/Nanocloud/noauth-logged.git
+RUN mkdir -p /opt/noauth-logged
+COPY ./noauth-logged /opt/noauth-logged
+WORKDIR /opt/noauth-logged
 
-RUN mvn package -f noauth-logged/pom.xml
-RUN mkdir -p $GUACAMOLE_HOME/extensions/ && cp ./noauth-logged/target/guacamole-auth-noauthlogged-${GUAC_VERSION}.jar $GUACAMOLE_HOME/extensions/
+RUN mvn package
+RUN mkdir -p $GUACAMOLE_HOME/extensions/ && cp ./target/guacamole-auth-noauthlogged-${GUAC_VERSION}.jar $GUACAMOLE_HOME/extensions/
 
-RUN mvn clean -f noauth-logged/pom.xml
+RUN mvn clean
 
 ENV JAVA_OPTS="-Djava.library.path=/usr/local/apr/lib -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx1024m -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC"
+
+COPY ./guac_home/guacamole.properties /etc/guacamole/guacamole.properties
 
 EXPOSE 8080
 
