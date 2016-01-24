@@ -45,7 +45,7 @@ fi
 
 if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     echo "$(date "${DATE_FMT}") Stopping nanocloud containers from local build"
-    docker-compose --file "${ROOT_DIR}/modules/docker-compose.yml" stop
+    docker-compose --file "${ROOT_DIR}/modules/docker-compose-build.yml" stop
 else
     echo "$(date "${DATE_FMT}") Stopping nanocloud containers from docker hub $COMMUNITY_CHANNEL"
     if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
