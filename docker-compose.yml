@@ -26,11 +26,6 @@ proxy:
   file: ./modules/docker-compose.yml
   service: proxy
 
-ambassador:
- extends:
-  file: ./modules/docker-compose.yml
-  service: ambassador
-
 rabbitmq:
  extends:
   file: ./modules/docker-compose.yml
