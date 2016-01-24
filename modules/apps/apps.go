@@ -330,6 +330,56 @@ func listApplications(req nano.Request) (*nano.Response, error) {
 	return nano.JSONResponse(200, connections), nil
 }
 
+func listAllApplications(req nano.Request) (*nano.Response, error) {
+
+	module.Log.Error("listApplication");
+	var (
+		guacamoleConfigs GuacamoleXMLConfigs
+		connections      []Connection
+		bytesRead        []byte
+		err              error
+	)
+
+	err = createConnections()
+	if err != nil {
+		return nil, err
+	}
+
+	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
+		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
+		return nil, err
+	}
+
+	module.Log.Error("Read bytes :", string(bytesRead));
+	err = xml.Unmarshal(bytesRead, &guacamoleConfigs)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, config := range guacamoleConfigs.Config {
+		var connection Connection
+
+		for _, param := range config.Params {
+			switch true {
+			case param.ParamName == "hostname":
+				connection.Hostname = param.ParamValue
+			case param.ParamName == "port":
+				connection.Port = param.ParamValue
+			case param.ParamName == "username":
+				connection.Username = param.ParamValue
+			case param.ParamName == "password":
+				connection.Password = param.ParamValue
+			case param.ParamName == "remote-app":
+				connection.RemoteApp = param.ParamValue
+			}
+		}
+		connection.ConnectionName = config.Name
+
+		connections = append(connections, connection)
+	}
+	return nano.JSONResponse(200, connections), nil
+}
+
 // ========================================================================================================================
 // Procedure: listApplicationsForSamAccount
 //

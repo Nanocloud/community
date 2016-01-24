@@ -1,15 +1,13 @@
 package com.nanocloud.auth.noauthlogged.user;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
 
-import com.nanocloud.auth.noauthlogged.NoAuthLoggedConfigContentHandler;
+import com.nanocloud.auth.noauthlogged.NoAuthLoggedGuacamoleProperties;
 import com.nanocloud.auth.noauthlogged.connection.LoggedConnection;
 import org.glyptodon.guacamole.GuacamoleException;
-import org.glyptodon.guacamole.GuacamoleServerException;
 import org.glyptodon.guacamole.environment.LocalEnvironment;
 import org.glyptodon.guacamole.form.Form;
 import org.glyptodon.guacamole.net.auth.ActiveConnection;
@@ -27,19 +25,28 @@ import org.glyptodon.guacamole.net.auth.simple.SimpleUser;
 import org.glyptodon.guacamole.net.auth.simple.SimpleUserDirectory;
 import org.glyptodon.guacamole.properties.FileGuacamoleProperty;
 import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+
+import javax.json.Json;
+import javax.json.JsonObject;
 
 public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext {
+
+	private final String hostname;
+	private final Integer port;
+	private final String endpoint;
+	private final String username;
+	private final String password;
 
 	/**
 	 * The unique identifier of the root connection group.
 	 */
 	private static final String ROOT_IDENTIFIER = "ROOT";
+	private final LocalEnvironment environment;
 
 	/**
 	 * Logger for this class.
@@ -60,6 +67,14 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 
 	public UserContext(AuthenticationProvider authProvider,
 					   AuthenticatedUser authenticatedUser, Map<String, GuacamoleConfiguration> configs) throws GuacamoleException {
+
+		environment = new LocalEnvironment();
+
+		hostname = environment.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERURL, "localhost");
+		port = environment.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERPORT, 80);
+		endpoint = environment.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERENDPOINT, "rpc");
+		username = environment.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERUSERNAME);
+		password = environment.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERPASSWORD);
 
 		// Return as unauthorized if not authorized to retrieve configs
 		if (configs == null)
@@ -198,77 +213,127 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 	 */
 	public static final String DEFAULT_NOAUTH_CONFIG = "noauth-config.xml";
 
-	/**
-	 * Retrieves the configuration file, as defined within guacamole.properties.
-	 *
-	 * @return The configuration file, as defined within guacamole.properties.
-	 * @throws GuacamoleException If an error occurs while reading the
-	 *                            property.
-	 */
-	private File getConfigurationFile() throws GuacamoleException {
+	private String login() throws IOException {
 
-		LocalEnvironment environment = new LocalEnvironment();
-		// Get config file, defaulting to GUACAMOLE_HOME/noauth-config.xml
-		File configFile = environment.getProperty(NOAUTH_CONFIG);
-		if (configFile == null)
-			configFile = new File(environment.getGuacamoleHome(), DEFAULT_NOAUTH_CONFIG);
+		URL myUrl = new URL("http://" + hostname + ":" + port + "/oauth/token");
+		HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
+		//urlConn.setInstanceFollowRedirects(false);
 
-		return configFile;
+		String appKey = "9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae";
+		String appSecret = "9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341";
+		byte[] auth = org.apache.commons.codec.binary.Base64.encodeBase64(new String(appKey + ":" + appSecret).getBytes());
+		urlConn.setRequestProperty("Authorization", "Basic OTQwNWZiNmIwZTU5ZDI5OTdlM2M3NzdhMjJkOGYwZTYxN2E5ZjViMzZiNjU2NWM3NTc5ZTViZTZkZWI4ZjdhZTo5MDUwZDY3YzJiZTA5NDNmMmM2MzUwNzA1MmRkZWRiM2FlMzRhMzBlMzliYmJiZGFiMjQxYzkzZjhiNWNmMzQx");
+		urlConn.setRequestProperty("Content-Type", "application/json");
 
+		JsonObject params = Json.createObjectBuilder()
+				.add("username", username)
+				.add("password", password)
+				.add("grant_type", "password")
+				.build();
+
+		urlConn.setUseCaches(false);
+		urlConn.setDoOutput(true);
+		// Send request (for some reason we actually need to wait for response)
+		DataOutputStream writer = new DataOutputStream(urlConn.getOutputStream());
+		writer.writeBytes(params.toString());
+		writer.close();
+
+		urlConn.connect();
+		urlConn.getOutputStream().close();
+
+		// Get Response
+		InputStream input = urlConn.getInputStream();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+		StringBuilder response = new StringBuilder();
+
+		String line;
+		while ((line = reader.readLine()) != null) {
+			response.append(line);
+		}
+		reader.close();
+
+		JSONObject json = null;
+		try {
+			json = new JSONObject(response.toString());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		String token = null;
+		try {
+			token = json.getString("access_token");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return token;
 	}
 
-	public synchronized void init() throws GuacamoleException {
+	private Map<String, GuacamoleConfiguration> askForConnections() throws IOException, JSONException {
 
-		// Get configuration file
-		File configFile = getConfigurationFile();
-		logger.debug("Reading configuration file: \"{}\"", configFile);
+		Map<String, GuacamoleConfiguration> configs = new HashMap<String, GuacamoleConfiguration>();
 
-		// Parse document
-		try {
+		String token = login();
 
-			// Set up parser
-			NoAuthLoggedConfigContentHandler contentHandler = new NoAuthLoggedConfigContentHandler();
+		URL myUrl = new URL("http://" + hostname + ":" + port + "/api/apps/all");
+		HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
 
-			XMLReader parser = XMLReaderFactory.createXMLReader();
-			parser.setContentHandler(contentHandler);
+		urlConn.setInstanceFollowRedirects(false);
+		urlConn.setRequestProperty("Authorization", "Bearer " + token);
+		urlConn.setUseCaches(false);
 
-			// Read and parse file
-			Reader reader = new BufferedReader(new FileReader(configFile));
-			parser.parse(new InputSource(reader));
-			reader.close();
+		urlConn.connect();
 
-			// Init configs
-			configs = contentHandler.getConfigs();
+		// Get Response
+		InputStream input = urlConn.getInputStream();
 
+		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+		StringBuilder response = new StringBuilder();
+
+		String line;
+		while ((line = reader.readLine()) != null) {
+			response.append(line);
 		}
-		catch (IOException e) {
-			throw new GuacamoleServerException("Error reading configuration file.", e);
-		}
-		catch (SAXException e) {
-			throw new GuacamoleServerException("Error parsing XML file.", e);
+		reader.close();
+
+		System.out.println(response.toString());
+		JSONArray appList =  new JSONArray(response.toString());
+		for (int i = 0; i < appList.length(); i++) {
+			JSONObject connection = appList.getJSONObject(i);
+			GuacamoleConfiguration config = new GuacamoleConfiguration();
+
+			config.setProtocol("rdp");
+			config.setParameter("hostname", connection.getString("Hostname"));
+			config.setParameter("port", connection.getString("Port"));
+			config.setParameter("username", connection.getString("Username"));
+			config.setParameter("password", connection.getString("Password"));
+			config.setParameter("security", "nla");
+			config.setParameter("ignore-cert", "true");
+			if (connection.has("RemoteApp")) {
+				config.setParameter("remote-app", connection.getString("RemoteApp"));
+			}
+
+			configs.put(connection.getString("ConnectionName"), config);
 		}
 
+		return configs;
 	}
 
 	public Map<String, GuacamoleConfiguration> getAuthorizedConfigurations() throws GuacamoleException {
 
-		// Check mapping file mod time
-		File configFile = getConfigurationFile();
-		if (configFile.exists()) {
+		Map<String, GuacamoleConfiguration> configs = null;
 
-			// If modified recently, gain exclusive access and recheck
-			synchronized (this) {
-				if (configFile.exists()) {
-					logger.debug("Configuration file \"{}\" has been modified.", configFile);
-					init(); // If still not up to date, re-init
-				}
-			}
+		logger.info("Fetch application list from server");
 
+		try {
+			configs = askForConnections();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 
-		// If no mapping available, report as such
-		if (configs == null)
-			throw new GuacamoleServerException("Configuration could not be read.");
+		logger.info("Application list fetched");
 
 		return configs;
 

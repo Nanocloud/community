@@ -21,7 +21,6 @@ RUN mvn clean
 ENV JAVA_OPTS="-Djava.library.path=/usr/local/apr/lib -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xmx1024m -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC"
 
 COPY ./guac_home/guacamole.properties /etc/guacamole/guacamole.properties
-COPY ./guac_home/noauth-config.xml /etc/guacamole/noauth-config.xml
 
 EXPOSE 8080
 
