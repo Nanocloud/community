@@ -21,6 +21,7 @@ nanocloud-frontend:
   service: nanocloud-backend
  volumes:
   - /opt/front
+ container_name: "nanocloud-frontend"
 
 proxy:
  extends:
