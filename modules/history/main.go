@@ -71,6 +71,7 @@ func setupDb() error {
 		FROM information_schema.tables
 		WHERE table_name = 'histories'`)
 	if err != nil {
+		module.Log.Error(err.Error())
 		return err
 	}
 	defer rows.Close()
@@ -105,6 +106,7 @@ func ListCall(req nano.Request) (*nano.Response, error) {
 		FROM histories`,
 	)
 	if err != nil {
+		module.Log.Error(err.Error())
 		return nil, err
 	}
 
@@ -123,6 +125,7 @@ func ListCall(req nano.Request) (*nano.Response, error) {
 
 	err = rows.Err()
 	if err != nil {
+		module.Log.Error(err.Error())
 		return nil, err
 	}
 
@@ -138,12 +141,14 @@ func AddCall(req nano.Request) (*nano.Response, error) {
 	var t HistoryInfo
 	err := json.Unmarshal([]byte(req.Body), &t)
 	if err != nil {
+		module.Log.Error("Error unmarshalling params: ", err.Error())
 		return nano.JSONResponse(400, hash{
 			"error": "Invalid parameters",
 		}), nil
 	}
 
 	if t.UserId == "" || t.ConnectionId == "" || t.StartDate == "" || t.EndDate == "" {
+		module.Log.Error("Missing one or several parameters to create entry")
 		return nano.JSONResponse(400, hash{
 			"error": "Missing parameters",
 		}), nil
@@ -155,6 +160,7 @@ func AddCall(req nano.Request) (*nano.Response, error) {
 		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar)
 		`, t.UserId, t.ConnectionId, t.StartDate, t.EndDate)
 	if err != nil {
+		module.Log.Error(err.Error())
 		return nano.JSONResponse(500, hash{
 			"error": err.Error(),
 		}), nil
