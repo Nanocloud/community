@@ -219,7 +219,7 @@ func main() {
 
 	conf.artURL = os.Getenv("ARTIFACT_URL")
 	if len(conf.artURL) == 0 {
-		conf.artURL = "http://releases.nanocloud.org:8080/releases/0.2/"
+		conf.artURL = "http://releases.nanocloud.org:8080/releases/latest/"
 	}
 
 	module.Get("/iaas", ListRunningVm)
