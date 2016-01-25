@@ -108,7 +108,7 @@ func GetList() (VMstatus, error) {
 }
 
 func downloadFromUrl(downloadUrl string, dst string) {
-	fmt.Println("Downloading", downloadUrl, "to", dst)
+	module.Log.Info("Downloading ", downloadUrl, "to ", dst)
 
 	u, err := url.Parse(downloadUrl)
 	if err != nil {
@@ -119,31 +119,31 @@ func downloadFromUrl(downloadUrl string, dst string) {
 	tempDst := filepath.Join(conf.instDir, "downloads", splitedPath[len(splitedPath)-1])
 	tmpOutput, err := os.Create(tempDst)
 	if err != nil {
-		fmt.Println("Error while creating", tempDst, "-", err)
+		module.Log.Error("Error while creating", tempDst, "-", err)
 		return
 	}
 
 	response, err := http.Get(downloadUrl)
 	if err != nil {
-		fmt.Println("Error while downloading", downloadUrl, "-", err)
+		module.Log.Error("Error while downloading", downloadUrl, "-", err)
 		return
 	}
 	defer response.Body.Close()
 
 	n, err := io.Copy(tmpOutput, response.Body)
 	if err != nil {
-		fmt.Println("Error while downloading", downloadUrl, "-", err)
+		module.Log.Error("Error while downloading", downloadUrl, "-", err)
 		return
 	}
 	tmpOutput.Close()
 
 	err = os.Rename(tempDst, dst)
 	if err != nil {
-		fmt.Println("Error while creating", dst, "-", err)
+		module.Log.Error("Error while creating", dst, "-", err)
 		return
 	}
 
-	fmt.Println(n, "bytes downloaded.")
+	module.Log.Info(n, "bytes downloaded.")
 }
 
 func Download(VMName string) error {
@@ -155,11 +155,11 @@ func Download(VMName string) error {
 }
 
 func Start(name string) error {
-	fmt.Println("Starting : ", name)
+	module.Log.Info("Starting : ", name)
 	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", conf.instDir, name))
 	err := cmd.Start()
 	if err != nil {
-		fmt.Printf("Failed to start vm, error: %s\n", err)
+		module.Log.Error("Failed to start vm, error: ", err)
 		return err
 	}
 
@@ -168,7 +168,7 @@ func Start(name string) error {
 
 func Stop(name string) error {
 
-	module.Log.Error("stopping : ", name)
+	module.Log.Info("stopping : ", name)
 
 	cmd := exec.Command(
 		"sshpass", "-p", conf.Password,
