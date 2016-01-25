@@ -1,0 +1,122 @@
+guacamole-client:
+ build: ./canva/guacamole-client
+ restart: always
+ container_name: "guacamole-client"
+
+guacamole-server:
+ image: glyptodon/guacd:0.9.8
+ restart: always
+ container_name: "guacamole-server"
+
+nanocloud-backend:
+ build: ../nanocloud
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+  - PORT=8080
+  - FRONT_DIR=/opt/front/website
+  - WIN_PASSWORD=Nanocloud123+
+  - WIN_PORT=1119
+  - WIN_USER=Administrator
+  - WIN_SERVER=iaas-module
+ restart: always
+ container_name: "nanocloud-api"
+
+nanocloud-frontend:
+ build: ../webapp
+ container_name: "nanocloud-webapp"
+ volumes:
+  - /opt/front
+
+proxy:
+ image: nginx:1.9
+ volumes:
+  - ./nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
+ ports:
+  - 80:80
+  - 443:443
+ restart: always
+ container_name: "proxy"
+
+rabbitmq:
+ image: rabbitmq:3.5
+ restart: always
+ container_name: "rabbitmq"
+
+postgres:
+ image: postgres:9.4
+ environment:
+  - PGDATA=/var/lib/postgresql/data/pgdata
+  - POSTGRES_USER=nanocloud
+ restart: always
+ container_name: "postgres"
+
+apps-module:
+ build: ./apps
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - USER=Administrator
+  - SSH_PORT=1119
+  - RDP_PORT=3389
+  - SERVER=iaas-module
+  - PASSWORD=Nanocloud123+
+  - XML_CONFIGURATION_FILE=/opt/conf/noauth.xml
+  - WINDOWS_DOMAIN=intra.localdomain.com
+  - EXECUTION_SERVERS=iaas-module
+ restart: always
+ volumes:
+  - ./canva/guacamole-client/guac_home/noauth-config.xml:/opt/conf/noauth.xml
+ container_name: "apps-module"
+
+history-module:
+ build: ./history
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+ restart: always
+ container_name: "history-module"
+
+iaas-module:
+ build: ./iaas
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - INSTALLATION_DIR=/var/lib/nanocloud
+  - SSH_PORT=1119
+  - PASSWORD=Nanocloud123+
+  - SERVER=localhost
+  - USER=Administrator
+ volumes:
+  - ../installation_dir:/var/lib/nanocloud/
+  - /dev/kvm:/dev/kvm
+ restart: always
+ container_name: "iaas-module"
+ privileged: true
+
+ldap-module:
+ build: ./ldap
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - SSH_SERVER_URI=ssh://Administrator:Nanocloud123+@iaas-module:1119
+  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
+  - BASE=DC=intra,DC=localdomain,DC=com
+  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
+  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
+  - PASSWORD=
+  - TLS_CACERT=/opt/conf/ad2012.cer
+ restart: always
+ container_name: "ldap-module"
+
+users-module:
+ build: ./users
+ environment:
+  - ENV=production
+  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+ restart: always
+ container_name: "users-module"

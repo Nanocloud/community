@@ -14,12 +14,16 @@ nanocloud-backend:
   file: ./modules/docker-compose.yml
   service: nanocloud-backend
  image: nanocloud/nanocloud-backend:0.2
+ volumes_from:
+  - nanocloud-frontend
 
 nanocloud-frontend:
  extends:
   file: ./modules/docker-compose.yml
   service: nanocloud-backend
  image: nanocloud/nanocloud-frontend:0.2
+ volumes:
+  - /opt/front
 
 proxy:
  extends:
