@@ -198,7 +198,7 @@ func test_password(pass string) bool {
 }
 
 // Checks if there is at least one sam account available, to use it to create a new user instead of generating a new sam account
-func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
+func getNumberofUsers(ldapConnection *ldap.Conn) (error, int) {
 	searchRequest := ldap.NewSearchRequest(
 		conf.Ou,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -210,22 +210,10 @@ func checkSamAvailability(ldapConnection *ldap.Conn) (error, string, int) {
 	sr, err := ldapConnection.Search(searchRequest)
 	if err != nil {
 		module.Log.Error("Search error:  " + err.Error())
-		return errors.New("Search error: " + err.Error()), "", 0
+		return errors.New("Search error: " + err.Error()), 0
 	}
 	count := len(sr.Entries)
-	cn := ""
-	for _, entry := range sr.Entries {
-		h, err := strconv.Atoi(entry.GetAttributeValue("userAccountControl"))
-		if err != nil {
-			return errors.New("Atoi conversion error: " + err.Error()), "", 0
-		}
-		if h&0x0002 == 0 { //0x0002 means disabled account
-		} else {
-			cn = entry.GetAttributeValue("cn")
-			break
-		}
-	}
-	return nil, cn, count
+	return nil, count
 }
 
 func createNewUser(conf2 ldap_conf, params AccountParams, count int, ldapConnection *ldap.Conn) (*nano.Response, error) {
@@ -294,51 +282,6 @@ func encodePassword(pass string) []byte {
 	}
 	pwd[i] = '"'
 	return pwd
-}
-
-// Uses a deactivated sam account to create a new user with it
-func recycleSam(params AccountParams, ldapConnection *ldap.Conn, cn string) (*nano.Response, error) {
-	var sam string
-	pwd := encodePassword(params.Password)
-	modify := ldap.NewModifyRequest("cn=" + cn + "," + conf.Ou)
-	modify.Replace("unicodePwd", []string{string(pwd)})
-	modify.Replace("userAccountControl", []string{"512"})
-	modify.Replace("mail", []string{params.UserEmail})
-	err := ldapConnection.Modify(modify)
-	if err != nil {
-		return nano.JSONResponse(400, hash{
-			"error": err.Error(),
-		}), errors.New("Modify error: " + err.Error())
-	}
-
-	ldapConnection, err = DialandBind()
-	if err != nil {
-		module.Log.Error("Error while connection to Active Directory: " + err.Error())
-		return nano.JSONResponse(400, hash{
-			"error": err.Error(),
-		}), err
-	}
-
-	defer ldapConnection.Close()
-	searchRequest := ldap.NewSearchRequest(
-		conf.Ou,
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectCategory=person)(cn="+cn+"))",
-		[]string{"dn", "cn", "mail", "sAMAccountName", "userAccountControl"},
-		nil,
-	)
-	sr, err := ldapConnection.Search(searchRequest)
-	if err != nil {
-		module.Log.Error("Search error:  " + err.Error())
-		return nil, errors.New("Search error: " + err.Error())
-	}
-	for _, entry := range sr.Entries {
-		module.Log.Info(entry.GetAttributeValue("sAMAccountName"))
-		sam = entry.GetAttributeValue("sAMAccountName")
-	}
-	return nano.JSONResponse(201, hash{
-		"sam": sam,
-	}), nil
 }
 
 func updatePassword(req nano.Request) (*nano.Response, error) {
@@ -447,27 +390,17 @@ func createUser(req nano.Request) (*nano.Response, error) {
 
 	defer ldapConnection.Close()
 
-	err, cn, count := checkSamAvailability(ldapConnection) // if an account is disabled, this function will look for his CN
+	err, count := getNumberofUsers(ldapConnection)
 	if err != nil {
-		module.Log.Error("Error while checking sam availability: " + err.Error())
+		module.Log.Error("Error while counting users: " + err.Error())
 		return nil, err
 	}
 
 	// if no disabled accounts were found, a real new user is created
-	if cn == "" {
-		res, err := createNewUser(tconf, params, count, ldapConnection)
-		if err != nil {
-			module.Log.Error(err.Error())
-			return nil, err
-		}
-		return res, nil
-	}
-
-	// if a disabled account is found, modifying this account instead of creating a new one
-	res, err := recycleSam(params, ldapConnection, cn)
+	res, err := createNewUser(tconf, params, count, ldapConnection)
 	if err != nil {
 		module.Log.Error(err.Error())
-		return res, nil
+		return nil, err
 	}
 	return res, nil
 }
@@ -522,6 +455,62 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 	if err != nil {
 		module.Log.Error("Modify  error: " + err.Error())
 		return nil, errors.New("Modify error: " + err.Error())
+	}
+
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
+}
+
+func deleteUser(req nano.Request) (*nano.Response, error) {
+	userId := req.Params["user_id"]
+
+	if len(userId) < 1 {
+		module.Log.Error("User ID missing")
+		return nano.JSONResponse(400, hash{
+			"error": "User id is missing",
+		}), nil
+	}
+
+	ldapConnection, err := DialandBind()
+	if err != nil {
+		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), err
+	}
+
+	defer ldapConnection.Close()
+	searchRequest := ldap.NewSearchRequest(
+		conf.Ou,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectCategory=person)(mail="+userId+"))",
+		[]string{"userAccountControl", "cn"},
+		nil,
+	)
+
+	sr, err := ldapConnection.Search(searchRequest)
+	if err != nil {
+		module.Log.Error("Searching error: " + err.Error())
+		return nil, errors.New("Searching error: " + err.Error())
+	}
+
+	if len(sr.Entries) != 1 {
+		module.Log.Error("Id does not match any user")
+		// means entered mail was not valid, or several user have the same mail
+		return nano.JSONResponse(404, hash{
+			"error": "Id does not match any user",
+		}), nil
+	}
+	var cn string
+	for _, entry := range sr.Entries {
+		cn = entry.GetAttributeValue("cn")
+	}
+	del := ldap.NewDelRequest("cn="+cn+","+conf.Ou, []ldap.Control{})
+	err = ldapConnection.Del(del)
+	if err != nil {
+		module.Log.Error("Delete  error: " + err.Error())
+		return nil, errors.New("Delete error: " + err.Error())
 	}
 
 	return nano.JSONResponse(200, hash{
@@ -630,6 +619,7 @@ func main() {
 	module.Get("/ldap/users", listUsers)
 	module.Put("/ldap/users/:user_id", updatePassword)
 	module.Post("/ldap/users/:user_id/disable", forcedisableAccount)
+	module.Delete("/ldap/users/:user_id", deleteUser)
 
 	module.Listen()
 }
