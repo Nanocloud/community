@@ -380,8 +380,8 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func disableADUser(id string) error {
-	_, err := module.JSONRequest("POST", "/ldap/users/"+id+"/disable", hash{}, nil)
+func deleteADUser(id string) error {
+	_, err := module.JSONRequest("DELETE", "/ldap/users/"+id, hash{}, nil)
 	return err
 
 }
@@ -416,7 +416,7 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	err = disableADUser(userId)
+	err = deleteADUser(userId)
 	if err != nil {
 		module.Log.Error("Error while deleting user from Active Directory: ", err)
 		return nano.JSONResponse(500, hash{
