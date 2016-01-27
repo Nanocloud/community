@@ -52,7 +52,9 @@
 				"6092a6b1-209f-ac2e-98bd-7e94059d7a49",
 				"957c5206-0bb4-55e9-a356-ca963d63aa46",
 				"a471b02d-2e93-65a2-046c-8a5e299b68ab",
-				"fe997118-6e5b-6c37-a7fe-c0e9c8558798"
+				"fe997118-6e5b-6c37-a7fe-c0e9c8558798",
+				"5483653d-4576-388e-3420-354f90490408",
+				"3d229a2c-57b9-71e8-79d2-e392d63f87ad"
 			],
 			"owner": "275951",
 			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5"
@@ -258,6 +260,28 @@
 			"collectionRequestId": "42dbd0ac-c44c-5a10-48e1-ef75f652851c"
 		},
 		{
+			"id": "3d229a2c-57b9-71e8-79d2-e392d63f87ad",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/ldap/users/UNKNOWN_USER",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 404\"] = responseCode.code === 404;\n\nvar res = JSON.parse(responseBody);\ntests[\"Error field is present\"] = (typeof res.error) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1453888703341,
+			"name": "Delete invalid user",
+			"description": "",
+			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5",
+			"responses": [],
+			"isFromCollection": true,
+			"collectionRequestId": "7e26a0b5-ae7a-80a2-c19c-fc6bed3de3a7",
+			"folder": "f38d42e5-9f67-baa9-9678-aaea95f18293"
+		},
+		{
 			"id": "426124b6-9c77-cf3b-5865-d269376f6595",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
 			"url": "{{PROTOCOL}}://{{HOST}}/api/history",
@@ -380,6 +404,28 @@
 			"helperAttributes": {},
 			"folder": "954c3087-ed15-aa5f-700b-5599bc91c3da",
 			"rawModeData": "{\n    \"path\": \"C:/Windows/System32/calc.exe\"\n}"
+		},
+		{
+			"id": "5483653d-4576-388e-3420-354f90490408",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/ldap/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Error field is present\"] = (typeof res.success) === \"boolean\";\ntests[\"Deletion succeeded\"] = res.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1453888825915,
+			"name": "Delete valid  user",
+			"description": "",
+			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5",
+			"responses": [],
+			"isFromCollection": true,
+			"collectionRequestId": "2d8a5ea9-ef25-f9f0-46ea-b94f4d7432d3",
+			"folder": "f38d42e5-9f67-baa9-9678-aaea95f18293"
 		},
 		{
 			"id": "6092a6b1-209f-ac2e-98bd-7e94059d7a49",
