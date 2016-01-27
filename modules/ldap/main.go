@@ -396,7 +396,6 @@ func createUser(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
-	// if no disabled accounts were found, a real new user is created
 	res, err := createNewUser(tconf, params, count, ldapConnection)
 	if err != nil {
 		module.Log.Error(err.Error())
@@ -417,7 +416,7 @@ func forcedisableAccount(req nano.Request) (*nano.Response, error) {
 
 	ldapConnection, err := DialandBind()
 	if err != nil {
-		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		module.Log.Error("Error while connecting to Active Directory: " + err.Error())
 		return nano.JSONResponse(400, hash{
 			"error": err.Error(),
 		}), err
@@ -474,7 +473,7 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 
 	ldapConnection, err := DialandBind()
 	if err != nil {
-		module.Log.Error("Error while connection to Active Directory: " + err.Error())
+		module.Log.Error("Error while connecting to Active Directory: " + err.Error())
 		return nano.JSONResponse(400, hash{
 			"error": err.Error(),
 		}), err
