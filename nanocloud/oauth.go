@@ -23,6 +23,7 @@
 package main
 
 import (
+	"fmt"
 	"encoding/json"
 	"github.com/Nanocloud/nano"
 	"github.com/Nanocloud/oauth"
@@ -76,6 +77,7 @@ func (c oauthConnector) AuthenticateUser(username, password string) (interface{}
 }
 
 func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{}, error) {
+	
 	rows, err := db.Query(
 		`SELECT user_id
 		FROM oauth_access_tokens
@@ -99,6 +101,10 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 	}
 
 	res, err := module.Request("GET", "/users/"+userId, "", nil, nil)
+	fmt.Println(">-----")
+	fmt.Println(res)
+	fmt.Println(err)
+	fmt.Println("-----<")
 	if err != nil {
 		module.Log.Error(err)
 		return nil, err

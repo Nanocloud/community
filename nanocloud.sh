@@ -37,9 +37,9 @@ else
 fi
 
 WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
-if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
-  echo "$(date "${DATE_FMT}") Local Windows image found, copying"
-  cp "${WINDOWS_QCOW2_FILENAME}" "${CURRENT_DIR}/installation_dir/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2"
-fi
+# if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
+#   echo "$(date "${DATE_FMT}") Local Windows image found, copying"
+#   cp "${WINDOWS_QCOW2_FILENAME}" "${CURRENT_DIR}/installation_dir/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2"
+# fi
 
 bash $NANOCLOUD_DIR/scripts/start.sh ${COMMUNITY_CHANNEL}

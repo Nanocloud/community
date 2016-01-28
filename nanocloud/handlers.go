@@ -24,6 +24,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Nanocloud/oauth"
 	"github.com/labstack/echo"
 	"io/ioutil"
@@ -32,6 +33,7 @@ import (
 )
 
 func getMeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Bonjour la famille")
 	user := oauth.GetUserOrFail(w, r)
 	if user != nil {
 		b, err := json.Marshal(user)
