@@ -23,54 +23,42 @@
 package main
 
 import (
-	"encoding/base64"
+	"database/sql"
 	"encoding/json"
-	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/Nanocloud/nano"
 )
 
-const (
-	windowsUserPassword = "12345abcDEF+"
-)
-
-type GuacamoleXMLConfigs struct {
-	XMLName xml.Name             `xml:configs`
-	Config  []GuacamoleXMLConfig `xml:"config"`
-}
-
-type GuacamoleXMLConfig struct {
-	XMLName  xml.Name            `xml:config`
-	Name     string              `xml:"name,attr"`
-	Protocol string              `xml:"protocol,attr"`
-	Params   []GuacamoleXMLParam `xml:"param"`
-}
-
-type GuacamoleXMLParam struct {
-	ParamName  string `xml:"name,attr"`
-	ParamValue string `xml:"value,attr"`
-}
+var db *sql.DB
 
 type Connection struct {
-	Hostname       string `xml:"hostname"`
-	Port           string `xml:"port"`
-	Username       string `xml:"username"`
-	Password       string `xml:"password"`
-	RemoteApp      string `xml:"remote-app"`
-	ConnectionName string
+	Hostname  string `json:"hostname"`
+	Port      string `json:"port"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	RemoteApp string `json:"remote_app"`
+	Protocol  string `json:"protocol"`
 }
 
 type ApplicationParams struct {
+	Id             int    `json:"id"`
+	CollectionName string `json:"collection_name"`
+	Alias          string `json:"alias"`
+	DisplayName    string `json:"display_name"`
+	FilePath       string `json:"file_path"`
+}
+
+type ApplicationParamsWin struct {
+	Id             int
 	CollectionName string
 	Alias          string
 	DisplayName    string
-	IconContents   []uint8
 	FilePath       string
 }
 
@@ -101,286 +89,114 @@ func getUsers() ([]nano.User, error) {
 // Does:
 // - Create all connections in DB for a particular user in order to use all applications
 // ========================================================================================================================
-func createConnections() error {
-
-	type configs GuacamoleXMLConfigs
-	var (
-		applications    []ApplicationParams
-		connections     configs
-		executionServer string
-	)
+func getConnections(req nano.Request) (*nano.Response, error) {
 
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
+	var connections []Connection
 
-	cmd := exec.Command(
-		"sshpass", "-p", conf.Password,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-p", conf.SSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			conf.User,
-			conf.Server,
-		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
+	rows, err := db.Query(
+		`SELECT alias
+	FROM apps`,
 	)
-	response, err := cmd.CombinedOutput()
+
 	if err != nil {
-		module.Log.Error("Failed to execute sshpass command ", err, string(response))
-		return err
+		module.Log.Error(err.Error())
+		return nil, err
 	}
 
-	if []byte(response)[0] != []byte("[")[0] {
-		response = []byte(fmt.Sprintf("[%s]", string(response)))
-	}
-	json.Unmarshal(response, &applications)
-	for _, application := range applications {
-		application.IconContents = []byte(base64.StdEncoding.EncodeToString(application.IconContents))
-	}
+	defer rows.Close()
 
-	//	users, _ := g_Db.GetUsers()
 	users, err := getUsers()
 	if err != nil {
-		return err
+		return nano.JSONResponse(500, hash{
+			"error": "Unable to retrieve users" + err.Error(),
+		}), nil
 	}
 
-	for _, user := range users {
-		for _, application := range applications {
-			if application.Alias == "hapticPowershell" {
+	for rows.Next() {
+		for _, user := range users {
+			module.Log.Error(user)
+			appParam := ApplicationParams{}
+
+			rows.Scan(
+				&appParam.Alias,
+			)
+
+			var conn Connection
+			if count := len(conf.ExecutionServers); count > 0 {
+				conn.Hostname = conf.ExecutionServers[rand.Intn(count)]
+			} else {
+				conn.Hostname = conf.Server
+			}
+			conn.Port = conf.RDPPort
+			conn.Protocol = conf.Protocol
+			if user.Sam != "" && appParam.Alias != "hapticPowershell" && appParam.Alias != "" {
+				conn.Username = user.Sam
+				conn.Password = user.WindowsPassword
+			} else {
 				continue
 			}
-
-			// Select randomly execution machine from availbale execution machines
-			if count := len(conf.ExecutionServers); count > 0 {
-				executionServer = conf.ExecutionServers[rand.Intn(count)]
-			} else {
-				executionServer = conf.Server
-			}
-
-			connections.Config = append(connections.Config, GuacamoleXMLConfig{
-				Name:     fmt.Sprintf("%s_%s", application.Alias, user.Email),
-				Protocol: "rdp",
-				Params: []GuacamoleXMLParam{
-					GuacamoleXMLParam{
-						ParamName:  "hostname",
-						ParamValue: executionServer,
-					},
-					GuacamoleXMLParam{
-						ParamName:  "port",
-						ParamValue: conf.RDPPort,
-					},
-					GuacamoleXMLParam{
-						ParamName:  "username",
-						ParamValue: user.Sam,
-					},
-					GuacamoleXMLParam{
-						ParamName:  "password",
-						ParamValue: user.WindowsPassword,
-					},
-					GuacamoleXMLParam{
-						ParamName:  "remote-app",
-						ParamValue: fmt.Sprintf("||%s", application.Alias),
-					},
-					GuacamoleXMLParam{
-						ParamName:  "security",
-						ParamValue: "nla",
-					},
-					GuacamoleXMLParam{
-						ParamName:  "ignore-cert",
-						ParamValue: "true",
-					},
-				},
-			})
+			conn.RemoteApp = "||" + appParam.Alias
+			connections = append(connections, conn)
 		}
 	}
 
-	connections.Config = append(connections.Config, GuacamoleXMLConfig{
-		Name:     "hapticDesktop",
-		Protocol: "rdp",
-		Params: []GuacamoleXMLParam{
-			GuacamoleXMLParam{
-				ParamName:  "hostname",
-				ParamValue: conf.Server,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "port",
-				ParamValue: conf.RDPPort,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "username",
-				ParamValue: conf.User,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "password",
-				ParamValue: conf.Password,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "security",
-				ParamValue: "nla",
-			},
-			GuacamoleXMLParam{
-				ParamName:  "ignore-cert",
-				ParamValue: "true",
-			},
-		},
+	connections = append(connections, Connection{
+		Hostname:  conf.Server,
+		Port:      conf.RDPPort,
+		Protocol:  conf.Protocol,
+		Username:  conf.User,
+		Password:  conf.Password,
+		RemoteApp: "",
 	})
-	connections.Config = append(connections.Config, GuacamoleXMLConfig{
-		Name:     "hapticPowershell",
-		Protocol: "rdp",
-		Params: []GuacamoleXMLParam{
-			GuacamoleXMLParam{
-				ParamName:  "hostname",
-				ParamValue: conf.Server,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "port",
-				ParamValue: conf.RDPPort,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "username",
-				ParamValue: conf.User,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "password",
-				ParamValue: conf.Password,
-			},
-			GuacamoleXMLParam{
-				ParamName:  "remote-app",
-				ParamValue: "||hapticPowershell",
-			},
-			GuacamoleXMLParam{
-				ParamName:  "security",
-				ParamValue: "nla",
-			},
-			GuacamoleXMLParam{
-				ParamName:  "ignore-cert",
-				ParamValue: "true",
-			},
-		},
+	connections = append(connections, Connection{
+		Hostname:  conf.Server,
+		Port:      conf.RDPPort,
+		Protocol:  conf.Protocol,
+		Username:  conf.User,
+		Password:  conf.Password,
+		RemoteApp: "||hapticPowershell",
 	})
-
-	output, err := xml.MarshalIndent(connections, "  ", "    ")
-	if err != nil {
-		module.Log.Error("xml Marshalling of connections failed: ", err)
-		return err
-	}
-
-	if err = ioutil.WriteFile(conf.XMLConfigurationFile, output, 0777); err != nil {
-		module.Log.Error("Failed to save connections in ", conf.XMLConfigurationFile, " params: ", err)
-		return err
-	}
-
-	return nil
+	return nano.JSONResponse(200, connections), nil
 }
 
-// ========================================================================================================================
-// Procedure: listApplications
-//
-// Does:
-// - Return list of applications published by Active Directory
-// ========================================================================================================================
 func listApplications(req nano.Request) (*nano.Response, error) {
-	var (
-		guacamoleConfigs GuacamoleXMLConfigs
-		connections      []Connection
-		bytesRead        []byte
-		err              error
+
+	var applications []ApplicationParams
+	rows, err := db.Query(
+		`SELECT id, collection_name,
+	alias, display_name,
+	file_path
+	FROM apps`,
 	)
 
-	err = createConnections()
 	if err != nil {
+		module.Log.Error(err.Error())
 		return nil, err
 	}
 
-	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
-		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
-		return nil, err
+	defer rows.Close()
+
+	for rows.Next() {
+		appParam := ApplicationParams{}
+
+		rows.Scan(
+			&appParam.Id,
+			&appParam.CollectionName,
+			&appParam.Alias,
+			&appParam.DisplayName,
+			&appParam.FilePath,
+		)
+		applications = append(applications, appParam)
+
 	}
 
-	err = xml.Unmarshal(bytesRead, &guacamoleConfigs)
-	if err != nil {
-		return nil, err
+	if len(applications) == 0 {
+		applications = []ApplicationParams{}
 	}
 
-	for _, config := range guacamoleConfigs.Config {
-		var connection Connection
-
-		for _, param := range config.Params {
-			switch true {
-			case param.ParamName == "hostname":
-				connection.Hostname = param.ParamValue
-			case param.ParamName == "port":
-				connection.Port = param.ParamValue
-			case param.ParamName == "username":
-				connection.Username = param.ParamValue
-			case param.ParamName == "password":
-				connection.Password = param.ParamValue
-			case param.ParamName == "remote-app":
-				connection.RemoteApp = param.ParamValue
-			}
-		}
-		connection.ConnectionName = config.Name
-
-		if connection.RemoteApp == "" || connection.RemoteApp == "||hapticPowershell" {
-			continue
-		}
-
-		connections = append(connections, connection)
-	}
-	if len(connections) == 0 {
-		connections = []Connection{}
-	}
-	return nano.JSONResponse(200, connections), nil
-}
-
-func listAllApplications(req nano.Request) (*nano.Response, error) {
-
-	module.Log.Error("listApplication");
-	var (
-		guacamoleConfigs GuacamoleXMLConfigs
-		connections      []Connection
-		bytesRead        []byte
-		err              error
-	)
-
-	err = createConnections()
-	if err != nil {
-		return nil, err
-	}
-
-	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
-		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
-		return nil, err
-	}
-
-	module.Log.Error("Read bytes :", string(bytesRead));
-	err = xml.Unmarshal(bytesRead, &guacamoleConfigs)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, config := range guacamoleConfigs.Config {
-		var connection Connection
-
-		for _, param := range config.Params {
-			switch true {
-			case param.ParamName == "hostname":
-				connection.Hostname = param.ParamValue
-			case param.ParamName == "port":
-				connection.Port = param.ParamValue
-			case param.ParamName == "username":
-				connection.Username = param.ParamValue
-			case param.ParamName == "password":
-				connection.Password = param.ParamValue
-			case param.ParamName == "remote-app":
-				connection.RemoteApp = param.ParamValue
-			}
-		}
-		connection.ConnectionName = config.Name
-
-		connections = append(connections, connection)
-	}
-	return nano.JSONResponse(200, connections), nil
+	return nano.JSONResponse(200, applications), nil
 }
 
 // ========================================================================================================================
@@ -390,60 +206,46 @@ func listAllApplications(req nano.Request) (*nano.Response, error) {
 // - Return list of applications available for a particular SAM account
 // ========================================================================================================================
 func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
-	var (
-		guacamoleConfigs GuacamoleXMLConfigs
-		connections      []Connection
-		bytesRead        []byte
-		err              error
+
+	var applications []ApplicationParams
+	rows, err := db.Query(
+		`SELECT id, collection_name,
+	alias, display_name,
+	file_path
+	FROM apps`,
 	)
 
-	err = createConnections()
 	if err != nil {
-		module.Log.Error("Connection to windows failed: ", err.Error())
+		module.Log.Error(err.Error())
 		return nil, err
 	}
 
-	if bytesRead, err = ioutil.ReadFile(conf.XMLConfigurationFile); err != nil {
-		module.Log.Error("Failed to read connections params in XMLConfigurationFile: ", err)
-		return nil, err
-	}
+	defer rows.Close()
 
-	err = xml.Unmarshal(bytesRead, &guacamoleConfigs)
-	if err != nil {
-		return nil, err
-	}
+	for rows.Next() {
+		appParam := ApplicationParams{}
 
-	for _, config := range guacamoleConfigs.Config {
-		var connection Connection
+		rows.Scan(
+			&appParam.Id,
+			&appParam.CollectionName,
+			&appParam.Alias,
+			&appParam.DisplayName,
+			&appParam.FilePath,
+		)
 
-		if connection.ConnectionName == "hapticPowershell" {
-			continue
+		//TODO : ONLY APPEND IF USER GROUP HAS ACCES TO THE APP
+		if appParam.Alias != "hapticPowershell" && appParam.DisplayName != "Desktop" {
+			applications = append(applications, appParam)
 		}
 
-		connection.ConnectionName = config.Name
-		for _, param := range config.Params {
-			switch true {
-			case param.ParamName == "hostname":
-				connection.Hostname = param.ParamValue
-			case param.ParamName == "port":
-				connection.Port = param.ParamValue
-			case param.ParamName == "username":
-				connection.Username = param.ParamValue
-			case param.ParamName == "password":
-				connection.Password = param.ParamValue
-			case param.ParamName == "remote-app":
-				connection.RemoteApp = param.ParamValue
-			}
-		}
+	}
 
-		if connection.Username == req.User.Sam {
-			connections = append(connections, connection)
-		}
+	if len(applications) == 0 {
+		applications = []ApplicationParams{}
 	}
-	if len(connections) == 0 {
-		connections = []Connection{}
-	}
-	return nano.JSONResponse(200, connections), nil
+
+	return nano.JSONResponse(200, applications), nil
+
 }
 
 // ========================================================================================================================
@@ -467,6 +269,12 @@ func unpublishApp(Alias string) error {
 	response, err := cmd.CombinedOutput()
 	if err != nil {
 		module.Log.Error("Failed to execute sshpass command to unpublish an app", err, string(response))
+		return err
+	}
+	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
+	if err != nil {
+		module.Log.Error("delete from postgres failed: ", err)
+		return err
 	}
 	return err
 }
@@ -490,6 +298,65 @@ func syncUploadedFile(Filename string) {
 	}
 }*/
 
+func checkPublishedApps() {
+	for {
+		time.Sleep(5 * time.Second)
+		var applications []ApplicationParamsWin
+		var apps []ApplicationParams
+		cmd := exec.Command(
+			"sshpass", "-p", conf.Password,
+			"ssh", "-o", "StrictHostKeyChecking=no",
+			"-p", conf.SSHPort,
+			fmt.Sprintf(
+				"%s@%s",
+				conf.User,
+				conf.Server,
+			),
+			"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
+		)
+		response, err := cmd.CombinedOutput()
+		if err != nil {
+			module.Log.Error("Failed to execute sshpass command ", err, string(response))
+			continue
+		}
+
+		err = json.Unmarshal(response, &applications)
+		if err != nil {
+			continue
+		}
+		for _, app := range applications {
+			apps = append(apps, ApplicationParams{
+				CollectionName: app.CollectionName,
+				DisplayName:    app.DisplayName,
+				Alias:          app.Alias,
+				FilePath:       app.FilePath,
+			})
+		}
+
+		for _, application := range apps {
+			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
+				_, err := db.Query(
+					`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath)
+				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+					module.Log.Error("Error inserting app into postgres: ", err.Error())
+				}
+			}
+		}
+		_, err = db.Query(
+			`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, "", "", "Desktop", "")
+		if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+			module.Log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
+		}
+
+	}
+}
+
 func publishApp(path string) error {
 	cmd := exec.Command(
 		"sshpass", "-p", conf.Password,
@@ -507,4 +374,52 @@ func publishApp(path string) error {
 		module.Log.Error("Failed to execute sshpass command to publish an app", err, string(response))
 	}
 	return err
+}
+
+func dbConnect() {
+
+	var err error
+
+	for try := 0; try < 10; try++ {
+		db, err = sql.Open("postgres", conf.DatabaseURI)
+		if err == nil {
+			return
+		}
+		time.Sleep(time.Second * 5)
+	}
+
+	module.Log.Fatalf("Cannot connect to Postgres Database: %s", err)
+}
+
+// Connects to the postgres databse
+func setupDb() error {
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'apps'`)
+	if err != nil {
+		module.Log.Error(err.Error())
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		module.Log.Info("apps table already set up")
+		return nil
+	}
+	rows, err = db.Query(
+		`CREATE TABLE apps (
+			id	SERIAL PRIMARY KEY,
+			collection_name		varchar(36),
+			alias		varchar(36) UNIQUE,
+			display_name		varchar(36),
+			file_path		 varchar(255)
+		);`)
+	if err != nil {
+		module.Log.Errorf("Unable to create apps table: %s", err)
+		return err
+	}
+
+	rows.Close()
+	return nil
 }

@@ -24,12 +24,11 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/Nanocloud/nano"
+	_ "github.com/lib/pq"
 )
 
 var module nano.Module
@@ -43,6 +42,8 @@ var conf struct {
 	Password             string
 	WindowsDomain        string
 	XMLConfigurationFile string
+	DatabaseURI          string
+	Protocol             string
 }
 
 type hash map[string]interface{}
@@ -109,6 +110,7 @@ func main() {
 	module = nano.RegisterModule("apps")
 
 	conf.User = env("USER", "Administrator")
+	conf.Protocol = env("PROTOCOL", "RDP")
 	conf.SSHPort = env("SSH_PORT", "22")
 	conf.RDPPort = env("RDP_PORT", "3389")
 	conf.Server = env("SERVER", "62.210.56.76")
@@ -116,18 +118,16 @@ func main() {
 	conf.XMLConfigurationFile = env("XML_CONFIGURATION_FILE", "conf.xml")
 	conf.WindowsDomain = env("WINDOWS_DOMAIN", "intra.localdomain.com")
 	conf.ExecutionServers = strings.Split(env("EXECUTION_SERVERS", "62.210.56.76"), ",")
+	conf.DatabaseURI = env("DATABASE_URI", "postgres://localhost/nanocloud?sslmode=disable")
+
+	dbConnect()
+	setupDb()
 
 	module.Get("/apps", listApplications)
-	module.Get("/apps/all", listAllApplications)
 	module.Delete("/apps/:app_id", unpublishApplication)
 	module.Get("/apps/me", listApplicationsForSamAccount)
 	module.Post("/apps", publishApplication)
-	err := errors.New("")
-	for err != nil {
-		err = createConnections()
-		module.Log.Error(err)
-		time.Sleep(time.Second * 3)
-	}
-
+	module.Get("/apps/connections", getConnections)
+	go checkPublishedApps()
 	module.Listen()
 }
