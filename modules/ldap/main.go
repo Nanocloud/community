@@ -25,13 +25,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
-	"os/exec"
 	"strconv"
-	"strings"
-	"time"
 	"unicode"
 	"unicode/utf16"
 
@@ -517,69 +513,6 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func getCert(server url.URL) error {
-	err := os.MkdirAll("/opt/conf", 755)
-	if err != nil {
-		return err
-	}
-
-	if server.User == nil {
-		return errors.New("No authentication informations provided")
-	}
-
-	hostname := strings.SplitN(server.Host, ":", 2)
-
-	password, ok := server.User.Password()
-	if !ok {
-		return errors.New("Password not set")
-	}
-	cmd := exec.Command(
-		"sshpass", "-p", password,
-		"scp", "-P", hostname[1],
-		"-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		fmt.Sprintf(
-			"%s@%s:%s",
-			server.User.Username(),
-			hostname[0],
-			"/cygdrive/c/users/administrator/ad2012.cer",
-		),
-		"/opt/conf",
-	)
-	response, err := cmd.CombinedOutput()
-	if err != nil {
-		module.Log.Error("Failed to execute script ", err, string(response))
-		return err
-	}
-	return nil
-}
-
-func genLdaprc(host string) error {
-	err := os.MkdirAll("/etc/ldap", 755)
-	if err != nil {
-		return err
-	}
-
-	base := env("BASE", "DC=intra,DC=localdomain,DC=com")
-	bindDn := env("BIND_DN", "CN=Administrator,DC=intra,DC=localdomain,DC=com")
-	tlsCacert := env("TLS_CACERT", "/opt/conf/ad2012.cer")
-
-	s := fmt.Sprintf(`
-BASE %s
-BINDDN %s
-URI %s
-TLS_CACERT %s
-TLS_REQCERT never
-`,
-		base,
-		bindDn,
-		host,
-		tlsCacert,
-	)
-
-	return ioutil.WriteFile("/etc/ldap/ldaprc", []byte(s), 0644)
-}
-
 func main() {
 	conf.Username = env("LDAP_USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
 	conf.Password = env("LDAP_PASSWORD", "Nanocloud123+")
@@ -590,29 +523,9 @@ func main() {
 		panic(err)
 	}
 
-	sshServer, err := url.Parse(env("SSH_SERVER_URI", "ssh://Administrator:Nanocloud123+@172.17.0.1:6001"))
-	if err != nil {
-		panic(err)
-	}
-
 	conf.LDAPServer = *ldapServer
 
 	module = nano.RegisterModule("ldap")
-
-	genLdaprc(ldapServer.Host)
-
-	try := 0
-	for try = 0; try < 10; try++ {
-		err := getCert(*sshServer)
-		if err == nil {
-			break
-		}
-		time.Sleep(time.Second * 5)
-	}
-
-	if try == 10 {
-		module.Log.Fatal("Unable to connect to windows")
-	}
 
 	module.Post("/ldap/users", createUser)
 	module.Get("/ldap/users", listUsers)

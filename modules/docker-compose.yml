@@ -103,13 +103,11 @@ ldap-module:
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - SSH_SERVER_URI=ssh://Administrator:Nanocloud123+@iaas-module:1119
   - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
   - BASE=DC=intra,DC=localdomain,DC=com
   - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
   - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
   - PASSWORD=
-  - TLS_CACERT=/opt/conf/ad2012.cer
  restart: always
  container_name: "ldap-module"
 
