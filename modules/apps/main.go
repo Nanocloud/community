@@ -110,7 +110,7 @@ func main() {
 	module = nano.RegisterModule("apps")
 
 	conf.User = env("USER", "Administrator")
-	conf.Protocol = env("PROTOCOL", "RDP")
+	conf.Protocol = env("PROTOCOL", "rdp")
 	conf.SSHPort = env("SSH_PORT", "22")
 	conf.RDPPort = env("RDP_PORT", "3389")
 	conf.Server = env("SERVER", "62.210.56.76")
