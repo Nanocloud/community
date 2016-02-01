@@ -11,7 +11,6 @@
   "dependencies": {
     "requirejs": "2.x",
     "jquery": "2.x",
-    "lodash": "3.x",
     
     "angular": "1.4.x",
     "angular-animate": "1.4.x",
