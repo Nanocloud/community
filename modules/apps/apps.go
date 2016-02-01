@@ -172,7 +172,7 @@ func listApplications(req nano.Request) (*nano.Response, error) {
 	)
 
 	if err != nil {
-		module.Log.Error(err.Error())
+		module.Log.Error("Connection to postgres failed: ", err.Error())
 		return nil, err
 	}
 
@@ -216,7 +216,7 @@ func listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
 	)
 
 	if err != nil {
-		module.Log.Error(err.Error())
+		module.Log.Error("Connection to postgres failed: ", err.Error())
 		return nil, err
 	}
 
