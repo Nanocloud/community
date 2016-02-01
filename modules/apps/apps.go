@@ -44,6 +44,7 @@ type Connection struct {
 	Password  string `json:"password"`
 	RemoteApp string `json:"remote_app"`
 	Protocol  string `json:"protocol"`
+	AppName   string `json:"app_name"`
 }
 
 type ApplicationParams struct {
@@ -138,6 +139,7 @@ func getConnections(req nano.Request) (*nano.Response, error) {
 				continue
 			}
 			conn.RemoteApp = "||" + appParam.Alias
+			conn.AppName = appParam.Alias
 			connections = append(connections, conn)
 		}
 	}
@@ -149,6 +151,7 @@ func getConnections(req nano.Request) (*nano.Response, error) {
 		Username:  conf.User,
 		Password:  conf.Password,
 		RemoteApp: "",
+		AppName:   "hapticDesktop",
 	})
 	connections = append(connections, Connection{
 		Hostname:  conf.Server,
@@ -157,6 +160,7 @@ func getConnections(req nano.Request) (*nano.Response, error) {
 		Username:  conf.User,
 		Password:  conf.Password,
 		RemoteApp: "||hapticPowershell",
+		AppName:   "hapticPowershell",
 	})
 	return nano.JSONResponse(200, connections), nil
 }
