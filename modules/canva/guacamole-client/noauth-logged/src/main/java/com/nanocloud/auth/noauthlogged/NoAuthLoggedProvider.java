@@ -184,7 +184,7 @@ public class NoAuthLoggedProvider extends SimpleAuthenticationProvider {
 
         String token = login();
 
-        URL myUrl = new URL("http://" + hostname + ":" + port + "/api/apps/all");
+        URL myUrl = new URL("http://" + hostname + ":" + port + "/api/apps/connections");
         HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
 
         urlConn.setInstanceFollowRedirects(false);
@@ -211,18 +211,18 @@ public class NoAuthLoggedProvider extends SimpleAuthenticationProvider {
             JSONObject connection = appList.getJSONObject(i);
             GuacamoleConfiguration config = new GuacamoleConfiguration();
 
-            config.setProtocol("rdp");
-            config.setParameter("hostname", connection.getString("Hostname"));
-            config.setParameter("port", connection.getString("Port"));
-            config.setParameter("username", connection.getString("Username"));
-            config.setParameter("password", connection.getString("Password"));
+            config.setProtocol(connection.getString("protocol"));
+            config.setParameter("hostname", connection.getString("hostname"));
+            config.setParameter("port", connection.getString("port"));
+            config.setParameter("username", connection.getString("username"));
+            config.setParameter("password", connection.getString("password"));
             config.setParameter("security", "nla");
             config.setParameter("ignore-cert", "true");
-            if (!connection.has("RemoteApp")) {
-                config.setParameter("remote-app", connection.getString("RemoteApp"));
+            if (connection.has("remote_app")) {
+                config.setParameter("remote-app", connection.getString("remote_app"));
             }
 
-            configs.put(connection.getString("ConnectionName"), config);
+            configs.put(connection.getString("app_name"), config);
         }
 
         return configs;
