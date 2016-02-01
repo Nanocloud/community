@@ -3,8 +3,6 @@ MAINTAINER \
   William Riancho <william.riancho@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
-
-RUN apt-get update && apt-get -y install libldap2-dev sshpass
 RUN mkdir -p /go/build/ldap
 
 COPY ./ /go/build/ldap
