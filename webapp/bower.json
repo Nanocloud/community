@@ -21,7 +21,7 @@
     "angular-ui-router": "0.2.x",
     "ui-router-extras": "0.1.x",
     
-    "angular-material": "1.x",
+    "angular-material": "1.0.3",
     "angular-material-icons": "latest",
     "angular-ui-grid": "3.x",
     "ng-flow": "2.x"
