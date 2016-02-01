@@ -15,6 +15,7 @@
 					this service
 				</p>
 			</div>
+      <i ng-if="service.Status === 'booting'" class="fa fa-spinner fa-pulse fa-3x"></i>
 		</md-list-item>
 
 		<md-list-item class="md-3-line" ng-if="servicesCtrl.servicesSvc.windowsReady === false" ng-click="servicesCtrl.startWindowsDownload($event)">
