@@ -58,6 +58,7 @@ apps-module:
  environment:
   - ENV=production
   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
   - USER=Administrator
   - SSH_PORT=1119
   - RDP_PORT=3389
