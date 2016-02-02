@@ -44,7 +44,7 @@ else
 fi
 
 NANOCLOUD_OUTPUT="${CURRENT_DIR}/modules/build_output"
-if [ -f "${NANOCLOUD_OUTPUT}" -o "${NANOCLOUD_SKIP}" = "true" ]; then
+if [ "${NANOCLOUD_SKIP}" = "true" ]; then
     echo "$(date "${DATE_FMT}") Skip Nanocloud build"
 else
     echo "# Building Nanocloud"
