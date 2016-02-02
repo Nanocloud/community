@@ -57,12 +57,12 @@ export class HistorySvc {
 					for (let stat of h) {
 						let s: IHistoryAtom = {
 								StartDate: stat.StartDate,
-								EndDate: stat.EndDate,
+								EndDate: stat.EndDate
 						};
 						let hist2: IHistoryInfo = {
 							UserId: stat.UserId,
 							ConnectionId: stat.ConnectionId,
-							Stats: [s],
+							Stats: [s]
 						};
 						hist.push(hist2);
 					}
