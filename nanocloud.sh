@@ -32,6 +32,8 @@ COMMAND=${1}
 
 if [ "${COMMAND}" = "indiana" ]; then
     COMMUNITY_CHANNEL="indiana"
+elif [ "${COMMAND}" = "dev" ]; then
+    COMMUNITY_CHANNEL="dev"
 else
     COMMUNITY_CHANNEL="stable"
 fi
