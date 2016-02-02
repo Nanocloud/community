@@ -9,10 +9,10 @@ RUN apt-get update && \
 
 RUN mkdir -p /go/build/iaas
 
-COPY ./ /go/build/iaas
+COPY ./ /go/src/github.com/Nanocloud/community/modules/iaas
 
-WORKDIR /go/build/iaas
-ENV GOBIN $GOPATH/build/iaas
+WORKDIR /go/src/github.com/Nanocloud/community/modules/iaas
+
 RUN go get ./... && go build
 
 CMD ["./iaas"]

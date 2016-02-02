@@ -22,8 +22,8 @@ package main
 
 import (
 	"os"
-	"strings"
 
+	"github.com/Nanocloud/community/modules/iaas/lib/iaas"
 	"github.com/Nanocloud/nano"
 )
 
@@ -38,138 +38,64 @@ type Configuration struct {
 	Password string
 }
 
-type VmInfo struct {
-	Ico         string
-	Name        string
-	DisplayName string
-	Status      string
-	Locked      bool
-}
-
 type hash map[string]interface{}
 
 type VmName struct {
 	Name string
 }
 
-var conf Configuration
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
+type handler struct {
+	iaasCon *iaas.Iaas
 }
 
-func ListRunningVm(req nano.Request) (*nano.Response, error) {
-	var (
-		response struct {
-			DownloadingVmNames []string
-			AvailableVMNames   []string
-			BootingVmNames     []string
-			RunningVmNames     []string
-		}
-		vmList      []VmInfo
-		icon        string
-		locked      bool
-		Status      string
-		displayName string
-	)
-	/*	jsonResponse, err := jsonRpcRequest(
-			fmt.Sprintf("%s:%s", conf.apiURL, conf.apiPort),
-			"Iaas.GetList",
-			nil,
-		)
-		if err != nil {
-			module.Log.Error("RPC Call to Iaas API failed: ", err)
-			return nil, err
-		}*/
+var conf Configuration
 
-	response, err := GetList()
+func (h *handler) ListRunningVm(req nano.Request) (*nano.Response, error) {
+	response, err := h.iaasCon.GetList()
 	if err != nil {
-		module.Log.Error("Unable to retrieve VM states list: " + err.Error())
+		module.Log.Error("Unable to retrieve VM states list")
 		return nano.JSONResponse(500, hash{
-			"error": "Unable te retrieve states of VMs",
+			"error": "Unable te retrieve states of VMs: " + err.Error(),
 		}), err
 	}
 
-	// TODO: Lots of Data aren't from iaas API
-	for _, vmName := range response.AvailableVMNames {
-
-		locked = false
-		if strings.Contains(vmName, "windows") {
-			if strings.Contains(vmName, "winapps") {
-				icon = "settings_applications"
-				displayName = "Execution environment"
-			} else {
-				icon = "windows"
-				displayName = "Windows Active Directory"
-			}
-		} else {
-			if strings.Contains(vmName, "drive") {
-				icon = "storage"
-				displayName = "Drive"
-			} else if strings.Contains(vmName, "licence") {
-				icon = "vpn_lock"
-				displayName = "Windows Licence service"
-			} else {
-				icon = "apps"
-				locked = true
-				displayName = "Haptic"
-			}
-		}
-
-		if stringInSlice(vmName, response.RunningVmNames) {
-			Status = "running"
-		} else if stringInSlice(vmName, response.BootingVmNames) {
-			Status = "booting"
-		} else if stringInSlice(vmName, response.DownloadingVmNames) {
-			Status = "download"
-		} else if stringInSlice(vmName, response.AvailableVMNames) {
-			Status = "available"
-		}
-		vmList = append(vmList, VmInfo{
-			Ico:         icon,
-			Name:        vmName,
-			DisplayName: displayName,
-			Status:      Status,
-			Locked:      locked,
-		})
-	}
-
+	vmList := h.iaasCon.CheckVMStates(response)
 	return nano.JSONResponse(200, vmList), nil
 }
 
-func DownloadVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) DownloadVm(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"vmname": req.Params["id"],
 	}
 
-	err := Download(params["vmname"])
-	if err != nil {
-		module.Log.Error("Unable to download the specified vm: " + err.Error())
-		return nano.JSONResponse(500, hash{
-			"error": "Unable to download the specified vm",
-		}), err
+	if params["vmname"] == "" {
+		return nano.JSONResponse(400, hash{
+			"error": "No VM ID provided",
+		}), nil
 	}
 
-	return nano.JSONResponse(200, hash{
+	h.iaasCon.Download(params["vmname"])
+	return nano.JSONResponse(202, hash{
 		"success": true,
 	}), nil
 }
 
-func StartVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) StartVm(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"name": req.Params["id"],
 	}
 
-	err := Start(params["name"])
+	if params["name"] == "" {
+		return nano.JSONResponse(400, hash{
+			"error": "No VM name provided",
+		}), nil
+	}
+
+	err := h.iaasCon.Start(params["name"])
 	if err != nil {
 		module.Log.Error("Error while starting vm: " + err.Error())
 		return nano.JSONResponse(500, hash{
-			"error": "Unable to start the specified vm",
+			"error": "Unable to start the specified vm: " + err.Error(),
 		}), err
 	}
 
@@ -178,16 +104,21 @@ func StartVm(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func StopVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) StopVm(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"Name": req.Params["id"],
 	}
 
-	err := Stop(params["Name"])
+	if params["Name"] == "" {
+		return nano.JSONResponse(400, hash{
+			"error": "No VM name provided",
+		}), nil
+	}
+
+	err := h.iaasCon.Stop(params["Name"])
 	if err != nil {
-		module.Log.Error("Error while stopping vm: " + err.Error())
 		return nano.JSONResponse(500, hash{
-			"error": "Unable to stop the specified vm",
+			"error": "Unable to stop the specified vm: " + err.Error(),
 		}), err
 	}
 
@@ -211,8 +142,8 @@ func main() {
 	conf.Password = env("PASSWORD", "ItsPass1942+")
 	conf.User = env("USER", "Administrator")
 	conf.SSHPort = env("SSH_PORT", "22")
-
 	conf.instDir = os.Getenv("INSTALLATION_DIR")
+
 	if len(conf.instDir) == 0 {
 		conf.instDir = "/var/lib/nanocloud"
 	}
@@ -222,10 +153,14 @@ func main() {
 		conf.artURL = "http://releases.nanocloud.org:8080/releases/latest/"
 	}
 
-	module.Get("/iaas", ListRunningVm)
-	module.Post("/iaas/:id/stop", StopVm)
-	module.Post("/iaas/:id/start", StartVm)
-	module.Post("/iaas/:id/download", DownloadVm)
+	h := handler{
+		iaasCon: iaas.New(conf.Server, conf.Password, conf.User, conf.SSHPort, conf.instDir, conf.artURL),
+	}
+
+	module.Get("/iaas", h.ListRunningVm)
+	module.Post("/iaas/:id/stop", h.StopVm)
+	module.Post("/iaas/:id/start", h.StartVm)
+	module.Post("/iaas/:id/download", h.DownloadVm)
 
 	module.Listen()
 }
