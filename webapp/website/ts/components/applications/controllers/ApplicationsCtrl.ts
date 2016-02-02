@@ -81,7 +81,7 @@ export class ApplicationsCtrl {
 		let o = this.$mdDialog.confirm()
 			.parent(angular.element(document.body))
 			.title("Unpublish application")
-			.content("Are you sure you want to unpublish this application?")
+			.textContent("Are you sure you want to unpublish this application?")
 			.ok("Yes")
 			.cancel("No")
 			.targetEvent(e);

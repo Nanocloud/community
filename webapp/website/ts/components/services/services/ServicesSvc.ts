@@ -92,7 +92,7 @@ export class ServicesSvc {
 		let o = this.$mdDialog.confirm()
 			.parent(angular.element(document.body))
 			.title("Stop service")
-			.content("Are you sure you want to stop this service ?")
+			.textContent("Are you sure you want to stop this service ?")
 			.ok("Yes")
 			.cancel("No");
 		let e = this.$mdDialog

@@ -86,7 +86,7 @@ export class UsersCtrl {
 		let o = this.$mdDialog.confirm()
 			.parent(angular.element(document.body))
 			.title("Delete user")
-			.content("Are you sure you want to delete \"" + user.Email + "\"?")
+			.textContent("Are you sure you want to delete \"" + user.Email + "\"?")
 			.ok("Yes")
 			.cancel("No")
 			.targetEvent(e);
