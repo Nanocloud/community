@@ -43,8 +43,6 @@ export class ApplicationsCtrl {
 			data: [],
 			rowHeight: 36,
 			columnDefs: [
-				{ field: "ConnectionName" },
-				{ field: "Port" },
 				{ field: "Application" },
 				{
 					name: "actions",
