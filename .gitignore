@@ -16,3 +16,10 @@ installation_dir/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-a
 modules/canva/guacamole-client/noauth-logged/.idea
 modules/canva/guacamole-client/noauth-logged/target
 modules/canva/guacamole-client/noauth-logged/*.iml
+
+# Ignore frontend libs
+webapp/node_modules/
+webapp/bower_components/
+webapp/typings/
+webapp/.tscache/
+webapp/website/js/

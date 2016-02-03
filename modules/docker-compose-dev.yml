@@ -21,6 +21,11 @@ nanocloud-frontend:
   service: nanocloud-frontend
  volumes:
   - /opt/front
+ build: ../webapp
+ dockerfile: Dockerfile-dev
+ volumes:
+  - ../webapp/:/opt/front
+ restart: always
  container_name: "nanocloud-frontend"
 
 proxy:

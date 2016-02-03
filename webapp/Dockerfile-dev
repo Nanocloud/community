@@ -1,0 +1,7 @@
+FROM nanocloud/nanocloud-frontend:dev
+MAINTAINER \
+  Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
+
+RUN npm install -g concurrently
+
+CMD npm install && npm run setup && concurrent './node_modules/grunt-cli/bin/grunt watch-xy' './node_modules/grunt-cli/bin/grunt watch-ts'
