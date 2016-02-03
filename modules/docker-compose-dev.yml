@@ -1,0 +1,84 @@
+guacamole-client:
+ extends:
+  file: ./docker-compose.yml
+  service: guacamole-client
+
+guacamole-server:
+ extends:
+  file: ./docker-compose.yml
+  service: guacamole-server
+
+nanocloud-backend:
+ extends:
+  file: ./docker-compose.yml
+  service: nanocloud-backend
+ volumes_from:
+  - nanocloud-frontend
+
+nanocloud-frontend:
+ extends:
+  file: ./docker-compose.yml
+  service: nanocloud-frontend
+ volumes:
+  - /opt/front
+ container_name: "nanocloud-frontend"
+
+proxy:
+ extends:
+  file: ./docker-compose.yml
+  service: proxy
+
+rabbitmq:
+ extends:
+  file: ./docker-compose.yml
+  service: rabbitmq
+
+postgres:
+ extends:
+  file: ./docker-compose.yml
+  service: postgres
+
+apps-module:
+ extends:
+  file: ./docker-compose.yml
+  service: apps-module
+ build: ./apps
+ dockerfile: Dockerfile-dev
+ volumes:
+  - ./apps/:/go/build/apps
+
+history-module:
+ extends:
+  file: ./docker-compose.yml
+  service: history-module
+ build: ./history
+ dockerfile: Dockerfile-dev
+ volumes:
+  - ./history/:/go/build/history
+
+iaas-module:
+ extends:
+  file: ./docker-compose.yml
+  service: iaas-module
+ build: ./iaas
+ dockerfile: Dockerfile-dev
+ volumes:
+  - ./iaas/:/go/build/iaas
+
+ldap-module:
+ extends:
+  file: ./docker-compose.yml
+  service: ldap-module
+ build: ./ldap
+ dockerfile: Dockerfile-dev
+ volumes:
+  - ./ldap/:/go/build/ldap
+
+users-module:
+ extends:
+  file: ./docker-compose.yml
+  service: users-module
+ build: ./users
+ dockerfile: Dockerfile-dev
+ volumes:
+  - ./users/:/go/build/users
