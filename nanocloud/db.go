@@ -70,9 +70,9 @@ func setupDb() error {
 		rows, err = db.Query(
 			`CREATE TABLE oauth_clients (
 				id      serial PRIMARY KEY,
-				name    varchar(255) UNIQUE,
-				key     varchar(255) UNIQUE,
-				secret  varchar(255)
+				name    varchar(255) NOT NULL DEFAULT '' UNIQUE,
+				key     varchar(255) NOT NULL DEFAULT '' UNIQUE,
+				secret  varchar(255) NOT NULL DEFAULT ''
 			)`)
 
 		if err != nil {
@@ -113,9 +113,9 @@ func setupDb() error {
 		rows, err = db.Query(
 			`CREATE TABLE oauth_access_tokens (
 				id                serial PRIMARY KEY,
-				token             varchar(255) UNIQUE,
+				token             varchar(255) NOT NULL DEFAULT '' UNIQUE,
 				oauth_client_id   integer REFERENCES oauth_clients (id),
-				user_id           varchar(255)
+				user_id           varchar(255) NOT NULL DEFAULT ''
 			)`)
 
 		if err != nil {

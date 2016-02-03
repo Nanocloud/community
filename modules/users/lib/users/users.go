@@ -328,31 +328,19 @@ func (u *Users) GetUser(id string) (*nano.User, error) {
 	if rows.Next() {
 		var user nano.User
 
-		var firstName sql.NullString
-		var lastName sql.NullString
-		var email sql.NullString
-		var sam sql.NullString
-		var windowsPassword sql.NullString
-
 		err = rows.Scan(
 			&user.Id,
-			&firstName,
-			&lastName,
-			&email,
+			&user.FirstName,
+			&user.LastName,
+			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
-			&sam,
-			&windowsPassword,
+			&user.Sam,
+			&user.WindowsPassword,
 		)
 		if err != nil {
 			return nil, err
 		}
-
-		user.FirstName = firstName.String
-		user.LastName = lastName.String
-		user.Email = email.String
-		user.Sam = sam.String
-		user.WindowsPassword = windowsPassword.String
 
 		return &user, nil
 	}
@@ -376,14 +364,14 @@ func (u *Users) init() error {
 	rows, err = u.db.Query(
 		`CREATE TABLE users (
 				id               varchar(36) PRIMARY KEY,
-				first_name       varchar(36),
-				last_name        varchar(36),
-				email            varchar(36) UNIQUE,
-				password         varchar(60),
+				first_name       varchar(36) NOT NULL DEFAULT '',
+				last_name        varchar(36) NOT NULL DEFAULT '',
+				email            varchar(36) NOT NULL DEFAULT '' UNIQUE,
+				password         varchar(60) NOT NULL DEFAULT '',
 				is_admin         boolean,
 				activated        boolean,
-				sam        	 varchar(35),
-				windows_password varchar(36)
+				sam              varchar(35) NOT NULL DEFAULT '',
+				windows_password varchar(36) NOT NULL DEFAULT ''
 			);`)
 	if err != nil {
 		return err
