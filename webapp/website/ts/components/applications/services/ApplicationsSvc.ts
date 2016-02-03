@@ -25,12 +25,11 @@
 "use strict";
 
 export interface IApplication {
-	Hostname: string;
-	Port: string;
-	Username: string;
-	Password: string;
-	RemoteApp: string;
-	ConnectionName: string;
+	alias: string;
+	collection_name: string;
+	Application: string;
+	display_name: string;
+	file_path: string;
 }
 
 export class ApplicationsSvc {
