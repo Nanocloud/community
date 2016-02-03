@@ -36,6 +36,8 @@ if [ "${COMMUNITY_CHANNEL}" = "" ]; then
 
     if [ "${COMMAND}" = "indiana" ]; then
 	COMMUNITY_CHANNEL="indiana"
+    elif [ "${COMMAND}" = "dev" ]; then
+	COMMUNITY_CHANNEL="dev"
     else
 	COMMUNITY_CHANNEL="stable"
     fi
@@ -59,7 +61,11 @@ fi
 
 if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from local build"
-    docker-compose --file "${ROOT_DIR}/modules/docker-compose-build.yml" --x-networking up -d
+    if [ "${COMMUNITY_CHANNEL}" = "dev" ]; then
+	docker-compose --file "${ROOT_DIR}/modules/docker-compose-dev.yml" --x-networking up -d
+    else
+	docker-compose --file "${ROOT_DIR}/modules/docker-compose-build.yml" --x-networking up -d
+    fi
 else
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub $COMMUNITY_CHANNEL"
     if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then

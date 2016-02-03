@@ -12,16 +12,16 @@
     "requirejs": "2.x",
     "jquery": "2.x",
     "lodash": "3.x",
-    
+
     "angular": "1.4.x",
     "angular-animate": "1.4.x",
     "angular-aria": "1.4.x",
     "angular-cookies": "1.4.x",
-    
+
     "angular-ui-router": "0.2.x",
     "ui-router-extras": "0.1.x",
-    
-    "angular-material": "1.x",
+
+    "angular-material": "1.0.3",
     "angular-material-icons": "latest",
     "angular-ui-grid": "3.x",
     "ng-flow": "2.x"
