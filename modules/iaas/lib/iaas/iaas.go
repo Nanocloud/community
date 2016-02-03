@@ -1,7 +1,29 @@
+/*
+ * Nanocloud Community, a comprehensive platform to turn any application
+ * into a cloud solution.
+ *
+ * Copyright (C) 2015 Nanocloud Software
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package iaas
 
 import (
+	"errors"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,8 +32,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+)
 
-	log "github.com/Sirupsen/logrus"
+var (
+	VMShutdownFailed = errors.New("VM Shutdown Failed")
+	VMStartupFailed  = errors.New("VM Startup Failed")
+	VMDownloadFailed = errors.New("VM Download Failed")
 )
 
 type Iaas struct {
@@ -179,7 +205,6 @@ func (i *Iaas) GetList() (VMstatus, error) {
 }
 
 func (i *Iaas) Stop(name string) error {
-
 	log.Info("stopping : ", name)
 
 	cmd := exec.Command(
@@ -196,7 +221,7 @@ func (i *Iaas) Stop(name string) error {
 	response, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error("Failed to execute sshpass command to shutdown windows", err, string(response))
-		return err
+		return VMShutdownFailed
 	}
 
 	return nil
@@ -208,18 +233,18 @@ func (i *Iaas) Start(name string) error {
 	err := cmd.Start()
 	if err != nil {
 		log.Error("Failed to start vm: ", err)
-		return err
+		return VMStartupFailed
 	}
 	return nil
 }
 
-func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) {
+func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) error {
 	log.Info("Downloading ", downloadUrl, "to ", dst)
 
 	u, err := url.Parse(downloadUrl)
 	if err != nil {
 		log.Error("Couldn't parse the VM's URL: ", err)
-		return
+		return VMDownloadFailed
 	}
 
 	splitedPath := strings.Split(u.Path, "/")
@@ -227,34 +252,35 @@ func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) {
 	tmpOutput, err := os.Create(tempDst)
 	if err != nil {
 		log.Error("Error while creating", tempDst, "-", err)
-		return
+		return VMDownloadFailed
 	}
 
 	response, err := http.Get(downloadUrl)
 	if err != nil {
 		log.Error("Error while downloading", downloadUrl, "-", err)
-		return
+		return VMDownloadFailed
 	}
 	defer response.Body.Close()
 
 	n, err := io.Copy(tmpOutput, response.Body)
 	if err != nil {
 		log.Error("Error while downloading", downloadUrl, "-", err)
-		return
+		return VMDownloadFailed
 	}
 	tmpOutput.Close()
 
 	err = os.Rename(tempDst, dst)
 	if err != nil {
 		log.Error("Error while creating", dst, "-", err)
-		return
+		return VMDownloadFailed
 	}
 
 	log.Info(n, "bytes downloaded.")
+	return nil
 }
 
 func (i *Iaas) Download(VMName string) {
-	go i.downloadFromUrl(
+	i.downloadFromUrl(
 		i.ArtURL+VMName+".qcow2",
 		i.InstDir+"/images/"+VMName+".qcow2")
 }

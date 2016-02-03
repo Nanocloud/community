@@ -21,10 +21,9 @@
 package main
 
 import (
-	"os"
-
 	"github.com/Nanocloud/community/modules/iaas/lib/iaas"
 	"github.com/Nanocloud/nano"
+	"os"
 )
 
 var module nano.Module
@@ -40,17 +39,13 @@ type Configuration struct {
 
 type hash map[string]interface{}
 
-type VmName struct {
-	Name string
-}
-
 type handler struct {
 	iaasCon *iaas.Iaas
 }
 
 var conf Configuration
 
-func (h *handler) ListRunningVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) ListRunningVM(req nano.Request) (*nano.Response, error) {
 	response, err := h.iaasCon.GetList()
 	if err != nil {
 		module.Log.Error("Unable to retrieve VM states list")
@@ -63,7 +58,7 @@ func (h *handler) ListRunningVm(req nano.Request) (*nano.Response, error) {
 	return nano.JSONResponse(200, vmList), nil
 }
 
-func (h *handler) DownloadVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) DownloadVM(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"vmname": req.Params["id"],
 	}
@@ -74,13 +69,13 @@ func (h *handler) DownloadVm(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	h.iaasCon.Download(params["vmname"])
+	go h.iaasCon.Download(params["vmname"])
 	return nano.JSONResponse(202, hash{
 		"success": true,
 	}), nil
 }
 
-func (h *handler) StartVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) StartVM(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"name": req.Params["id"],
 	}
@@ -93,9 +88,9 @@ func (h *handler) StartVm(req nano.Request) (*nano.Response, error) {
 
 	err := h.iaasCon.Start(params["name"])
 	if err != nil {
-		module.Log.Error("Error while starting vm: " + err.Error())
+		module.Log.Error("Error while starting VM")
 		return nano.JSONResponse(500, hash{
-			"error": "Unable to start the specified vm: " + err.Error(),
+			"error": "Unable to start the specified VM",
 		}), err
 	}
 
@@ -104,7 +99,7 @@ func (h *handler) StartVm(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func (h *handler) StopVm(req nano.Request) (*nano.Response, error) {
+func (h *handler) StopVM(req nano.Request) (*nano.Response, error) {
 	var params = map[string]string{
 		"Name": req.Params["id"],
 	}
@@ -118,7 +113,7 @@ func (h *handler) StopVm(req nano.Request) (*nano.Response, error) {
 	err := h.iaasCon.Stop(params["Name"])
 	if err != nil {
 		return nano.JSONResponse(500, hash{
-			"error": "Unable to stop the specified vm: " + err.Error(),
+			"error": "Unable to stop the specified VM",
 		}), err
 	}
 
@@ -138,7 +133,7 @@ func env(key, def string) string {
 func main() {
 	module = nano.RegisterModule("iaas")
 
-	conf.Server = env("SERVER", "62.210.56.45")
+	conf.Server = env("SERVER", "127.0.0.1")
 	conf.Password = env("PASSWORD", "ItsPass1942+")
 	conf.User = env("USER", "Administrator")
 	conf.SSHPort = env("SSH_PORT", "22")
@@ -157,10 +152,10 @@ func main() {
 		iaasCon: iaas.New(conf.Server, conf.Password, conf.User, conf.SSHPort, conf.instDir, conf.artURL),
 	}
 
-	module.Get("/iaas", h.ListRunningVm)
-	module.Post("/iaas/:id/stop", h.StopVm)
-	module.Post("/iaas/:id/start", h.StartVm)
-	module.Post("/iaas/:id/download", h.DownloadVm)
+	module.Get("/iaas", h.ListRunningVM)
+	module.Post("/iaas/:id/stop", h.StopVM)
+	module.Post("/iaas/:id/start", h.StartVM)
+	module.Post("/iaas/:id/download", h.DownloadVM)
 
 	module.Listen()
 }
