@@ -51,7 +51,7 @@ else
     if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
 	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" stop
     elif [ "${COMMUNITY_CHANNEL}" = "dev" ]; then
-	docker-compose --file "${ROOT_DIR}/docker-compose-dev.yml" stop
+	docker-compose --file "${ROOT_DIR}/modules/docker-compose-dev.yml" stop
     else
 	docker-compose --file "${ROOT_DIR}/docker-compose.yml" stop
     fi
