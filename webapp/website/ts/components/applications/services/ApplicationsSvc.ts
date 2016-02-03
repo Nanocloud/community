@@ -78,13 +78,6 @@ export class ApplicationsSvc {
 		return this.$http.delete("/api/apps/" + application.alias);
 	}
 
-	private cleanAppName(appName: string): string {
-		if (appName) {
-			return appName.replace(/^\|\|/, "");
-		} else {
-			return "Desktop";
-		}
-	}
 }
 
 angular.module("haptic.applications").service("ApplicationsSvc", ApplicationsSvc);
