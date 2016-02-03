@@ -52,7 +52,7 @@ export class ApplicationsSvc {
 				(res: angular.IHttpPromiseCallbackArg<IApplication[]>) => {
 					let apps = res.data || [];
 					for (let app of apps) {
-						app.RemoteApp = this.cleanAppName(app.RemoteApp);
+						app.Application = app.display_name;
 					}
 					return apps;
 				},
@@ -66,7 +66,7 @@ export class ApplicationsSvc {
 				(res: angular.IHttpPromiseCallbackArg<IApplication[]>) => {
 					let apps = res.data || [];
 					for (let app of apps) {
-						app.RemoteApp = this.cleanAppName(app.RemoteApp);
+						app.Application = app.display_name;
 					}
 					return apps;
 				},
@@ -75,7 +75,7 @@ export class ApplicationsSvc {
 	}
 
 	unpublish(application: IApplication): angular.IPromise<any> {
-		return this.$http.delete("/api/apps/" + application.RemoteApp);
+		return this.$http.delete("/api/apps/" + application.alias);
 	}
 
 	private cleanAppName(appName: string): string {

@@ -45,7 +45,7 @@ export class ApplicationsCtrl {
 			columnDefs: [
 				{ field: "ConnectionName" },
 				{ field: "Port" },
-				{ field: "RemoteApp" },
+				{ field: "Application" },
 				{
 					name: "actions",
 					displayName: "",
@@ -93,14 +93,14 @@ export class ApplicationsCtrl {
 	unpublishApplication(application: IApplication) {
 		this.applicationsSrv.unpublish(application);
 
-		let i = _.findIndex(this.applications, (x: IApplication) => x.RemoteApp === application.RemoteApp);
+		let i = _.findIndex(this.applications, (x: IApplication) => x.alias === application.alias);
 		if (i >= 0) {
 			this.applications.splice(i, 1);
 		}
 	}
 
 	openApplication(e: MouseEvent, application: IApplication) {
-		let appToken = btoa(application.ConnectionName + "\0c\0noauthlogged");
+		let appToken = btoa(application.Application + "\0c\0noauthlogged");
 		let url = "/guacamole/#/client/" + appToken;
 		if (localStorage["accessToken"]) {
 			url += "?access_token=" + localStorage["accessToken"];
