@@ -23,106 +23,19 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
+	usersPkg "github.com/Nanocloud/community/modules/users/lib/users"
+	"github.com/Nanocloud/nano"
 	"math/rand"
 	"os"
 	"time"
-
-	"github.com/Nanocloud/nano"
-	_ "github.com/lib/pq"
-	"github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type hash map[string]interface{}
 
 var module nano.Module
-
-var db *sql.DB
-
-func dbConnect() error {
-	databaseURI := os.Getenv("DATABASE_URI")
-	if len(databaseURI) == 0 {
-		databaseURI = "postgres://localhost/nanocloud?sslmode=disable"
-	}
-
-	var err error
-
-	for try := 0; try < 10; try++ {
-		db, err = sql.Open("postgres", databaseURI)
-		if err != nil {
-			return err
-		}
-
-		err = db.Ping()
-		if err == nil {
-			module.Log.Info("Connected to Postgres")
-			return nil
-		}
-
-		module.Log.Info("Unable to connect to Postgres. Will retry in 5 sec")
-		time.Sleep(time.Second * 5)
-	}
-
-	return err
-}
-
-func findUsers() (*[]nano.User, error) {
-	rows, err := db.Query(
-		`SELECT id,
-		first_name, last_name,
-		email, is_admin, activated,
-		sam, windows_password
-		FROM users`,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	var users []nano.User
-
-	defer rows.Close()
-	for rows.Next() {
-		user := nano.User{}
-
-		rows.Scan(
-			&user.Id,
-			&user.FirstName, &user.LastName,
-			&user.Email,
-			&user.IsAdmin,
-			&user.Activated,
-			&user.Sam,
-			&user.WindowsPassword,
-		)
-		users = append(users, user)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return &users, nil
-}
-
-func UserExists(id string) (bool, error) {
-	rows, err := db.Query(
-		`SELECT id
-		FROM users
-		WHERE id = $1::varchar`,
-		id)
-	if err != nil {
-		return false, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return true, nil
-	}
-	return false, nil
-}
+var users *usersPkg.Users
 
 func getUser(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["id"]
@@ -132,36 +45,18 @@ func getUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	rows, err := db.Query(
-		`SELECT id,
-		first_name, last_name,
-		email, is_admin, activated,
-		sam, windows_password
-		FROM users
-		WHERE id = $1::varchar`,
-		userId)
+	user, err := users.GetUser(userId)
 	if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-	if rows.Next() {
-		var user nano.User
-		rows.Scan(
-			&user.Id,
-			&user.FirstName, &user.LastName,
-			&user.Email,
-			&user.IsAdmin,
-			&user.Activated,
-			&user.Sam,
-			&user.WindowsPassword,
-		)
-		return nano.JSONResponse(200, user), nil
+	if user == nil {
+		return nano.JSONResponse(404, hash{
+			"error": "User Not Found",
+		}), nil
 	}
 
-	return nano.JSONResponse(404, hash{
-		"error": "User Not Found",
-	}), nil
+	return nano.JSONResponse(200, user), nil
 }
 
 // randomString
@@ -191,7 +86,7 @@ func randomString(n int) string {
 	return string(b)
 }
 
-func CreateADUser(id string) (string, string, error) {
+func createADUser(id string) (string, string, error) {
 	password := randomString(8) + "s4D+"
 	res, err := module.JSONRequest("POST", "/ldap/users", hash{
 		"userEmail": id,
@@ -210,91 +105,11 @@ func CreateADUser(id string) (string, string, error) {
 	return r.Sam, password, nil
 }
 
-func CreateUser(
-	activated bool,
-	email string,
-	firstName string,
-	lastName string,
-	password string,
-	isAdmin bool,
-	createAD bool,
-) (createdUser *nano.User, err error) {
-	var sam string
-	var winpass string
-	id := uuid.NewV4().String()
-
-	if createAD == true {
-		sam, winpass, err = CreateADUser(id)
-	}
-	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return
-	}
-
-	rows, err := db.Query(
-		`INSERT INTO users
-		(id, email, activated,
-		first_name, last_name,
-		password, is_admin,
-		sam, windows_password)
-		VALUES(
-			$1::varchar, $2::varchar, $3::bool,
-			$4::varchar, $5::varchar,
-			$6::varchar, $7::bool,
-			$8::varchar, $9::varchar)
-		`, id, email, activated,
-		firstName, lastName,
-		pass, isAdmin, sam, winpass)
-
-	if err != nil {
-		switch err.Error() {
-		case "pq: duplicate key value violates unique constraint \"users_pkey\"":
-			err = errors.New("user id exists already")
-		case "pq: duplicate key value violates unique constraint \"users_email_key\"":
-			err = errors.New("user email exists already")
-		}
-		return
-	}
-
-	rows.Close()
-
-	rows, err = db.Query(
-		`SELECT id, activated,
-		email,
-		first_name, last_name,
-		is_admin, sam, windows_password
-		FROM users
-		WHERE id = $1::varchar`,
-		id)
-
-	if err != nil {
-		return
-	}
-
-	if !rows.Next() {
-		err = errors.New("user not created")
-		return
-	}
-
-	var user nano.User
-	rows.Scan(
-		&user.Id, &user.Activated,
-		&user.Email, &user.FirstName,
-		&user.LastName, &user.IsAdmin,
-		&user.Sam, &user.WindowsPassword,
-	)
-
-	rows.Close()
-
-	createdUser = &user
-	return createdUser, err
-}
-
 func updateUserPassword(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return nano.JSONResponse(400, hash{
-			"error": "Email needed to modify account",
+			"error": "User id needed to modify account",
 		}), nil
 	}
 
@@ -304,19 +119,14 @@ func updateUserPassword(req nano.Request) (*nano.Response, error) {
 
 	err := json.Unmarshal(req.Body, &user)
 	if err != nil {
+		module.Log.Errorf("Unable to parse body request: %s", err.Error())
 		return nil, err
 	}
 
-	pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	exists, err := users.UserExists(userId)
 	if err != nil {
+		module.Log.Errorf("Unable to check user existance: %s", err.Error())
 		return nil, err
-	}
-
-	exists, err := UserExists(userId)
-	if err != nil {
-		return nano.JSONResponse(500, hash{
-			"error": err.Error(),
-		}), nil
 	}
 
 	if !exists {
@@ -325,16 +135,11 @@ func updateUserPassword(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	rows, err := db.Query(
-		`UPDATE users
-		SET password = $1::varchar
-		WHERE id = $2::varchar`,
-		pass, userId)
+	err = users.UpdateUserPassword(userId, user.Password)
 	if err != nil {
+		module.Log.Errorf("Unable to update user password: %s", err.Error())
 		return nil, err
 	}
-
-	rows.Close()
 
 	return nano.JSONResponse(200, hash{
 		"success": true,
@@ -349,7 +154,7 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	exists, err := UserExists(userId)
+	exists, err := users.UserExists(userId)
 	if err != nil {
 		return nano.JSONResponse(500, hash{
 			"error": err.Error(),
@@ -362,19 +167,12 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	rows, err := db.Query(
-		`UPDATE users
-		SET activated = false
-		WHERE id = $1::varchar`,
-		userId)
-
+	err = users.DisableUser(userId)
 	if err != nil {
-		return nano.JSONResponse(500, hash{
-			"error": err.Error(),
-		}), nil
+		module.Log.Errorf("Unable to disable user: %s", err.Error())
+		return nil, err
 	}
 
-	defer rows.Close()
 	return nano.JSONResponse(200, hash{
 		"success": true,
 	}), nil
@@ -383,7 +181,6 @@ func disableUser(req nano.Request) (*nano.Response, error) {
 func deleteADUser(id string) error {
 	_, err := module.JSONRequest("DELETE", "/ldap/users/"+id, hash{}, nil)
 	return err
-
 }
 
 func deleteUser(req nano.Request) (*nano.Response, error) {
@@ -394,42 +191,35 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	rows, err := db.Query("SELECT is_admin FROM users WHERE id = $1::varchar", userId)
+	user, err := users.GetUser(userId)
 	if err != nil {
-		module.Log.Error("select user from postgres failed: ", err)
 		return nil, err
 	}
 
-	if !rows.Next() {
-		rows.Close()
+	if user == nil {
 		return nano.JSONResponse(404, hash{
 			"error": "User not found",
 		}), nil
 	}
 
-	isAdmin := false
-	rows.Scan(&isAdmin)
-	rows.Close()
-	if isAdmin {
+	if user.IsAdmin {
 		return nano.JSONResponse(403, hash{
 			"error": "Admins cannot be deleted",
 		}), nil
 	}
 
-	err = deleteADUser(userId)
+	err = deleteADUser(user.Id)
 	if err != nil {
-		module.Log.Error("Error while deleting user from Active Directory: ", err)
-		return nano.JSONResponse(500, hash{
-			"error": "Error while deleting user from Active Directory",
-		}), err
-	}
-
-	rows, err = db.Query("DELETE FROM users WHERE id = $1::varchar", userId)
-	if err != nil {
-		module.Log.Error("delete from postgres failed: ", err)
+		module.Log.Errorf("Unable to delete user in ad: %s", err.Error())
 		return nil, err
 	}
-	rows.Close()
+
+	err = users.DeleteUser(user.Id)
+	if err != nil {
+		module.Log.Errorf("Unable to delete user: ", err.Error())
+		return nil, err
+	}
+
 	// SendMsg(Message{Method: "Delete", Email: mail})
 
 	return nano.JSONResponse(200, hash{
@@ -438,56 +228,12 @@ func deleteUser(req nano.Request) (*nano.Response, error) {
 }
 
 func getUsers(req nano.Request) (*nano.Response, error) {
-	users, err := findUsers()
+	users, err := users.FindUsers()
 	if err != nil {
+		module.Log.Errorf("unable to get user lists: %s", err.Error())
 		return nil, err
 	}
 	return nano.JSONResponse(200, users), nil
-}
-
-func getUserFromEmailPassword(email, password string) (*nano.User, string, error) {
-	if len(email) < 1 || len(password) < 1 {
-		return nil, "user not found", nil
-	}
-
-	rows, err := db.Query(
-		`SELECT id, activated,
-		email, password,
-		first_name, last_name,
-		is_admin
-		FROM users
-		WHERE email = $1::varchar`,
-		email,
-	)
-	if err != nil {
-		return nil, "", err
-	}
-
-	if !rows.Next() {
-		return nil, "user not found", nil
-	}
-
-	var user nano.User
-	var passwordHash string
-	rows.Scan(
-		&user.Id, &user.Activated,
-		&user.Email, &passwordHash,
-		&user.FirstName, &user.LastName,
-		&user.IsAdmin,
-	)
-	rows.Close()
-
-	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
-
-	if err != nil {
-		return nil, "wrong password", nil
-	}
-
-	if !user.Activated {
-		return nil, "user is not activated", nil
-	}
-
-	return &user, "", nil
 }
 
 func userLogin(req nano.Request) (*nano.Response, error) {
@@ -501,73 +247,27 @@ func userLogin(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
-	user, message, err := getUserFromEmailPassword(body.Username, body.Password)
-	if err != nil {
-		return nil, err
-	}
+	user, err := users.GetUserFromEmailPassword(body.Username, body.Password)
+	switch err {
+	case usersPkg.InvalidCredentials:
+	case usersPkg.UserDisabled:
+		return nano.JSONResponse(400, hash{
+			"success": false,
+			"error":   err.Error(),
+		}), nil
 
-	if user != nil {
+	case nil:
+		if user == nil {
+			module.Log.Error("unable to log the user in")
+			return nil, errors.New("unable to log the user in")
+		}
+
 		return nano.JSONResponse(200, hash{
 			"success": true,
 			"user":    user,
 		}), nil
 	}
-
-	return nano.JSONResponse(400, hash{
-		"success": false,
-		"error":   message,
-	}), nil
-}
-
-func setupDb() error {
-	rows, err := db.Query(
-		`SELECT table_name
-			FROM information_schema.tables
-			WHERE table_name = 'users'`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		module.Log.Info("Users table already set up")
-		return nil
-	}
-
-	rows, err = db.Query(
-		`CREATE TABLE users (
-				id               varchar(36) PRIMARY KEY,
-				first_name       varchar(36),
-				last_name        varchar(36),
-				email            varchar(36) UNIQUE,
-				password         varchar(60),
-				is_admin         boolean,
-				activated        boolean,
-				sam        	 varchar(35),
-				windows_password varchar(36)
-			);`)
-	if err != nil {
-		module.Log.Errorf("Unable to create users table: %s", err)
-		return err
-	}
-
-	rows.Close()
-
-	_, err = CreateUser(
-		true,
-		"admin@nanocloud.com",
-		"John",
-		"Doe",
-		"admin",
-		true,
-		false,
-	)
-
-	if err != nil {
-		module.Log.Errorf("Unable to create the default user: %s", err)
-		return err
-	}
-	return nil
+	return nil, err
 }
 
 func postUsers(req nano.Request) (*nano.Response, error) {
@@ -584,19 +284,20 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 		return nil, err
 	}
 
-	newUser, err := CreateUser(
+	newUser, err := users.CreateUser(
 		true,
 		user.Email,
 		user.FirstName,
 		user.LastName,
 		user.Password,
 		false,
-		true,
 	)
+
+	sam, winpass, err := createADUser(newUser.Id)
+	err = users.UpdateUserAd(newUser.Id, sam, winpass)
+
 	if err != nil {
-		return nano.JSONResponse(409, hash{
-			"error": err.Error(),
-		}), nil
+		return nil, err
 	}
 
 	return nano.JSONResponse(201, hash{
@@ -607,16 +308,12 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 func main() {
 	module = nano.RegisterModule("users")
 
-	err := dbConnect()
-	if err != nil {
-		module.Log.Fatalf("Cannot connect to Postgres Database: %s", err)
+	databaseURI := os.Getenv("DATABASE_URI")
+	if len(databaseURI) == 0 {
+		databaseURI = "postgres://localhost/nanocloud?sslmode=disable"
 	}
 
-	err = setupDb()
-	if err != nil {
-		module.Log.Fatalf("Unable to setup users table: %s", err)
-		return
-	}
+	users = usersPkg.New(databaseURI)
 
 	module.Post("/users/login", userLogin)
 
