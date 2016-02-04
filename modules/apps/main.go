@@ -24,9 +24,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"strings"
 
+	"github.com/Nanocloud/community/modules/apps/lib/apps"
 	"github.com/Nanocloud/nano"
 	_ "github.com/lib/pq"
 )
@@ -46,10 +48,11 @@ var conf struct {
 	Protocol             string
 }
 
-type hash map[string]interface{}
-type GetApplicationsListReply struct {
-	Applications []Connection
+type handler struct {
+	appsCon *apps.Apps
 }
+
+type hash map[string]interface{}
 
 func env(key, def string) string {
 	v := os.Getenv(key)
@@ -59,8 +62,83 @@ func env(key, def string) string {
 	return v
 }
 
+func getUsers() ([]nano.User, error) {
+	res, err := module.Request("GET", "/users", "", nil, nil)
+	if err != nil {
+		module.Log.Error("GET on /users failed: ", err)
+		return nil, err
+	}
+
+	if res.StatusCode != 200 {
+		module.Log.Error("Status code of GET on /users isn't 200")
+		return nil, errors.New("invalid status code")
+	}
+
+	var m []nano.User
+	err = json.Unmarshal(res.Body, &m)
+
+	if err != nil {
+		module.Log.Error("Unmarshal of user list failed: ", err)
+		return nil, err
+	}
+
+	return m, nil
+}
+
+// ========================================================================================================================
+// Procedure: createConnections
+//
+// Does:
+// - Create all connections in DB for a particular user in order to use all applications
+// ========================================================================================================================
+func (h *handler) getConnections(req nano.Request) (*nano.Response, error) {
+	users, err := getUsers()
+	if err != nil {
+		return nano.JSONResponse(500, hash{
+			"error": "Unable to retrieve users",
+		}), nil
+	}
+	connections, err := h.appsCon.RetrieveConnections(users)
+	if err == apps.AppsListUnavailable {
+		return nano.JSONResponse(500, hash{
+			"error": "Unable to retrieve applications list",
+		}), nil
+	}
+	return nano.JSONResponse(200, connections), nil
+}
+
+func (h *handler) listApplications(req nano.Request) (*nano.Response, error) {
+
+	applications, err := h.appsCon.GetAllApps()
+	if err == apps.GetAppsFailed {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+
+	}
+	return nano.JSONResponse(200, applications), nil
+}
+
+// ========================================================================================================================
+// Procedure: listApplicationsForSamAccount
+//
+// Does:
+// - Return list of applications available for a particular SAM account
+// ========================================================================================================================
+func (h *handler) listApplicationsForSamAccount(req nano.Request) (*nano.Response, error) {
+	applications, err := h.appsCon.GetMyApps()
+	if err == apps.GetAppsFailed {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	}
+
+	//TODO ONLY RETURN AUTHORIZED APPS FROM THE USER'S GROUP
+	return nano.JSONResponse(200, applications), nil
+}
+
 // Make an application unusable
-func unpublishApplication(req nano.Request) (*nano.Response, error) {
+func (h *handler) unpublishApplication(req nano.Request) (*nano.Response, error) {
 	appId := req.Params["app_id"]
 	if len(appId) < 1 {
 		return nano.JSONResponse(400, hash{
@@ -68,9 +146,11 @@ func unpublishApplication(req nano.Request) (*nano.Response, error) {
 		}), nil
 	}
 
-	err := unpublishApp(appId)
-	if err != nil {
-		return nil, err
+	err := h.appsCon.UnpublishApp(appId)
+	if err == apps.UnpublishFailed {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
 	}
 
 	return nano.JSONResponse(200, hash{
@@ -78,7 +158,7 @@ func unpublishApplication(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
-func publishApplication(req nano.Request) (*nano.Response, error) {
+func (h *handler) publishApplication(req nano.Request) (*nano.Response, error) {
 
 	var params struct {
 		Path string
@@ -96,8 +176,8 @@ func publishApplication(req nano.Request) (*nano.Response, error) {
 	if trimmedpath == "" {
 		return nano.JSONResponse(400, hash{"error": "App path is empty"}), err
 	}
-	err = publishApp(trimmedpath)
-	if err != nil {
+	err = h.appsCon.PublishApp(trimmedpath)
+	if err == apps.PublishFailed {
 		return nano.JSONResponse(500, hash{"error": err}), err
 	}
 
@@ -115,19 +195,26 @@ func main() {
 	conf.RDPPort = env("RDP_PORT", "3389")
 	conf.Server = env("SERVER", "62.210.56.76")
 	conf.Password = env("PASSWORD", "ItsPass1942+")
-	conf.XMLConfigurationFile = env("XML_CONFIGURATION_FILE", "conf.xml")
-	conf.WindowsDomain = env("WINDOWS_DOMAIN", "intra.localdomain.com")
 	conf.ExecutionServers = strings.Split(env("EXECUTION_SERVERS", "62.210.56.76"), ",")
 	conf.DatabaseURI = env("DATABASE_URI", "postgres://localhost/nanocloud?sslmode=disable")
 
-	dbConnect()
-	setupDb()
+	h := handler{
+		appsCon: apps.New(
+			conf.User,
+			conf.Server,
+			conf.SSHPort,
+			conf.RDPPort,
+			conf.Protocol,
+			conf.Password,
+			conf.DatabaseURI,
+			conf.ExecutionServers,
+		),
+	}
 
-	module.Get("/apps", listApplications)
-	module.Delete("/apps/:app_id", unpublishApplication)
-	module.Get("/apps/me", listApplicationsForSamAccount)
-	module.Post("/apps", publishApplication)
-	module.Get("/apps/connections", getConnections)
-	go checkPublishedApps()
+	module.Get("/apps", h.listApplications)
+	module.Delete("/apps/:app_id", h.unpublishApplication)
+	module.Get("/apps/me", h.listApplicationsForSamAccount)
+	module.Post("/apps", h.publishApplication)
+	module.Get("/apps/connections", h.getConnections)
 	module.Listen()
 }
