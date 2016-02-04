@@ -98,6 +98,18 @@ If your issue isn't listed bellow, please report it
 
 * While downloading **Windows**, information disappears from home page.
 
+## Developer setup
+
+To run a dev environment, use following commands:
+
+```
+./build.sh dev
+./nanocloud.sh dev
+```
+
+You should be able to modify source on your local repository and see changes
+directly applied.
+
 ## Roadmap
 
 In future releases, we plan to add :
