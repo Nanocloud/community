@@ -43,7 +43,6 @@ var conf struct {
 	RDPPort              string
 	Password             string
 	WindowsDomain        string
-	XMLConfigurationFile string
 	DatabaseURI          string
 	Protocol             string
 }
@@ -195,6 +194,7 @@ func main() {
 	conf.RDPPort = env("RDP_PORT", "3389")
 	conf.Server = env("SERVER", "62.210.56.76")
 	conf.Password = env("PASSWORD", "ItsPass1942+")
+	conf.WindowsDomain = env("WINDOWS_DOMAIN", "intra.localdomain.com")
 	conf.ExecutionServers = strings.Split(env("EXECUTION_SERVERS", "62.210.56.76"), ",")
 	conf.DatabaseURI = env("DATABASE_URI", "postgres://localhost/nanocloud?sslmode=disable")
 
