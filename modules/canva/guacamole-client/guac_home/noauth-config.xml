@@ -1,9 +1,0 @@
-<configs>
-	<config name="DefaultDesktop" protocol="rdp">
-		<param name="hostname" value="desktop.example.com" />
-		<param name="port" value="3389" />
-		<param name="ignore-cert" value="true" />
-		<param name="username" value="Administrator" />
-		<param name="password" value="Secr3t" />
-	</config>
-</configs>
