@@ -68,7 +68,7 @@ iaas-module:
  build: ./iaas
  dockerfile: Dockerfile-dev
  volumes:
-  - ./iaas/:/go/build/iaas
+  - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
 
 ldap-module:
  extends:
