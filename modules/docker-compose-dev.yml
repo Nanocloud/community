@@ -86,4 +86,4 @@ users-module:
  build: ./users
  dockerfile: Dockerfile-dev
  volumes:
-  - ./users/:/go/build/users
+  - ./users/:/go/src/github.com/Nanocloud/community/modules/users/
