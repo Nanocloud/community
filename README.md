@@ -100,7 +100,7 @@ If your issue isn't listed bellow, please report it
 
 ## Developer setup
 
-To run a dev environment, use following commands:
+To run a dev environment, use the following commands:
 
 ```
 ./build.sh dev
