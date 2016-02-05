@@ -50,7 +50,7 @@ apps-module:
  build: ./apps
  dockerfile: Dockerfile-dev
  volumes:
-  - ./apps/:/go/build/apps
+  - ./apps/:/go/src/github.com/Nanocloud/community/modules/apps/
 
 history-module:
  extends:
