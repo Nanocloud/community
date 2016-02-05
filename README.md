@@ -98,6 +98,24 @@ If your issue isn't listed bellow, please report it
 
 * While downloading **Windows**, information disappears from home page.
 
+## Developer setup
+
+To run a dev environment, use the following commands:
+
+```
+./build.sh dev
+./nanocloud.sh dev
+```
+
+You should be able to modify source on your local repository and see changes
+directly applied.
+
+You can access the log file with the following command (from the root directory):
+
+```
+docker-compose -f modules/docker-compose-dev.yml logs
+```
+
 ## Roadmap
 
 In future releases, we plan to add :
