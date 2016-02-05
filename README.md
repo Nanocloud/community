@@ -100,7 +100,7 @@ If your issue isn't listed bellow, please report it
 
 ## Developer setup
 
-To run a dev environment, use following commands:
+To run a dev environment, use the following commands:
 
 ```
 ./build.sh dev
@@ -109,6 +109,12 @@ To run a dev environment, use following commands:
 
 You should be able to modify source on your local repository and see changes
 directly applied.
+
+You can access the log file with the following command (from the root directory):
+
+```
+docker-compose -f modules/docker-compose-dev.yml logs
+```
 
 ## Roadmap
 
