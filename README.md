@@ -110,6 +110,12 @@ To run a dev environment, use following commands:
 You should be able to modify source on your local repository and see changes
 directly applied.
 
+You can access the log file with the following command (from the root directory):
+
+```
+docker-compose -f modules/docker-compose-dev.yml logs
+```
+
 ## Roadmap
 
 In future releases, we plan to add :
