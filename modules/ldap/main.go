@@ -70,8 +70,6 @@ func (h *handler) listUsers(req nano.Request) (*nano.Response, error) {
 	return nano.JSONResponse(200, res), nil
 }
 
-// Checks if there is at least one sam account available, to use it to create a new user instead of generating a new sam account
-
 func (h *handler) updatePassword(req nano.Request) (*nano.Response, error) {
 	var params struct {
 		UserEmail string
