@@ -347,6 +347,29 @@ func updatePassword(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
+func CheckUserExists(mail string, ldapConnection *ldap.Conn) (bool, error) {
+	searchRequest := ldap.NewSearchRequest(
+		conf.Ou,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectCategory=person)(mail="+mail+"))",
+		[]string{"userAccountControl", "cn"},
+		nil,
+	)
+
+	sr, err := ldapConnection.Search(searchRequest)
+	if err != nil {
+		module.Log.Error("Searching error: " + err.Error())
+		return false, errors.New("Searching error: " + err.Error())
+	}
+
+	if len(sr.Entries) >= 1 {
+		module.Log.Error("User exists already")
+		return true, nil
+	}
+	return false, nil
+
+}
+
 func createUser(req nano.Request) (*nano.Response, error) {
 	var params struct {
 		UserEmail string
@@ -384,6 +407,18 @@ func createUser(req nano.Request) (*nano.Response, error) {
 		}), err
 	}
 
+	exists, err := CheckUserExists(params.UserEmail, ldapConnection)
+	if err != nil {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+
+	}
+	if exists {
+		return nano.JSONResponse(403, hash{
+			"error": "User already exists in active directory",
+		}), nil
+	}
 	defer ldapConnection.Close()
 
 	err, count := getNumberofUsers(ldapConnection)
