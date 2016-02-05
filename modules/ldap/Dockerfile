@@ -5,10 +5,9 @@ MAINTAINER \
 
 RUN mkdir -p /go/build/ldap
 
-COPY ./ /go/build/ldap
+COPY ./ /go/src/github.com/Nanocloud/community/modules/ldap
 
-WORKDIR /go/build/ldap
-ENV GOBIN $GOPATH/build/ldap
+WORKDIR /go/src/github.com/Nanocloud/community/modules/ldap
 RUN go get ./... && go build
 
 CMD ["./ldap"]

@@ -77,7 +77,7 @@ ldap-module:
  build: ./ldap
  dockerfile: Dockerfile-dev
  volumes:
-  - ./ldap/:/go/build/ldap
+  - ./ldap/:/go/src/github.com/Nanocloud/community/modules/ldap/
 
 users-module:
  extends:
