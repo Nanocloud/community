@@ -83,10 +83,10 @@ func setupDb() error {
 
 	rows, err = db.Query(
 		`CREATE TABLE histories (
-			userid		varchar(36),
-			connectionid	varchar(36),
-			startdate	varchar(36),
-			enddate		varchar(36)
+			userid        varchar(36) NOT NULL DEFAULT '',
+			connectionid  varchar(36) NOT NULL DEFAULT '',
+			startdate     varchar(36) NOT NULL DEFAULT '',
+			enddate       varchar(36) NOT NULL DEFAULT ''
 		);`)
 	if err != nil {
 		module.Log.Errorf("Unable to create histories table: %s", err)
