@@ -50,32 +50,6 @@ type AccountParams struct {
 	Password  string
 }
 
-type ChangePasswordParams struct {
-	SamAccountName string
-	NewPassword    string
-}
-
-// Strucutre used in messages from RabbitMQ
-type Message struct {
-	Method    string
-	Name      string
-	Email     string
-	Activated string
-	Sam       string
-	Password  string
-}
-
-// Plugin structure
-type Ldap struct{}
-
-// Strucutre used in return messages sent to RabbitMQ
-type ReturnMsg struct {
-	Method string
-	Err    string
-	Plugin string
-	Email  string
-}
-
 func env(key, def string) string {
 	v := os.Getenv(key)
 	if v == "" {
@@ -87,11 +61,10 @@ func env(key, def string) string {
 func (h *handler) listUsers(req nano.Request) (*nano.Response, error) {
 
 	res, err := h.ldapCon.GetUsers()
-	if err != nil {
+	if err == ldapPkg.GetUsersFailed {
 		return nano.JSONResponse(500, hash{
 			"error": err.Error(),
 		}), nil
-
 	}
 
 	return nano.JSONResponse(200, res), nil
@@ -119,12 +92,13 @@ func (h *handler) updatePassword(req nano.Request) (*nano.Response, error) {
 	params.UserEmail = req.Params["user_id"]
 
 	err = h.ldapCon.ChangePassword(params.UserEmail, params.Password)
-	if err != nil {
+	switch err {
+	case ldapPkg.ChangePwdFailed:
 		return nano.JSONResponse(500, hash{
 			"error": err.Error(),
 		}), nil
-
 	}
+
 	return nano.JSONResponse(200, hash{
 		"success": true,
 	}), nil
@@ -153,17 +127,26 @@ func (h *handler) createUser(req nano.Request) (*nano.Response, error) {
 	}
 
 	sam, err := h.ldapCon.AddUser(params.UserEmail, params.Password)
-	if err != nil {
+	switch err {
+	case ldapPkg.AddError:
 		return nano.JSONResponse(500, hash{
 			"error": err.Error(),
 		}), nil
+	case ldapPkg.WeakPassword:
+		return nano.JSONResponse(400, hash{
+			"error": err.Error(),
+		}), nil
+	case ldapPkg.AlreadyExists:
+		return nano.JSONResponse(409, hash{
+			"error": err.Error(),
+		}), nil
 	}
-	return nano.JSONResponse(200, hash{
+	return nano.JSONResponse(201, hash{
 		"sam": sam,
 	}), nil
 }
 
-func (h *handler) forcedisableAccount(req nano.Request) (*nano.Response, error) {
+func (h *handler) disableAccount(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["user_id"]
 
 	if len(userId) < 1 {
@@ -174,8 +157,13 @@ func (h *handler) forcedisableAccount(req nano.Request) (*nano.Response, error) 
 	}
 
 	err := h.ldapCon.DisableUser(userId)
-	if err != nil {
+	switch err {
+	case ldapPkg.DisableFailed:
 		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	case ldapPkg.UnknownUser:
+		return nano.JSONResponse(404, hash{
 			"error": err.Error(),
 		}), nil
 	}
@@ -196,8 +184,13 @@ func (h *handler) deleteUser(req nano.Request) (*nano.Response, error) {
 	}
 
 	err := h.ldapCon.DeleteAccount(userId)
-	if err != nil {
+	switch err {
+	case ldapPkg.DeleteFailed:
 		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	case ldapPkg.UnknownUser:
+		return nano.JSONResponse(404, hash{
 			"error": err.Error(),
 		}), nil
 	}
@@ -228,7 +221,7 @@ func main() {
 	module.Post("/ldap/users", h.createUser)
 	module.Get("/ldap/users", h.listUsers)
 	module.Put("/ldap/users/:user_id", h.updatePassword)
-	module.Post("/ldap/users/:user_id/disable", h.forcedisableAccount)
+	module.Post("/ldap/users/:user_id/disable", h.disableAccount)
 	module.Delete("/ldap/users/:user_id", h.deleteUser)
 
 	module.Listen()
