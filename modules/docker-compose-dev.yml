@@ -50,7 +50,7 @@ apps-module:
  build: ./apps
  dockerfile: Dockerfile-dev
  volumes:
-  - ./apps/:/go/build/apps
+  - ./apps/:/go/src/github.com/Nanocloud/community/modules/apps/
 
 history-module:
  extends:
@@ -68,7 +68,7 @@ iaas-module:
  build: ./iaas
  dockerfile: Dockerfile-dev
  volumes:
-  - ./iaas/:/go/build/iaas
+  - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
 
 ldap-module:
  extends:
@@ -86,4 +86,4 @@ users-module:
  build: ./users
  dockerfile: Dockerfile-dev
  volumes:
-  - ./users/:/go/build/users
+  - ./users/:/go/src/github.com/Nanocloud/community/modules/users/
