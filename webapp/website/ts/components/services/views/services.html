@@ -1,10 +1,12 @@
 
 <div style="height: 80%">
 	<md-list role="list">
-
 		<md-list-item class="md-3-line" ng-repeat="service in servicesCtrl.services" ng-click="servicesCtrl.toggle(service)">
-			<ng-md-icon icon="{{service.Ico}}"
+			<ng-md-icon ng-if="service.Status === 'available'" icon="{{service.Ico}}"
 				ng-style="{'color': '{{ servicesCtrl.colors[service.Status] }}'}" ></ng-md-icon>
+			<ng-md-icon ng-if="service.Status === 'running'" icon="{{service.Ico}}"
+				ng-style="{'color': '{{ servicesCtrl.colors[service.Status] }}'}" ></ng-md-icon>
+ 			<i ng-if="service.Status === 'booting'" class="fa fa-spinner fa-spin fa-2x" ng-style="{'margin-right':'10px','color':'green'}">  </i>
 			<div class="md-list-item-text" layout="column">
 				<h3>{{ service.DisplayName }}</h3>
 				<p>Status : <strong>{{ service.Status }}</strong></p>
