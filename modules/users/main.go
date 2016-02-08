@@ -293,6 +293,17 @@ func postUsers(req nano.Request) (*nano.Response, error) {
 		false,
 	)
 
+	switch err {
+	case usersPkg.UserDuplicated:
+		return nano.JSONResponse(409, hash{
+			"error": err.Error(),
+		}), nil
+	case usersPkg.UserNotCreated:
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	}
+
 	sam, winpass, err := createADUser(newUser.Id)
 	err = users.UpdateUserAd(newUser.Id, sam, winpass)
 
