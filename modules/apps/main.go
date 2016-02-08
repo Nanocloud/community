@@ -36,15 +36,15 @@ import (
 var module nano.Module
 
 var conf struct {
-	User                 string
-	Server               string
-	ExecutionServers     []string
-	SSHPort              string
-	RDPPort              string
-	Password             string
-	WindowsDomain        string
-	DatabaseURI          string
-	Protocol             string
+	User             string
+	Server           string
+	ExecutionServers []string
+	SSHPort          string
+	RDPPort          string
+	Password         string
+	WindowsDomain    string
+	DatabaseURI      string
+	Protocol         string
 }
 
 type handler struct {
@@ -136,6 +136,15 @@ func (h *handler) listApplicationsForSamAccount(req nano.Request) (*nano.Respons
 	return nano.JSONResponse(200, applications), nil
 }
 
+func AdminOnly(req nano.Request) (*nano.Response, error) {
+	if req.User != nil && !req.User.IsAdmin {
+		return nano.JSONResponse(403, hash{
+			"error": "forbidden",
+		}), nil
+	}
+	return nil, nil
+}
+
 // Make an application unusable
 func (h *handler) unpublishApplication(req nano.Request) (*nano.Response, error) {
 	appId := req.Params["app_id"]
@@ -211,10 +220,10 @@ func main() {
 		),
 	}
 
-	module.Get("/apps", h.listApplications)
-	module.Delete("/apps/:app_id", h.unpublishApplication)
+	module.Get("/apps", AdminOnly, h.listApplications)
+	module.Delete("/apps/:app_id", AdminOnly, h.unpublishApplication)
 	module.Get("/apps/me", h.listApplicationsForSamAccount)
-	module.Post("/apps", h.publishApplication)
-	module.Get("/apps/connections", h.getConnections)
+	module.Post("/apps", AdminOnly, h.publishApplication)
+	module.Get("/apps/connections", AdminOnly, h.getConnections)
 	module.Listen()
 }

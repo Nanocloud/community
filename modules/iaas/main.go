@@ -21,9 +21,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/Nanocloud/community/modules/iaas/lib/iaas"
 	"github.com/Nanocloud/nano"
-	"os"
 )
 
 var module nano.Module
@@ -44,6 +45,15 @@ type handler struct {
 }
 
 var conf Configuration
+
+func AdminOnly(req nano.Request) (*nano.Response, error) {
+	if req.User != nil && !req.User.IsAdmin {
+		return nano.JSONResponse(403, hash{
+			"error": "forbidden",
+		}), nil
+	}
+	return nil, nil
+}
 
 func (h *handler) ListRunningVM(req nano.Request) (*nano.Response, error) {
 	response, err := h.iaasCon.GetList()
@@ -152,10 +162,10 @@ func main() {
 		iaasCon: iaas.New(conf.Server, conf.Password, conf.User, conf.SSHPort, conf.instDir, conf.artURL),
 	}
 
-	module.Get("/iaas", h.ListRunningVM)
-	module.Post("/iaas/:id/stop", h.StopVM)
-	module.Post("/iaas/:id/start", h.StartVM)
-	module.Post("/iaas/:id/download", h.DownloadVM)
+	module.Get("/iaas", AdminOnly, h.ListRunningVM)
+	module.Post("/iaas/:id/stop", AdminOnly, h.StopVM)
+	module.Post("/iaas/:id/start", AdminOnly, h.StartVM)
+	module.Post("/iaas/:id/download", AdminOnly, h.DownloadVM)
 
 	module.Listen()
 }
