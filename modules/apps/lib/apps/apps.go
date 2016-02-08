@@ -41,6 +41,7 @@ var GetAppsFailed = errors.New("Can't get apps list")
 var UnpublishFailed = errors.New("Unpublish application failed")
 var PublishFailed = errors.New("Publish application failed")
 var AppsListUnavailable = errors.New("Apps list isn't available")
+var FailedNameChange = errors.New("Failed to change the app name")
 
 type Apps struct {
 	user                 string
@@ -321,6 +322,36 @@ func (a *Apps) UnpublishApp(Alias string) error {
 	if err != nil {
 		log.Error("delete from postgres failed: ", err)
 		return UnpublishFailed
+	}
+	return nil
+}
+
+func (a *Apps) AppExists(alias string) (bool, error) {
+	rows, err := a.db.Query(
+		`SELECT alias
+		FROM apps
+		WHERE alias = $1::varchar`,
+		alias)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (a *Apps) ChangeName(appId, newName string) error {
+	_, err := a.db.Query(
+		`UPDATE apps
+		SET display_name = $1::varchar
+		WHERE alias = $2::varchar`,
+		newName, appId)
+	if err != nil {
+		log.Error("Changing app name failed: ", err)
+		return FailedNameChange
 	}
 	return nil
 }
