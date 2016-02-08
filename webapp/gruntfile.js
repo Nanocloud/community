@@ -66,14 +66,14 @@ module.exports = function(grunt) {
 			},
 			fonts: {
 				cwd: "bower_components/font-awesome/fonts/",
-        src: [
-          "FontAwesome.otf",
-          "fontawesome-webfont.eot",
-          "fontawesome-webfont.svg",
-          "fontawesome-webfont.ttf",
-          "fontawesome-webfont.woff",
-          "fontawesome-webfont.woff2"
-        ],
+				src: [
+					"FontAwesome.otf",
+					"fontawesome-webfont.eot",
+					"fontawesome-webfont.svg",
+					"fontawesome-webfont.ttf",
+					"fontawesome-webfont.woff",
+					"fontawesome-webfont.woff2"
+				],
 				dest: "website/fonts/",
 				expand: true
 			}
