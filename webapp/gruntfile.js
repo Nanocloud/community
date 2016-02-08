@@ -63,6 +63,19 @@ module.exports = function(grunt) {
 				src: ["ui-grid.svg", "ui-grid.ttf", "ui-grid.eot", "ui-grid.woff"],
 				dest: "website/css/",
 				expand: true
+			},
+			fonts: {
+				cwd: "bower_components/font-awesome/fonts/",
+        src: [
+          "FontAwesome.otf",
+          "fontawesome-webfont.eot",
+          "fontawesome-webfont.svg",
+          "fontawesome-webfont.ttf",
+          "fontawesome-webfont.woff",
+          "fontawesome-webfont.woff2"
+        ],
+				dest: "website/fonts/",
+				expand: true
 			}
 		},
 
@@ -123,7 +136,7 @@ module.exports = function(grunt) {
 
 	});
 
-	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:uigrid"]);
+	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:uigrid", "copy:fonts"]);
 	grunt.registerTask("build", ["tslint", "ts:dist", "less", "sync"]);
 	grunt.registerTask("watch-xy", ["less", "sync", "watch"]);
 	grunt.registerTask("watch-ts", ["tslint", "ts:debug"]);
