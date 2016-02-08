@@ -194,6 +194,52 @@ func (h *handler) publishApplication(req nano.Request) (*nano.Response, error) {
 	}), nil
 }
 
+func (h *handler) changeAppName(req nano.Request) (*nano.Response, error) {
+	appId := req.Params["app_id"]
+	if len(appId) < 1 {
+		return nano.JSONResponse(400, hash{
+			"error": "App id must be specified",
+		}), nil
+	}
+	var Name struct {
+		DisplayName string
+	}
+
+	err := json.Unmarshal(req.Body, &Name)
+	if err != nil {
+		module.Log.Errorf("Unable to parse body request: %s", err.Error())
+		return nil, err
+	}
+	if len(Name.DisplayName) < 1 {
+		module.Log.Errorf("No name provided")
+		return nano.JSONResponse(400, hash{
+			"error": "No name provided",
+		}), nil
+	}
+
+	exists, err := h.appsCon.AppExists(appId)
+	if err != nil {
+		module.Log.Errorf("Unable to check app existence: %s", err.Error())
+		return nil, err
+	}
+
+	if !exists {
+		return nano.JSONResponse(404, hash{
+			"error": "App not found",
+		}), nil
+	}
+
+	err = h.appsCon.ChangeName(appId, Name.DisplayName)
+	if err == apps.FailedNameChange {
+		return nano.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	}
+	return nano.JSONResponse(200, hash{
+		"success": true,
+	}), nil
+}
+
 func main() {
 	module = nano.RegisterModule("apps")
 
@@ -222,6 +268,7 @@ func main() {
 
 	module.Get("/apps", AdminOnly, h.listApplications)
 	module.Delete("/apps/:app_id", AdminOnly, h.unpublishApplication)
+	module.Put("/apps/:app_id", AdminOnly, h.changeAppName)
 	module.Get("/apps/me", h.listApplicationsForSamAccount)
 	module.Post("/apps", AdminOnly, h.publishApplication)
 	module.Get("/apps/connections", AdminOnly, h.getConnections)
