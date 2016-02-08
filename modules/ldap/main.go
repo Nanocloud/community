@@ -58,6 +58,15 @@ func env(key, def string) string {
 	return v
 }
 
+func AdminOnly(req nano.Request) (*nano.Response, error) {
+	if req.User != nil && !req.User.IsAdmin {
+		return nano.JSONResponse(403, hash{
+			"error": "forbidden",
+		}), nil
+	}
+	return nil, nil
+}
+
 func (h *handler) listUsers(req nano.Request) (*nano.Response, error) {
 
 	res, err := h.ldapCon.GetUsers()
@@ -216,11 +225,11 @@ func main() {
 		ldapCon: ldapPkg.New(conf.Username, conf.Password, conf.ServerURL, conf.Ou, conf.LDAPServer),
 	}
 
-	module.Post("/ldap/users", h.createUser)
-	module.Get("/ldap/users", h.listUsers)
-	module.Put("/ldap/users/:user_id", h.updatePassword)
-	module.Post("/ldap/users/:user_id/disable", h.disableAccount)
-	module.Delete("/ldap/users/:user_id", h.deleteUser)
+	module.Post("/ldap/users", AdminOnly, h.createUser)
+	module.Get("/ldap/users", AdminOnly, h.listUsers)
+	module.Put("/ldap/users/:user_id", AdminOnly, h.updatePassword)
+	module.Post("/ldap/users/:user_id/disable", AdminOnly, h.disableAccount)
+	module.Delete("/ldap/users/:user_id", AdminOnly, h.deleteUser)
 
 	module.Listen()
 }

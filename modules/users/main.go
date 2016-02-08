@@ -25,17 +25,27 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	usersPkg "github.com/Nanocloud/community/modules/users/lib/users"
-	"github.com/Nanocloud/nano"
 	"math/rand"
 	"os"
 	"time"
+
+	usersPkg "github.com/Nanocloud/community/modules/users/lib/users"
+	"github.com/Nanocloud/nano"
 )
 
 type hash map[string]interface{}
 
 var module nano.Module
 var users *usersPkg.Users
+
+func AdminOnly(req nano.Request) (*nano.Response, error) {
+	if req.User != nil && !req.User.IsAdmin {
+		return nano.JSONResponse(403, hash{
+			"error": "forbidden",
+		}), nil
+	}
+	return nil, nil
+}
 
 func getUser(req nano.Request) (*nano.Response, error) {
 	userId := req.Params["id"]
@@ -326,17 +336,17 @@ func main() {
 
 	users = usersPkg.New(databaseURI)
 
-	module.Post("/users/login", userLogin)
+	module.Post("/users/login", AdminOnly, userLogin)
 
-	module.Post("/users/:id/disable", disableUser)
-	module.Get("/users", getUsers)
+	module.Post("/users/:id/disable", AdminOnly, disableUser)
+	module.Get("/users", AdminOnly, getUsers)
 
 	// Create a User
-	module.Post("/users", postUsers)
+	module.Post("/users", AdminOnly, postUsers)
 
-	module.Delete("/users/:id", deleteUser)
-	module.Put("/users/:id", updateUserPassword)
-	module.Get("/users/:id", getUser)
+	module.Delete("/users/:id", AdminOnly, deleteUser)
+	module.Put("/users/:id", AdminOnly, updateUserPassword)
+	module.Get("/users/:id", AdminOnly, getUser)
 
 	module.Listen()
 }

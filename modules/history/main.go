@@ -45,6 +45,15 @@ type HistoryInfo struct {
 	EndDate      string
 }
 
+func AdminOnly(req nano.Request) (*nano.Response, error) {
+	if req.User != nil && !req.User.IsAdmin {
+		return nano.JSONResponse(403, hash{
+			"error": "forbidden",
+		}), nil
+	}
+	return nil, nil
+}
+
 func dbConnect() {
 	databaseURI := os.Getenv("DATABASE_URI")
 	if len(databaseURI) == 0 {
@@ -179,8 +188,8 @@ func main() {
 	dbConnect()
 	setupDb()
 
-	module.Get("/history", ListCall)
-	module.Post("/history", AddCall)
+	module.Get("/history", AdminOnly, ListCall)
+	module.Post("/history", AdminOnly, AddCall)
 
 	module.Listen()
 }
