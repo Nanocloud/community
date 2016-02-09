@@ -48,6 +48,10 @@ export class ApplicationCtrl {
 		this.name = this.app.display_name;
 	}
 
+	resetName(): void {
+		this.name = this.app.alias;
+	}
+
 	save(): void {
 		this.applicationsSvc.changeName(this.app, this.name).then(function() {
 			this.$mdDialog.cancel();
