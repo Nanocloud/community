@@ -22,6 +22,7 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/ApplicationsSvc" />
+/// <amd-dependency path="./ApplicationCtrl" />
 import { ApplicationsSvc, IApplication } from "../services/ApplicationsSvc";
 
 "use strict";
@@ -51,6 +52,9 @@ export class ApplicationsCtrl {
 					cellTemplate: `
 						<md-button ng-click='grid.appScope.applicationsCtrl.openApplication($event, row.entity)'>
 							<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open
+						</md-button>
+						<md-button ng-click='grid.appScope.applicationsCtrl.startRenameApplication($event, row.entity)'>
+							<ng-md-icon icon='edit' size='14'></ng-md-icon> Edit name
 						</md-button>
 						<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>
 							<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish
@@ -86,6 +90,22 @@ export class ApplicationsCtrl {
 		this.$mdDialog
 			.show(o)
 			.then(this.unpublishApplication.bind(this, application));
+	}
+
+	startRenameApplication(e: MouseEvent, application: IApplication) {
+		let o = this.getDefaultRenameDlgOpt(e);
+		o.locals = { app: application };
+		return this.$mdDialog.show(o);
+	}
+
+	private getDefaultRenameDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
+		return {
+			controller: "ApplicationCtrl",
+			controllerAs: "applicationCtrl",
+			templateUrl: "./js/components/applications/views/applicationrename.html",
+			parent: angular.element(document.body),
+			targetEvent: e
+		};
 	}
 
 	unpublishApplication(application: IApplication) {

@@ -77,6 +77,11 @@ export class ApplicationsSvc {
 		return this.$http.delete("/api/apps/" + application.alias);
 	}
 
+	changeName(app: IApplication, name: string): angular.IPromise<boolean> {
+		return this.$http.put("/api/apps/" + app.alias, {
+			DisplayName: name
+		}).then(() => true, () => false);
+	}
 }
 
 angular.module("haptic.applications").service("ApplicationsSvc", ApplicationsSvc);
