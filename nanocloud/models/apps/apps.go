@@ -23,39 +23,36 @@
 package apps
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"os/exec"
 	"strings"
 	"time"
-
-	"github.com/Nanocloud/nano"
-	log "github.com/Sirupsen/logrus"
-	_ "github.com/lib/pq"
 )
 
-var GetAppsFailed = errors.New("Can't get apps list")
-var UnpublishFailed = errors.New("Unpublish application failed")
-var PublishFailed = errors.New("Publish application failed")
-var AppsListUnavailable = errors.New("Apps list isn't available")
-var FailedNameChange = errors.New("Failed to change the app name")
+var (
+	GetAppsFailed       = errors.New("Can't get apps list")
+	UnpublishFailed     = errors.New("Unpublish application failed")
+	PublishFailed       = errors.New("Publish application failed")
+	AppsListUnavailable = errors.New("Apps list isn't available")
+)
 
-type Apps struct {
-	user                 string
-	server               string
-	executionservers     []string
-	sshport              string
-	rdpport              string
-	password             string
-	windowsdomain        string
-	xmlconfigurationfile string
-	databaseuri          string
-	protocol             string
-	db                   *sql.DB
-}
+var (
+	kUser                 string
+	kServer               string
+	kExecutionServers     []string
+	kSSHPort              string
+	kRDPPort              string
+	kPassword             string
+	kWindowsDomain        string
+	kXMLConfigurationFile string
+	kProtocol             string
+)
 
 type ApplicationParams struct {
 	Id             int    `json:"id"`
@@ -83,38 +80,9 @@ type Connection struct {
 	AppName   string `json:"app_name"`
 }
 
-func New(
-	user,
-	server,
-	sshport,
-	rdpport,
-	protocol,
-	password,
-	databaseuri string,
-	executionservers []string) *Apps {
-	db := dbConnect(databaseuri)
-	err := setupDb(db)
-	if err != nil {
-		panic(err)
-	}
-
-	go checkPublishedApps(user, password, sshport, server, db)
-	return &Apps{
-		user:             user,
-		server:           server,
-		sshport:          sshport,
-		rdpport:          rdpport,
-		protocol:         protocol,
-		password:         password,
-		databaseuri:      databaseuri,
-		executionservers: executionservers,
-		db:               db,
-	}
-}
-
-func (a *Apps) GetAllApps() ([]ApplicationParams, error) {
+func GetAllApps() ([]ApplicationParams, error) {
 	var applications []ApplicationParams
-	rows, err := a.db.Query(
+	rows, err := db.Query(
 		`SELECT id, collection_name,
 	alias, display_name,
 	file_path
@@ -149,9 +117,9 @@ func (a *Apps) GetAllApps() ([]ApplicationParams, error) {
 
 }
 
-func (a *Apps) GetMyApps() ([]ApplicationParams, error) {
+func GetMyApps() ([]ApplicationParams, error) {
 	var applications []ApplicationParams
-	rows, err := a.db.Query(
+	rows, err := db.Query(
 		`SELECT id, collection_name,
 	alias, display_name,
 	file_path
@@ -187,68 +155,19 @@ func (a *Apps) GetMyApps() ([]ApplicationParams, error) {
 
 }
 
-func dbConnect(dbURI string) *sql.DB {
-
-	var err error
-	var db *sql.DB
-
-	for try := 0; try < 10; try++ {
-		db, err = sql.Open("postgres", dbURI)
-		if err == nil {
-			return db
-		}
-		time.Sleep(time.Second * 5)
-	}
-
-	panic("Cannot connect to Postgres Database: " + err.Error())
-}
-
-// Connects to the postgres databse
-func setupDb(db *sql.DB) error {
-	rows, err := db.Query(
-		`SELECT table_name
-		FROM information_schema.tables
-		WHERE table_name = 'apps'`)
-	if err != nil {
-		log.Error("Select tables names failed: ", err.Error())
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		log.Info("apps table already set up")
-		return nil
-	}
-	rows, err = db.Query(
-		`CREATE TABLE apps (
-			id	SERIAL PRIMARY KEY,
-			collection_name		varchar(36),
-			alias		varchar(36) UNIQUE,
-			display_name		varchar(36),
-			file_path		 varchar(255)
-		);`)
-	if err != nil {
-		log.Errorf("Unable to create apps table: %s", err)
-		return err
-	}
-
-	rows.Close()
-	return nil
-}
-
-func checkPublishedApps(user, password, sshport, server string, db *sql.DB) {
+func CheckPublishedApps() {
 	for {
 		time.Sleep(5 * time.Second)
 		var applications []ApplicationParamsWin
 		var apps []ApplicationParams
 		cmd := exec.Command(
-			"sshpass", "-p", password,
+			"sshpass", "-p", kPassword,
 			"ssh", "-o", "StrictHostKeyChecking=no",
-			"-p", sshport,
+			"-p", kSSHPort,
 			fmt.Sprintf(
 				"%s@%s",
-				user,
-				server,
+				kUser,
+				kServer,
 			),
 			"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
 		)
@@ -301,15 +220,15 @@ func checkPublishedApps(user, password, sshport, server string, db *sql.DB) {
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
-func (a *Apps) UnpublishApp(Alias string) error {
+func UnpublishApp(Alias string) error {
 	cmd := exec.Command(
-		"sshpass", "-p", a.password,
+		"sshpass", "-p", kPassword,
 		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-p", a.sshport,
+		"-p", kSSHPort,
 		fmt.Sprintf(
 			"%s@%s",
-			a.user,
-			a.server,
+			kUser,
+			kServer,
 		),
 		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
 	)
@@ -318,7 +237,7 @@ func (a *Apps) UnpublishApp(Alias string) error {
 		log.Error("Failed to execute sshpass command to unpublish an app", err, string(response))
 		return UnpublishFailed
 	}
-	_, err = a.db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
+	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
 	if err != nil {
 		log.Error("delete from postgres failed: ", err)
 		return UnpublishFailed
@@ -326,63 +245,15 @@ func (a *Apps) UnpublishApp(Alias string) error {
 	return nil
 }
 
-func (a *Apps) AppExists(alias string) (bool, error) {
-	rows, err := a.db.Query(
-		`SELECT alias
-		FROM apps
-		WHERE alias = $1::varchar`,
-		alias)
-	if err != nil {
-		return false, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return true, nil
-	}
-	return false, nil
-}
-
-func (a *Apps) ChangeName(appId, newName string) error {
-	_, err := a.db.Query(
-		`UPDATE apps
-		SET display_name = $1::varchar
-		WHERE alias = $2::varchar`,
-		newName, appId)
-	if err != nil {
-		log.Error("Changing app name failed: ", err)
-		return FailedNameChange
-	}
-	return nil
-}
-
-/*
-// ========================================================================================================================
-// Procedure: SyncUploadedFile
-//
-// Does:
-// - Upload user files to windows VM
-// ========================================================================================================================
-func syncUploadedFile(Filename string) {
-	bashCopyScript := filepath.Join(nan.Config().CommonBaseDir, "scripts", "copy.sh")
-	cmd := exec.Command(bashCopyScript, Filename)
-	cmd.Dir = filepath.Join(nan.Config().CommonBaseDir, "scripts")
-	response, err := cmd.Output()
-	if err != nil {
-		LogError("Failed to run script copy.sh, error: %s, output: %s\n", err, string(response))
-	} else {
-		Log("SCP upload success for file %s\n", Filename)
-	}
-}*/
-func (a *Apps) PublishApp(path string) error {
+func PublishApp(path string) error {
 	cmd := exec.Command(
-		"sshpass", "-p", a.password,
+		"sshpass", "-p", kPassword,
 		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-p", a.sshport,
+		"-p", kSSHPort,
 		fmt.Sprintf(
 			"%s@%s",
-			a.user,
-			a.server,
+			kUser,
+			kServer,
 		),
 		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe", "C:/publishApplication.ps1", path,
 	)
@@ -394,16 +265,13 @@ func (a *Apps) PublishApp(path string) error {
 	return nil
 }
 
-func (a *Apps) RetrieveConnections(users []nano.User) ([]Connection, error) {
+func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
 	var connections []Connection
 
-	rows, err := a.db.Query(
-		`SELECT alias
-	FROM apps`,
-	)
+	rows, err := db.Query("SELECT alias FROM apps")
 
 	if err != nil {
 		log.Error("Unable to retrieve apps list from Postgres: ", err.Error())
@@ -413,7 +281,7 @@ func (a *Apps) RetrieveConnections(users []nano.User) ([]Connection, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		for _, user := range users {
+		for _, user := range *users {
 			appParam := ApplicationParams{}
 
 			rows.Scan(
@@ -421,13 +289,13 @@ func (a *Apps) RetrieveConnections(users []nano.User) ([]Connection, error) {
 			)
 
 			var conn Connection
-			if count := len(a.executionservers); count > 0 {
-				conn.Hostname = a.executionservers[rand.Intn(count)]
+			if count := len(kExecutionServers); count > 0 {
+				conn.Hostname = kExecutionServers[rand.Intn(count)]
 			} else {
-				conn.Hostname = a.server
+				conn.Hostname = kServer
 			}
-			conn.Port = a.rdpport
-			conn.Protocol = a.protocol
+			conn.Port = kRDPPort
+			conn.Protocol = kProtocol
 			if user.Sam != "" && appParam.Alias != "hapticPowershell" && appParam.Alias != "" {
 				conn.Username = user.Sam
 				conn.Password = user.WindowsPassword
@@ -441,23 +309,54 @@ func (a *Apps) RetrieveConnections(users []nano.User) ([]Connection, error) {
 	}
 
 	connections = append(connections, Connection{
-		Hostname:  a.server,
-		Port:      a.rdpport,
-		Protocol:  a.protocol,
-		Username:  a.user,
-		Password:  a.password,
+		Hostname:  kServer,
+		Port:      kRDPPort,
+		Protocol:  kProtocol,
+		Username:  kUser,
+		Password:  kPassword,
 		RemoteApp: "",
 		AppName:   "hapticDesktop",
 	})
 	connections = append(connections, Connection{
-		Hostname:  a.server,
-		Port:      a.rdpport,
-		Protocol:  a.protocol,
-		Username:  a.user,
-		Password:  a.password,
+		Hostname:  kServer,
+		Port:      kRDPPort,
+		Protocol:  kProtocol,
+		Username:  kUser,
+		Password:  kPassword,
 		RemoteApp: "||hapticPowershell",
 		AppName:   "hapticPowershell",
 	})
 
 	return connections, nil
+}
+
+func init() {
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'apps'`)
+	if err != nil {
+		log.Error("Select tables names failed: ", err.Error())
+		panic(err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Info("apps table already set up")
+		return
+	}
+	rows, err = db.Query(
+		`CREATE TABLE apps (
+			id	SERIAL PRIMARY KEY,
+			collection_name		varchar(36),
+			alias		varchar(36) UNIQUE,
+			display_name		varchar(36),
+			file_path		 varchar(255)
+		);`)
+	if err != nil {
+		log.Errorf("Unable to create apps table: %s", err)
+		panic(err)
+	}
+
+	rows.Close()
 }

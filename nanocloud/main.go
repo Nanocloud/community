@@ -24,7 +24,9 @@ package main
 
 import (
 	"github.com/Nanocloud/community/nanocloud/middlewares"
+	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
 	"github.com/Nanocloud/community/nanocloud/router"
+	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
@@ -45,6 +47,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	/**
+	 * APPS
+	 */
+	router.Get("/apps", apps.ListApplications)
+	router.Delete("/apps/:app_id", apps.UnpublishApplication)
+	router.Get("/apps/me", apps.ListApplicationsForSamAccount)
+	router.Post("/apps", apps.PublishApplication)
+	router.Get("/apps/connections", apps.GetConnections)
+
+	go appsModel.CheckPublishedApps()
 
 	/**
 	 * HISTORY
