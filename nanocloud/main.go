@@ -26,6 +26,11 @@ import (
 	"github.com/Nanocloud/nano"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+
+	"github.com/Nanocloud/community/nanocloud/routes/me"
+	"github.com/Nanocloud/community/nanocloud/routes/oauth"
+	"github.com/Nanocloud/community/nanocloud/routes/version"
+
 	"os"
 )
 
@@ -70,10 +75,10 @@ func main() {
 	e.Use(middleware.Recover())
 	frontDir := env("FRONT_DIR", "front/")
 	e.Static("/", frontDir)
-	e.Get("/api/me", getMeHandler)
-	e.Get("/api/version", getVersionHandler)
+	e.Get("/api/me", me.Get)
+	e.Get("/api/version", version.Get)
 	e.Any("/api/*", handler.ServeHTTP)
-	e.Any("/oauth/*", oauthHandler)
+	e.Any("/oauth/*", oauth.Handler)
 	e.Post("/upload", uploadHandler)
 	e.Get("/upload", checkUploadHandler)
 

@@ -20,52 +20,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package me
 
 import (
 	"encoding/json"
-	"github.com/Nanocloud/oauth"
-	"github.com/labstack/echo"
-	"io/ioutil"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
-	"path/filepath"
 )
 
-func getMeHandler(w http.ResponseWriter, r *http.Request) {
-	user := oauth.GetUserOrFail(w, r)
+func Get(w http.ResponseWriter, r *http.Request) {
+	user := oauth2.GetUserOrFail(w, r)
 	if user != nil {
 		b, err := json.Marshal(user)
 		if err != nil {
-			module.Log.Error(err)
+			log.Error(err)
 			w.WriteHeader(500)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 	}
-}
-
-func oauthHandler(w http.ResponseWriter, r *http.Request) {
-	oauth.HandleRequest(w, r)
-}
-
-// get list of available front components
-func getComponentsHandler(c *echo.Context) error {
-	fis, err := ioutil.ReadDir(filepath.Join(env("FRONT_DIR", "front/"), "ts/components"))
-	if err != nil {
-		module.Log.Fatal("Unable to load the components folder. ", err)
-		return c.Err()
-	}
-	var comps []string
-	for _, f := range fis {
-		comps = append(comps, f.Name())
-	}
-	return c.JSON(http.StatusOK, comps)
-}
-
-// get the version of the nanocloud application
-func getVersionHandler(c *echo.Context) error {
-	info := map[string]string{
-		"version": appversion,
-	}
-	return c.JSON(http.StatusOK, info)
 }

@@ -20,6 +20,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package version
+
+import (
+	"github.com/labstack/echo"
+	"net/http"
+)
 
 const appversion = "0.3"
+
+// get the version of the nanocloud application
+func Get(c *echo.Context) error {
+	info := map[string]string{
+		"version": appversion,
+	}
+	return c.JSON(http.StatusOK, info)
+}
