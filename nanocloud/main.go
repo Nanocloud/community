@@ -25,6 +25,7 @@ package main
 import (
 	"github.com/Nanocloud/community/nanocloud/middlewares"
 	"github.com/Nanocloud/community/nanocloud/router"
+	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/users"
@@ -44,6 +45,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	/**
+	 * HISTORY
+	 */
+	router.Get("/history", history.List)
+	router.Post("/history", history.Add)
 
 	/**
 	 * USERS
