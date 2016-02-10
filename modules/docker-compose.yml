@@ -88,7 +88,7 @@ iaas-module:
   - PASSWORD=Nanocloud123+
   - SERVER=localhost
   - USER=Administrator
-  - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.2.1/
+  - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.3rc1/
  volumes:
   - ../installation_dir:/var/lib/nanocloud/
   - /dev/kvm:/dev/kvm
