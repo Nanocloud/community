@@ -43,24 +43,6 @@ postgres:
   file: ./docker-compose.yml
   service: postgres
 
-apps-module:
- extends:
-  file: ./docker-compose.yml
-  service: apps-module
- build: ./apps
- dockerfile: Dockerfile-dev
- volumes:
-  - ./apps/:/go/src/github.com/Nanocloud/community/modules/apps/
-
-history-module:
- extends:
-  file: ./docker-compose.yml
-  service: history-module
- build: ./history
- dockerfile: Dockerfile-dev
- volumes:
-  - ./history/:/go/build/history
-
 iaas-module:
  extends:
   file: ./docker-compose.yml
