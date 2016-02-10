@@ -20,6 +20,11 @@ nanocloud-backend:
   - WIN_PORT=1119
   - WIN_USER=Administrator
   - WIN_SERVER=iaas-module
+  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
+  - BASE=DC=intra,DC=localdomain,DC=com
+  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
+  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
+  - PASSWORD=
  restart: always
  container_name: "nanocloud-api"
 
@@ -95,25 +100,3 @@ iaas-module:
  restart: always
  container_name: "iaas-module"
  privileged: true
-
-ldap-module:
- build: ./ldap
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
-  - BASE=DC=intra,DC=localdomain,DC=com
-  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
-  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
-  - PASSWORD=
- restart: always
- container_name: "ldap-module"
-
-users-module:
- build: ./users
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
- restart: always
- container_name: "users-module"

@@ -1,8 +1,0 @@
-FROM nanocloud/ldap-module:dev
-MAINTAINER \
-  Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
-
-ENV GOBIN $GOPATH/bin
-RUN go get github.com/pilu/fresh
-
-CMD ["fresh"]

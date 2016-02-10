@@ -102,23 +102,23 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	err = assembleUpload(userPath, filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		module.Log.WithFields(log.Fields{
+		log.WithFields(log.Fields{
 			"error": err,
 		}).Error("unable to assemble the uploaded chunks")
 		return
 	}
-	module.Log.WithFields(log.Fields{
+	log.WithFields(log.Fields{
 		"path": upPath,
 	}).Info("file uploaded")
 
 	syncOut, err := syncUploadedFile(upPath)
 	if err != nil {
-		module.Log.WithFields(log.Fields{
+		log.WithFields(log.Fields{
 			"output": syncOut,
 			"error":  err,
 		}).Error("unable to scp the uploaded file to Windows")
 	}
-	module.Log.WithFields(log.Fields{
+	log.WithFields(log.Fields{
 		"path":   upPath,
 		"output": syncOut,
 	}).Info("file synced")
