@@ -20,12 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package oauth
 
 import (
 	"encoding/json"
-	"github.com/Nanocloud/nano"
-	"github.com/Nanocloud/oauth"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	"github.com/Nanocloud/community/nanocloud/utils"
 )
 
 type oauthConnector struct{}
@@ -42,37 +44,7 @@ type AccessToken struct {
 }
 
 func (c oauthConnector) AuthenticateUser(username, password string) (interface{}, error) {
-	m := make(map[string]string)
-	m["username"] = username
-	m["password"] = password
-
-	res, err := module.JSONRequest("POST", "/users/login", m, nil)
-	if err != nil {
-		module.Log.Error(err)
-		return nil, err
-	}
-
-	module.Log.Debug(res.StatusCode)
-	if res.StatusCode != 200 {
-		return nil, nil
-	}
-
-	var r struct {
-		Success bool
-		User    nano.User
-	}
-
-	module.Log.Debug(string(res.Body))
-	err = json.Unmarshal(res.Body, &r)
-	if err != nil {
-		return nil, err
-	}
-
-	if !r.Success {
-		return nil, nil
-	}
-
-	return &r.User, nil
+	return users.GetUserFromEmailPassword(username, password)
 }
 
 func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{}, error) {
@@ -98,24 +70,7 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 		return nil, err
 	}
 
-	res, err := module.Request("GET", "/users/"+userId, "", nil, nil)
-	if err != nil {
-		module.Log.Error(err)
-		return nil, err
-	}
-
-	if res.StatusCode != 200 {
-		return nil, nil
-	}
-
-	user := nano.User{}
-
-	err = json.Unmarshal(res.Body, &user)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+	return users.GetUser(userId)
 }
 
 func (c oauthConnector) GetClient(key string, secret string) (interface{}, error) {
@@ -149,8 +104,8 @@ func (at AccessToken) ToJSON() ([]byte, error) {
 	return json.Marshal(&m)
 }
 
-func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JSONAble, error) {
-	user := rawUser.(*nano.User)
+func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth2.JSONAble, error) {
+	user := rawUser.(*users.User)
 	client := rawClient.(*Client)
 
 	rows, err := db.Query(
@@ -173,7 +128,7 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JS
 		return accessToken, nil
 	}
 
-	token := randomString(25)
+	token := utils.RandomString(25)
 
 	rows, err = db.Query(
 		`INSERT INTO oauth_access_tokens
@@ -193,5 +148,5 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth.JS
 }
 
 func init() {
-	oauth.SetConnector(oauthConnector{})
+	oauth2.SetConnector(oauthConnector{})
 }

@@ -23,24 +23,15 @@ package ldap
 import (
 	"crypto/tls"
 	"errors"
+	"github.com/Nanocloud/community/nanocloud/utils"
+	log "github.com/Sirupsen/logrus"
+	"gopkg.in/ldap.v2"
 	"net/url"
 	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf16"
-
-	"gopkg.in/ldap.v2"
-
-	log "github.com/Sirupsen/logrus"
 )
-
-type Ldap struct {
-	Username   string
-	Password   string
-	ServerURL  string
-	Ou         string
-	LDAPServer url.URL
-}
 
 var WeakPassword = errors.New("Password does not meet the minimum requirements")
 var AddError = errors.New("Couldn't add user")
@@ -51,30 +42,32 @@ var UnknownUser = errors.New("Unknown user")
 var DisableFailed = errors.New("Failed to disable user")
 var DeleteFailed = errors.New("Failed to delete user")
 
-type ldap_conf struct {
-	host   string
-	login  string
-	passwd string
-	ou     string
-}
-
 type Res struct {
 	Count int
 	Users []map[string]string
 }
 
-func New(Username, Password, ServerURL, Ou string, LDAPServer url.URL) *Ldap {
-	return &Ldap{
-		Username:   Username,
-		Password:   Password,
-		ServerURL:  ServerURL,
-		Ou:         Ou,
-		LDAPServer: LDAPServer,
+var kUsername string
+var kPassword string
+var kServerURL string
+var kOrganisationUnit string
+var kLDAPServer url.URL
+
+func init() {
+	kUsername = utils.Env("LDAP_USERNAME", "CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com")
+	kPassword = utils.Env("LDAP_PASSWORD", "Nanocloud123+")
+	kOrganisationUnit = utils.Env("LDAP_OU", "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
+
+	ldapServer, err := url.Parse(utils.Env("LDAP_SERVER_URI", "ldaps://Administrator:Nanocloud123+@172.17.0.1:6003"))
+	if err != nil {
+		panic(err)
 	}
+
+	kLDAPServer = *ldapServer
 }
 
-func (l *Ldap) DialandBind() (*ldap.Conn, error) {
-	ldapConnection, err := ldap.DialTLS("tcp", l.LDAPServer.Host,
+func DialandBind() (*ldap.Conn, error) {
+	ldapConnection, err := ldap.DialTLS("tcp", kLDAPServer.Host,
 		&tls.Config{
 			InsecureSkipVerify: true,
 		})
@@ -82,7 +75,7 @@ func (l *Ldap) DialandBind() (*ldap.Conn, error) {
 		return nil, err
 	}
 
-	err = ldapConnection.Bind(l.Username, l.Password)
+	err = ldapConnection.Bind(kUsername, kPassword)
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +133,8 @@ func encodePassword(pass string) []byte {
 	return pwd
 }
 
-func (l *Ldap) AddUser(id, password string) (string, error) {
-
-	ldapConnection, err := l.DialandBind()
+func AddUser(id, password string) (string, error) {
+	ldapConnection, err := DialandBind()
 	if err != nil {
 		log.Error("Error while connection to Active Directory: " + err.Error())
 		return "", AddError
@@ -155,7 +147,7 @@ func (l *Ldap) AddUser(id, password string) (string, error) {
 		return "", WeakPassword
 	}
 
-	dn := "cn=" + id + "," + l.Ou
+	dn := "cn=" + id + "," + kOrganisationUnit
 
 	req := ldap.NewAddRequest(dn)
 	req.Attribute("objectclass", []string{"top", "person", "organizationalPerson", "User"})
@@ -173,7 +165,7 @@ func (l *Ldap) AddUser(id, password string) (string, error) {
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		l.Ou,
+		kOrganisationUnit,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(cn="+id+"))",
 		[]string{"dn", "cn", "sAMAccountName", "userAccountControl"},
@@ -190,15 +182,15 @@ func (l *Ldap) AddUser(id, password string) (string, error) {
 	return sam, nil
 }
 
-func (l *Ldap) GetUsers() (Res, error) {
-	ldapConnection, err := l.DialandBind()
+func GetUsers() (Res, error) {
+	ldapConnection, err := DialandBind()
 	if err != nil {
 		log.Error("Error while connection to Active Directory: " + err.Error())
 		return Res{}, GetUsersFailed
 	}
 	defer ldapConnection.Close()
 	searchRequest := ldap.NewSearchRequest(
-		l.Ou,
+		kOrganisationUnit,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectCategory=person)(objectGUID=*))",
 		[]string{"dn", "cn", "sAMAccountName", "userAccountControl"},
@@ -231,8 +223,8 @@ func (l *Ldap) GetUsers() (Res, error) {
 	return res, nil
 }
 
-func (l *Ldap) ChangePassword(id, password string) error {
-	ldapConnection, err := l.DialandBind()
+func ChangePassword(id, password string) error {
+	ldapConnection, err := DialandBind()
 	if err != nil {
 		log.Error("Error while connection to Active Directory: " + err.Error())
 		return ChangePwdFailed
@@ -240,7 +232,7 @@ func (l *Ldap) ChangePassword(id, password string) error {
 
 	defer ldapConnection.Close()
 	pwd := encodePassword(password)
-	modify := ldap.NewModifyRequest("cn=" + id + "," + l.Ou)
+	modify := ldap.NewModifyRequest("cn=" + id + "," + kOrganisationUnit)
 	modify.Replace("unicodePwd", []string{string(pwd)})
 	err = ldapConnection.Modify(modify)
 	if err != nil {
@@ -250,15 +242,15 @@ func (l *Ldap) ChangePassword(id, password string) error {
 	return nil
 }
 
-func (l *Ldap) DisableUser(id string) error {
-	ldapConnection, err := l.DialandBind()
+func DisableUser(id string) error {
+	ldapConnection, err := DialandBind()
 	if err != nil {
 		log.Error("Error while connecting to Active Directory: " + err.Error())
 		return DisableFailed
 	}
 
 	defer ldapConnection.Close()
-	modify := ldap.NewModifyRequest("cn=" + id + "," + l.Ou)
+	modify := ldap.NewModifyRequest("cn=" + id + "," + kOrganisationUnit)
 	modify.Replace("userAccountControl", []string{"514"}) // 512 is a normal account, 514 is disabled ( 512 + 0x0002 )
 	err = ldapConnection.Modify(modify)
 	if err != nil {
@@ -271,14 +263,14 @@ func (l *Ldap) DisableUser(id string) error {
 	return nil
 }
 
-func (l *Ldap) DeleteAccount(id string) error {
-	ldapConnection, err := l.DialandBind()
+func DeleteAccount(id string) error {
+	ldapConnection, err := DialandBind()
 	if err != nil {
 		log.Error("Error while connecting to Active Directory: " + err.Error())
 		return DeleteFailed
 	}
 	defer ldapConnection.Close()
-	del := ldap.NewDelRequest("cn="+id+","+l.Ou, []ldap.Control{})
+	del := ldap.NewDelRequest("cn="+id+","+kOrganisationUnit, []ldap.Control{})
 	err = ldapConnection.Del(del)
 	if err != nil {
 		log.Error("Delete  error: " + err.Error())

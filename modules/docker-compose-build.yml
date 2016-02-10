@@ -52,13 +52,3 @@ iaas-module:
  extends:
   file: ./docker-compose.yml
   service: iaas-module
-
-ldap-module:
- extends:
-  file: ./docker-compose.yml
-  service: ldap-module
-
-users-module:
- extends:
-  file: ./docker-compose.yml
-  service: users-module

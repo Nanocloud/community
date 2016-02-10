@@ -23,14 +23,11 @@
 package users
 
 import (
-	"database/sql"
 	"errors"
-	"github.com/Nanocloud/nano"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
-	_ "github.com/lib/pq"
 	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 var (
@@ -41,38 +38,12 @@ var (
 	UserNotCreated     = errors.New("user not created")
 )
 
-type Users struct {
-	db *sql.DB
-}
-
-func dbConnect(databaseURI string) (*sql.DB, error) {
-	var err error
-	var db *sql.DB
-
-	for try := 0; try < 10; try++ {
-		db, err = sql.Open("postgres", databaseURI)
-		if err != nil {
-			return nil, err
-		}
-
-		err = db.Ping()
-		if err == nil {
-			log.Info("Connected to Postgres")
-			return db, nil
-		}
-
-		log.Info("Unable to connect to Postgres. Will retry in 5 sec")
-		time.Sleep(time.Second * 5)
-	}
-	return nil, err
-}
-
-func (u *Users) GetUserFromEmailPassword(email, password string) (*nano.User, error) {
+func GetUserFromEmailPassword(email, password string) (*User, error) {
 	if len(email) < 1 || len(password) < 1 {
 		return nil, UserNotFound
 	}
 
-	rows, err := u.db.Query(
+	rows, err := db.Query(
 		`SELECT id, activated,
 		email, password,
 		first_name, last_name,
@@ -89,7 +60,7 @@ func (u *Users) GetUserFromEmailPassword(email, password string) (*nano.User, er
 		return nil, UserNotFound
 	}
 
-	var user nano.User
+	var user User
 	var passwordHash string
 	rows.Scan(
 		&user.Id, &user.Activated,
@@ -112,8 +83,8 @@ func (u *Users) GetUserFromEmailPassword(email, password string) (*nano.User, er
 	return &user, nil
 }
 
-func (u *Users) FindUsers() (*[]nano.User, error) {
-	rows, err := u.db.Query(
+func FindUsers() (*[]User, error) {
+	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
 		email, is_admin, activated,
@@ -124,11 +95,11 @@ func (u *Users) FindUsers() (*[]nano.User, error) {
 		return nil, err
 	}
 
-	var users []nano.User
+	var users []User
 
 	defer rows.Close()
 	for rows.Next() {
-		user := nano.User{}
+		user := User{}
 
 		rows.Scan(
 			&user.Id,
@@ -150,8 +121,8 @@ func (u *Users) FindUsers() (*[]nano.User, error) {
 	return &users, nil
 }
 
-func (u *Users) UserExists(id string) (bool, error) {
-	rows, err := u.db.Query(
+func UserExists(id string) (bool, error) {
+	rows, err := db.Query(
 		`SELECT id
 		FROM users
 		WHERE id = $1::varchar`,
@@ -167,8 +138,8 @@ func (u *Users) UserExists(id string) (bool, error) {
 	return false, nil
 }
 
-func (u *Users) DisableUser(id string) error {
-	rows, err := u.db.Query(
+func DisableUser(id string) error {
+	rows, err := db.Query(
 		`UPDATE users
 		SET activated = false
 		WHERE id = $1::varchar`,
@@ -179,14 +150,14 @@ func (u *Users) DisableUser(id string) error {
 	return err
 }
 
-func (u *Users) CreateUser(
+func CreateUser(
 	activated bool,
 	email string,
 	firstName string,
 	lastName string,
 	password string,
 	isAdmin bool,
-) (*nano.User, error) {
+) (*User, error) {
 	id := uuid.NewV4().String()
 
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -194,7 +165,7 @@ func (u *Users) CreateUser(
 		return nil, err
 	}
 
-	rows, err := u.db.Query(
+	rows, err := db.Query(
 		`INSERT INTO users
 		(id, email, activated,
 		first_name, last_name,
@@ -221,7 +192,7 @@ func (u *Users) CreateUser(
 
 	rows.Close()
 
-	rows, err = u.db.Query(
+	rows, err = db.Query(
 		`SELECT id, activated,
 		email,
 		first_name, last_name,
@@ -238,7 +209,7 @@ func (u *Users) CreateUser(
 		return nil, UserNotCreated
 	}
 
-	var user nano.User
+	var user User
 	rows.Scan(
 		&user.Id, &user.Activated,
 		&user.Email, &user.FirstName,
@@ -251,8 +222,8 @@ func (u *Users) CreateUser(
 	return &user, err
 }
 
-func (u *Users) UpdateUserAd(id, sam, password string) error {
-	res, err := u.db.Exec(
+func UpdateUserAd(id, sam, password string) error {
+	res, err := db.Exec(
 		`UPDATE users
 		SET sam = $1::varchar,
 		windows_password = $2::varchar
@@ -271,8 +242,8 @@ func (u *Users) UpdateUserAd(id, sam, password string) error {
 	return nil
 }
 
-func (u *Users) DeleteUser(id string) error {
-	res, err := u.db.Exec("DELETE FROM users WHERE id = $1::varchar", id)
+func DeleteUser(id string) error {
+	res, err := db.Exec("DELETE FROM users WHERE id = $1::varchar", id)
 	if err != nil {
 		return err
 	}
@@ -286,13 +257,13 @@ func (u *Users) DeleteUser(id string) error {
 	return nil
 }
 
-func (u *Users) UpdateUserPassword(id string, password string) error {
+func UpdateUserPassword(id string, password string) error {
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	res, err := u.db.Exec(
+	res, err := db.Exec(
 		`UPDATE users
 		SET password = $1::varchar
 		WHERE id = $2::varchar`,
@@ -311,8 +282,8 @@ func (u *Users) UpdateUserPassword(id string, password string) error {
 	return nil
 }
 
-func (u *Users) GetUser(id string) (*nano.User, error) {
-	rows, err := u.db.Query(
+func GetUser(id string) (*User, error) {
+	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
 		email, is_admin, activated,
@@ -326,7 +297,7 @@ func (u *Users) GetUser(id string) (*nano.User, error) {
 
 	defer rows.Close()
 	if rows.Next() {
-		var user nano.User
+		var user User
 
 		err = rows.Scan(
 			&user.Id,
@@ -345,68 +316,4 @@ func (u *Users) GetUser(id string) (*nano.User, error) {
 		return &user, nil
 	}
 	return nil, nil
-}
-
-func (u *Users) init() error {
-	rows, err := u.db.Query(
-		`SELECT table_name
-			FROM information_schema.tables
-			WHERE table_name = 'users'`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return nil
-	}
-
-	rows, err = u.db.Query(
-		`CREATE TABLE users (
-				id               varchar(36) PRIMARY KEY,
-				first_name       varchar(36) NOT NULL DEFAULT '',
-				last_name        varchar(36) NOT NULL DEFAULT '',
-				email            varchar(36) NOT NULL DEFAULT '' UNIQUE,
-				password         varchar(60) NOT NULL DEFAULT '',
-				is_admin         boolean,
-				activated        boolean,
-				sam              varchar(35) NOT NULL DEFAULT '',
-				windows_password varchar(36) NOT NULL DEFAULT ''
-			);`)
-	if err != nil {
-		return err
-	}
-
-	rows.Close()
-
-	_, err = u.CreateUser(
-		true,
-		"admin@nanocloud.com",
-		"John",
-		"Doe",
-		"admin",
-		true,
-	)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func New(dbURI string) *Users {
-	db, err := dbConnect(dbURI)
-	if err != nil {
-		panic(err)
-	}
-
-	u := Users{
-		db: db,
-	}
-	err = u.init()
-	if err != nil {
-		panic(err)
-	}
-
-	return &u
 }

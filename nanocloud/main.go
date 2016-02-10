@@ -23,66 +23,54 @@
 package main
 
 import (
-	"github.com/Nanocloud/nano"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-
+	"github.com/Nanocloud/community/nanocloud/middlewares"
+	"github.com/Nanocloud/community/nanocloud/router"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
+	"github.com/Nanocloud/community/nanocloud/routes/users"
 	"github.com/Nanocloud/community/nanocloud/routes/version"
-
-	"os"
+	"github.com/Nanocloud/community/nanocloud/utils"
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
-
-var module nano.Module
-
-func env(key, def string) string {
-	v := os.Getenv(key)
-	if v == "" {
-		v = def
-	}
-	return v
-}
 
 var conf struct {
 	UploadDir string
 }
 
 func main() {
-	module = nano.RegisterModule("router")
-
-	err := dbConnect()
+	err := setupDb()
 	if err != nil {
-		module.Log.Fatal(err)
+		log.Fatal(err)
 	}
 
-	err = setupDb()
-	if err != nil {
-		module.Log.Fatal(err)
-	}
+	/**
+	 * USERS
+	 */
+	router.Post("/users/login", users.Login)
+	router.Post("/users/:id/disable", middlewares.Admin, users.Disable)
+	router.Get("/users", middlewares.Admin, users.Get)
+	router.Post("/users", middlewares.Admin, users.Post)
+	router.Delete("/users/:id", middlewares.Admin, users.Delete)
+	router.Put("/users/:id", middlewares.Admin, users.UpdatePassword)
+	router.Get("/users/:id", middlewares.Admin, users.GetUser)
 
-	conf.UploadDir = env("UPLOAD_DIR", "uploads/")
-
-	handler := httpHandler{
-		URLPrefix: "/api",
-		Module:    module,
-	}
-
-	go module.Listen()
+	conf.UploadDir = utils.Env("UPLOAD_DIR", "uploads/")
 
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	frontDir := env("FRONT_DIR", "front/")
+	frontDir := utils.Env("FRONT_DIR", "front/")
 	e.Static("/", frontDir)
 	e.Get("/api/me", me.Get)
 	e.Get("/api/version", version.Get)
-	e.Any("/api/*", handler.ServeHTTP)
+	e.Any("/api/*", router.ServeHTTP)
 	e.Any("/oauth/*", oauth.Handler)
 	e.Post("/upload", uploadHandler)
 	e.Get("/upload", checkUploadHandler)
 
-	addr := ":" + env("PORT", "8080")
-	module.Log.Info("Server running at ", addr)
+	addr := ":" + utils.Env("PORT", "8080")
+	log.Info("Server running at ", addr)
 	e.Run(addr)
 }
