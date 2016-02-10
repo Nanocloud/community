@@ -20,6 +20,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package me
 
-const appversion = "0.3rc1"
+import (
+	"encoding/json"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	log "github.com/Sirupsen/logrus"
+	"net/http"
+)
+
+func Get(w http.ResponseWriter, r *http.Request) {
+	user := oauth2.GetUserOrFail(w, r)
+	if user != nil {
+		b, err := json.Marshal(user)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(500)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+	}
+}
