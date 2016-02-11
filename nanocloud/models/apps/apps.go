@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"os/exec"
@@ -331,6 +332,15 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 }
 
 func init() {
+	kUser = utils.Env("USER", "Administrator")
+	kProtocol = utils.Env("PROTOCOL", "rdp")
+	kSSHPort = utils.Env("SSH_PORT", "22")
+	kRDPPort = utils.Env("RDP_PORT", "3389")
+	kServer = utils.Env("SERVER", "62.210.56.76")
+	kPassword = utils.Env("PASSWORD", "ItsPass1942+")
+	kWindowsDomain = utils.Env("WINDOWS_DOMAIN", "intra.localdomain.com")
+	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", "62.210.56.76"), ",")
+
 	rows, err := db.Query(
 		`SELECT table_name
 		FROM information_schema.tables
