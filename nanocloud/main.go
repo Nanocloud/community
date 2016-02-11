@@ -57,6 +57,7 @@ func main() {
 	router.Get("/apps/me", apps.ListApplicationsForSamAccount)
 	router.Post("/apps", apps.PublishApplication)
 	router.Get("/apps/connections", apps.GetConnections)
+	router.Put("/apps/:app_id", middlewares.Admin, apps.ChangeAppName)
 
 	go appsModel.CheckPublishedApps()
 
