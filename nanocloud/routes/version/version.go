@@ -27,7 +27,7 @@ import (
 	"net/http"
 )
 
-const appversion = "0.3rc1"
+const appversion = "0.3"
 
 // get the version of the nanocloud application
 func Get(c *echo.Context) error {

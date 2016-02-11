@@ -23,9 +23,9 @@
 package main
 
 import (
-	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/middlewares"
 	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
+	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/router"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
