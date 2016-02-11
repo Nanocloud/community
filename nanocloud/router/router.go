@@ -247,4 +247,5 @@ func ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 func init() {
 	module = nano.RegisterModule("router")
+	go module.Listen()
 }
