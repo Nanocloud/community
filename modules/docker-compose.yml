@@ -64,12 +64,6 @@ postgres:
  restart: always
  container_name: "postgres"
 
-apps-module:
- build: ./apps
- environment:
- restart: always
- container_name: "apps-module"
-
 iaas-module:
  build: ./iaas
  environment:
