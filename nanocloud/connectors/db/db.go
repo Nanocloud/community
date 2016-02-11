@@ -16,7 +16,8 @@ func getInstance() (*sql.DB, error) {
 			databaseURI = "postgres://localhost/nanocloud?sslmode=disable"
 		}
 
-		_db, err := sql.Open("postgres", databaseURI)
+		var err error
+		_db, err = sql.Open("postgres", databaseURI)
 		return _db, err
 	}
 	return _db, nil
