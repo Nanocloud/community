@@ -75,17 +75,11 @@ func Delete(req router.Request) (*router.Response, error) {
 		return nil, err
 	}
 
-	return router.JSONResponse(200, hash{
-		"success": true,
-	}), nil
-
 	err = users.DeleteUser(user.Id)
 	if err != nil {
 		log.Errorf("Unable to delete user: ", err.Error())
 		return nil, err
 	}
-
-	// SendMsg(Message{Method: "Delete", Email: mail})
 
 	return router.JSONResponse(200, hash{
 		"success": true,
