@@ -22,4 +22,4 @@
 
 package main
 
-const appversion = "0.3rc1"
+const appversion = "0.3"
