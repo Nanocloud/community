@@ -41,6 +41,7 @@ var (
 	UnpublishFailed     = errors.New("Unpublish application failed")
 	PublishFailed       = errors.New("Publish application failed")
 	AppsListUnavailable = errors.New("Apps list isn't available")
+	FailedNameChange    = errors.New("Failed to change the app name")
 )
 
 var (
@@ -79,6 +80,36 @@ type Connection struct {
 	RemoteApp string `json:"remote_app"`
 	Protocol  string `json:"protocol"`
 	AppName   string `json:"app_name"`
+}
+
+func AppExists(alias string) (bool, error) {
+	rows, err := db.Query(
+		`SELECT alias
+     FROM apps
+     WHERE alias = $1::varchar`,
+		alias)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		return true, nil
+	}
+	return false, nil
+}
+
+func ChangeName(appId, newName string) error {
+	_, err := db.Query(
+		`UPDATE apps
+     SET display_name = $1::varchar
+     WHERE alias = $2::varchar`,
+		newName, appId)
+	if err != nil {
+		log.Error("Changing app name failed: ", err)
+		return FailedNameChange
+	}
+	return nil
 }
 
 func GetAllApps() ([]ApplicationParams, error) {

@@ -131,3 +131,49 @@ func PublishApplication(req router.Request) (*router.Response, error) {
 		"success": true,
 	}), nil
 }
+
+func ChangeAppName(req router.Request) (*router.Response, error) {
+	appId := req.Params["app_id"]
+	if len(appId) < 1 {
+		return router.JSONResponse(400, hash{
+			"error": "App id must be specified",
+		}), nil
+	}
+	var Name struct {
+		DisplayName string
+	}
+
+	err := json.Unmarshal(req.Body, &Name)
+	if err != nil {
+		log.Errorf("Unable to parse body request: %s", err.Error())
+		return nil, err
+	}
+	if len(Name.DisplayName) < 1 {
+		log.Errorf("No name provided")
+		return router.JSONResponse(400, hash{
+			"error": "No name provided",
+		}), nil
+	}
+
+	exists, err := apps.AppExists(appId)
+	if err != nil {
+		log.Errorf("Unable to check app existence: %s", err.Error())
+		return nil, err
+	}
+
+	if !exists {
+		return router.JSONResponse(404, hash{
+			"error": "App not found",
+		}), nil
+	}
+
+	err = apps.ChangeName(appId, Name.DisplayName)
+	if err == apps.FailedNameChange {
+		return router.JSONResponse(500, hash{
+			"error": err.Error(),
+		}), nil
+	}
+	return router.JSONResponse(200, hash{
+		"success": true,
+	}), nil
+}
