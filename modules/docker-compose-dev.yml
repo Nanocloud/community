@@ -12,8 +12,12 @@ nanocloud-backend:
  extends:
   file: ./docker-compose.yml
   service: nanocloud-backend
+ build: ../nanocloud
+ dockerfile: Dockerfile-dev
  volumes_from:
   - nanocloud-frontend
+ volumes:
+  - ../nanocloud:/go/src/github.com/Nanocloud/community/nanocloud/
 
 nanocloud-frontend:
  extends:
