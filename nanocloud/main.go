@@ -28,9 +28,11 @@ import (
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/router"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
+	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
+	"github.com/Nanocloud/community/nanocloud/routes/upload"
 	"github.com/Nanocloud/community/nanocloud/routes/users"
 	"github.com/Nanocloud/community/nanocloud/routes/version"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -39,15 +41,17 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-var conf struct {
-	UploadDir string
-}
-
 func main() {
 	err := setupDb()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return
 	}
+
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Any("/api/*", router.ServeHTTP)
 
 	/**
 	 * APPS
@@ -78,19 +82,31 @@ func main() {
 	router.Put("/users/:id", middlewares.Admin, users.UpdatePassword)
 	router.Get("/users/:id", middlewares.Admin, users.GetUser)
 
-	conf.UploadDir = utils.Env("UPLOAD_DIR", "uploads/")
+	/**
+	 * FRONT
+	 */
+	e.Static("/", front.StaticDirectory)
 
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	frontDir := utils.Env("FRONT_DIR", "front/")
-	e.Static("/", frontDir)
+	/**
+	 * ME
+	 */
 	e.Get("/api/me", me.Get)
+
+	/**
+	 * VERSION
+	 */
 	e.Get("/api/version", version.Get)
-	e.Any("/api/*", router.ServeHTTP)
+
+	/**
+	 * OAUTH
+	 */
 	e.Any("/oauth/*", oauth.Handler)
-	e.Post("/upload", uploadHandler)
-	e.Get("/upload", checkUploadHandler)
+
+	/**
+	 * UPLOAD
+	 */
+	e.Post("/upload", upload.Post)
+	e.Get("/upload", upload.Get)
 
 	addr := ":" + utils.Env("PORT", "8080")
 	log.Info("Server running at ", addr)
