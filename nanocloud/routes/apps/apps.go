@@ -67,20 +67,18 @@ func ListApplications(req router.Request) (*router.Response, error) {
 }
 
 // ========================================================================================================================
-// Procedure: listApplicationsForSamAccount
+// Procedure: ListUserApps
 //
 // Does:
-// - Return list of applications available for a particular SAM account
+// - Return list of applications available for the current user
 // ========================================================================================================================
-func ListApplicationsForSamAccount(req router.Request) (*router.Response, error) {
-	applications, err := apps.GetMyApps()
+func ListUserApps(req router.Request) (*router.Response, error) {
+	applications, err := apps.GetUserApps(req.User.Id)
 	if err == apps.GetAppsFailed {
 		return router.JSONResponse(500, hash{
 			"error": err.Error(),
 		}), nil
 	}
-
-	//TODO ONLY RETURN AUTHORIZED APPS FROM THE USER'S GROUP
 	return router.JSONResponse(200, applications), nil
 }
 
