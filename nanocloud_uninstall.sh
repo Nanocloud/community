@@ -31,15 +31,15 @@ COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
 
 ${CURRENT_DIR}/check_version.sh
 
-rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
 
-rm -rf ${CURRENT_DIR}/modules/build_output
 docker-compose -f ${CURRENT_DIR}/modules/docker-compose-build.yml rm -f > /dev/null 2>&1
 
 # Remove all docker images related to Nanocloud
 docker images | awk '/^nanocloud\// { printf "docker rmi -f %s:%s\n", $1, $2; }' | sh
 
 echo "$(date "${DATE_FMT}") Removing installed files"
+rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
+rm -rf ${CURRENT_DIR}/modules/build_output
 rm -f ${NANOCLOUD_DIR}/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 rm -f ${NANOCLOUD_DIR}/downloads/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 rm -f ${CHANNEL_FILE}
