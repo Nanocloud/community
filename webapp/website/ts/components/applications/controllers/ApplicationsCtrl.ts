@@ -76,7 +76,7 @@ export class ApplicationsCtrl {
 	loadApplications(): angular.IPromise<void> {
 		return this.applicationsSrv.getAll().then((applications: IApplication[]) => {
 			applications.forEach(function(application: IApplication) {
-				if (application.alias !== "" && application.alias !== "hapticPowershell") {
+				if (application.alias !== "Desktop" && application.alias !== "hapticPowershell") {
 					this.applications.push(application);
 				}
 			}.bind(this));
