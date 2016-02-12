@@ -33,7 +33,9 @@ ${CURRENT_DIR}/check_version.sh
 
 sh $NANOCLOUD_DIR/scripts/stop.sh ${COMMUNITY_CHANNEL}
 
-docker-compose -f ${CURRENT_DIR}/modules/docker-compose-build.yml rm -f > /dev/null 2>&1
+docker-compose -f ${CURRENT_DIR}/modules/docker-compose.yml down
+docker-compose -f ${CURRENT_DIR}/modules/docker-compose-dev.yml down
+docker-compose -f ${CURRENT_DIR}/docker-compose.yml down
 
 # Remove all docker images related to Nanocloud
 docker images | awk '/^nanocloud\// { printf "docker rmi -f %s:%s\n", $1, $2; }' | sh
