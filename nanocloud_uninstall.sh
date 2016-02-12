@@ -35,51 +35,9 @@ rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-20
 
 rm -rf ${CURRENT_DIR}/modules/build_output
 docker-compose -f ${CURRENT_DIR}/modules/docker-compose-build.yml rm -f > /dev/null 2>&1
-docker rmi -f modules_guacamole-client \
-       modules_guacamole-server \
-       modules_nanocloud-backend \
-       modules_proxy \
-       modules_ambassador \
-       modules_rabbitmq \
-       modules_postgres \
-       modules_apps-module \
-       modules_history-module \
-       modules_iaas-module \
-       modules_ldap-module \
-       modules_nanocloud-frontend \
-       modules_users-module > /dev/null 2>&1
 
-if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
-    docker-compose -f ${CURRENT_DIR}/docker-compose-indiana.yml rm -f
-    docker rmi -f nanocloud/guacamole-client:indiana \
-	   nanocloud/guacamole-server:indiana \
-	   nanocloud/nanocloud-backend:indiana \
-	   nanocloud/proxy:indiana \
-	   nanocloud/ambassador:indiana \
-	   nanocloud/rabbitmq:indiana \
-	   nanocloud/postgres:indiana \
-	   nanocloud/apps-module:indiana \
-	   nanocloud/history-module:indiana \
-	   nanocloud/iaas-module:indiana \
-	   nanocloud/ldap-module:indiana \
-	   nanocloud/nanocloud-frontend:indiana \
-	   nanocloud/users-module:indiana > /dev/null 2>&1
-else
-    docker-compose -f ${CURRENT_DIR}/docker-compose.yml rm -f
-    docker rmi -f nanocloud/guacamole-client:0.2 \
-	   nanocloud/guacamole-server:0.2 \
-	   nanocloud/nanocloud-backend:0.2 \
-	   nanocloud/proxy:0.2 \
-	   nanocloud/ambassador:0.2 \
-	   nanocloud/rabbitmq:0.2 \
-	   nanocloud/postgres:0.2 \
-	   nanocloud/apps-module:0.2 \
-	   nanocloud/history-module:0.2 \
-	   nanocloud/iaas-module:0.2 \
-	   nanocloud/ldap-module:0.2 \
-	   nanocloud/nanocloud-frontend:0.2 \
-	   nanocloud/users-module:0.2 > /dev/null 2>&1
-fi
+# Remove all docker images related to Nanocloud
+docker images | awk '/^nanocloud\// { printf "docker rmi -f %s:%s\n", $1, $2; }' | sh
 
 echo "$(date "${DATE_FMT}") Removing installed files"
 rm -f ${NANOCLOUD_DIR}/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
