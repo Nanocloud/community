@@ -65,7 +65,7 @@ else
         echo "0" > modules/build_output
     fi
 
-    if [ -f "${NANOCLOUD_OUTPUT}" -o "${NANOCLOUD_SKIP_DEV}" = "false" ]; then
+    if [ "${NANOCLOUD_SKIP_DEV}" = "false" ]; then
 	echo "# Building Nanocloud dev mode"
 
 	${DOCKER_COMPOSE} -f modules/docker-compose-dev.yml build
