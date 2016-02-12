@@ -23,7 +23,6 @@ package iaas
 import (
 	"errors"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -32,6 +31,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -138,11 +139,12 @@ func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
 	return vmList
 }
 
-func (i *Iaas) CheckRDS() (bool, error) {
+func (i *Iaas) CheckRDS() bool {
 
 	cmd := exec.Command(
 		"sshpass", "-p", i.Password,
 		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-o", "ConnectTimeout=1",
 		"-p", i.SSHPort,
 		fmt.Sprintf(
 			"%s@%s",
@@ -154,13 +156,13 @@ func (i *Iaas) CheckRDS() (bool, error) {
 	response, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error("Failed to check windows' state", err, string(response))
-		return false, err
+		return false
 	}
 
 	if string(response) == "Running\n" {
-		return true, nil
+		return true
 	}
-	return false, nil
+	return false
 }
 
 func (i *Iaas) GetList() (VMstatus, error) {
@@ -172,10 +174,7 @@ func (i *Iaas) GetList() (VMstatus, error) {
 		if !strings.Contains(fileName, ".pid") {
 			continue
 		}
-		running, err := i.CheckRDS()
-		if err != nil {
-			return status, err
-		}
+		running := i.CheckRDS()
 		if running {
 			status.RunningVmNames = append(status.RunningVmNames, file.Name()[0:len(file.Name())-4])
 		} else {

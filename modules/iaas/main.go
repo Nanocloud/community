@@ -61,7 +61,7 @@ func (h *handler) ListRunningVM(req nano.Request) (*nano.Response, error) {
 		module.Log.Error("Unable to retrieve VM states list")
 		return nano.JSONResponse(500, hash{
 			"error": "Unable te retrieve states of VMs: " + err.Error(),
-		}), err
+		}), nil
 	}
 
 	vmList := h.iaasCon.CheckVMStates(response)
