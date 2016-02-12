@@ -20,11 +20,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package upload
 
 import (
-	"github.com/Nanocloud/nano"
-	"github.com/Nanocloud/oauth"
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -36,32 +37,44 @@ import (
 	"strconv"
 )
 
+var kUploadDir string
+
 // documentation for flowjs: https://github.com/flowjs/flow.js
 
-// checkUploadHandler checks a chunk.
-// If it doesn't exist then flowjs tries to upload it via uploadHandler.
-func checkUploadHandler(w http.ResponseWriter, r *http.Request) {
-	user := oauth.GetUserOrFail(w, r)
+func init() {
+	kUploadDir = utils.Env("UPLOAD_DIR", "uploads/")
+}
+
+// Get checks a chunk.
+// If it doesn't exist then flowjs tries to upload it via Post.
+func Get(w http.ResponseWriter, r *http.Request) {
+	user := oauth2.GetUserOrFail(w, r)
 	if user == nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
 
-	chunkPath := filepath.Join(conf.UploadDir, user.(*nano.User).Id, "incomplete", r.FormValue("flowFilename"), r.FormValue("flowChunkNumber"))
+	chunkPath := filepath.Join(
+		kUploadDir,
+		user.(*users.User).Id,
+		"incomplete",
+		r.FormValue("flowFilename"),
+		r.FormValue("flowChunkNumber"),
+	)
 	if _, err := os.Stat(chunkPath); err != nil {
 		http.Error(w, "chunk not found", http.StatusSeeOther)
 		return
 	}
 }
 
-// uploadHandler tries to get and save a chunk.
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	user := oauth.GetUserOrFail(w, r)
+// Post tries to get and save a chunk.
+func Post(w http.ResponseWriter, r *http.Request) {
+	user := oauth2.GetUserOrFail(w, r)
 	if user == nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
-	userPath := filepath.Join(conf.UploadDir, user.(*nano.User).Id)
+	userPath := filepath.Join(kUploadDir, user.(*users.User).Id)
 
 	// get the multipart data
 	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
