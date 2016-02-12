@@ -176,7 +176,7 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 			&appParam.DisplayName,
 			&appParam.FilePath,
 		)
-		if appParam.Alias != "hapticPowershell" && appParam.DisplayName != "Desktop" {
+		if appParam.Alias != "hapticPowershell" && appParam.Alias != "Desktop" {
 			applications = append(applications, appParam)
 		}
 	}
