@@ -31,6 +31,7 @@ COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
 
 ${CURRENT_DIR}/check_version.sh
 
+sh $NANOCLOUD_DIR/scripts/stop.sh ${COMMUNITY_CHANNEL}
 
 docker-compose -f ${CURRENT_DIR}/modules/docker-compose-build.yml rm -f > /dev/null 2>&1
 
