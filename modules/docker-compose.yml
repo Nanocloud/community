@@ -75,6 +75,16 @@ w  image: nanocloud/nanocloud-backend
   networks:
    - nanocloud
 
+ postgres:
+  image: postgres:9.4
+  environment:
+   - PGDATA=/var/lib/postgresql/data/pgdata
+   - POSTGRES_USER=nanocloud
+  restart: always
+  container_name: "postgres"
+  networks:
+   - nanocloud
+
  iaas-module:
   image: nanocloud/iaas-module
   build: ./iaas
@@ -91,16 +101,6 @@ w  image: nanocloud/nanocloud-backend
    - /dev/kvm
   restart: always
   container_name: "iaas-module"
-  networks:
-   - nanocloud
-
- postgres:
-  image: postgres:9.4
-  environment:
-   - PGDATA=/var/lib/postgresql/data/pgdata
-   - POSTGRES_USER=nanocloud
-  restart: always
-  container_name: "postgres"
   networks:
    - nanocloud
 
