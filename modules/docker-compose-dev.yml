@@ -43,24 +43,6 @@ postgres:
   file: ./docker-compose.yml
   service: postgres
 
-apps-module:
- extends:
-  file: ./docker-compose.yml
-  service: apps-module
- build: ./apps
- dockerfile: Dockerfile-dev
- volumes:
-  - ./apps/:/go/src/github.com/Nanocloud/community/modules/apps/
-
-history-module:
- extends:
-  file: ./docker-compose.yml
-  service: history-module
- build: ./history
- dockerfile: Dockerfile-dev
- volumes:
-  - ./history/:/go/build/history
-
 iaas-module:
  extends:
   file: ./docker-compose.yml
@@ -69,21 +51,3 @@ iaas-module:
  dockerfile: Dockerfile-dev
  volumes:
   - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
-
-ldap-module:
- extends:
-  file: ./docker-compose.yml
-  service: ldap-module
- build: ./ldap
- dockerfile: Dockerfile-dev
- volumes:
-  - ./ldap/:/go/src/github.com/Nanocloud/community/modules/ldap/
-
-users-module:
- extends:
-  file: ./docker-compose.yml
-  service: users-module
- build: ./users
- dockerfile: Dockerfile-dev
- volumes:
-  - ./users/:/go/src/github.com/Nanocloud/community/modules/users/
