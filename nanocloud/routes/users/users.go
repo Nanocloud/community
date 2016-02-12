@@ -124,7 +124,7 @@ func Get(req router.Request) (*router.Response, error) {
 		log.Errorf("unable to get user lists: %s", err.Error())
 		return nil, err
 	}
-	return router.JSONResponse(200, users), nil
+	return router.JSONResponse(200, hash{"data": users}), nil
 }
 
 func Post(req router.Request) (*router.Response, error) {
