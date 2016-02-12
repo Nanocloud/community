@@ -28,6 +28,7 @@ import (
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/router"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
+	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
@@ -78,8 +79,12 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	frontDir := utils.Env("FRONT_DIR", "front/")
-	e.Static("/", frontDir)
+
+	/**
+	 * FRONT
+	 */
+	e.Static("/", front.StaticDirectory)
+
 	e.Get("/api/me", me.Get)
 	e.Get("/api/version", version.Get)
 	e.Any("/api/*", router.ServeHTTP)
