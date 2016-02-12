@@ -149,7 +149,7 @@ func GetAllApps() ([]ApplicationParams, error) {
 
 }
 
-func GetMyApps() ([]ApplicationParams, error) {
+func GetUserApps(userId string) ([]ApplicationParams, error) {
 	var applications []ApplicationParams
 	rows, err := db.Query(
 		`SELECT id, collection_name,
@@ -184,7 +184,6 @@ func GetMyApps() ([]ApplicationParams, error) {
 		applications = []ApplicationParams{}
 	}
 	return applications, nil
-
 }
 
 func CheckPublishedApps() {
