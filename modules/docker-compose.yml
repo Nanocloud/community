@@ -20,6 +20,17 @@ nanocloud-backend:
   - WIN_PORT=1119
   - WIN_USER=Administrator
   - WIN_SERVER=iaas-module
+  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
+  - BASE=DC=intra,DC=localdomain,DC=com
+  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
+  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
+  - USER=Administrator
+  - SSH_PORT=1119
+  - RDP_PORT=3389
+  - SERVER=iaas-module
+  - PASSWORD=Nanocloud123+
+  - WINDOWS_DOMAIN=intra.localdomain.com
+  - EXECUTION_SERVERS=iaas-module
  restart: always
  container_name: "nanocloud-api"
 
@@ -53,31 +64,6 @@ postgres:
  restart: always
  container_name: "postgres"
 
-apps-module:
- build: ./apps
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-  - USER=Administrator
-  - SSH_PORT=1119
-  - RDP_PORT=3389
-  - SERVER=iaas-module
-  - PASSWORD=Nanocloud123+
-  - WINDOWS_DOMAIN=intra.localdomain.com
-  - EXECUTION_SERVERS=iaas-module
- restart: always
- container_name: "apps-module"
-
-history-module:
- build: ./history
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
- restart: always
- container_name: "history-module"
-
 iaas-module:
  build: ./iaas
  environment:
@@ -95,25 +81,3 @@ iaas-module:
  restart: always
  container_name: "iaas-module"
  privileged: true
-
-ldap-module:
- build: ./ldap
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
-  - BASE=DC=intra,DC=localdomain,DC=com
-  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
-  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
-  - PASSWORD=
- restart: always
- container_name: "ldap-module"
-
-users-module:
- build: ./users
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
- restart: always
- container_name: "users-module"

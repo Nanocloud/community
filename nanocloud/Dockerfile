@@ -7,13 +7,10 @@ MAINTAINER \
 RUN apt-get update && \
     apt-get -y install sshpass
 
-RUN mkdir -p /go/build/nanocloud
-WORKDIR /go/build/nanocloud
-ENV GOBIN $GOPATH/build/nanocloud
+COPY ./ /go/src/github.com/Nanocloud/community/nanocloud
+WORKDIR /go/src/github.com/Nanocloud/community/nanocloud
 
-COPY ./ /go/build/nanocloud
-
-RUN go get ./... && go build
+RUN go get && go build
 
 EXPOSE 8080
 CMD ["./nanocloud"]
