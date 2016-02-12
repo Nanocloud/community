@@ -129,10 +129,12 @@ func Get(req router.Request) (*router.Response, error) {
 
 func Post(req router.Request) (*router.Response, error) {
 	var user struct {
-		Email     string
-		FirstName string
-		LastName  string
-		Password  string
+		Data struct {
+			Email     string
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Password  string
+		}
 	}
 
 	err := json.Unmarshal([]byte(req.Body), &user)
@@ -143,20 +145,30 @@ func Post(req router.Request) (*router.Response, error) {
 
 	newUser, err := users.CreateUser(
 		true,
-		user.Email,
-		user.FirstName,
-		user.LastName,
-		user.Password,
+		user.Data.Email,
+		user.Data.FirstName,
+		user.Data.LastName,
+		user.Data.Password,
 		false,
 	)
 	switch err {
 	case users.UserDuplicated:
 		return router.JSONResponse(409, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"status": "409",
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	case users.UserNotCreated:
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"status": "500",
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
@@ -164,7 +176,12 @@ func Post(req router.Request) (*router.Response, error) {
 	sam, err := ldap.AddUser(newUser.Id, winpass)
 	if err != nil {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"status": "500",
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
@@ -174,7 +191,9 @@ func Post(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(201, hash{
-		"Id": newUser.Id,
+		"data": hash{
+			"id": newUser.Id,
+		},
 	}), nil
 }
 
