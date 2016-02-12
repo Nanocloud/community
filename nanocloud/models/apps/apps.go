@@ -26,14 +26,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Nanocloud/community/nanocloud/connectors/db"
-	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/Nanocloud/community/nanocloud/utils"
-	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/utils"
+	log "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -238,7 +239,7 @@ func CheckPublishedApps() {
 			`INSERT INTO apps
 			(collection_name, alias, display_name, file_path)
 			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
-			`, "", "", "Desktop", "")
+			`, "", "Desktop", "Desktop", "")
 		if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 			log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
 		}
