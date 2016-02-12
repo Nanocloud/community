@@ -44,8 +44,14 @@ import (
 func main() {
 	err := setupDb()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return
 	}
+
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Any("/api/*", router.ServeHTTP)
 
 	/**
 	 * APPS
@@ -76,20 +82,29 @@ func main() {
 	router.Put("/users/:id", middlewares.Admin, users.UpdatePassword)
 	router.Get("/users/:id", middlewares.Admin, users.GetUser)
 
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
 	/**
 	 * FRONT
 	 */
 	e.Static("/", front.StaticDirectory)
 
+	/**
+	 * ME
+	 */
 	e.Get("/api/me", me.Get)
+
+	/**
+	 * VERSION
+	 */
 	e.Get("/api/version", version.Get)
-	e.Any("/api/*", router.ServeHTTP)
+
+	/**
+	 * OAUTH
+	 */
 	e.Any("/oauth/*", oauth.Handler)
 
+	/**
+	 * UPLOAD
+	 */
 	e.Post("/upload", upload.Post)
 	e.Get("/upload", upload.Get)
 
