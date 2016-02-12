@@ -313,12 +313,11 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 	defer rows.Close()
 
 	for rows.Next() {
+		appParam := ApplicationParams{}
+		rows.Scan(
+			&appParam.Alias,
+		)
 		for _, user := range *users {
-			appParam := ApplicationParams{}
-
-			rows.Scan(
-				&appParam.Alias,
-			)
 
 			var conn Connection
 			if count := len(kExecutionServers); count > 0 {
@@ -338,6 +337,17 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 			conn.AppName = appParam.Alias
 			connections = append(connections, conn)
 		}
+		if appParam.Alias != "Desktop" {
+			connections = append(connections, Connection{
+				Hostname:  kServer,
+				Port:      kRDPPort,
+				Protocol:  kProtocol,
+				Username:  kUser,
+				Password:  kPassword,
+				RemoteApp: "||" + appParam.Alias,
+				AppName:   appParam.Alias,
+			})
+		}
 	}
 
 	connections = append(connections, Connection{
@@ -349,16 +359,6 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 		RemoteApp: "",
 		AppName:   "hapticDesktop",
 	})
-	connections = append(connections, Connection{
-		Hostname:  kServer,
-		Port:      kRDPPort,
-		Protocol:  kProtocol,
-		Username:  kUser,
-		Password:  kPassword,
-		RemoteApp: "||hapticPowershell",
-		AppName:   "hapticPowershell",
-	})
-
 	return connections, nil
 }
 
