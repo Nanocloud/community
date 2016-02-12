@@ -24,6 +24,7 @@ package main
 
 import (
 	"github.com/Nanocloud/community/nanocloud/middlewares"
+	"github.com/Nanocloud/community/nanocloud/migration"
 	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/router"
@@ -42,7 +43,7 @@ import (
 )
 
 func main() {
-	err := setupDb()
+	err := migration.Migrate()
 	if err != nil {
 		log.Error(err)
 		return

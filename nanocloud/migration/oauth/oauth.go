@@ -20,61 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package oauth
 
 import (
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
-	"github.com/Nanocloud/community/nanocloud/models/users"
 	log "github.com/Sirupsen/logrus"
 )
 
-func setupDb() error {
+func Migrate() error {
 	rows, err := db.Query(
-		`SELECT table_name
-			FROM information_schema.tables
-			WHERE table_name = 'users'`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return nil
-	}
-
-	rows, err = db.Query(
-		`CREATE TABLE users (
-				id               varchar(36) PRIMARY KEY,
-				first_name       varchar(36) NOT NULL DEFAULT '',
-				last_name        varchar(36) NOT NULL DEFAULT '',
-				email            varchar(36) NOT NULL DEFAULT '' UNIQUE,
-				password         varchar(60) NOT NULL DEFAULT '',
-				is_admin         boolean,
-				activated        boolean,
-				sam              varchar(35) NOT NULL DEFAULT '',
-				windows_password varchar(36) NOT NULL DEFAULT ''
-			);`)
-	if err != nil {
-		return err
-	}
-
-	rows.Close()
-
-	_, err = users.CreateUser(
-		true,
-		"admin@nanocloud.com",
-		"John",
-		"Doe",
-		"admin",
-		true,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	// oauth_clients table
-	rows, err = db.Query(
 		`SELECT table_name
 		FROM information_schema.tables
 		WHERE table_name = 'oauth_clients'`)
