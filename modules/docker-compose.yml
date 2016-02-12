@@ -10,6 +10,7 @@ services:
    - nanocloud
 
  nanocloud-backend:
+  image: nanocloud/nanocloud-backend
   build: ../nanocloud
 w  image: nanocloud/nanocloud-backend
   environment:
