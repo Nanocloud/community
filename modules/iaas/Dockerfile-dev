@@ -1,4 +1,4 @@
-FROM nanocloud/iaas-module:dev
+FROM nanocloud/iaas-module
 MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
