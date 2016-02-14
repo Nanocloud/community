@@ -31,9 +31,9 @@ NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 CURL_CMD=$(which curl)
 WGET_CMD=$(which wget)
 if [ -n "${CURL_CMD}" ]; then
-    NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://localhost")
+    NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://$(docker exec proxy hostname -I | awk '{print $1}')")
 elif [ -n "${WGET_CMD}" ]; then
-    NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://localhost" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
+    NANOCLOUD_STATUS=$(LANG=C wget --no-check-certificate "https://$(docker exec proxy hostname -I | awk '{print $1}')" -O /dev/null 2>&1 | awk '/^HTTP/ { print $6 ;}')
 fi
 
 if [ "${NANOCLOUD_STATUS}" != "200" ]; then
