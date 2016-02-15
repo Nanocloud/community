@@ -41,7 +41,6 @@ func Delete(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(400, hash{
 			"error": [1]hash{
 				hash{
-					"status": "400",
 					"detail": "User id needed for deletion",
 				},
 			},
@@ -57,7 +56,6 @@ func Delete(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(404, hash{
 			"error": [1]hash{
 				hash{
-					"status": "404",
 					"detail": "User not found",
 				},
 			},
@@ -68,7 +66,6 @@ func Delete(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(403, hash{
 			"error": [1]hash{
 				hash{
-					"status": "403",
 					"detail": "Admins cannot be deleted",
 				},
 			},
@@ -110,7 +107,6 @@ func Disable(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(404, hash{
 			"error": [1]hash{
 				hash{
-					"status": "404",
 					"detail": "User id needed for desactivation",
 				},
 			},
@@ -122,7 +118,6 @@ func Disable(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(500, hash{
 			"error": [1]hash{
 				hash{
-					"status": "500",
 					"detail": err.Error(),
 				},
 			},
@@ -133,7 +128,6 @@ func Disable(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(404, hash{
 			"error": [1]hash{
 				hash{
-					"status": "404",
 					"detail": "User not found",
 				},
 			},
@@ -191,7 +185,6 @@ func Post(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(409, hash{
 			"error": [1]hash{
 				hash{
-					"status": "409",
 					"detail": err.Error(),
 				},
 			},
@@ -200,7 +193,6 @@ func Post(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(500, hash{
 			"error": [1]hash{
 				hash{
-					"status": "500",
 					"detail": err.Error(),
 				},
 			},
@@ -213,7 +205,6 @@ func Post(req router.Request) (*router.Response, error) {
 		return router.JSONResponse(500, hash{
 			"error": [1]hash{
 				hash{
-					"status": "500",
 					"detail": err.Error(),
 				},
 			},
