@@ -24,7 +24,6 @@ package users
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/Nanocloud/community/nanocloud/models/ldap"
 	"github.com/Nanocloud/community/nanocloud/models/users"
@@ -227,50 +226,22 @@ func Post(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func Login(req router.Request) (*router.Response, error) {
-	var body struct {
-		Username string
-		Password string
-	}
-
-	err := json.Unmarshal(req.Body, &body)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := users.GetUserFromEmailPassword(body.Username, body.Password)
-	switch err {
-	case users.InvalidCredentials:
-	case users.UserDisabled:
-		return router.JSONResponse(400, hash{
-			"success": false,
-			"error":   err.Error(),
-		}), nil
-
-	case nil:
-		if user == nil {
-			log.Error("unable to log the user in")
-			return nil, errors.New("unable to log the user in")
-		}
-
-		return router.JSONResponse(200, hash{
-			"success": true,
-			"user":    user,
-		}), nil
-	}
-	return nil, err
-}
-
 func UpdatePassword(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(400, hash{
-			"error": "User id needed to modify account",
+			"error": [1]hash{
+				hash{
+					"detail": "User id needed to modify account",
+				},
+			},
 		}), nil
 	}
 
 	var user struct {
-		Password string
+		Data struct {
+			Password string
+		}
 	}
 
 	err := json.Unmarshal(req.Body, &user)
@@ -287,18 +258,24 @@ func UpdatePassword(req router.Request) (*router.Response, error) {
 
 	if !exists {
 		return router.JSONResponse(404, hash{
-			"error": "User not found",
+			"error": [1]hash{
+				hash{
+					"detail": "User not found",
+				},
+			},
 		}), nil
 	}
 
-	err = users.UpdateUserPassword(userId, user.Password)
+	err = users.UpdateUserPassword(userId, user.Data.Password)
 	if err != nil {
 		log.Errorf("Unable to update user password: %s", err.Error())
 		return nil, err
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
