@@ -108,20 +108,35 @@ func Disable(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(404, hash{
-			"error": "User id needed for desactivation",
+			"error": [1]hash{
+				hash{
+					"status": "404",
+					"detail": "User id needed for desactivation",
+				},
+			},
 		}), nil
 	}
 
 	exists, err := users.UserExists(userId)
 	if err != nil {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"status": "500",
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
 	if !exists {
 		return router.JSONResponse(404, hash{
-			"error": "User not found",
+			"error": [1]hash{
+				hash{
+					"status": "404",
+					"detail": "User not found",
+				},
+			},
 		}), nil
 	}
 
@@ -132,7 +147,9 @@ func Disable(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
