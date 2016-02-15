@@ -371,33 +371,4 @@ func init() {
 	kPassword = utils.Env("PASSWORD", "ItsPass1942+")
 	kWindowsDomain = utils.Env("WINDOWS_DOMAIN", "intra.localdomain.com")
 	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", "62.210.56.76"), ",")
-
-	rows, err := db.Query(
-		`SELECT table_name
-		FROM information_schema.tables
-		WHERE table_name = 'apps'`)
-	if err != nil {
-		log.Error("Select tables names failed: ", err.Error())
-		panic(err)
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		log.Info("apps table already set up")
-		return
-	}
-	rows, err = db.Query(
-		`CREATE TABLE apps (
-			id	SERIAL PRIMARY KEY,
-			collection_name		varchar(36),
-			alias		varchar(36) UNIQUE,
-			display_name		varchar(36),
-			file_path		 varchar(255)
-		);`)
-	if err != nil {
-		log.Errorf("Unable to create apps table: %s", err)
-		panic(err)
-	}
-
-	rows.Close()
 }

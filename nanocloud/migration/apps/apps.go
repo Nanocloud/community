@@ -20,29 +20,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration
+package apps
 
 import (
-	"github.com/Nanocloud/community/nanocloud/migration/apps"
-	"github.com/Nanocloud/community/nanocloud/migration/oauth"
-	"github.com/Nanocloud/community/nanocloud/migration/users"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Migrate() error {
-	err := users.Migrate()
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'apps'`)
 	if err != nil {
+		log.Error("Select tables names failed: ", err.Error())
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Info("apps table already set up")
+		return nil
+	}
+	rows, err = db.Query(
+		`CREATE TABLE apps (
+			id	SERIAL PRIMARY KEY,
+			collection_name		varchar(36),
+			alias		varchar(36) UNIQUE,
+			display_name		varchar(36),
+			file_path		 varchar(255)
+		);`)
+	if err != nil {
+		log.Errorf("Unable to create apps table: %s", err)
 		return err
 	}
 
-	err = oauth.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = apps.Migrate()
-	if err != nil {
-		return err
-	}
-
+	rows.Close()
 	return nil
 }
