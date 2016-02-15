@@ -56,10 +56,8 @@ app.config(["$controllerProvider", "$provide", "$futureStateProvider", "flowFact
 	registerCtrlFutureStates(componentName, $futureStateProvider, states);
 
 	flowFactoryProvider.defaults = {
-		headers: function() {
-			return {
-				"Authorization": "Bearer " + localStorage["accessToken"]
-			}
+		headers: {
+			"Authorization": "Bearer " + localStorage["accessToken"]
 		}
 	};
 
