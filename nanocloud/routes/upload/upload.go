@@ -23,10 +23,6 @@
 package upload
 
 import (
-	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/Nanocloud/community/nanocloud/oauth2"
-	"github.com/Nanocloud/community/nanocloud/utils"
-	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -35,6 +31,11 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	"github.com/Nanocloud/community/nanocloud/utils"
+	log "github.com/Sirupsen/logrus"
 )
 
 var kUploadDir string
@@ -195,12 +196,38 @@ func syncUploadedFile(path string) (string, error) {
 		return "", err
 	}
 
-	cmd := exec.Command(filepath.Join(dir, "scripts", "copy.sh"), filepath.Join(dir, path))
-	cmd.Dir = filepath.Join(dir, "scripts")
+	filename := filepath.Join(dir, path)
+
+	winPassword := utils.Env("WIN_PASSWORD", "")
+	winPort := utils.Env("WIN_PORT", "")
+	winUser := utils.Env("WIN_USER", "")
+	winServer := utils.Env("WIN_SERVER", "")
+
+	cmd := exec.Command(
+		"sshpass",
+		"-p",
+		winPassword,
+		"scp",
+		"-o",
+		"UserKnownHostsFile=/dev/null",
+		"-o",
+		"StrictHostKeyChecking=no",
+		"-P",
+		winPort,
+		filename,
+		winUser+"@"+winServer+":~/Desktop/",
+	)
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(output), err
 	}
+
+	err = os.Remove(filename)
+	if err != nil {
+		log.Error(err)
+	}
+
 	return string(output), nil
 }
 
