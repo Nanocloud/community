@@ -354,7 +354,7 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 			conn.AppName = appParam.Alias
 			connections = append(connections, conn)
 		}
-		if appParam.Alias != "Desktop" && appParam.Alias != "hapticPowershell" {
+		if appParam.Alias != "Desktop" {
 			connections = append(connections, Connection{
 				Hostname:  kServer,
 				Port:      kRDPPort,
@@ -366,16 +366,6 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 			})
 		}
 	}
-	connections = append(connections, Connection{
-		Hostname:  kServer,
-		Port:      kRDPPort,
-		Protocol:  kProtocol,
-		Username:  kUser,
-		Password:  kPassword,
-		RemoteApp: "||hapticPowershell",
-		AppName:   "hapticPowershell",
-	})
-
 	connections = append(connections, Connection{
 		Hostname:  kServer,
 		Port:      kRDPPort,
