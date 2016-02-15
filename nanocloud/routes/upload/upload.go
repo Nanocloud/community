@@ -209,6 +209,8 @@ func syncUploadedFile(path string) (string, error) {
 		winPassword,
 		"scp",
 		"-o",
+		"UserKnownHostsFile=/dev/null",
+		"-o",
 		"StrictHostKeyChecking=no",
 		"-P",
 		winPort,
