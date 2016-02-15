@@ -24,13 +24,12 @@
 /// <reference path="../../core.d.ts" />
 /// <amd-dependency path="angular-ui-router-extras" />
 /// <amd-dependency path="angular-cookies" />
-/// <amd-dependency path="angular-ui-grid" />
 /// <amd-dependency path="ng-flow" />
 import { overrideModuleRegisterer, registerCtrlFutureStates, getTemplateUrl } from "AmdTools";
 import { MainMenu } from "MainMenu";
 
 let componentName = "applications";
-let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "ui.grid", "ngCookies", "flow"]);
+let app = angular.module("haptic." + componentName, ["ct.ui.router.extras.future", "flow"]);
 
 let states: angular.ui.IState[] = [{
 	name: "admin.applications",

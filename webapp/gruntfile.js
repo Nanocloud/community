@@ -30,7 +30,6 @@ module.exports = function(grunt) {
 			css: {
 				src: [
 					"bower_components/angular-material/angular-material.min.css",
-					"bower_components/angular-ui-grid/ui-grid.min.css",
 					"bower_components/angular-material-icons/angular-material-icons.css"
 				],
 				dest: "website/css/libs.min.css"
@@ -49,7 +48,6 @@ module.exports = function(grunt) {
 					"bower_components/angular-aria/angular-aria.min.js", "bower_components/angular-aria/angular-aria.min.js.map",
 					"bower_components/angular-material/angular-material.min.js",
 					"bower_components/angular-material-icons/angular-material-icons.min.js",
-					"bower_components/angular-ui-grid/ui-grid.min.js",
 					"bower_components/angular-ui-router/release/angular-ui-router.min.js",
 					"bower_components/ui-router-extras/release/ct-ui-router-extras.min.js",
 					"bower_components/ng-flow/dist/ng-flow-standalone.min.js"
@@ -57,12 +55,6 @@ module.exports = function(grunt) {
 				dest: "website/js/lib/",
 				expand: true,
 				flatten: true
-			},
-			uigrid: {
-				cwd: "bower_components/angular-ui-grid/",
-				src: ["ui-grid.svg", "ui-grid.ttf", "ui-grid.eot", "ui-grid.woff"],
-				dest: "website/css/",
-				expand: true
 			},
 			fonts: {
 				cwd: "bower_components/font-awesome/fonts/",
@@ -136,7 +128,7 @@ module.exports = function(grunt) {
 
 	});
 
-	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:uigrid", "copy:fonts"]);
+	grunt.registerTask("build-libs", ["concat", "copy:lib", "copy:fonts"]);
 	grunt.registerTask("build", ["tslint", "ts:dist", "less", "sync"]);
 	grunt.registerTask("watch-xy", ["less", "sync", "watch"]);
 	grunt.registerTask("watch-ts", ["tslint", "ts:debug"]);
