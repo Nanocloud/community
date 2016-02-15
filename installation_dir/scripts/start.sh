@@ -29,7 +29,11 @@ NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/modules/build_output"
 CHANNEL_FILE=${NANOCLOUD_DIR}/channel
 
-COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
+if [ "${1}" = "" ]; then
+    COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
+else
+    COMMUNITY_CHANNEL=${1}
+fi
 
 if [ "${COMMUNITY_CHANNEL}" = "" ]; then
     COMMAND=${1}
