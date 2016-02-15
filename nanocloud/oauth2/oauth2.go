@@ -278,13 +278,12 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 		user, fail := kConnector.AuthenticateUser(username, password)
 
 		if fail != nil {
+			if fail.Error() == "invalid credentials" || fail.Error() == "user not found" {
+				oauthErrorReply(res, OAuthError{401, ACCESS_DENIED, "Invalid User Credentials"})
+				return
+			}
 			log.Error("[OAuth] Cannot Authenticate User: " + fail.Error())
 			oauthErrorReply(res, OAuthError{400, SERVER_ERROR, "Internal Server Error"})
-			return
-		}
-
-		if user == nil {
-			oauthErrorReply(res, OAuthError{401, ACCESS_DENIED, "Invalid User Credentials"})
 			return
 		}
 
