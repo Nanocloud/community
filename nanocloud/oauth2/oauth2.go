@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -51,16 +52,21 @@ func (e *OAuthError) Error() (err string) {
 }
 
 func (e *OAuthError) ToJSON() (rt []byte, err error) {
-	obj := make(map[string]string)
+	var obj struct {
+		Error [1]struct {
+			Title  string `json:"title"`
+			Detail string `json:"detail"`
+		} `json:"error"`
+	}
 
 	if len(e.Err) > 0 {
-		obj["error"] = e.Err
+		obj.Error[0].Title = e.Err
 	} else {
-		obj["error"] = "unknown"
+		obj.Error[0].Title = "unknown"
 	}
 
 	if len(e.Description) > 0 {
-		obj["error_description"] = e.Description
+		obj.Error[0].Detail = e.Description
 	}
 
 	rt, err = json.Marshal(obj)
@@ -212,8 +218,21 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		//data
+		raw := form["data"]
+		if raw == nil {
+			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "data is mising"})
+			return
+		}
+
+		data := raw.(map[string]interface{})
+		if data == nil {
+			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "Invalid data"})
+			return
+		}
+
 		// grant_type
-		raw := form["grant_type"]
+		raw = data["grant_type"]
 		if raw == nil {
 			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "grant_type is missing"})
 			return
@@ -231,7 +250,7 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// username
-		raw = form["username"]
+		raw = data["username"]
 		if raw == nil {
 			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "username is missing"})
 			return
@@ -244,7 +263,7 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// password
-		raw = form["password"]
+		raw = data["password"]
 		if raw == nil {
 			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "password is missing"})
 			return
