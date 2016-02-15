@@ -25,6 +25,7 @@ package users
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/Nanocloud/community/nanocloud/models/ldap"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/router"
@@ -38,7 +39,12 @@ func Delete(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if len(userId) == 0 {
 		return router.JSONResponse(400, hash{
-			"error": "User id needed for deletion",
+			"error": [1]hash{
+				hash{
+					"status": "400",
+					"detail": "User id needed for deletion",
+				},
+			},
 		}), nil
 	}
 
@@ -49,13 +55,23 @@ func Delete(req router.Request) (*router.Response, error) {
 
 	if user == nil {
 		return router.JSONResponse(404, hash{
-			"error": "User not found",
+			"error": [1]hash{
+				hash{
+					"status": "404",
+					"detail": "User not found",
+				},
+			},
 		}), nil
 	}
 
 	if user.IsAdmin {
 		return router.JSONResponse(403, hash{
-			"error": "Admins cannot be deleted",
+			"error": [1]hash{
+				hash{
+					"status": "403",
+					"detail": "Admins cannot be deleted",
+				},
+			},
 		}), nil
 	}
 
@@ -82,7 +98,9 @@ func Delete(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
