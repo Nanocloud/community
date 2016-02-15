@@ -9,7 +9,6 @@ requirejs.config({
         "angular-aria": "lib/angular-aria.min",
         "angular-material": "lib/angular-material.min",
         "angular-material-icons": "lib/angular-material-icons.min",
-        "angular-ui-grid": "lib/ui-grid.min",
         "angular-ui-route": "lib/angular-ui-router.min",
         "angular-ui-router-extras": "lib/ct-ui-router-extras.min",
         "ng-flow": "lib/ng-flow-standalone.min",
@@ -24,7 +23,6 @@ requirejs.config({
         "angular-cookies": { deps: ["angular"] },
         "angular-material": { deps: ["angular", "angular-animate", "angular-aria"] },
         "angular-material-icons": { deps: ["angular-material"] },
-        "angular-ui-grid": { deps: ["angular"] },
         "angular-ui-route": { deps: ["angular"] },
         "angular-ui-router-extras": { deps: ["angular-ui-route"] },
         "ng-flow": { deps: ["angular"] }

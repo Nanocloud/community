@@ -29,7 +29,7 @@ import { ApplicationsSvc, IApplication } from "../services/ApplicationsSvc";
 
 export class ApplicationsCtrl {
 
-	gridOptions: any;
+	applications: IApplication[];
 
 	static $inject = [
 		"ApplicationsSvc",
@@ -40,37 +40,8 @@ export class ApplicationsCtrl {
 		private applicationsSrv: ApplicationsSvc,
 		private $mdDialog: angular.material.IDialogService
 	) {
-		this.gridOptions = {
-			data: [],
-			rowHeight: 36,
-			columnDefs: [
-				{ field: "Application" },
-				{
-					name: "actions",
-					displayName: "",
-					enableColumnMenu: false,
-					cellTemplate: `
-						<md-button ng-click='grid.appScope.applicationsCtrl.openApplication($event, row.entity)'>
-							<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open
-						</md-button>
-						<md-button ng-click='grid.appScope.applicationsCtrl.startRenameApplication($event, row.entity)'>
-							<ng-md-icon icon='edit' size='14'></ng-md-icon> Edit name
-						</md-button>
-						<md-button ng-click='grid.appScope.applicationsCtrl.startUnpublishApplication($event, row.entity)'>
-							<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish
-						</md-button>`
-				}
-			]	
-		};
-
+		this.applications = [];
 		this.loadApplications();
-	}
-
-	get applications(): IApplication[] {
-		return this.gridOptions.data;
-	}
-	set applications(value: IApplication[]) {
-		this.gridOptions.data = value;
 	}
 
 	loadApplications(): angular.IPromise<void> {

@@ -31,9 +31,6 @@
     },
     "ui-router-extras/ui-router-extras.d.ts": {
       "commit": "06dac7befb906c13eab941256e247fd79dcc934d"
-    },
-    "ui-grid/ui-grid.d.ts": {
-      "commit": "06dac7befb906c13eab941256e247fd79dcc934d"
     }
   }
 }
