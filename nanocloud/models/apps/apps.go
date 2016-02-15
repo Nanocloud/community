@@ -188,9 +188,18 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 }
 
 func CheckPublishedApps() {
+	_, err := db.Query(
+		`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, "", "Desktop", "Desktop", "")
+	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
+	}
 	for {
 		time.Sleep(5 * time.Second)
 		var applications []ApplicationParamsWin
+		var winapp ApplicationParamsWin
 		var apps []ApplicationParams
 		cmd := exec.Command(
 			"sshpass", "-p", kPassword,
@@ -208,9 +217,26 @@ func CheckPublishedApps() {
 			log.Error("Failed to execute sshpass command ", err, string(response))
 			continue
 		}
-
 		err = json.Unmarshal(response, &applications)
 		if err != nil {
+			err = json.Unmarshal(response, &winapp)
+			if err != nil {
+				continue
+			}
+			application := ApplicationParams{
+				CollectionName: winapp.CollectionName,
+				DisplayName:    winapp.DisplayName,
+				Alias:          winapp.Alias,
+				FilePath:       winapp.FilePath,
+			}
+			_, err := db.Query(
+				`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath)
+			if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+				log.Error("Error inserting app into postgres: ", err.Error())
+			}
 			continue
 		}
 		for _, app := range applications {
@@ -234,15 +260,6 @@ func CheckPublishedApps() {
 				}
 			}
 		}
-		_, err = db.Query(
-			`INSERT INTO apps
-			(collection_name, alias, display_name, file_path)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
-			`, "", "Desktop", "Desktop", "")
-		if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-			log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
-		}
-
 	}
 }
 
@@ -327,7 +344,7 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 			}
 			conn.Port = kRDPPort
 			conn.Protocol = kProtocol
-			if user.Sam != "" && appParam.Alias != "hapticPowershell" && appParam.Alias != "" {
+			if user.Sam != "" && appParam.Alias != "hapticPowershell" && appParam.Alias != "Desktop" {
 				conn.Username = user.Sam
 				conn.Password = user.WindowsPassword
 			} else {
@@ -349,7 +366,6 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 			})
 		}
 	}
-
 	connections = append(connections, Connection{
 		Hostname:  kServer,
 		Port:      kRDPPort,
