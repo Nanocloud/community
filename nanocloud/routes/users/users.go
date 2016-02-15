@@ -78,7 +78,11 @@ func Delete(req router.Request) (*router.Response, error) {
 		switch err {
 		case ldap.DeleteFailed:
 			return router.JSONResponse(500, hash{
-				"error": err.Error(),
+				"error": [1]hash{
+					hash{
+						"detail": err.Error(),
+					},
+				},
 			}), nil
 		case ldap.UnknownUser:
 			log.Info("User doesn't exist in AD")
