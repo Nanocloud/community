@@ -306,7 +306,11 @@ func GetUser(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(400, hash{
-			"error": "User id needed to retrieve account informations",
+			"error": [1]hash{
+				hash{
+					"detail": "User id needed to retrieve account informations",
+				},
+			},
 		}), nil
 	}
 
@@ -317,9 +321,15 @@ func GetUser(req router.Request) (*router.Response, error) {
 
 	if user == nil {
 		return router.JSONResponse(404, hash{
-			"error": "User Not Found",
+			"error": [1]hash{
+				hash{
+					"detail": "User Not Found",
+				},
+			},
 		}), nil
 	}
 
-	return router.JSONResponse(200, user), nil
+	return router.JSONResponse(200, hash{
+		"data": user,
+	}), nil
 }
