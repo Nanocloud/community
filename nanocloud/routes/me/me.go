@@ -24,15 +24,16 @@ package me
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/Nanocloud/community/nanocloud/oauth2"
 	log "github.com/Sirupsen/logrus"
-	"net/http"
 )
 
 func Get(w http.ResponseWriter, r *http.Request) {
 	user := oauth2.GetUserOrFail(w, r)
 	if user != nil {
-		b, err := json.Marshal(user)
+		b, err := json.Marshal(map[string]interface{}{"data": user})
 		if err != nil {
 			log.Error(err)
 			w.WriteHeader(500)
