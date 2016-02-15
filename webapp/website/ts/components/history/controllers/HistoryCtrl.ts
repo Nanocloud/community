@@ -26,17 +26,10 @@ import { HistorySvc, IHistoryInfo } from "../services/HistorySvc";
 
 "use strict";
 
-// missing prop in the tsd file
-interface IExpandableRowScope {
-	subGridVariable: string;
-}
-interface IGridOptions extends uiGrid.IGridOptionsOf<IHistoryInfo> {
-	expandableRowScope: IExpandableRowScope;
-}
 
 export class HistoryCtrl {
 
-	gridOptions: IGridOptions;
+	history: IHistoryInfo[];
 
 	static $inject = [
 		"HistorySvc",
@@ -46,44 +39,13 @@ export class HistoryCtrl {
 		private historySvc: HistorySvc,
 		private $mdDialog: angular.material.IDialogService
 	) {
-		this.gridOptions = {
-			expandableRowTemplate: "./js/components/history/views/stat.html",
-			expandableRowScope: {
-				subGridVariable: "Stats"
-			},
-			columnDefs: [
-				{
-					displayName: "Connection Name",
-					field: "ConnectionId"
-				}
-			]
-		};
-
+		this.history = [];
 		this.loadStats();
-	}
-
-	setData(hist: IHistoryInfo[]) {
-		let data: any[] = [];
-		for (let stat of hist) {
-			let s = {
-				ConnectionId: stat.ConnectionId,
-				subgridOptions: {
-					columnDefs: [
-						{ field: "StartDate" },
-						{ field: "EndDate" }
-					],
-					data: stat.Stats
-				}
-			};
-			data.push(s);
-		}
-
-		this.gridOptions.data = data;
 	}
 
 	loadStats(): angular.IPromise<void> {
 		return this.historySvc.getAll().then((hist: IHistoryInfo[]) => {
-			this.setData(hist);
+			this.history = hist;
 		});
 	}
 	
