@@ -63,7 +63,7 @@ export class LoginCtrl {
 				() => {
 					this.$http.get("/api/me")
 						.success((res: any) => {
-							if (res.IsAdmin === true) {
+							if (res.data.is_admin === true) {
 								this.$location.path("/admin");
 							} else {
 								this.$location.path("/");
