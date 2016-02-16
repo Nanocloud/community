@@ -124,28 +124,48 @@ func UnpublishApplication(req *router.Request) (*router.Response, error) {
 
 func PublishApplication(req *router.Request) (*router.Response, error) {
 	var params struct {
-		Path string
+		Data struct {
+			Path string `json:"path"`
+		}
 	}
 
 	err := json.Unmarshal(req.Body, &params)
 	if err != nil {
 		log.Error("Umable to unmarshal application path: " + err.Error())
 		return router.JSONResponse(400, hash{
-			"error": "path to app must be specified",
+			"error": [1]hash{
+				hash{
+					"detail": "path to app must be specified",
+				},
+			},
 		}), err
 	}
 
-	trimmedpath := strings.TrimSpace(params.Path)
+	trimmedpath := strings.TrimSpace(params.Data.Path)
 	if trimmedpath == "" {
-		return router.JSONResponse(400, hash{"error": "App path is empty"}), err
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "App path is empty",
+				},
+			},
+		}), err
 	}
 	err = apps.PublishApp(trimmedpath)
 	if err == apps.PublishFailed {
-		return router.JSONResponse(500, hash{"error": err}), err
+		return router.JSONResponse(500, hash{
+			"error": [1]hash{
+				hash{
+					"detail": err,
+				},
+			},
+		}), err
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
