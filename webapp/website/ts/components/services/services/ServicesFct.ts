@@ -30,30 +30,38 @@ export class ServicesFct {
 
 	services: IService[] = [];
 	private lock = false;
+	private location: angular.ILocationService;
 
 	static $inject = [
 		"ServicesSvc",
 		"$q",
-		"$interval"
+		"$interval",
+		"$location"
 	];
 	constructor(
 		private servicesSvc: ServicesSvc,
 		private $q: angular.IQService,
-		$interval: ng.IIntervalService
+		$interval: ng.IIntervalService,
+		$location: angular.ILocationService
 	) {
+		this.location = $location;
 		this.loadServices();
-		$interval(this.loadServices.bind(this),	10 * 1000);
+		$interval(this.loadServices.bind(this), 10 * 1000);
 	}
 
 	loadServices(): angular.IPromise<void> {
-		if (this.lock) {
-			return this.$q.resolve();
+		if (this.location.path() === "/admin/services") {
+			if (this.lock) {
+				return this.$q.resolve();
+			}
+			this.lock = true;
+			return this.servicesSvc.getAll().then((services: IService[]) => {
+				this.services = services;
+				this.lock = false;
+			});
+		} else {
+			return this.$q.when();
 		}
-		this.lock = true;
-		return this.servicesSvc.getAll().then((services: IService[]) => {
-			this.services = services;
-			this.lock = false;
-		});
 	}
 
 }
