@@ -147,7 +147,9 @@ func ChangeAppName(req *router.Request) (*router.Response, error) {
 		}), nil
 	}
 	var Name struct {
-		DisplayName string
+		Data struct {
+			DisplayName string `json:"display_name"`
+		}
 	}
 
 	err := json.Unmarshal(req.Body, &Name)
@@ -155,10 +157,14 @@ func ChangeAppName(req *router.Request) (*router.Response, error) {
 		log.Errorf("Unable to parse body request: %s", err.Error())
 		return nil, err
 	}
-	if len(Name.DisplayName) < 1 {
+	if len(Name.Data.DisplayName) < 1 {
 		log.Errorf("No name provided")
 		return router.JSONResponse(400, hash{
-			"error": "No name provided",
+			"error": [1]hash{
+				hash{
+					"detail": "No name provided",
+				},
+			},
 		}), nil
 	}
 
@@ -170,17 +176,27 @@ func ChangeAppName(req *router.Request) (*router.Response, error) {
 
 	if !exists {
 		return router.JSONResponse(404, hash{
-			"error": "App not found",
+			"error": [1]hash{
+				hash{
+					"detail": "App not found",
+				},
+			},
 		}), nil
 	}
 
-	err = apps.ChangeName(appId, Name.DisplayName)
+	err = apps.ChangeName(appId, Name.Data.DisplayName)
 	if err == apps.FailedNameChange {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
