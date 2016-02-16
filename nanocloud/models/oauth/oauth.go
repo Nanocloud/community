@@ -24,7 +24,6 @@ package oauth
 
 import (
 	"encoding/json"
-
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
@@ -98,16 +97,11 @@ func (c oauthConnector) GetClient(key string, secret string) (interface{}, error
 }
 
 func (at AccessToken) ToJSON() ([]byte, error) {
-	var obj struct {
-		Data struct {
-			Access_token string `json:"access_token"`
-			Type         string `json:"type"`
-		} `json:"data"`
-	}
-	obj.Data.Access_token = at.Token
-	obj.Data.Type = at.Type
+	m := make(map[string]string)
+	m["access_token"] = at.Token
+	m["type"] = at.Type
 
-	return json.Marshal(&obj)
+	return json.Marshal(&m)
 }
 
 func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth2.JSONAble, error) {
