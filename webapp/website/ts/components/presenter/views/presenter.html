@@ -29,6 +29,12 @@
 							<h3> {{ application.Application }} </h3>
 						</div>
 					</md-list-item>
+					<md-list-item ng-if="presenterCtrl.applications.length === 0">
+						<div class="md-list-item-text">
+							<h4>You don't have access to any applications</h4>
+							<p>Contact your administrator for more information</p>
+						</div>
+					</md-list-item>
 				</md-list>
 			</md-card-content>
 		</md-card>
