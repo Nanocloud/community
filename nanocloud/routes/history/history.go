@@ -24,6 +24,7 @@ package history
 
 import (
 	"encoding/json"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/router"
 	log "github.com/Sirupsen/logrus"
@@ -33,10 +34,10 @@ type hash map[string]interface{}
 
 // Log entries are stored in this structure
 type HistoryInfo struct {
-	UserId       string
-	ConnectionId string
-	StartDate    string
-	EndDate      string
+	UserId       string `json:"user_id"`
+	ConnectionId string `json:"connection_id"`
+	StartDate    string `json:"start_date"`
+	EndDate      string `json:"end_date"`
 }
 
 // Get a list of all the log entries of the database
