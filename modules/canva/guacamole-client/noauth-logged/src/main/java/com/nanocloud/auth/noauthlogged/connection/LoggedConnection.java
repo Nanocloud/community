@@ -148,15 +148,16 @@ public class LoggedConnection extends SimpleConnection {
 				URL myUrl = new URL("http://" + hostname + ":" + port + "/" + endpoint);
     			HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
     			urlConn.setInstanceFollowRedirects(false);
-				urlConn.setRequestProperty("Authorization", "Bearer " + token);
+  			urlConn.setRequestProperty("Authorization", "Bearer " + token);
 
-    			urlConn.setRequestProperty("Content-Type", "application/json");
-    			JsonObject params = Json.createObjectBuilder()
-					      .add("UserId", "94b8e83b-ced3-4259-a3d5-bdc1629272fd")
-						.add("ConnectioniD", this.connection.getConnectionName())
-						.add("StartDate", this.connection.getStartDate().toString())
-						.add("EndDate", new Date().toString())
-    					  .build();
+  			urlConn.setRequestProperty("Content-Type", "application/json");
+  			JsonObject params = Json.createObjectBuilder()
+  				.add("data", Json.createObjectBuilder()
+  						.add("user_id", "94b8e83b-ced3-4259-a3d5-bdc1629272fd")
+  						.add("connection_id", this.connection.getConnectionName())
+  						.add("start_date", this.connection.getStartDate().toString())
+  						.add("end_date", new Date().toString()))
+ 			.build();
 
     			urlConn.setUseCaches(false);
     			urlConn.setDoOutput(true);
