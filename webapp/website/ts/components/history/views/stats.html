@@ -1,7 +1,6 @@
 <div>
 	<md-card>
 		<md-card-content>
-
 			<md-list role="list">
 				<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="historyInfo in historyCtrl.history">
 					<h3>{{ historyInfo.ConnectionId }}</h3>
@@ -11,6 +10,8 @@
 						</md-list-item>
 					</md-list>
 				</md-list-item>
+				<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-if="historyCtrl.history.length === 0">
+					You don't have any history entry recorded yet
 				</md-list-item>
 			</md-list>
 		</md-card-content>
