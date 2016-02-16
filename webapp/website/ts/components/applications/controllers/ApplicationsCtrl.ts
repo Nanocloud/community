@@ -93,7 +93,7 @@ export class ApplicationsCtrl {
 	}
 
 	openApplication(e: MouseEvent, application: IApplication) {
-		let appToken = btoa(application.Application + "\0c\0noauthlogged");
+		let appToken = btoa(application.alias + "\0c\0noauthlogged");
 		let url = "/guacamole/#/client/" + appToken;
 		if (localStorage["accessToken"]) {
 			url += "?access_token=" + localStorage["accessToken"];
