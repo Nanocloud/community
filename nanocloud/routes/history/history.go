@@ -76,7 +76,7 @@ func List(req router.Request) (*router.Response, error) {
 		histories = []HistoryInfo{}
 	}
 
-	return router.JSONResponse(200, histories), nil
+	return router.JSONResponse(200, hash{"data": histories}), nil
 }
 
 // Add a new log entry to the database
