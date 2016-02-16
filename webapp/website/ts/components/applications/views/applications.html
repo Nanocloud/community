@@ -49,10 +49,9 @@
 	</md-card>
 </div>
 
-<div>
+<div ng-if="applicationsCtrl.applications.length !== 0">
 	<md-card>
 		<md-card-content>
-
 			<md-list role="list">
 				<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="app in applicationsCtrl.applications">
 					<h3>{{ app.display_name }}</h3>
