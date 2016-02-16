@@ -44,6 +44,12 @@ var kUploadDir string
 
 func init() {
 	kUploadDir = utils.Env("UPLOAD_DIR", "uploads/")
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Info("Cannot determine program's absolute path")
+		return
+	}
+	kUploadDir = filepath.Join(dir, kUploadDir);
 }
 
 // Get checks a chunk.
@@ -191,13 +197,6 @@ func assembleUpload(path, filename string) error {
 }
 
 func syncUploadedFile(path string) (string, error) {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		return "", err
-	}
-
-	filename := filepath.Join(dir, path)
-
 	winPassword := utils.Env("WIN_PASSWORD", "")
 	winPort := utils.Env("WIN_PORT", "")
 	winUser := utils.Env("WIN_USER", "")
@@ -214,7 +213,7 @@ func syncUploadedFile(path string) (string, error) {
 		"StrictHostKeyChecking=no",
 		"-P",
 		winPort,
-		filename,
+		path,
 		winUser+"@"+winServer+":~/Desktop/",
 	)
 
@@ -223,7 +222,7 @@ func syncUploadedFile(path string) (string, error) {
 		return string(output), err
 	}
 
-	err = os.Remove(filename)
+	err = os.Remove(path)
 	if err != nil {
 		log.Error(err)
 	}
