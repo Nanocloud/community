@@ -41,32 +41,8 @@ postgres:
   file: ./modules/docker-compose.yml
   service: postgres
 
-apps-module:
- extends:
-  file: ./modules/docker-compose.yml
-  service: apps-module
- image: nanocloud/apps-module:0.3.1
-
-history-module:
- extends:
-  file: ./modules/docker-compose.yml
-  service: history-module
- image: nanocloud/history-module:0.3.1
-
 iaas-module:
  extends:
   file: ./modules/docker-compose.yml
   service: iaas-module
  image: nanocloud/iaas-module:0.3.1
-
-ldap-module:
- extends:
-  file: ./modules/docker-compose.yml
-  service: ldap-module
- image: nanocloud/ldap-module:0.3.1
-
-users-module:
- extends:
-  file: ./modules/docker-compose.yml
-  service: users-module
- image: nanocloud/users-module:0.3.1
