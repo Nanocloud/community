@@ -4,12 +4,13 @@
 
 			<md-list role="list">
 				<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="historyInfo in historyCtrl.history">
-				  <h3>{{ historyInfo.ConnectionId }}</h3>
-				  <md-list role="list">
-				    <md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="stats in historyInfo.Stats">
-				      <p>{{ stats.StartDate }}</p>
-				    </md-list-item>
-				  </md-list>
+					<h3>{{ historyInfo.ConnectionId }}</h3>
+					<md-list role="list">
+						<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="stats in historyInfo.Stats">
+							<p>{{ stats.StartDate }}</p>
+						</md-list-item>
+					</md-list>
+				</md-list-item>
 				</md-list-item>
 			</md-list>
 		</md-card-content>
