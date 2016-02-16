@@ -51,17 +51,17 @@ export class HistorySvc {
 	getAll(): angular.IPromise<IHistoryInfo[]> {
 		return this.$http.get("/api/history")
 			.then(
-				function(res: angular.IHttpPromiseCallbackArg<any[]>) {
-					let h = res.data || [];
+				function(res: any) {
+					let h = res.data.data || [];
 					let hist: IHistoryInfo[] = [];
 					for (let stat of h) {
 						let s: IHistoryAtom = {
-								StartDate: stat.StartDate,
-								EndDate: stat.EndDate
+								StartDate: stat.start_date,
+								EndDate: stat.end_date
 						};
 						let hist2: IHistoryInfo = {
-							UserId: stat.UserId,
-							ConnectionId: stat.ConnectionId,
+							UserId: stat.user_id,
+							ConnectionId: stat.connection_id,
 							Stats: [s]
 						};
 						hist.push(hist2);
