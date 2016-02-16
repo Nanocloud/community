@@ -2,7 +2,7 @@ guacamole-client:
  extends:
   file: ./modules/docker-compose.yml
   service: guacamole-client
- image: nanocloud/guacamole-client:0.3
+ image: nanocloud/guacamole-client:0.3.1
 
 guacamole-server:
  extends:
@@ -15,7 +15,7 @@ nanocloud-backend:
   service: nanocloud-backend
  volumes_from:
   - nanocloud-frontend
- image: nanocloud/nanocloud-backend:0.3
+ image: nanocloud/nanocloud-backend:0.3.1
 
 nanocloud-frontend:
  extends:
@@ -24,7 +24,7 @@ nanocloud-frontend:
  container_name: "nanocloud-frontend"
  volumes:
   - /opt/front
- image: nanocloud/nanocloud-frontend:0.3
+ image: nanocloud/nanocloud-frontend:0.3.1
 
 proxy:
  extends:
@@ -45,28 +45,28 @@ apps-module:
  extends:
   file: ./modules/docker-compose.yml
   service: apps-module
- image: nanocloud/apps-module:0.3
+ image: nanocloud/apps-module:0.3.1
 
 history-module:
  extends:
   file: ./modules/docker-compose.yml
   service: history-module
- image: nanocloud/history-module:0.3
+ image: nanocloud/history-module:0.3.1
 
 iaas-module:
  extends:
   file: ./modules/docker-compose.yml
   service: iaas-module
- image: nanocloud/iaas-module:0.3
+ image: nanocloud/iaas-module:0.3.1
 
 ldap-module:
  extends:
   file: ./modules/docker-compose.yml
   service: ldap-module
- image: nanocloud/ldap-module:0.3
+ image: nanocloud/ldap-module:0.3.1
 
 users-module:
  extends:
   file: ./modules/docker-compose.yml
   service: users-module
- image: nanocloud/users-module:0.3
+ image: nanocloud/users-module:0.3.1
