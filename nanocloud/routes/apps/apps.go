@@ -96,19 +96,29 @@ func UnpublishApplication(req *router.Request) (*router.Response, error) {
 	appId := req.Params["app_id"]
 	if len(appId) < 1 {
 		return router.JSONResponse(400, hash{
-			"error": "App id must be specified",
+			"error": [1]hash{
+				hash{
+					"detail": "App id must be specified",
+				},
+			},
 		}), nil
 	}
 
 	err := apps.UnpublishApp(appId)
 	if err == apps.UnpublishFailed {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
