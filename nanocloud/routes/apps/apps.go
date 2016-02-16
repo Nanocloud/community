@@ -60,11 +60,15 @@ func ListApplications(req *router.Request) (*router.Response, error) {
 	applications, err := apps.GetAllApps()
 	if err == apps.GetAppsFailed {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 
 	}
-	return router.JSONResponse(200, applications), nil
+	return router.JSONResponse(200, hash{"data": applications}), nil
 }
 
 // ========================================================================================================================
@@ -77,10 +81,14 @@ func ListUserApps(req *router.Request) (*router.Response, error) {
 	applications, err := apps.GetUserApps(req.User.Id)
 	if err == apps.GetAppsFailed {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
-	return router.JSONResponse(200, applications), nil
+	return router.JSONResponse(200, hash{"data": applications}), nil
 }
 
 // Make an application unusable
