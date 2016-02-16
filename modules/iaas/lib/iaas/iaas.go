@@ -159,7 +159,7 @@ func (i *Iaas) CheckRDS() bool {
 		return false
 	}
 
-	if string(response) == "Running\n" {
+	if strings.Contains(string(response), "Running") {
 		return true
 	}
 	return false
@@ -167,7 +167,12 @@ func (i *Iaas) CheckRDS() bool {
 
 func (i *Iaas) GetList() (VMstatus, error) {
 	var status VMstatus
-
+	running := i.CheckRDS()
+	if running {
+		status.AvailableVMNames = append(status.AvailableVMNames, "windows")
+		status.RunningVmNames = append(status.RunningVmNames, "windows")
+		return status, nil
+	}
 	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", i.InstDir))
 	for _, file := range files {
 		fileName := file.Name()
