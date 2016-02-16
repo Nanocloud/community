@@ -49,8 +49,8 @@ export class ApplicationsSvc {
 	getAll(): angular.IPromise<IApplication[]> {
 		return this.$http.get("/api/apps")
 			.then(
-				(res: angular.IHttpPromiseCallbackArg<IApplication[]>) => {
-					let apps = res.data || [];
+				(res: angular.IHttpPromiseCallbackArg<any>) => {
+					let apps = res.data.data || [];
 					for (let app of apps) {
 						app.Application = app.display_name;
 					}
@@ -63,8 +63,8 @@ export class ApplicationsSvc {
 	getApplicationForUser(): angular.IPromise<IApplication[]> {
 		return this.$http.get("/api/apps/me")
 			.then(
-				(res: angular.IHttpPromiseCallbackArg<IApplication[]>) => {
-					let apps = res.data || [];
+				(res: angular.IHttpPromiseCallbackArg<any>) => {
+					let apps = res.data.data || [];
 					for (let app of apps) {
 						app.Application = app.display_name;
 					}
@@ -80,7 +80,9 @@ export class ApplicationsSvc {
 
 	changeName(app: IApplication, name: string): angular.IPromise<boolean> {
 		return this.$http.put("/api/apps/" + app.alias, {
-			DisplayName: name
+			data: {
+				display_name: name
+			}
 		}).then(() => true, () => false);
 	}
 }
