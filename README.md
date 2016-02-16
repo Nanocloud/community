@@ -1,6 +1,6 @@
 # Nanocloud community
 
-Current version: **0.3**
+Current version: **0.3.1**
 
 Experience the seamless transformation of your application.
 
