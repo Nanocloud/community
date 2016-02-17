@@ -64,6 +64,17 @@ export class ServicesFct {
 		}
 	}
 
+	getWindowsStatus(): angular.IPromise<boolean> {
+		return this.servicesSvc.getAll().then((services: IService[]) => {
+			let state = false;
+			services.forEach(function(service: IService) {
+				if (service.Ico === "windows" && service.Status === "running") {
+					state = true;
+				}
+			});
+			return state;
+		});
+	}
 }
 
 angular.module("haptic.services").service("ServicesFct", ServicesFct);
