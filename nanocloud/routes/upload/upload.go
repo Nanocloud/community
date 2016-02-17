@@ -49,7 +49,7 @@ func init() {
 		log.Info("Cannot determine program's absolute path")
 		return
 	}
-	kUploadDir = filepath.Join(dir, kUploadDir);
+	kUploadDir = filepath.Join(dir, kUploadDir)
 }
 
 // Get checks a chunk.
@@ -214,7 +214,7 @@ func syncUploadedFile(path string) (string, error) {
 		"-P",
 		winPort,
 		path,
-		winUser+"@"+winServer+":~/Desktop/",
+		winUser+"@"+winServer+":C:\\Users\\Administrator\\Desktop\\",
 	)
 
 	output, err := cmd.CombinedOutput()
