@@ -23,7 +23,9 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/UsersSvc" />
 /// <amd-dependency path="./UserCtrl" />
+/// <amd-dependency path="../../services/services/ServicesFct" />
 import { UsersSvc, IUser } from "../services/UsersSvc";
+import { ServicesFct } from "../../services/services/ServicesFct";
 
 "use strict";
 
@@ -31,15 +33,21 @@ export class UsersCtrl {
 
 	users: any;
 	displayHelp: boolean;
+	windowsState: boolean = false;
 
 	static $inject = [
 		"UsersSvc",
+		"ServicesFct",
 		"$mdDialog"
 	];
 	constructor(
 		private usersSvc: UsersSvc,
+		private servicesFct: ServicesFct,
 		private $mdDialog: angular.material.IDialogService
 	) {
+		this.servicesFct.getWindowsStatus().then((windowsState: boolean) => {
+			this.windowsState = windowsState;
+		});
 		this.loadUsers();
 		this.displayHelp = false;
 	}
