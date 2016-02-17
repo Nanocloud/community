@@ -43,7 +43,7 @@
 		{
 			"vm_name": "{{user `product_name`}}-{{user `product_version`}}-{{user `product_arch`}}.qcow2",
 			"name": "windows-2012R2-qemu",
-			"headless": false,
+			"headless": true,
 			"type": "qemu",
 			"format":"qcow2",
 			"accelerator": "kvm",
