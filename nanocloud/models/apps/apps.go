@@ -275,6 +275,7 @@ func UnpublishApp(Alias string) error {
 	cmd := exec.Command(
 		"sshpass", "-p", kPassword,
 		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
 		"-p", kSSHPort,
 		fmt.Sprintf(
 			"%s@%s",
