@@ -25,6 +25,7 @@
 "use strict";
 
 export interface IApplication {
+	id: number;
 	alias: string;
 	collection_name: string;
 	Application: string;
