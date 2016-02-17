@@ -204,13 +204,15 @@ func CheckPublishedApps() {
 		cmd := exec.Command(
 			"sshpass", "-p", kPassword,
 			"ssh", "-o", "StrictHostKeyChecking=no",
+			"-o", "UserKnownHostsFile=/dev/null",
+			"-o", "LogLevel=quiet",
 			"-p", kSSHPort,
 			fmt.Sprintf(
 				"%s@%s",
 				kUser,
 				kServer,
 			),
-			"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
+			"powershell.exe \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
 		)
 		response, err := cmd.CombinedOutput()
 		if err != nil {
@@ -273,13 +275,14 @@ func UnpublishApp(Alias string) error {
 	cmd := exec.Command(
 		"sshpass", "-p", kPassword,
 		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
 		"-p", kSSHPort,
 		fmt.Sprintf(
 			"%s@%s",
 			kUser,
 			kServer,
 		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
+		"powershell.exe \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
@@ -298,13 +301,14 @@ func PublishApp(path string) error {
 	cmd := exec.Command(
 		"sshpass", "-p", kPassword,
 		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
 		"-p", kSSHPort,
 		fmt.Sprintf(
 			"%s@%s",
 			kUser,
 			kServer,
 		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe", "C:/publishApplication.ps1", path,
+		"powershell.exe -file C:\\publishApplication.ps1 "+path,
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {

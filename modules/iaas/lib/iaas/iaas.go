@@ -145,13 +145,14 @@ func (i *Iaas) CheckRDS() bool {
 		"sshpass", "-p", i.Password,
 		"ssh", "-o", "StrictHostKeyChecking=no",
 		"-o", "ConnectTimeout=1",
+		"-o", "UserKnownHostsFile=/dev/null",
 		"-p", i.SSHPort,
 		fmt.Sprintf(
 			"%s@%s",
 			i.User,
 			i.Server,
 		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Write-Host (Get-Service -Name RDMS).status\"",
+		"powershell.exe \"Write-Host (Get-Service -Name RDMS).status\"",
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
@@ -214,13 +215,14 @@ func (i *Iaas) Stop(name string) error {
 	cmd := exec.Command(
 		"sshpass", "-p", i.Password,
 		"ssh", "-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
 		"-p", i.SSHPort,
 		fmt.Sprintf(
 			"%s@%s",
 			i.User,
 			i.Server,
 		),
-		"C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -Command \"Stop-Computer -Force\"",
+		"powershell.exe \"Stop-Computer -Force\"",
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
