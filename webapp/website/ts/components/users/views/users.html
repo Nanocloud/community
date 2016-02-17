@@ -1,3 +1,10 @@
+<md-card ng-if="!applicationsCtrl.windowsState">
+	<md-card-content>
+		<p>
+			<strong>Windows</strong> seems to be unavailable, please ensure services are up and running in <strong>Services</strong> page.
+		</p>
+	</md-card-content>
+</md-card>
 
 <md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
 	<md-card-content>
@@ -15,6 +22,7 @@
 				</md-button>
 				<md-button class="md-icon-button md-warn" aria-label="Delete this user"
 						ng-click="usersCtrl.startDeleteUser($event, user)"
+						ng-disabled="!usersCtrl.windowsState"
 						ng-show=" !user.IsAdmin">
 					<ng-md-icon icon="delete"></ng-md-icon>
 				</md-button>
@@ -25,8 +33,8 @@
 
 <div style="text-align: right;">
 	<md-button ng-click="usersCtrl.startAddUser($event)" class="md-primary"
-			aria-label="Add a new user">
-		<md-tooltip>Add a new user user</md-tooltip>
+			ng-disabled="!usersCtrl.windowsState" aria-label="Add a new user">
+		<md-tooltip>Add a new user</md-tooltip>
 		<ng-md-icon icon="person_add"></md-icon>
 	</md-button>
 
