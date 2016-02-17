@@ -25,13 +25,13 @@
 "use strict";
 
 export interface IUser {
-	Id?: string;
-	Firstname: string;
-	Lastname: string;
-	Email: string;
-	Profile: string;
-	Password?: string;
-	Password2?: string;
+	id?: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	profile: string;
+	password?: string;
+	password2?: string;
 }
 
 export class UsersSvc {
@@ -49,21 +49,27 @@ export class UsersSvc {
 
 	getAll(): angular.IPromise<IUser[]> {
 		return this.$http.get("/api/users")
-			.then((res: angular.IHttpPromiseCallbackArg<IUser[]>) => res.data);
+		.then((res: any) => res.data.data);
 	}
 
 	save(user: IUser): angular.IPromise<boolean> {
-		return this.$http.post("/api/users", user)
-			.then(() => true, () => false);
+		return this.$http.post("/api/users", {
+			data: user
+		})
+		.then(() => true, () => false);
 	}
 
 	delete(user: IUser): angular.IPromise<any> {
-		return this.$http.delete("/api/users/" + user.Id);
+		return this.$http.delete("/api/users/" + user.id);
 	}
 
 	updatePassword(user: IUser): angular.IPromise<boolean> {
-		return this.$http.put("/api/users/" + user.Id, { password: user.Password })
-			.then(() => true, () => false);
+		return this.$http.put("/api/users/" + user.id, {
+			data: {
+				password: user.password
+			}
+		})
+		.then(() => true, () => false);
 	}
 
 }

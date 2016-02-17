@@ -24,7 +24,7 @@ package users
 
 import (
 	"encoding/json"
-	"errors"
+
 	"github.com/Nanocloud/community/nanocloud/models/ldap"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/router"
@@ -38,7 +38,11 @@ func Delete(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if len(userId) == 0 {
 		return router.JSONResponse(400, hash{
-			"error": "User id needed for deletion",
+			"error": [1]hash{
+				hash{
+					"detail": "User id needed for deletion",
+				},
+			},
 		}), nil
 	}
 
@@ -49,13 +53,21 @@ func Delete(req router.Request) (*router.Response, error) {
 
 	if user == nil {
 		return router.JSONResponse(404, hash{
-			"error": "User not found",
+			"error": [1]hash{
+				hash{
+					"detail": "User not found",
+				},
+			},
 		}), nil
 	}
 
 	if user.IsAdmin {
 		return router.JSONResponse(403, hash{
-			"error": "Admins cannot be deleted",
+			"error": [1]hash{
+				hash{
+					"detail": "Admins cannot be deleted",
+				},
+			},
 		}), nil
 	}
 
@@ -65,7 +77,11 @@ func Delete(req router.Request) (*router.Response, error) {
 		switch err {
 		case ldap.DeleteFailed:
 			return router.JSONResponse(500, hash{
-				"error": err.Error(),
+				"error": [1]hash{
+					hash{
+						"detail": err.Error(),
+					},
+				},
 			}), nil
 		case ldap.UnknownUser:
 			log.Info("User doesn't exist in AD")
@@ -82,7 +98,9 @@ func Delete(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
@@ -90,20 +108,32 @@ func Disable(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(404, hash{
-			"error": "User id needed for desactivation",
+			"error": [1]hash{
+				hash{
+					"detail": "User id needed for desactivation",
+				},
+			},
 		}), nil
 	}
 
 	exists, err := users.UserExists(userId)
 	if err != nil {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
 	if !exists {
 		return router.JSONResponse(404, hash{
-			"error": "User not found",
+			"error": [1]hash{
+				hash{
+					"detail": "User not found",
+				},
+			},
 		}), nil
 	}
 
@@ -114,7 +144,9 @@ func Disable(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
@@ -124,15 +156,17 @@ func Get(req router.Request) (*router.Response, error) {
 		log.Errorf("unable to get user lists: %s", err.Error())
 		return nil, err
 	}
-	return router.JSONResponse(200, users), nil
+	return router.JSONResponse(200, hash{"data": users}), nil
 }
 
 func Post(req router.Request) (*router.Response, error) {
 	var user struct {
-		Email     string
-		FirstName string
-		LastName  string
-		Password  string
+		Data struct {
+			Email     string
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Password  string
+		}
 	}
 
 	err := json.Unmarshal([]byte(req.Body), &user)
@@ -143,20 +177,28 @@ func Post(req router.Request) (*router.Response, error) {
 
 	newUser, err := users.CreateUser(
 		true,
-		user.Email,
-		user.FirstName,
-		user.LastName,
-		user.Password,
+		user.Data.Email,
+		user.Data.FirstName,
+		user.Data.LastName,
+		user.Data.Password,
 		false,
 	)
 	switch err {
 	case users.UserDuplicated:
 		return router.JSONResponse(409, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	case users.UserNotCreated:
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
@@ -164,7 +206,11 @@ func Post(req router.Request) (*router.Response, error) {
 	sam, err := ldap.AddUser(newUser.Id, winpass)
 	if err != nil {
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
@@ -174,54 +220,28 @@ func Post(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(201, hash{
-		"Id": newUser.Id,
+		"data": hash{
+			"id": newUser.Id,
+		},
 	}), nil
-}
-
-func Login(req router.Request) (*router.Response, error) {
-	var body struct {
-		Username string
-		Password string
-	}
-
-	err := json.Unmarshal(req.Body, &body)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := users.GetUserFromEmailPassword(body.Username, body.Password)
-	switch err {
-	case users.InvalidCredentials:
-	case users.UserDisabled:
-		return router.JSONResponse(400, hash{
-			"success": false,
-			"error":   err.Error(),
-		}), nil
-
-	case nil:
-		if user == nil {
-			log.Error("unable to log the user in")
-			return nil, errors.New("unable to log the user in")
-		}
-
-		return router.JSONResponse(200, hash{
-			"success": true,
-			"user":    user,
-		}), nil
-	}
-	return nil, err
 }
 
 func UpdatePassword(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(400, hash{
-			"error": "User id needed to modify account",
+			"error": [1]hash{
+				hash{
+					"detail": "User id needed to modify account",
+				},
+			},
 		}), nil
 	}
 
 	var user struct {
-		Password string
+		Data struct {
+			Password string
+		}
 	}
 
 	err := json.Unmarshal(req.Body, &user)
@@ -238,18 +258,24 @@ func UpdatePassword(req router.Request) (*router.Response, error) {
 
 	if !exists {
 		return router.JSONResponse(404, hash{
-			"error": "User not found",
+			"error": [1]hash{
+				hash{
+					"detail": "User not found",
+				},
+			},
 		}), nil
 	}
 
-	err = users.UpdateUserPassword(userId, user.Password)
+	err = users.UpdateUserPassword(userId, user.Data.Password)
 	if err != nil {
 		log.Errorf("Unable to update user password: %s", err.Error())
 		return nil, err
 	}
 
 	return router.JSONResponse(200, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
@@ -257,7 +283,11 @@ func GetUser(req router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(400, hash{
-			"error": "User id needed to retrieve account informations",
+			"error": [1]hash{
+				hash{
+					"detail": "User id needed to retrieve account informations",
+				},
+			},
 		}), nil
 	}
 
@@ -268,9 +298,15 @@ func GetUser(req router.Request) (*router.Response, error) {
 
 	if user == nil {
 		return router.JSONResponse(404, hash{
-			"error": "User Not Found",
+			"error": [1]hash{
+				hash{
+					"detail": "User Not Found",
+				},
+			},
 		}), nil
 	}
 
-	return router.JSONResponse(200, user), nil
+	return router.JSONResponse(200, hash{
+		"data": user,
+	}), nil
 }

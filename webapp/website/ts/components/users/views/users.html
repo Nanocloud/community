@@ -10,20 +10,20 @@
 	<md-card-content>
 		<md-list>
 			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
-				<ng-md-icon icon="{{ user.IsAdmin ? 'supervisor_account' : 'person' }}"></ng-md-icon>
+				<ng-md-icon icon="{{ user.is_admin ? 'supervisor_account' : 'person' }}"></ng-md-icon>
 				<div class="md-list-item-text">
-					<h3>{{ user.FirstName }} {{ user.LastName }}</h3>
-					<p>{{ user.Email }}</p>
+					<h3>{{ user.first_name }} {{ user.last_name }}</h3>
+					<p>{{ user.email }}</p>
 				</div>
 				<md-button class="md-icon-button" aria-label="Change password"
 						ng-click="usersCtrl.startEditUser($event, user)"
-						ng-show=" !user.IsAdmin">
+						ng-show=" !user.is_admin">
 					<ng-md-icon icon="edit"></ng-md-icon>
 				</md-button>
 				<md-button class="md-icon-button md-warn" aria-label="Delete this user"
 						ng-click="usersCtrl.startDeleteUser($event, user)"
 						ng-disabled="!usersCtrl.windowsState"
-						ng-show=" !user.IsAdmin">
+						ng-show=" !user.is_admin">
 					<ng-md-icon icon="delete"></ng-md-icon>
 				</md-button>
 			</md-list-item>

@@ -1,12 +1,12 @@
 package users
 
 type User struct {
-	Id              string
-	Email           string
-	Activated       bool
-	IsAdmin         bool
-	FirstName       string
-	LastName        string
-	Sam             string
-	WindowsPassword string
+	Id              string `json:"id"`
+	Email           string `json:"email"`
+	Activated       bool   `json:"activated"`
+	IsAdmin         bool   `json:"is_admin"`
+	FirstName       string `json:"first_name"`
+	LastName        string `json:"last_name"`
+	Sam             string `json:"sam"`
+	WindowsPassword string `json:"windows_password"`
 }

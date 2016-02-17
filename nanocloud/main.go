@@ -75,7 +75,6 @@ func main() {
 	/**
 	 * USERS
 	 */
-	router.Post("/users/login", users.Login)
 	router.Post("/users/:id/disable", middlewares.Admin, users.Disable)
 	router.Get("/users", middlewares.Admin, users.Get)
 	router.Post("/users", middlewares.Admin, users.Post)

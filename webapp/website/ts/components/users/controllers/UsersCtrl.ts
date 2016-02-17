@@ -84,7 +84,7 @@ export class UsersCtrl {
 	
 	editUser(user: IUser) {
 		// here, call the server to edit
-		let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
+		let i = _.findIndex(this.users, (x: IUser) => x.email === user.email);
 		if (i >= 0) {
 			this.users[i] = user;
 		}
@@ -94,7 +94,7 @@ export class UsersCtrl {
 		let o = this.$mdDialog.confirm()
 			.parent(angular.element(document.body))
 			.title("Delete user")
-			.textContent("Are you sure you want to delete \"" + user.Email + "\"?")
+			.textContent("Are you sure you want to delete \"" + user.email + "\"?")
 			.ok("Yes")
 			.cancel("No")
 			.targetEvent(e);
@@ -107,7 +107,7 @@ export class UsersCtrl {
 		this.usersSvc.delete(user);
 
 		// TODO Haptic does not give user ID for now. We can rely on mail adress for now
-		let i = _.findIndex(this.users, (x: IUser) => x.Email === user.Email);
+		let i = _.findIndex(this.users, (x: IUser) => x.email === user.email);
 		if (i >= 0) {
 			this.users.splice(i, 1);
 		}

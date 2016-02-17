@@ -16,24 +16,24 @@
 			<div class="md-dialog-content" layout="column">
 				<md-input-container flex ng-if="userCtrl.isCreation">
 					<label>First name</label>
-					<input ng-model="userCtrl.user.FirstName" required class="dialog-close" />
+					<input ng-model="userCtrl.user.first_name" required class="dialog-close" />
 					<!-- dialog-close adds focus -->
 				</md-input-container>
 				<md-input-container flex ng-if="userCtrl.isCreation">
 					<label>Last Name</label>
-					<input ng-model="userCtrl.user.LastName" required />
+					<input ng-model="userCtrl.user.last_name" required />
 				</md-input-container>
 				<md-input-container flex ng-if="userCtrl.isCreation">
 					<label>Email</label>
-					<input type="email" ng-model="userCtrl.user.Email" required />
+					<input type="email" ng-model="userCtrl.user.email" required />
 				</md-input-container>
 				<md-input-container flex>
 					<label>Password</label>
-					<input type="password" ng-model="userCtrl.user.Password" required />
+					<input type="password" ng-model="userCtrl.user.password" required />
 				</md-input-container>
 				<md-input-container flex>
 					<label>Confirm password</label>
-					<input type="password" ng-model="userCtrl.user.Password2" required />
+					<input type="password" ng-model="userCtrl.user.password2" required />
 					<div ng-messages="required" ng-show="userCtrl.checkPassword(userCtrl.user) === false">
 						<div ng-message="required">
 							{{ userCtrl.userFormErrorMessage }}

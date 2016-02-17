@@ -44,13 +44,13 @@ export class AuthenticationSvc {
 		let basic = btoa(appKey + ":" + appSecret);
 		return this.$http
 			.post("/oauth/token", JSON.stringify({
-				"username": credentials.email,
-				"password": credentials.password,
-				"grant_type": "password"
+					"username": credentials.email,
+					"password": credentials.password,
+					"grant_type": "password"
 			}), {
 				headers: { "Authorization": "Basic " + basic }
 			})
-			.then((res: angular.IHttpPromiseCallbackArg<any>) => {
+			.then((res: any) => {
 				localStorage["accessToken"] = res.data.access_token;
 				this.$http.defaults.headers.common["Authorization"] = "Bearer " + res.data.access_token;
 			});
