@@ -44,8 +44,8 @@ For your host computer
 
 You also need to install the following packages on your distribution:
 
-* *docker*
-* *docker-compose*
+* *docker* 1.10+
+* *docker-compose* 1.5.2 **Currently incompatible with docker-compose 1.6 !**
 * *curl* or *wget*
 
 ## Uninstall
