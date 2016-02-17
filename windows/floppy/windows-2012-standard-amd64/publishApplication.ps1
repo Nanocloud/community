@@ -24,3 +24,7 @@ $displayName = [io.path]::GetFileNameWithoutExtension($filename)
 
 # *** Publish the application ***
 New-RDRemoteApp -CollectionName $collectionName -DisplayName $displayName -FilePath $filename
+
+# *** Display a popup ***
+$wshell = New-Object -ComObject Wscript.Shell
+$wshell.Popup($displayName+ " has been published ! You can now close this tab.", 0, "Done", 0x1)
