@@ -43,7 +43,7 @@
 		{
 			"vm_name": "{{user `product_name`}}-{{user `product_version`}}-{{user `product_arch`}}.qcow2",
 			"name": "windows-2012R2-qemu",
-			"headless": true,
+			"headless": false,
 			"type": "qemu",
 			"format":"qcow2",
 			"accelerator": "kvm",
@@ -65,8 +65,7 @@
 			"floppy_files": [
 				"floppy/drivers/virtio-win-0.1-81/WIN7/AMD64/*",
 				"floppy/windows-2012-standard-amd64/Autounattend.xml",
-				"floppy/windows-2012-standard-amd64/configure-winrm.ps1",
-				"floppy/common/install-cygwin-sshd.sh"
+				"floppy/windows-2012-standard-amd64/configure-winrm.ps1"
 			]
 		}
 	],
@@ -74,8 +73,7 @@
 		{
 			"type": "powershell",
 			"scripts": [
-				"floppy/windows-2012-standard-amd64/configure.ps1",
-				"floppy/windows-2012-standard-amd64/config-cygwin.ps1",
+				"floppy/windows-2012-standard-amd64/install-openssh.ps1",
 				"floppy/windows-2012-standard-amd64/Disable-WU.ps1",
 				"floppy/windows-2012-standard-amd64/AD-install.ps1",
 				"floppy/windows-2012-standard-amd64/enable-RDP.ps1",
