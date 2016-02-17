@@ -31,6 +31,8 @@ export interface IService {
 	Locked: boolean;
 	Status: string;
 	FontColor: string;
+	CurrentSize: number;
+	TotalSize: number;
 	VM: string;
 }
 

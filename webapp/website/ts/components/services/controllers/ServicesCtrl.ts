@@ -45,7 +45,7 @@ export class ServicesCtrl {
 		private $mdDialog: angular.material.IDialogService
 	) {
 		this.colors = {
-			downloading: "#4183D7",
+			download: "#4183D7",
 			available: "#A2DED0",
 			booting: "#EB9532",
 			running: "#26A65B"
