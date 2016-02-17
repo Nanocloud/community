@@ -32,7 +32,7 @@ import { ServicesFct } from "../../services/services/ServicesFct";
 export class ApplicationsCtrl {
 
 	applications: IApplication[];
-	windowsState: boolean;
+	windowsState: boolean = false;
 
 	static $inject = [
 		"ApplicationsSvc",
