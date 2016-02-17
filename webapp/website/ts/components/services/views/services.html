@@ -6,11 +6,14 @@
 				ng-style="{'color': '{{ servicesCtrl.colors[service.Status] }}'}" ></ng-md-icon>
 			<ng-md-icon ng-if="service.Status === 'running'" icon="{{service.Ico}}"
 				ng-style="{'color': '{{ servicesCtrl.colors[service.Status] }}'}" ></ng-md-icon>
- 			<i ng-if="service.Status === 'booting'" class="fa fa-spinner fa-spin fa-2x" ng-style="{'margin-right':'10px','color':'green'}">  </i>
+			<ng-md-icon ng-if="service.Status === 'download'" icon="{{service.Ico}}"
+				ng-style="{'color': '{{ servicesCtrl.colors[service.Status] }}'}" ></ng-md-icon>
+			<i ng-if="service.Status === 'booting'" class="fa fa-spinner fa-spin fa-2x" ng-style="{'margin-right':'10px','color':'green'}">  </i>
 			<div class="md-list-item-text" layout="column">
 				<h3>{{ service.DisplayName }}</h3>
-				<p>Status : <strong>{{ service.Status }}</strong></p>
-				<p ng-if="!service.Locked">
+				<p>Status : <strong>{{ service.Status }}</strong> <strong ng-if="servicesCtrl.services[0].CurrentSize">{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize | number : 2}} %</strong></p>
+				<md-progress-linear md-mode="determinate" value="{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize}}"></md-progress-linear>
+				<p ng-if="!service.Locked && service.Status !== 'download'">
 					Please click <strong style="color: #2980b9">here</strong> to
 					<strong ng-if="service.Status === 'available'">boot</strong>
 					<strong ng-if="service.Status === 'running'">power down</strong>
@@ -23,10 +26,6 @@
 			<ng-md-icon icon="windows"></ng-md-icon>
 			<div class="md-list-item-text" layout="column">
 				<h3>Windows</h3>
-				<div ng-if="servicesCtrl.servicesSvc.downloadStarted">
-					<p>Download in progress (~6 GB). This may take a while.</p>
-					<md-progress-linear md-mode="indeterminate"></md-progress-linear>
-				</div>
 				<p ng-if="servicesCtrl.servicesSvc.downloadStarted === false">
 					<ng-md-icon icon="arrow_back"></ng-md-icon> Please click on the Windows button to install it
 				</p>

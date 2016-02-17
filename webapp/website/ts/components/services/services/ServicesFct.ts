@@ -46,7 +46,7 @@ export class ServicesFct {
 	) {
 		this.location = $location;
 		this.loadServices();
-		$interval(this.loadServices.bind(this), 10 * 1000);
+		$interval(this.loadServices.bind(this), 5 * 1000);
 	}
 
 	loadServices(): angular.IPromise<void> {
