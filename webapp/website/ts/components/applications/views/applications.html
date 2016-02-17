@@ -1,6 +1,4 @@
-
-<md-card>
-	
+<md-card ng-if="applicationsCtrl.windowsState">
 	<md-card-content>
 		<h2 class="md-title">Upload to VM</h2>
 		<div flow-init="{target: '/upload'}"
@@ -39,15 +37,13 @@
 
 </md-card>
 
-<div>
-	<md-card>
-		<md-card-content>
-			<p>
-				<strong>Windows</strong> can take some time to start all services, if you can't access <em>Desktop</em> right now, wait a minute before retrying.
-			</p>
-		</md-card-content>
-	</md-card>
-</div>
+<md-card ng-if="!applicationsCtrl.windowsState">
+	<md-card-content>
+		<p>
+			<strong>Windows</strong> seems to be unavailable, please ensure services is up and running in <strong>Services</strong> page.
+		</p>
+	</md-card-content>
+</md-card>
 
 <div ng-if="applicationsCtrl.applications.length !== 0">
 	<md-card>

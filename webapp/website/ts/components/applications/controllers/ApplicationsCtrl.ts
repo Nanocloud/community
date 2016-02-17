@@ -22,24 +22,32 @@
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
 /// <amd-dependency path="../services/ApplicationsSvc" />
+/// <amd-dependency path="../../services/services/ServicesFct" />
 /// <amd-dependency path="./ApplicationCtrl" />
 import { ApplicationsSvc, IApplication } from "../services/ApplicationsSvc";
+import { ServicesFct } from "../../services/services/ServicesFct";
 
 "use strict";
 
 export class ApplicationsCtrl {
 
 	applications: IApplication[];
+	windowsState: boolean;
 
 	static $inject = [
 		"ApplicationsSvc",
+		"ServicesFct",
 		"$mdDialog"
 	];
 
 	constructor(
 		private applicationsSrv: ApplicationsSvc,
+		private servicesFct: ServicesFct,
 		private $mdDialog: angular.material.IDialogService
 	) {
+		this.servicesFct.getWindowsStatus().then((windowsState: boolean) => {
+			this.windowsState = windowsState;
+		});
 		this.applications = [];
 		this.loadApplications();
 	}
