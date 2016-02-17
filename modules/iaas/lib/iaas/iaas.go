@@ -30,6 +30,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -50,8 +51,14 @@ type Iaas struct {
 	ArtURL   string
 }
 
+type DownloadingVm struct {
+	Name        string `json:"name"`
+	CurrentSize string `json:"current_size"`
+	TotalSize   string `json:"total_size"`
+}
+
 type VMstatus struct {
-	DownloadingVmNames []string
+	DownloadingVmNames []DownloadingVm
 	AvailableVMNames   []string
 	BootingVmNames     []string
 	RunningVmNames     []string
@@ -63,6 +70,8 @@ type VmInfo struct {
 	DisplayName string
 	Status      string
 	Locked      bool
+	CurrentSize string
+	TotalSize   string
 }
 
 func New(Server, Password, User, SSHPort, InstDir, ArtURL string) *Iaas {
@@ -83,6 +92,33 @@ func (i *Iaas) stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func vmIsDownloading(vmName string, tab []DownloadingVm) bool {
+	for _, val := range tab {
+		if vmName == val.Name {
+			return true
+		}
+	}
+	return false
+}
+
+func getCurrentSize(vmName string, tab []DownloadingVm) string {
+	for _, val := range tab {
+		if vmName == val.Name {
+			return val.CurrentSize
+		}
+	}
+	return ""
+}
+
+func getTotalSize(vmName string, tab []DownloadingVm) string {
+	for _, val := range tab {
+		if vmName == val.Name {
+			return val.TotalSize
+		}
+	}
+	return ""
 }
 
 func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
@@ -123,7 +159,7 @@ func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
 			Status = "running"
 		} else if i.stringInSlice(vmName, response.BootingVmNames) {
 			Status = "booting"
-		} else if i.stringInSlice(vmName, response.DownloadingVmNames) {
+		} else if vmIsDownloading(vmName, response.DownloadingVmNames) {
 			Status = "download"
 		} else if i.stringInSlice(vmName, response.AvailableVMNames) {
 			Status = "available"
@@ -134,6 +170,8 @@ func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
 			DisplayName: displayName,
 			Status:      Status,
 			Locked:      locked,
+			CurrentSize: getCurrentSize(vmName, response.DownloadingVmNames),
+			TotalSize:   getTotalSize(vmName, response.DownloadingVmNames),
 		})
 	}
 	return vmList
@@ -164,6 +202,10 @@ func (i *Iaas) CheckRDS() bool {
 		return true
 	}
 	return false
+}
+
+func generateDownloadURL(url string, vm string) string {
+	return url + vm
 }
 
 func (i *Iaas) GetList() (VMstatus, error) {
@@ -203,7 +245,27 @@ func (i *Iaas) GetList() (VMstatus, error) {
 		if !strings.Contains(fileName, ".qcow2") {
 			continue
 		}
-		status.DownloadingVmNames = append(status.DownloadingVmNames, file.Name()[0:len(file.Name())-6])
+		fi, err := os.Open(filepath.Join(i.InstDir, "downloads", fileName))
+		if err != nil {
+			log.Error("Couldn't open downloading file: ", err)
+			continue
+		}
+		fiStat, err := fi.Stat()
+		if err != nil {
+			log.Error("Couldn't stat downloading file: ", err)
+			continue
+		}
+		response, err := http.Head(generateDownloadURL(i.ArtURL, fileName))
+		if err != nil {
+			log.Error("Error while checking file size ", err)
+			continue
+		}
+		status.AvailableVMNames = append(status.AvailableVMNames, file.Name()[0:len(file.Name())-6])
+		status.DownloadingVmNames = append(status.DownloadingVmNames, DownloadingVm{
+			Name:        file.Name()[0 : len(file.Name())-6],
+			CurrentSize: strconv.FormatInt(fiStat.Size(), 10),
+			TotalSize:   strconv.FormatInt(response.ContentLength, 10),
+		})
 	}
 
 	return status, nil
@@ -287,6 +349,6 @@ func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) error {
 
 func (i *Iaas) Download(VMName string) {
 	i.downloadFromUrl(
-		i.ArtURL+VMName+".qcow2",
+		generateDownloadURL(i.ArtURL, VMName)+".qcow2",
 		i.InstDir+"/images/"+VMName+".qcow2")
 }
