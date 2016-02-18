@@ -75,7 +75,7 @@ func main() {
 	/**
 	 * USERS
 	 */
-	router.Post("/users/:id/disable", middlewares.Admin, users.Disable)
+	router.Patch("/users/:id", middlewares.Admin, users.Update)
 	router.Get("/users", middlewares.Admin, users.Get)
 	router.Post("/users", middlewares.Admin, users.Post)
 	router.Delete("/users/:id", middlewares.Admin, users.Delete)

@@ -24,6 +24,7 @@ package users
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/Nanocloud/community/nanocloud/models/ldap"
 	"github.com/Nanocloud/community/nanocloud/models/users"
@@ -104,21 +105,72 @@ func Delete(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func Disable(req router.Request) (*router.Response, error) {
-	userId := req.Params["id"]
+func Disable(userId string) (int, error) {
 	if userId == "" {
-		return router.JSONResponse(404, hash{
+		return 404, errors.New("User id needed for desactivation")
+	}
+
+	exists, err := users.UserExists(userId)
+	if err != nil {
+		return 500, err
+	}
+
+	if !exists {
+		return 404, errors.New("User not found")
+	}
+
+	err = users.DisableUser(userId)
+	if err != nil {
+		return 500, errors.New("Unable to disable user: " + err.Error())
+	}
+
+	return 0, nil
+}
+
+func Update(req router.Request) (*router.Response, error) {
+	var attr map[string]map[string]interface{}
+
+	err := json.Unmarshal([]byte(req.Body), &attr)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	data, ok := attr["data"]
+	if ok == false {
+		return router.JSONResponse(400, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "User id needed for desactivation",
+					"detail": "data is missing",
 				},
 			},
 		}), nil
 	}
 
-	exists, err := users.UserExists(userId)
+	activated, ok := data["activated"].(bool)
+	if ok == false {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "activated field is missing",
+				},
+			},
+		}), nil
+	}
+
+	if activated != false {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "activated field must be false",
+				},
+			},
+		}), nil
+	}
+
+	code, err := Disable(req.Params["id"])
 	if err != nil {
-		return router.JSONResponse(500, hash{
+		return router.JSONResponse(code, hash{
 			"error": [1]hash{
 				hash{
 					"detail": err.Error(),
@@ -127,25 +179,19 @@ func Disable(req router.Request) (*router.Response, error) {
 		}), nil
 	}
 
-	if !exists {
-		return router.JSONResponse(404, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "User not found",
-				},
+	user, err := users.GetUser(req.Params["id"])
+	if user == nil {
+		return router.JSONResponse(200, hash{
+			"data": hash{
+				"success": true,
 			},
 		}), nil
-	}
-
-	err = users.DisableUser(userId)
-	if err != nil {
-		log.Errorf("Unable to disable user: %s", err.Error())
-		return nil, err
 	}
 
 	return router.JSONResponse(200, hash{
 		"data": hash{
 			"success": true,
+			"user":    user,
 		},
 	}), nil
 }

@@ -2,13 +2,14 @@ package router
 
 import (
 	"encoding/json"
-	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/Nanocloud/community/nanocloud/oauth2"
-	"github.com/Nanocloud/nano"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	"github.com/Nanocloud/nano"
 )
 
 type hash map[string]interface{}
@@ -76,6 +77,10 @@ func Delete(pattern string, handlers ...handler) {
 
 func Put(pattern string, handlers ...handler) {
 	addHandler("PUT", pattern, &handlers)
+}
+
+func Patch(pattern string, handlers ...handler) {
+	addHandler("PATCH", pattern, &handlers)
 }
 
 func patternMatch(pattern, path string) (map[string]string, bool) {
