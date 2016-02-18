@@ -34,7 +34,6 @@
 			<ng-md-icon icon="cloud_done"></ng-md-icon> Publish
 		</md-button>
 	</md-card-actions>
-
 </md-card>
 
 <md-card ng-if="!applicationsCtrl.windowsState">
@@ -45,24 +44,23 @@
 	</md-card-content>
 </md-card>
 
-<div ng-if="applicationsCtrl.applications.length !== 0">
-	<md-card>
-		<md-card-content>
-			<md-list role="list">
-				<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="app in applicationsCtrl.applications">
-					<h3>{{ app.display_name }}</h3>
-					<md-card-actions class="md-secondary">
-						<md-button ng-click="applicationsCtrl.openApplication($event, app)">
-							<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open
-						</md-button>
-						<md-button ng-click="applicationsCtrl.startRenameApplication($event, app)">
-							<ng-md-icon icon='edit' size='14'></ng-md-icon> Edit name
-						</md-button>
-						<md-button ng-click="applicationsCtrl.startUnpublishApplication($event, app)">
-							<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish
-						</md-button>
-					</md-card-actions>
-				</md-list-item>
-			</md-list>
-		</md-card-content>
-	</md-card>
+<md-card ng-if="applicationsCtrl.applications.length !== 0">
+	<md-card-content>
+		<md-list role="list">
+			<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="app in applicationsCtrl.applications">
+				<h3>{{ app.display_name }}</h3>
+				<md-card-actions class="md-secondary">
+					<md-button ng-click="applicationsCtrl.openApplication($event, app)">
+						<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open
+					</md-button>
+					<md-button ng-click="applicationsCtrl.startRenameApplication($event, app)">
+						<ng-md-icon icon='edit' size='14'></ng-md-icon> Edit name
+					</md-button>
+					<md-button ng-click="applicationsCtrl.startUnpublishApplication($event, app)">
+						<ng-md-icon icon='delete' size='14'></ng-md-icon> Unpublish
+					</md-button>
+				</md-card-actions>
+			</md-list-item>
+		</md-list>
+	</md-card-content>
+</md-card>
