@@ -147,7 +147,18 @@ func Update(req router.Request) (*router.Response, error) {
 		}), nil
 	}
 
-	activated, ok := data["activated"].(bool)
+	attributes, ok := data["attributes"].(map[string]interface{})
+	if ok == false {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "attributes is missing",
+				},
+			},
+		}), nil
+	}
+
+	activated, ok := attributes["activated"]
 	if ok == false {
 		return router.JSONResponse(400, hash{
 			"error": [1]hash{
@@ -190,8 +201,10 @@ func Update(req router.Request) (*router.Response, error) {
 
 	return router.JSONResponse(200, hash{
 		"data": hash{
-			"success": true,
-			"user":    user,
+			"success":    true,
+			"id":         user.Id,
+			"type":       "user",
+			"attributes": user,
 		},
 	}), nil
 }
@@ -202,7 +215,17 @@ func Get(req router.Request) (*router.Response, error) {
 		log.Errorf("unable to get user lists: %s", err.Error())
 		return nil, err
 	}
-	return router.JSONResponse(200, hash{"data": users}), nil
+
+	var response = make([]hash, len(*users))
+	for i, val := range *users {
+		res := hash{
+			"id":         val.Id,
+			"type":       "user",
+			"attributes": val,
+		}
+		response[i] = res
+	}
+	return router.JSONResponse(200, hash{"data": response}), nil
 }
 
 func Post(req router.Request) (*router.Response, error) {
@@ -353,6 +376,10 @@ func GetUser(req router.Request) (*router.Response, error) {
 	}
 
 	return router.JSONResponse(200, hash{
-		"data": user,
+		"data": hash{
+			"id":         user.Id,
+			"type":       "user",
+			"attributes": user,
+		},
 	}), nil
 }
