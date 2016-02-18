@@ -24,11 +24,12 @@ package apps
 
 import (
 	"encoding/json"
+	"strings"
+
 	"github.com/Nanocloud/community/nanocloud/models/apps"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/router"
 	log "github.com/Sirupsen/logrus"
-	"strings"
 )
 
 type hash map[string]interface{}
@@ -46,7 +47,7 @@ func GetConnections(req router.Request) (*router.Response, error) {
 			"error": "Unable to retrieve users",
 		}), nil
 	}
-	connections, err := apps.RetrieveConnections(userList)
+	connections, err := apps.RetrieveConnections(req.User, userList)
 	if err == apps.AppsListUnavailable {
 		return router.JSONResponse(500, hash{
 			"error": "Unable to retrieve applications list",
