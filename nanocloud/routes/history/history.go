@@ -24,6 +24,7 @@ package history
 
 import (
 	"encoding/json"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/router"
 	log "github.com/Sirupsen/logrus"
@@ -33,10 +34,10 @@ type hash map[string]interface{}
 
 // Log entries are stored in this structure
 type HistoryInfo struct {
-	UserId       string
-	ConnectionId string
-	StartDate    string
-	EndDate      string
+	UserId       string `json:"user_id"`
+	ConnectionId string `json:"connection_id"`
+	StartDate    string `json:"start_date"`
+	EndDate      string `json:"end_date"`
 }
 
 // Get a list of all the log entries of the database
@@ -75,24 +76,34 @@ func List(req router.Request) (*router.Response, error) {
 		histories = []HistoryInfo{}
 	}
 
-	return router.JSONResponse(200, histories), nil
+	return router.JSONResponse(200, hash{"data": histories}), nil
 }
 
 // Add a new log entry to the database
 func Add(req router.Request) (*router.Response, error) {
-	var t HistoryInfo
+	var t struct {
+		Data HistoryInfo
+	}
 	err := json.Unmarshal([]byte(req.Body), &t)
 	if err != nil {
 		log.Error("Error unmarshalling params: ", err.Error())
 		return router.JSONResponse(400, hash{
-			"error": "Invalid parameters",
+			"error": [1]hash{
+				hash{
+					"detail": "Invalid parameters",
+				},
+			},
 		}), nil
 	}
 
-	if t.UserId == "" || t.ConnectionId == "" || t.StartDate == "" || t.EndDate == "" {
+	if t.Data.UserId == "" || t.Data.ConnectionId == "" || t.Data.StartDate == "" || t.Data.EndDate == "" {
 		log.Error("Missing one or several parameters to create entry")
 		return router.JSONResponse(400, hash{
-			"error": "Missing parameters",
+			"error": [1]hash{
+				hash{
+					"detail": "Missing parameters",
+				},
+			},
 		}), nil
 	}
 
@@ -100,18 +111,24 @@ func Add(req router.Request) (*router.Response, error) {
 		`INSERT INTO histories
 		(userid, connectionid, startdate, enddate)
 		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar)
-		`, t.UserId, t.ConnectionId, t.StartDate, t.EndDate)
+		`, t.Data.UserId, t.Data.ConnectionId, t.Data.StartDate, t.Data.EndDate)
 	if err != nil {
 		log.Error(err.Error())
 		return router.JSONResponse(500, hash{
-			"error": err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": err.Error(),
+				},
+			},
 		}), nil
 	}
 
 	rows.Close()
 
 	return router.JSONResponse(201, hash{
-		"success": true,
+		"data": hash{
+			"success": true,
+		},
 	}), nil
 }
 
