@@ -49,7 +49,17 @@ export class UsersSvc {
 
 	getAll(): angular.IPromise<IUser[]> {
 		return this.$http.get("/api/users")
-		.then((res: any) => res.data.data);
+		.then((res: any) => {
+			let arr: IUser[] = [];
+			for (var data of res.data.data)
+			{
+				let usr: IUser;
+				usr = data.attributes;
+				usr.id = data.id;
+				arr.push(usr);
+			}
+			return arr;
+		});
 	}
 
 	save(user: IUser): angular.IPromise<boolean> {
