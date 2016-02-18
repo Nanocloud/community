@@ -16,7 +16,6 @@ import com.nanocloud.auth.noauthlogged.NoAuthLoggedGuacamoleProperties;
 import com.nanocloud.auth.noauthlogged.tunnel.ManagedInetGuacamoleSocket;
 import com.nanocloud.auth.noauthlogged.tunnel.ManagedSSLGuacamoleSocket;
 
-import org.apache.commons.codec.binary.Base64;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.environment.Environment;
 import org.glyptodon.guacamole.environment.LocalEnvironment;
@@ -27,8 +26,7 @@ import org.glyptodon.guacamole.net.auth.simple.SimpleConnection;
 import org.glyptodon.guacamole.protocol.ConfiguredGuacamoleSocket;
 import org.glyptodon.guacamole.protocol.GuacamoleClientInformation;
 import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +37,17 @@ public class LoggedConnection extends SimpleConnection {
 	 */
 	private Logger logger = LoggerFactory.getLogger(LoggedConnection.class);
 
+	private String token;
+
     /**
      * Backing configuration, containing all sensitive information.
      */
     private GuacamoleConfiguration config;
-	public LoggedConnection(String name, String identifier, GuacamoleConfiguration config) {
+	public LoggedConnection(String name, String identifier, GuacamoleConfiguration config, String token) {
 		super(name, identifier, config);
 
 		this.config = config;
+		this.token = token;
 	}
 	
     /**
@@ -62,11 +63,10 @@ public class LoggedConnection extends SimpleConnection {
 		private final String hostname;
 		private final Integer port;
 		private final String endpoint;
-		private final String username;
-		private final String password;
 		private ActiveConnectionRecord connection;
+		private String token;
 
-        public ConnectionCleanupTask(ActiveConnectionRecord connection) throws GuacamoleException {
+        public ConnectionCleanupTask(ActiveConnectionRecord connection, String token) throws GuacamoleException {
         	this.connection = connection;
 
 			Environment env = new LocalEnvironment();
@@ -74,64 +74,8 @@ public class LoggedConnection extends SimpleConnection {
 			hostname = env.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERURL, "localhost");
 			port = env.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERPORT, 80);
 			endpoint = env.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERENDPOINT, "rpc");
-			username = env.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERUSERNAME);
-			password = env.getProperty(NoAuthLoggedGuacamoleProperties.NOAUTHLOGGED_SERVERPASSWORD);
+			this.token = token;
         }
-
-        private String login() throws IOException {
-
-			URL myUrl = new URL("http://" + hostname + ":" + port + "/oauth/token");
-			HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
-			//urlConn.setInstanceFollowRedirects(false);
-
-			String appKey = "9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae";
-			String appSecret = "9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341";
-			byte[] auth = Base64.encodeBase64(new String(appKey + ":" + appSecret).getBytes());
-			urlConn.setRequestProperty("Authorization", "Basic OTQwNWZiNmIwZTU5ZDI5OTdlM2M3NzdhMjJkOGYwZTYxN2E5ZjViMzZiNjU2NWM3NTc5ZTViZTZkZWI4ZjdhZTo5MDUwZDY3YzJiZTA5NDNmMmM2MzUwNzA1MmRkZWRiM2FlMzRhMzBlMzliYmJiZGFiMjQxYzkzZjhiNWNmMzQx");
-			urlConn.setRequestProperty("Content-Type", "application/json");
-
-			JsonObject params = Json.createObjectBuilder()
-					.add("username", username)
-					.add("password", password)
-					.add("grant_type", "password")
-					.build();
-
-			urlConn.setUseCaches(false);
-			urlConn.setDoOutput(true);
-			// Send request (for some reason we actually need to wait for response)
-			DataOutputStream writer = new DataOutputStream(urlConn.getOutputStream());
-			writer.writeBytes(params.toString());
-			writer.close();
-
-			urlConn.connect();
-			urlConn.getOutputStream().close();
-
-			// Get Response
-			InputStream input = urlConn.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-			StringBuilder response = new StringBuilder();
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				response.append(line);
-			}
-			reader.close();
-
-			JSONObject json = null;
-			try {
-				json = new JSONObject(response.toString());
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			String token = null;
-			try {
-				token = json.getString("access_token");
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-			return token;
-		}
 
         @Override
         public void run() {
@@ -140,10 +84,10 @@ public class LoggedConnection extends SimpleConnection {
             if (!hasRun.compareAndSet(false, true))
                 return;
 
-			logger.info("Trying to log history to " + hostname + ":" + port + "/" + endpoint + " with user " + username);
+			logger.info("Trying to log history to " + hostname + ":" + port + "/" + endpoint);
 
             try {
-				String token = login();
+				String token = this.token;
 
 				URL myUrl = new URL("http://" + hostname + ":" + port + "/" + endpoint);
     			HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
@@ -191,7 +135,7 @@ public class LoggedConnection extends SimpleConnection {
         }
 
     }
-	
+
     @Override
     public GuacamoleTunnel connect(GuacamoleClientInformation info)
             throws GuacamoleException {
@@ -206,7 +150,7 @@ public class LoggedConnection extends SimpleConnection {
         GuacamoleSocket socket;
 
         // Record new active connection
-        Runnable cleanupTask = new ConnectionCleanupTask(connection);
+        Runnable cleanupTask = new ConnectionCleanupTask(connection, token);
 
         // If guacd requires SSL, use it
         if (env.getProperty(Environment.GUACD_SSL, false))
@@ -223,6 +167,6 @@ public class LoggedConnection extends SimpleConnection {
             );
 
         return new SimpleGuacamoleTunnel(socket);
-        
+
     }
 }

@@ -66,24 +66,4 @@ public class NoAuthLoggedGuacamoleProperties {
 
     };
 
-    /**
-     * The username of the user which will perform the log request to the API
-     */
-    public static final StringGuacamoleProperty NOAUTHLOGGED_SERVERUSERNAME = new StringGuacamoleProperty() {
-
-        @Override
-        public String getName() { return "noauthlogged-server-username"; }
-
-    };
-
-    /**
-     * The password of the user which will perform the log request to the API
-     */
-    public static final StringGuacamoleProperty NOAUTHLOGGED_SERVERPASSWORD = new StringGuacamoleProperty() {
-
-        @Override
-        public String getName() { return "noauthlogged-server-password"; }
-
-    };
-
 }
