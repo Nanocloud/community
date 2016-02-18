@@ -12,7 +12,7 @@
 			<div class="md-list-item-text" layout="column">
 				<h3>{{ service.DisplayName }}</h3>
 				<p>Status : <strong>{{ service.Status }}</strong> <strong ng-if="servicesCtrl.services[0].CurrentSize">{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize | number : 2}} %</strong></p>
-				<md-progress-linear md-mode="determinate" value="{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize}}"></md-progress-linear>
+				<md-progress-linear md-mode="determinate" ng-if="servicesCtrl.services[0].CurrentSize" value="{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize}}"></md-progress-linear>
 				<p ng-if="!service.Locked && service.Status !== 'download'">
 					Please click <strong style="color: #2980b9">here</strong> to
 					<strong ng-if="service.Status === 'available'">boot</strong>
