@@ -3,8 +3,8 @@ packer_cache/
 
 # Ignore build outputs
 modules/build_output
-webapp/website/css/app.min.css
 nanocloud/nanocloud
+nanocloud/tmp
 
 # Ignore currently used Nanocloud channel
 installation_dir/channel
@@ -25,3 +25,8 @@ webapp/bower_components/
 webapp/typings/
 webapp/.tscache/
 webapp/website/js/
+webapp/website/css/
+webapp/website/fonts/
+
+# Ignore Windows Build artifact
+windows/output-windows-2012R2-qemu/
