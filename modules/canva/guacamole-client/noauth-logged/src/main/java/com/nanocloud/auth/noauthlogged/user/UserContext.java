@@ -164,23 +164,24 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 		reader.close();
 
 		System.out.println(response.toString());
-		JSONArray appList =  new JSONArray(response.toString());
+		JSONObject jsonResponse =  new JSONObject(response.toString());
+		JSONArray appList = jsonResponse.getJSONArray("data");
 		for (int i = 0; i < appList.length(); i++) {
 			JSONObject connection = appList.getJSONObject(i);
 			GuacamoleConfiguration config = new GuacamoleConfiguration();
 
-			config.setProtocol(connection.getString("protocol"));
-			config.setParameter("hostname", connection.getString("hostname"));
-			config.setParameter("port", connection.getString("port"));
-			config.setParameter("username", connection.getString("username"));
-			config.setParameter("password", connection.getString("password"));
+			config.setProtocol(connection.getJSONObject("attributes").getString("protocol"));
+			config.setParameter("hostname", connection.getJSONObject("attributes").getString("hostname"));
+			config.setParameter("port", connection.getJSONObject("attributes").getString("port"));
+			config.setParameter("username", connection.getJSONObject("attributes").getString("username"));
+			config.setParameter("password", connection.getJSONObject("attributes").getString("password"));
 			config.setParameter("security", "nla");
 			config.setParameter("ignore-cert", "true");
-			if (connection.has("remote_app")) {
-				config.setParameter("remote-app", connection.getString("remote_app"));
+			if (connection.getJSONObject("attributes").has("remote_app")) {
+				config.setParameter("remote-app", connection.getJSONObject("attributes").getString("remote_app"));
 			}
 
-			configs.put(connection.getString("app_name"), config);
+			configs.put(connection.getJSONObject("attributes").getString("app_name"), config);
 		}
 
 		return configs;
