@@ -91,27 +91,23 @@ func SetConnector(connector Connector) {
 	kConnector = connector
 }
 
-func GetUserOrFail(res http.ResponseWriter, req *http.Request) interface{} {
+func GetUser(res http.ResponseWriter, req *http.Request) (interface{}, *OAuthError) {
 	accessToken, err := GetAccessToken(req)
 	if err != nil {
-		oauthErrorReply(res, *err)
-		return nil
+		return nil, err
 	}
 
 	user, fail := kConnector.GetUserFromAccessToken(accessToken)
 	if fail != nil {
 		log.Error("[OAuth] Cannot retreive user form access token: " + fail.Error())
-		oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
-		return nil
+		return nil, &OAuthError{500, SERVER_ERROR, "Internal Server Error"}
 	}
 
 	if user != nil {
-		return user
+		return user, nil
 	}
 
-	oauthErrorReply(res, OAuthError{403, ACCESS_DENIED, "Invalid access token"})
-
-	return nil
+	return nil, &OAuthError{403, ACCESS_DENIED, "Invalid access token"}
 }
 
 func getAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {

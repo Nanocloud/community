@@ -55,8 +55,8 @@ func init() {
 // Get checks a chunk.
 // If it doesn't exist then flowjs tries to upload it via Post.
 func Get(w http.ResponseWriter, r *http.Request) {
-	user := oauth2.GetUserOrFail(w, r)
-	if user == nil {
+	user, oauthErr := oauth2.GetUser(w, r)
+	if user == nil || oauthErr != nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
@@ -76,8 +76,8 @@ func Get(w http.ResponseWriter, r *http.Request) {
 
 // Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
-	user := oauth2.GetUserOrFail(w, r)
-	if user == nil {
+	user, oauthErr := oauth2.GetUser(w, r)
+	if user == nil || oauthErr != nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
