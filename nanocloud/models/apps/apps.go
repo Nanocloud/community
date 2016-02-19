@@ -318,7 +318,70 @@ func PublishApp(path string) error {
 	return nil
 }
 
-func RetrieveConnections(users *[]users.User) ([]Connection, error) {
+func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, error) {
+
+	rand.Seed(time.Now().UTC().UnixNano())
+	var connections []Connection
+
+	rows, err := db.Query("SELECT alias FROM apps")
+	if err != nil {
+		log.Error("Unable to retrieve apps list from Postgres: ", err.Error())
+		return nil, AppsListUnavailable
+	}
+	defer rows.Close()
+	var execServ string
+	for rows.Next() {
+		appParam := ApplicationParams{}
+		rows.Scan(
+			&appParam.Alias,
+		)
+		if user.Sam != "" && (appParam.Alias == "hapticPowershell" || appParam.Alias == "Desktop") {
+			continue
+		}
+		if count := len(kExecutionServers); count > 0 {
+			execServ = kExecutionServers[rand.Intn(count)]
+		} else {
+			execServ = kServer
+		}
+		var username string
+		var pwd string
+		if user.Sam == "" {
+			username = kUser
+			pwd = kPassword
+		} else {
+			username = user.Sam
+			pwd = user.WindowsPassword
+		}
+		var conn Connection
+		if appParam.Alias != "Desktop" {
+			conn = Connection{
+				Hostname:  execServ,
+				Port:      kRDPPort,
+				Protocol:  kProtocol,
+				Username:  username,
+				Password:  pwd,
+				RemoteApp: "||" + appParam.Alias,
+				AppName:   appParam.Alias,
+			}
+		} else {
+			conn = Connection{
+				Hostname:  execServ,
+				Port:      kRDPPort,
+				Protocol:  kProtocol,
+				Username:  username,
+				Password:  pwd,
+				RemoteApp: "",
+				AppName:   "hapticDesktop",
+			}
+		}
+		connections = append(connections, conn)
+	}
+
+	return connections, nil
+}
+
+/*
+func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, error) {
 
 	// Seed random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -358,7 +421,7 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 			conn.AppName = appParam.Alias
 			connections = append(connections, conn)
 		}
-		if appParam.Alias != "Desktop" {
+		if appParam.Alias != "Desktop" && user.Sam == "" {
 			connections = append(connections, Connection{
 				Hostname:  kServer,
 				Port:      kRDPPort,
@@ -380,7 +443,7 @@ func RetrieveConnections(users *[]users.User) ([]Connection, error) {
 		AppName:   "hapticDesktop",
 	})
 	return connections, nil
-}
+}*/
 
 func init() {
 	kUser = utils.Env("USER", "Administrator")
