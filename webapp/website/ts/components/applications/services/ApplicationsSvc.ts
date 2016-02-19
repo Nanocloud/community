@@ -48,30 +48,36 @@ export class ApplicationsSvc {
 
 	getAll(): angular.IPromise<IApplication[]> {
 		return this.$http.get("/api/apps")
-			.then(
-				(res: angular.IHttpPromiseCallbackArg<IApplication[]>) => {
-					let apps = res.data || [];
-					for (let app of apps) {
-						app.Application = app.display_name;
-					}
-					return apps;
-				},
+		.then(
+			(res: angular.IHttpPromiseCallbackArg<any>) => {
+				let arr: IApplication[] = [];
+				for (var data of res.data.data) {
+					let app: IApplication;
+					app = data.attributes;
+					app.id = data.id;
+					arr.push(app);
+				}
+				return arr;
+			},
 				() => []
 			);
 	}
 
 	getApplicationForUser(): angular.IPromise<IApplication[]> {
 		return this.$http.get("/api/apps/me")
-			.then(
-				(res: angular.IHttpPromiseCallbackArg<IApplication[]>) => {
-					let apps = res.data || [];
-					for (let app of apps) {
-						app.Application = app.display_name;
-					}
-					return apps;
-				},
-				() => []
-			);
+		.then(
+			(res: angular.IHttpPromiseCallbackArg<any>) => {
+				let arr: IApplication[] = [];
+				for (var data of res.data.data) {
+					let app: IApplication;
+					app = data.attributes;
+					app.id = data.id;
+					arr.push(app);
+				}
+				return arr;
+			},
+			() => []
+		);
 	}
 
 	unpublish(application: IApplication): angular.IPromise<any> {
@@ -79,8 +85,13 @@ export class ApplicationsSvc {
 	}
 
 	changeName(app: IApplication, name: string): angular.IPromise<boolean> {
-		return this.$http.put("/api/apps/" + app.alias, {
-			DisplayName: name
+		return this.$http.patch("/api/apps/" + app.alias, {
+			data: {
+				"type": "application",
+				attributes: {
+					display_name: name
+				}
+			}
 		}).then(() => true, () => false);
 	}
 }

@@ -62,7 +62,7 @@ func main() {
 	router.Get("/apps/me", middlewares.OAuth2, apps.ListUserApps)
 	router.Post("/apps", middlewares.OAuth2, apps.PublishApplication)
 	router.Get("/apps/connections", middlewares.OAuth2, apps.GetConnections)
-	router.Put("/apps/:app_id", middlewares.OAuth2, middlewares.Admin, apps.ChangeAppName)
+	router.Patch("/apps/:app_id", middlewares.OAuth2, middlewares.Admin, apps.ChangeAppName)
 
 	go appsModel.CheckPublishedApps()
 
