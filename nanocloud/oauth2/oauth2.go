@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -67,7 +68,7 @@ func (e *OAuthError) ToJSON() (rt []byte, err error) {
 	return
 }
 
-func getAccessToken(req *http.Request) (accessToken string, err *OAuthError) {
+func GetAccessToken(req *http.Request) (accessToken string, err *OAuthError) {
 	/*
 	 * Check Query String
 	 */
@@ -91,7 +92,7 @@ func SetConnector(connector Connector) {
 }
 
 func GetUserOrFail(res http.ResponseWriter, req *http.Request) interface{} {
-	accessToken, err := getAccessToken(req)
+	accessToken, err := GetAccessToken(req)
 	if err != nil {
 		oauthErrorReply(res, *err)
 		return nil
