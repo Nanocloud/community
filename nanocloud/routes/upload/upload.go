@@ -77,6 +77,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 // Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
 	user := oauth2.GetUserOrFail(w, r)
+
 	if user == nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
@@ -131,7 +132,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		"path": upPath,
 	}).Info("file uploaded")
 
-	syncOut, err := syncUploadedFile(upPath)
+	syncOut, err := syncUploadedFile(upPath, user.(*users.User).Sam, user.(*users.User).WindowsPassword)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"output": syncOut,
@@ -196,26 +197,44 @@ func assembleUpload(path, filename string) error {
 	return nil
 }
 
-func syncUploadedFile(path string) (string, error) {
+func syncUploadedFile(path, sam, pwd string) (string, error) {
 	winPassword := utils.Env("WIN_PASSWORD", "")
 	winPort := utils.Env("WIN_PORT", "")
 	winUser := utils.Env("WIN_USER", "")
 	winServer := utils.Env("WIN_SERVER", "")
 
-	cmd := exec.Command(
-		"sshpass",
-		"-p",
-		winPassword,
-		"scp",
-		"-o",
-		"UserKnownHostsFile=/dev/null",
-		"-o",
-		"StrictHostKeyChecking=no",
-		"-P",
-		winPort,
-		path,
-		winUser+"@"+winServer+":C:\\Users\\Administrator\\Desktop\\",
-	)
+	var cmd *exec.Cmd
+	if sam == "" {
+		cmd = exec.Command(
+			"sshpass",
+			"-p",
+			winPassword,
+			"scp",
+			"-o",
+			"UserKnownHostsFile=/dev/null",
+			"-o",
+			"StrictHostKeyChecking=no",
+			"-P",
+			winPort,
+			path,
+			winUser+"@"+winServer+":C:\\Users\\Administrator\\Desktop\\",
+		)
+	} else {
+		cmd = exec.Command(
+			"sshpass",
+			"-p",
+			pwd,
+			"scp",
+			"-o",
+			"UserKnownHostsFile=/dev/null",
+			"-o",
+			"StrictHostKeyChecking=no",
+			"-P",
+			winPort,
+			path,
+			sam+"@"+winServer+":C:\\Users\\"+sam+"\\Desktop\\",
+		)
+	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
