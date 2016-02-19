@@ -4,6 +4,7 @@ packer_cache/
 # Ignore build outputs
 modules/build_output
 nanocloud/nanocloud
+nanocloud/tmp
 
 # Ignore currently used Nanocloud channel
 installation_dir/channel
