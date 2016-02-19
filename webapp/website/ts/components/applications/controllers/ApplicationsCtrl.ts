@@ -34,6 +34,8 @@ export class ApplicationsCtrl {
 	applications: IApplication[];
 	windowsState: boolean = false;
 
+	private accessToken: string;
+
 	static $inject = [
 		"ApplicationsSvc",
 		"ServicesFct",
@@ -48,6 +50,7 @@ export class ApplicationsCtrl {
 		this.servicesFct.getWindowsStatus().then((windowsState: boolean) => {
 			this.windowsState = windowsState;
 		});
+		this.accessToken = localStorage["accessToken"];
 		this.applications = [];
 		this.loadApplications();
 	}
