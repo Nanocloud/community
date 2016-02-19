@@ -23,16 +23,17 @@
 package version
 
 import (
-	"github.com/labstack/echo"
 	"net/http"
+
+	"github.com/Nanocloud/community/nanocloud/router"
 )
 
 const appversion = "0.3.1"
 
 // get the version of the nanocloud application
-func Get(c *echo.Context) error {
+func Get(req *router.Request) (*router.Response, error) {
 	info := map[string]string{
 		"version": appversion,
 	}
-	return c.JSON(http.StatusOK, info)
+	return router.JSONResponse(http.StatusOK, info), nil
 }

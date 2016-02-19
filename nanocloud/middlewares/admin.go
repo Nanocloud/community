@@ -22,13 +22,11 @@
 
 package middlewares
 
-import (
-	"github.com/Nanocloud/community/nanocloud/router"
-)
+import "github.com/Nanocloud/community/nanocloud/router"
 
 type hash map[string]interface{}
 
-func Admin(req router.Request) (*router.Response, error) {
+func Admin(req *router.Request) (*router.Response, error) {
 	if !req.User.IsAdmin {
 		return router.JSONResponse(403, hash{
 			"error": "forbidden",
