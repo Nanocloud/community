@@ -3,7 +3,6 @@ packer_cache/
 
 # Ignore build outputs
 modules/build_output
-webapp/website/css/app.min.css
 nanocloud/nanocloud
 
 # Ignore currently used Nanocloud channel
@@ -25,3 +24,5 @@ webapp/bower_components/
 webapp/typings/
 webapp/.tscache/
 webapp/website/js/
+webapp/website/css/
+webapp/website/fonts/
