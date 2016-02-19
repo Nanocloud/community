@@ -154,7 +154,9 @@ func UnpublishApplication(req *router.Request) (*router.Response, error) {
 func PublishApplication(req *router.Request) (*router.Response, error) {
 	var params struct {
 		Data struct {
-			Path string `json:"path"`
+			Attributes struct {
+				Path string `json:"path"`
+			}
 		}
 	}
 
@@ -170,7 +172,7 @@ func PublishApplication(req *router.Request) (*router.Response, error) {
 		}), err
 	}
 
-	trimmedpath := strings.TrimSpace(params.Data.Path)
+	trimmedpath := strings.TrimSpace(params.Data.Attributes.Path)
 	if trimmedpath == "" {
 		return router.JSONResponse(400, hash{
 			"error": [1]hash{
