@@ -229,27 +229,86 @@ func Get(req *router.Request) (*router.Response, error) {
 }
 
 func Post(req *router.Request) (*router.Response, error) {
-	var user struct {
-		Data struct {
-			Email     string
-			FirstName string `json:"first_name"`
-			LastName  string `json:"last_name"`
-			Password  string
-		}
-	}
+	var attr hash
 
-	err := json.Unmarshal([]byte(req.Body), &user)
+	err := json.Unmarshal([]byte(req.Body), &attr)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
 
+	data, ok := attr["data"].(map[string]interface{})
+	if ok == false {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "data is missing",
+				},
+			},
+		}), nil
+	}
+
+	attributes, ok := data["attributes"].(map[string]interface{})
+	if ok == false {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "attributes is missing",
+				},
+			},
+		}), nil
+	}
+
+	email, ok := attributes["email"].(string)
+	if ok == false || email == "" {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "email is missing",
+				},
+			},
+		}), nil
+	}
+
+	firstName, ok := attributes["first_name"].(string)
+	if ok == false || firstName == "" {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "first_name is missing",
+				},
+			},
+		}), nil
+	}
+
+	lastName, ok := attributes["last_name"].(string)
+	if ok == false || lastName == "" {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "last_name is missing",
+				},
+			},
+		}), nil
+	}
+
+	password, ok := attributes["password"].(string)
+	if ok == false || password == "" {
+		return router.JSONResponse(400, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "password is missing",
+				},
+			},
+		}), nil
+	}
+
 	newUser, err := users.CreateUser(
 		true,
-		user.Data.Email,
-		user.Data.FirstName,
-		user.Data.LastName,
-		user.Data.Password,
+		email,
+		firstName,
+		lastName,
+		password,
 		false,
 	)
 	switch err {
