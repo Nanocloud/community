@@ -37,6 +37,9 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 	private static final String ROOT_IDENTIFIER = "ROOT";
 	private final LocalEnvironment environment;
 	private final AuthenticatedUser authenticatedUser;
+	private final SimpleUserDirectory userDirectory;
+	private final SimpleConnectionGroupDirectory connectionGroupDirectory;
+	private final SimpleConnectionGroup rootGroup;
 
 	/**
 	 * Logger for this class.
@@ -59,6 +62,13 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 		this.self = new SimpleUser(authenticatedUser.getIdentifier(), new ArrayList<String>(0),
 				Collections.singleton(ROOT_IDENTIFIER));
 
+		this.rootGroup = new SimpleConnectionGroup(
+				ROOT_IDENTIFIER, ROOT_IDENTIFIER,
+				new ArrayList<String>(0), Collections.<String>emptyList()
+		);
+		this.userDirectory = new SimpleUserDirectory(self);
+		this.connectionGroupDirectory = new SimpleConnectionGroupDirectory(Collections.<ConnectionGroup>singleton(this.rootGroup));
+
 		// Associate provided AuthenticationProvider
 		this.authProvider = authProvider;
 	}
@@ -75,7 +85,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 
 	@Override
 	public Directory<User> getUserDirectory() throws GuacamoleException {
-		return null;
+		return this.userDirectory;
 	}
 
 	@Override
@@ -107,7 +117,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 
 	@Override
 	public Directory<ConnectionGroup> getConnectionGroupDirectory() throws GuacamoleException {
-		return null;
+		return this.connectionGroupDirectory;
 	}
 
 	@Override
@@ -117,7 +127,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 
 	@Override
 	public ConnectionGroup getRootConnectionGroup() throws GuacamoleException {
-		return null;
+		return this.rootGroup;
 	}
 
 	@Override
