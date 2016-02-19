@@ -64,7 +64,10 @@ export class UsersSvc {
 
 	save(user: IUser): angular.IPromise<boolean> {
 		return this.$http.post("/api/users", {
-			data: user
+			data : {
+        "type" : "user",
+        attributes: user
+      }
 		})
 		.then(() => true, () => false);
 	}
