@@ -85,9 +85,12 @@ export class ApplicationsSvc {
 	}
 
 	changeName(app: IApplication, name: string): angular.IPromise<boolean> {
-		return this.$http.put("/api/apps/" + app.alias, {
+		return this.$http.patch("/api/apps/" + app.alias, {
 			data: {
-				display_name: name
+				"type": "application",
+				attributes: {
+					display_name: name
+				}
 			}
 		}).then(() => true, () => false);
 	}
