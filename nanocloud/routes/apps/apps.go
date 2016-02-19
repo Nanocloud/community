@@ -209,7 +209,9 @@ func ChangeAppName(req *router.Request) (*router.Response, error) {
 	}
 	var Name struct {
 		Data struct {
-			DisplayName string `json:"display_name"`
+			Attributes struct {
+				DisplayName string `json:"display_name"`
+			}
 		}
 	}
 
@@ -218,7 +220,7 @@ func ChangeAppName(req *router.Request) (*router.Response, error) {
 		log.Errorf("Unable to parse body request: %s", err.Error())
 		return nil, err
 	}
-	if len(Name.Data.DisplayName) < 1 {
+	if len(Name.Data.Attributes.DisplayName) < 1 {
 		log.Errorf("No name provided")
 		return router.JSONResponse(400, hash{
 			"error": [1]hash{
@@ -245,7 +247,7 @@ func ChangeAppName(req *router.Request) (*router.Response, error) {
 		}), nil
 	}
 
-	err = apps.ChangeName(appId, Name.Data.DisplayName)
+	err = apps.ChangeName(appId, Name.Data.Attributes.DisplayName)
 	if err == apps.FailedNameChange {
 		return router.JSONResponse(500, hash{
 			"error": [1]hash{
