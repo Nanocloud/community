@@ -131,6 +131,9 @@ func handleRequest(path string, user *users.User, body []byte, res http.Response
 		Query: query,
 		Body:  body,
 		User:  user,
+
+		request:  req,
+		response: res,
 	}
 
 	handlers, exists := kHandlers[req.Method]
@@ -154,9 +157,12 @@ func handleRequest(path string, user *users.User, body []byte, res http.Response
 					}
 				}
 
-				return JSONResponse(500, hash{
-					"error": err.Error(),
-				})
+				return nil
+				/*
+					return JSONResponse(500, hash{
+						"error": err.Error(),
+					})
+				*/
 			}
 		}
 	}
@@ -245,9 +251,11 @@ func ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		body, res, req,
 	)
 
-	res.Header().Set("Content-Type", response.ContentType)
-	res.WriteHeader(response.StatusCode)
-	res.Write(response.Body)
+	if response != nil {
+		res.Header().Set("Content-Type", response.ContentType)
+		res.WriteHeader(response.StatusCode)
+		res.Write(response.Body)
+	}
 }
 
 func init() {
