@@ -35,7 +35,7 @@ import (
 
 type hash map[string]interface{}
 
-func Delete(req router.Request) (*router.Response, error) {
+func Delete(req *router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if len(userId) == 0 {
 		return router.JSONResponse(400, hash{
@@ -127,7 +127,7 @@ func Disable(userId string) (int, error) {
 	return 0, nil
 }
 
-func Update(req router.Request) (*router.Response, error) {
+func Update(req *router.Request) (*router.Response, error) {
 	var attr map[string]map[string]interface{}
 
 	err := json.Unmarshal([]byte(req.Body), &attr)
@@ -209,7 +209,7 @@ func Update(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func Get(req router.Request) (*router.Response, error) {
+func Get(req *router.Request) (*router.Response, error) {
 	users, err := users.FindUsers()
 	if err != nil {
 		log.Errorf("unable to get user lists: %s", err.Error())
@@ -228,7 +228,7 @@ func Get(req router.Request) (*router.Response, error) {
 	return router.JSONResponse(200, hash{"data": response}), nil
 }
 
-func Post(req router.Request) (*router.Response, error) {
+func Post(req *router.Request) (*router.Response, error) {
 	var user struct {
 		Data struct {
 			Email     string
@@ -295,7 +295,7 @@ func Post(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func UpdatePassword(req router.Request) (*router.Response, error) {
+func UpdatePassword(req *router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(400, hash{
@@ -348,7 +348,7 @@ func UpdatePassword(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func GetUser(req router.Request) (*router.Response, error) {
+func GetUser(req *router.Request) (*router.Response, error) {
 	userId := req.Params["id"]
 	if userId == "" {
 		return router.JSONResponse(400, hash{

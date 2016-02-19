@@ -41,7 +41,7 @@ type HistoryInfo struct {
 }
 
 // Get a list of all the log entries of the database
-func List(req router.Request) (*router.Response, error) {
+func List(req *router.Request) (*router.Response, error) {
 	var histories []HistoryInfo
 	rows, err := db.Query(
 		`SELECT userid, connectionid,
@@ -80,7 +80,7 @@ func List(req router.Request) (*router.Response, error) {
 }
 
 // Add a new log entry to the database
-func Add(req router.Request) (*router.Response, error) {
+func Add(req *router.Request) (*router.Response, error) {
 	var t struct {
 		Data HistoryInfo
 	}

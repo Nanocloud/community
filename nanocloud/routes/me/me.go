@@ -23,22 +23,18 @@
 package me
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/Nanocloud/community/nanocloud/oauth2"
-	log "github.com/Sirupsen/logrus"
+	"github.com/Nanocloud/community/nanocloud/router"
 )
 
-func Get(w http.ResponseWriter, r *http.Request) {
-	user := oauth2.GetUserOrFail(w, r)
-	if user != nil {
-		b, err := json.Marshal(map[string]interface{}{"data": user})
-		if err != nil {
-			log.Error(err)
-			w.WriteHeader(500)
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(b)
-	}
+type hash map[string]interface{}
+
+func Get(req *router.Request) (*router.Response, error) {
+	return router.JSONResponse(
+		http.StatusOK,
+		hash{
+			"data": req.User,
+		},
+	), nil
 }

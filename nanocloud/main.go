@@ -57,30 +57,30 @@ func main() {
 	/**
 	 * APPS
 	 */
-	router.Get("/apps", apps.ListApplications)
-	router.Delete("/apps/:app_id", apps.UnpublishApplication)
-	router.Get("/apps/me", apps.ListUserApps)
-	router.Post("/apps", apps.PublishApplication)
-	router.Get("/apps/connections", apps.GetConnections)
-	router.Put("/apps/:app_id", middlewares.Admin, apps.ChangeAppName)
+	router.Get("/apps", middlewares.OAuth2, apps.ListApplications)
+	router.Delete("/apps/:app_id", middlewares.OAuth2, apps.UnpublishApplication)
+	router.Get("/apps/me", middlewares.OAuth2, apps.ListUserApps)
+	router.Post("/apps", middlewares.OAuth2, apps.PublishApplication)
+	router.Get("/apps/connections", middlewares.OAuth2, apps.GetConnections)
+	router.Put("/apps/:app_id", middlewares.OAuth2, middlewares.Admin, apps.ChangeAppName)
 
 	go appsModel.CheckPublishedApps()
 
 	/**
 	 * HISTORY
 	 */
-	router.Get("/history", history.List)
-	router.Post("/history", history.Add)
+	router.Get("/history", middlewares.OAuth2, history.List)
+	router.Post("/history", middlewares.OAuth2, history.Add)
 
 	/**
 	 * USERS
 	 */
-	router.Patch("/users/:id", middlewares.Admin, users.Update)
-	router.Get("/users", middlewares.Admin, users.Get)
-	router.Post("/users", middlewares.Admin, users.Post)
-	router.Delete("/users/:id", middlewares.Admin, users.Delete)
-	router.Put("/users/:id", middlewares.Admin, users.UpdatePassword)
-	router.Get("/users/:id", middlewares.Admin, users.GetUser)
+	router.Patch("/users/:id", middlewares.OAuth2, middlewares.Admin, users.Update)
+	router.Get("/users", middlewares.OAuth2, middlewares.Admin, users.Get)
+	router.Post("/users", middlewares.OAuth2, middlewares.Admin, users.Post)
+	router.Delete("/users/:id", middlewares.OAuth2, middlewares.Admin, users.Delete)
+	router.Put("/users/:id", middlewares.OAuth2, middlewares.Admin, users.UpdatePassword)
+	router.Get("/users/:id", middlewares.OAuth2, middlewares.Admin, users.GetUser)
 
 	/**
 	 * FRONT
@@ -90,12 +90,12 @@ func main() {
 	/**
 	 * ME
 	 */
-	e.Get("/api/me", me.Get)
+	router.Get("/me", middlewares.OAuth2, me.Get)
 
 	/**
 	 * VERSION
 	 */
-	e.Get("/api/version", version.Get)
+	router.Get("/version", version.Get)
 
 	/**
 	 * OAUTH

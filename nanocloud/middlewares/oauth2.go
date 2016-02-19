@@ -22,15 +22,32 @@
 
 package middlewares
 
-import "github.com/Nanocloud/community/nanocloud/router"
+import (
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
+	"github.com/Nanocloud/community/nanocloud/router"
+)
 
-type hash map[string]interface{}
+func OAuth2(req *router.Request) (*router.Response, error) {
+	r := req.Request()
+	w := req.Response()
 
-func Admin(req *router.Request) (*router.Response, error) {
-	if !req.User.IsAdmin {
-		return router.JSONResponse(403, hash{
-			"error": "forbidden",
-		}), nil
+	user, err := oauth2.GetUser(w, r)
+	if err != nil {
+		b, fail := err.ToJSON()
+		if fail != nil {
+			return nil, fail
+		}
+
+		res := router.Response{
+			ContentType: "application/json",
+			Body:        b,
+			StatusCode:  err.HTTPStatusCode,
+		}
+
+		return &res, nil
 	}
+
+	req.User = user.(*users.User)
 	return nil, nil
 }

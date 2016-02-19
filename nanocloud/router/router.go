@@ -7,13 +7,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/nano"
 )
 
 type hash map[string]interface{}
-type handler func(Request) (*Response, error)
+type handler func(*Request) (*Response, error)
 type reqHandler struct {
 	handlers *[]handler
 	pattern  string
@@ -112,7 +110,7 @@ func patternMatch(pattern, path string) (map[string]string, bool) {
 	return m, true
 }
 
-func handleRequest(path string, user *users.User, body []byte, res http.ResponseWriter, req *http.Request) *Response {
+func handleRequest(path string, body []byte, res http.ResponseWriter, req *http.Request) *Response {
 	u, err := url.Parse(req.URL.Path)
 	if err != nil {
 		return JSONResponse(500, hash{
@@ -130,7 +128,9 @@ func handleRequest(path string, user *users.User, body []byte, res http.Response
 	r := Request{
 		Query: query,
 		Body:  body,
-		User:  user,
+
+		request:  req,
+		response: res,
 	}
 
 	handlers, exists := kHandlers[req.Method]
@@ -143,7 +143,7 @@ func handleRequest(path string, user *users.User, body []byte, res http.Response
 				var response *Response
 
 				for _, handler := range *handlers[i].handlers {
-					response, err = handler(r)
+					response, err = handler(&r)
 					if err != nil {
 						return JSONResponse(500, hash{
 							"error": err.Error(),
@@ -154,9 +154,7 @@ func handleRequest(path string, user *users.User, body []byte, res http.Response
 					}
 				}
 
-				return JSONResponse(500, hash{
-					"error": err.Error(),
-				})
+				return nil
 			}
 		}
 	}
@@ -173,22 +171,28 @@ func handleRequest(path string, user *users.User, body []byte, res http.Response
 		contentType = rContentType[0]
 	}
 
+	var nanoUser *nano.User
+
+	if r.User != nil {
+		nanoUser = &nano.User{
+			Id:              r.User.Id,
+			Email:           r.User.Email,
+			Activated:       r.User.Activated,
+			IsAdmin:         r.User.IsAdmin,
+			FirstName:       r.User.FirstName,
+			LastName:        r.User.LastName,
+			Sam:             r.User.Sam,
+			WindowsPassword: r.User.WindowsPassword,
+		}
+	}
+
 	/* send request to RPC modules */
 	response, err := module.Request(
 		req.Method,
 		path+"?"+req.URL.RawQuery,
 		contentType,
 		body,
-		&nano.User{
-			Id:              user.Id,
-			Email:           user.Email,
-			Activated:       user.Activated,
-			IsAdmin:         user.IsAdmin,
-			FirstName:       user.FirstName,
-			LastName:        user.LastName,
-			Sam:             user.Sam,
-			WindowsPassword: user.WindowsPassword,
-		},
+		nanoUser,
 	)
 
 	if err != nil {
@@ -234,20 +238,16 @@ func ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	user := oauth2.GetUserOrFail(res, req)
-	if user == nil {
-		return
-	}
-
 	response := handleRequest(
 		path,
-		user.(*users.User),
 		body, res, req,
 	)
 
-	res.Header().Set("Content-Type", response.ContentType)
-	res.WriteHeader(response.StatusCode)
-	res.Write(response.Body)
+	if response != nil {
+		res.Header().Set("Content-Type", response.ContentType)
+		res.WriteHeader(response.StatusCode)
+		res.Write(response.Body)
+	}
 }
 
 func init() {

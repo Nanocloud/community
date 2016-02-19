@@ -24,6 +24,7 @@ package users
 
 import (
 	"errors"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
 	"github.com/satori/go.uuid"

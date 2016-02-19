@@ -40,7 +40,7 @@ type hash map[string]interface{}
 // Does:
 // - Create all connections in DB for a particular user in order to use all applications
 // ========================================================================================================================
-func GetConnections(req router.Request) (*router.Response, error) {
+func GetConnections(req *router.Request) (*router.Response, error) {
 	userList, err := users.FindUsers()
 	if err != nil {
 		return router.JSONResponse(500, hash{
@@ -56,7 +56,7 @@ func GetConnections(req router.Request) (*router.Response, error) {
 	return router.JSONResponse(200, connections), nil
 }
 
-func ListApplications(req router.Request) (*router.Response, error) {
+func ListApplications(req *router.Request) (*router.Response, error) {
 	applications, err := apps.GetAllApps()
 	if err == apps.GetAppsFailed {
 		return router.JSONResponse(500, hash{
@@ -73,7 +73,7 @@ func ListApplications(req router.Request) (*router.Response, error) {
 // Does:
 // - Return list of applications available for the current user
 // ========================================================================================================================
-func ListUserApps(req router.Request) (*router.Response, error) {
+func ListUserApps(req *router.Request) (*router.Response, error) {
 	applications, err := apps.GetUserApps(req.User.Id)
 	if err == apps.GetAppsFailed {
 		return router.JSONResponse(500, hash{
@@ -84,7 +84,7 @@ func ListUserApps(req router.Request) (*router.Response, error) {
 }
 
 // Make an application unusable
-func UnpublishApplication(req router.Request) (*router.Response, error) {
+func UnpublishApplication(req *router.Request) (*router.Response, error) {
 	appId := req.Params["app_id"]
 	if len(appId) < 1 {
 		return router.JSONResponse(400, hash{
@@ -104,7 +104,7 @@ func UnpublishApplication(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func PublishApplication(req router.Request) (*router.Response, error) {
+func PublishApplication(req *router.Request) (*router.Response, error) {
 	var params struct {
 		Path string
 	}
@@ -131,7 +131,7 @@ func PublishApplication(req router.Request) (*router.Response, error) {
 	}), nil
 }
 
-func ChangeAppName(req router.Request) (*router.Response, error) {
+func ChangeAppName(req *router.Request) (*router.Response, error) {
 	appId := req.Params["app_id"]
 	if len(appId) < 1 {
 		return router.JSONResponse(400, hash{

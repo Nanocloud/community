@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -67,7 +68,7 @@ func (e *OAuthError) ToJSON() (rt []byte, err error) {
 	return
 }
 
-func getAccessToken(req *http.Request) (accessToken string, err *OAuthError) {
+func GetAccessToken(req *http.Request) (accessToken string, err *OAuthError) {
 	/*
 	 * Check Query String
 	 */
@@ -90,27 +91,23 @@ func SetConnector(connector Connector) {
 	kConnector = connector
 }
 
-func GetUserOrFail(res http.ResponseWriter, req *http.Request) interface{} {
-	accessToken, err := getAccessToken(req)
+func GetUser(res http.ResponseWriter, req *http.Request) (interface{}, *OAuthError) {
+	accessToken, err := GetAccessToken(req)
 	if err != nil {
-		oauthErrorReply(res, *err)
-		return nil
+		return nil, err
 	}
 
 	user, fail := kConnector.GetUserFromAccessToken(accessToken)
 	if fail != nil {
 		log.Error("[OAuth] Cannot retreive user form access token: " + fail.Error())
-		oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
-		return nil
+		return nil, &OAuthError{500, SERVER_ERROR, "Internal Server Error"}
 	}
 
 	if user != nil {
-		return user
+		return user, nil
 	}
 
-	oauthErrorReply(res, OAuthError{403, ACCESS_DENIED, "Invalid access token"})
-
-	return nil
+	return nil, &OAuthError{403, ACCESS_DENIED, "Invalid access token"}
 }
 
 func getAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {
