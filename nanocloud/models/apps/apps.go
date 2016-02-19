@@ -58,7 +58,7 @@ var (
 )
 
 type ApplicationParams struct {
-	Id             int    `json:"id"`
+	Id             int    `json:"-"`
 	CollectionName string `json:"collection_name"`
 	Alias          string `json:"alias"`
 	DisplayName    string `json:"display_name"`

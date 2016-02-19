@@ -53,7 +53,17 @@ func GetConnections(req *router.Request) (*router.Response, error) {
 			"error": "Unable to retrieve applications list",
 		}), nil
 	}
-	return router.JSONResponse(200, connections), nil
+
+	var response = make([]hash, len(connections))
+	for i, val := range connections {
+		res := hash{
+			"id":         i,
+			"type":       "application",
+			"attributes": val,
+		}
+		response[i] = res
+	}
+	return router.JSONResponse(200, hash{"data": response}), nil
 }
 
 func ListApplications(req *router.Request) (*router.Response, error) {
@@ -66,9 +76,18 @@ func ListApplications(req *router.Request) (*router.Response, error) {
 				},
 			},
 		}), nil
-
 	}
-	return router.JSONResponse(200, hash{"data": applications}), nil
+
+	var response = make([]hash, len(applications))
+	for i, val := range applications {
+		res := hash{
+			"id":         val.Id,
+			"type":       "application",
+			"attributes": val,
+		}
+		response[i] = res
+	}
+	return router.JSONResponse(200, hash{"data": response}), nil
 }
 
 // ========================================================================================================================
@@ -88,7 +107,17 @@ func ListUserApps(req *router.Request) (*router.Response, error) {
 			},
 		}), nil
 	}
-	return router.JSONResponse(200, hash{"data": applications}), nil
+
+	var response = make([]hash, len(applications))
+	for i, val := range applications {
+		res := hash{
+			"id":         val.Id,
+			"type":       "application",
+			"attributes": val,
+		}
+		response[i] = res
+	}
+	return router.JSONResponse(200, hash{"data": response}), nil
 }
 
 // Make an application unusable
