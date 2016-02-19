@@ -81,7 +81,6 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 	@Override
 	public Directory<Connection> getConnectionDirectory() throws GuacamoleException {
 
-		System.out.println("UserContext : getConnectionDirectory");
 		Map<String, GuacamoleConfiguration> configs = this.getAuthorizedConfigurations();
 		Collection<String> connectionIdentifiers = new ArrayList<String>(configs.size());
 
@@ -163,7 +162,6 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 		}
 		reader.close();
 
-		System.out.println(response.toString());
 		JSONObject jsonResponse =  new JSONObject(response.toString());
 		JSONArray appList = jsonResponse.getJSONArray("data");
 		for (int i = 0; i < appList.length(); i++) {
