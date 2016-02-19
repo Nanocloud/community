@@ -67,6 +67,10 @@ export class PresenterCtrl {
 		this.$state.go("logout");
 	}
 
+	percentDone(file: any) {
+		return Math.round(file._prevUploadedSize / file.size * 100).toString();
+	}
+
 }
 
 angular.module("haptic.presenter").controller("PresenterCtrl", PresenterCtrl);
