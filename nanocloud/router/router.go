@@ -155,11 +155,6 @@ func handleRequest(path string, body []byte, res http.ResponseWriter, req *http.
 				}
 
 				return nil
-				/*
-					return JSONResponse(500, hash{
-						"error": err.Error(),
-					})
-				*/
 			}
 		}
 	}
