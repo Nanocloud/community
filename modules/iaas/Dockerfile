@@ -15,4 +15,5 @@ WORKDIR /go/src/github.com/Nanocloud/community/modules/iaas
 
 RUN go get ./... && go build
 
+EXPOSE 8080
 CMD ["./iaas"]
