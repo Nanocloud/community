@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/Nanocloud/nano"
 )
 
 type hash map[string]interface{}
@@ -17,7 +15,6 @@ type reqHandler struct {
 	pattern  string
 }
 
-var module nano.Module
 var kHandlers map[string][]*reqHandler
 
 const (
@@ -159,58 +156,9 @@ func handleRequest(path string, body []byte, res http.ResponseWriter, req *http.
 		}
 	}
 
-	contentType := ""
-	rContentType, exists := req.Header["Content-Type"]
-	if exists {
-		if len(rContentType) != 1 {
-			return JSONResponse(400, hash{
-				"error": "invalid mutiple content-type",
-			})
-		}
-
-		contentType = rContentType[0]
-	}
-
-	var nanoUser *nano.User
-
-	if r.User != nil {
-		nanoUser = &nano.User{
-			Id:              r.User.Id,
-			Email:           r.User.Email,
-			Activated:       r.User.Activated,
-			IsAdmin:         r.User.IsAdmin,
-			FirstName:       r.User.FirstName,
-			LastName:        r.User.LastName,
-			Sam:             r.User.Sam,
-			WindowsPassword: r.User.WindowsPassword,
-		}
-	}
-
-	/* send request to RPC modules */
-	response, err := module.Request(
-		req.Method,
-		path+"?"+req.URL.RawQuery,
-		contentType,
-		body,
-		nanoUser,
-	)
-
-	if err != nil {
-		return JSONResponse(500, hash{
-			"error": err.Error(),
-		})
-	}
-
-	return &Response{
-		StatusCode:  response.StatusCode,
-		ContentType: response.ContentType,
-		Body:        response.Body,
-	}
-	/*
-		return JSONResponse(404, hash{
-			"error": "Not Found",
-		})
-	*/
+	return JSONResponse(http.StatusNotFound, hash{
+		"error": "Not Found",
+	})
 }
 
 func ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -248,9 +196,4 @@ func ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(response.StatusCode)
 		res.Write(response.Body)
 	}
-}
-
-func init() {
-	module = nano.RegisterModule("router")
-	go module.Listen()
 }
