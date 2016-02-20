@@ -31,6 +31,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
+	"github.com/Nanocloud/community/nanocloud/routes/iaas"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/upload"
@@ -81,6 +82,14 @@ func main() {
 	router.Delete("/users/:id", middlewares.OAuth2, middlewares.Admin, users.Delete)
 	router.Put("/users/:id", middlewares.OAuth2, middlewares.Admin, users.UpdatePassword)
 	router.Get("/users/:id", middlewares.OAuth2, middlewares.Admin, users.GetUser)
+
+	/**
+	 * IAAS
+	 */
+	router.Get("/iaas", middlewares.OAuth2, middlewares.Admin, iaas.ListRunningVM)
+	router.Post("/iaas/:id/stop", middlewares.OAuth2, middlewares.Admin, iaas.StopVM)
+	router.Post("/iaas/:id/start", middlewares.OAuth2, middlewares.Admin, iaas.StartVM)
+	router.Post("/iaas/:id/download", middlewares.OAuth2, middlewares.Admin, iaas.DownloadVM)
 
 	/**
 	 * FRONT
