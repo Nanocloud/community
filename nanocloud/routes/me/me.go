@@ -25,16 +25,18 @@ package me
 import (
 	"net/http"
 
-	"github.com/Nanocloud/community/nanocloud/router"
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
 
-func Get(req *router.Request) (*router.Response, error) {
-	return router.JSONResponse(
+func Get(c *echo.Context) error {
+	user := c.Get("user").(*users.User)
+	return c.JSON(
 		http.StatusOK,
 		hash{
-			"data": req.User,
+			"data": user,
 		},
-	), nil
+	)
 }

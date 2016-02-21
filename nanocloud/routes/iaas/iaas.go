@@ -1,20 +1,19 @@
 package iaas
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Nanocloud/community/nanocloud/router"
-	"github.com/labstack/gommon/log"
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 )
 
 const (
 	iaasAPIurl = "http://iaas-module:8080"
 )
 
-func proxy(req *router.Request) (*router.Response, error) {
-	r := req.Request()
+func proxy(c *echo.Context) error {
+	r := c.Request()
 	path := r.URL.Path
 
 	var resp *http.Response
@@ -27,14 +26,16 @@ func proxy(req *router.Request) (*router.Response, error) {
 	}
 
 	if err != nil {
+		log.Error("here")
 		log.Error(err)
-		return nil, errors.New("Unable to contact Iaas API")
+		log.Error("there")
+		return err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err)
-		return nil, errors.New("Unable to contact Iaas API")
+		return err
 	}
 
 	contentType := ""
@@ -44,11 +45,11 @@ func proxy(req *router.Request) (*router.Response, error) {
 		contentType = ct[0]
 	}
 
-	return &router.Response{
-		StatusCode:  resp.StatusCode,
-		ContentType: contentType,
-		Body:        body,
-	}, nil
+	w := c.Response()
+	w.WriteHeader(resp.StatusCode)
+	w.Header().Set("Content-Type", contentType)
+	w.Write(body)
+	return nil
 }
 
 var (

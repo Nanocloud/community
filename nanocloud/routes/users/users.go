@@ -23,53 +23,54 @@
 package users
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 
 	"github.com/Nanocloud/community/nanocloud/models/ldap"
 	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/Nanocloud/community/nanocloud/router"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
 
-func Delete(req *router.Request) (*router.Response, error) {
-	userId := req.Params["id"]
+func Delete(c *echo.Context) error {
+	userId := c.Param("id")
 	if len(userId) == 0 {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "User id needed for deletion",
 				},
 			},
-		}), nil
+		})
 	}
 
 	user, err := users.GetUser(userId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if user == nil {
-		return router.JSONResponse(404, hash{
+		return c.JSON(http.StatusNotFound, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "User not found",
 				},
 			},
-		}), nil
+		})
 	}
 
 	if user.IsAdmin {
-		return router.JSONResponse(403, hash{
+		return c.JSON(http.StatusUnauthorized, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "Admins cannot be deleted",
 				},
 			},
-		}), nil
+		})
 	}
 
 	err = ldap.DeleteAccount(user.Id)
@@ -77,143 +78,143 @@ func Delete(req *router.Request) (*router.Response, error) {
 		log.Errorf("Unable to delete user in ad: %s", err.Error())
 		switch err {
 		case ldap.DeleteFailed:
-			return router.JSONResponse(500, hash{
+			return c.JSON(http.StatusInternalServerError, hash{
 				"error": [1]hash{
 					hash{
 						"detail": err.Error(),
 					},
 				},
-			}), nil
+			})
 		case ldap.UnknownUser:
 			log.Info("User doesn't exist in AD")
 			break
 		default:
-			return nil, err
+			return err
 		}
 	}
 
 	err = users.DeleteUser(user.Id)
 	if err != nil {
 		log.Errorf("Unable to delete user: ", err.Error())
-		return nil, err
+		return err
 	}
 
-	return router.JSONResponse(200, hash{
+	return c.JSON(http.StatusOK, hash{
 		"data": hash{
 			"success": true,
 		},
-	}), nil
+	})
 }
 
 func Disable(userId string) (int, error) {
 	if userId == "" {
-		return 404, errors.New("User id needed for desactivation")
+		return http.StatusNotFound, errors.New("User id needed for desactivation")
 	}
 
 	exists, err := users.UserExists(userId)
 	if err != nil {
-		return 500, err
+		return http.StatusConflict, err
 	}
 
 	if !exists {
-		return 404, errors.New("User not found")
+		return http.StatusNotFound, errors.New("User not found")
 	}
 
 	err = users.DisableUser(userId)
 	if err != nil {
-		return 500, errors.New("Unable to disable user: " + err.Error())
+		return http.StatusInternalServerError, errors.New("Unable to disable user: " + err.Error())
 	}
 
 	return 0, nil
 }
 
-func Update(req *router.Request) (*router.Response, error) {
+func Update(c *echo.Context) error {
 	var attr map[string]map[string]interface{}
 
-	err := json.Unmarshal([]byte(req.Body), &attr)
+	err := utils.ParseJSONBody(c, &attr)
 	if err != nil {
-		log.Error(err)
-		return nil, err
+		return nil
 	}
 
 	data, ok := attr["data"]
 	if ok == false {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "data is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	attributes, ok := data["attributes"].(map[string]interface{})
 	if ok == false {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "attributes is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	activated, ok := attributes["activated"]
 	if ok == false {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "activated field is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	if activated != false {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "activated field must be false",
 				},
 			},
-		}), nil
+		})
 	}
 
-	code, err := Disable(req.Params["id"])
+	code, err := Disable(c.Param("id"))
 	if err != nil {
-		return router.JSONResponse(code, hash{
+		return c.JSON(code, hash{
 			"error": [1]hash{
 				hash{
 					"detail": err.Error(),
 				},
 			},
-		}), nil
+		})
 	}
 
-	user, err := users.GetUser(req.Params["id"])
+	user, err := users.GetUser(c.Param("id"))
 	if user == nil {
-		return router.JSONResponse(200, hash{
+		return c.JSON(http.StatusOK, hash{
 			"data": hash{
 				"success": true,
 			},
-		}), nil
+		})
 	}
 
-	return router.JSONResponse(200, hash{
+	return c.JSON(http.StatusOK, hash{
 		"data": hash{
 			"success":    true,
 			"id":         user.Id,
 			"type":       "user",
 			"attributes": user,
 		},
-	}), nil
+	})
 }
 
-func Get(req *router.Request) (*router.Response, error) {
+func Get(c *echo.Context) error {
 	users, err := users.FindUsers()
 	if err != nil {
-		log.Errorf("unable to get user lists: %s", err.Error())
-		return nil, err
+		return errors.New(
+			fmt.Sprintf("unable to get user lists: %s", err.Error()),
+		)
 	}
 
 	var response = make([]hash, len(*users))
@@ -225,82 +226,81 @@ func Get(req *router.Request) (*router.Response, error) {
 		}
 		response[i] = res
 	}
-	return router.JSONResponse(200, hash{"data": response}), nil
+	return c.JSON(http.StatusOK, hash{"data": response})
 }
 
-func Post(req *router.Request) (*router.Response, error) {
+func Post(c *echo.Context) error {
 	var attr hash
 
-	err := json.Unmarshal([]byte(req.Body), &attr)
+	err := utils.ParseJSONBody(c, &attr)
 	if err != nil {
-		log.Error(err)
-		return nil, err
+		return err
 	}
 
 	data, ok := attr["data"].(map[string]interface{})
 	if ok == false {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "data is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	attributes, ok := data["attributes"].(map[string]interface{})
 	if ok == false {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "attributes is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	email, ok := attributes["email"].(string)
 	if ok == false || email == "" {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "email is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	firstName, ok := attributes["first_name"].(string)
 	if ok == false || firstName == "" {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "first_name is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	lastName, ok := attributes["last_name"].(string)
 	if ok == false || lastName == "" {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "last_name is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	password, ok := attributes["password"].(string)
 	if ok == false || password == "" {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "password is missing",
 				},
 			},
-		}), nil
+		})
 	}
 
 	newUser, err := users.CreateUser(
@@ -313,57 +313,45 @@ func Post(req *router.Request) (*router.Response, error) {
 	)
 	switch err {
 	case users.UserDuplicated:
-		return router.JSONResponse(409, hash{
+		return c.JSON(http.StatusConflict, hash{
 			"error": [1]hash{
 				hash{
 					"detail": err.Error(),
 				},
 			},
-		}), nil
+		})
 	case users.UserNotCreated:
-		return router.JSONResponse(500, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		}), nil
+		return err
 	}
 
 	winpass := utils.RandomString(8) + "s4D+"
 	sam, err := ldap.AddUser(newUser.Id, winpass)
 	if err != nil {
-		return router.JSONResponse(500, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		}), nil
+		return err
 	}
 
 	err = users.UpdateUserAd(newUser.Id, sam, winpass)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return router.JSONResponse(201, hash{
+	return c.JSON(http.StatusCreated, hash{
 		"data": hash{
 			"id": newUser.Id,
 		},
-	}), nil
+	})
 }
 
-func UpdatePassword(req *router.Request) (*router.Response, error) {
-	userId := req.Params["id"]
+func UpdatePassword(c *echo.Context) error {
+	userId := c.Param("id")
 	if userId == "" {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "User id needed to modify account",
 				},
 			},
-		}), nil
+		})
 	}
 
 	var user struct {
@@ -372,73 +360,72 @@ func UpdatePassword(req *router.Request) (*router.Response, error) {
 		}
 	}
 
-	err := json.Unmarshal(req.Body, &user)
+	err := utils.ParseJSONBody(c, &user)
 	if err != nil {
-		log.Errorf("Unable to parse body request: %s", err.Error())
-		return nil, err
+		return nil
 	}
 
 	exists, err := users.UserExists(userId)
 	if err != nil {
 		log.Errorf("Unable to check user existance: %s", err.Error())
-		return nil, err
+		return err
 	}
 
 	if !exists {
-		return router.JSONResponse(404, hash{
+		return c.JSON(http.StatusNotFound, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "User not found",
 				},
 			},
-		}), nil
+		})
 	}
 
 	err = users.UpdateUserPassword(userId, user.Data.Password)
 	if err != nil {
 		log.Errorf("Unable to update user password: %s", err.Error())
-		return nil, err
+		return err
 	}
 
-	return router.JSONResponse(200, hash{
+	return c.JSON(http.StatusOK, hash{
 		"data": hash{
 			"success": true,
 		},
-	}), nil
+	})
 }
 
-func GetUser(req *router.Request) (*router.Response, error) {
-	userId := req.Params["id"]
+func GetUser(c *echo.Context) error {
+	userId := c.Param("id")
 	if userId == "" {
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "User id needed to retrieve account informations",
 				},
 			},
-		}), nil
+		})
 	}
 
 	user, err := users.GetUser(userId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if user == nil {
-		return router.JSONResponse(404, hash{
+		return c.JSON(http.StatusNotFound, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "User Not Found",
 				},
 			},
-		}), nil
+		})
 	}
 
-	return router.JSONResponse(200, hash{
+	return c.JSON(http.StatusOK, hash{
 		"data": hash{
 			"id":         user.Id,
 			"type":       "user",
 			"attributes": user,
 		},
-	}), nil
+	})
 }

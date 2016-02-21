@@ -23,11 +23,12 @@
 package history
 
 import (
-	"encoding/json"
+	"net/http"
 
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
-	"github.com/Nanocloud/community/nanocloud/router"
+	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -41,7 +42,7 @@ type HistoryInfo struct {
 }
 
 // Get a list of all the log entries of the database
-func List(req *router.Request) (*router.Response, error) {
+func List(c *echo.Context) error {
 	var histories []HistoryInfo
 	rows, err := db.Query(
 		`SELECT userid, connectionid,
@@ -49,8 +50,7 @@ func List(req *router.Request) (*router.Response, error) {
 		FROM histories`,
 	)
 	if err != nil {
-		log.Error(err.Error())
-		return nil, err
+		return err
 	}
 
 	defer rows.Close()
@@ -68,43 +68,35 @@ func List(req *router.Request) (*router.Response, error) {
 
 	err = rows.Err()
 	if err != nil {
-		log.Error(err.Error())
-		return nil, err
+		return err
 	}
 
 	if len(histories) == 0 {
 		histories = []HistoryInfo{}
 	}
 
-	return router.JSONResponse(200, hash{"data": histories}), nil
+	return c.JSON(http.StatusOK, hash{"data": histories})
 }
 
 // Add a new log entry to the database
-func Add(req *router.Request) (*router.Response, error) {
+func Add(c *echo.Context) error {
 	var t struct {
 		Data HistoryInfo
 	}
-	err := json.Unmarshal([]byte(req.Body), &t)
+	err := utils.ParseJSONBody(c, &t)
 	if err != nil {
-		log.Error("Error unmarshalling params: ", err.Error())
-		return router.JSONResponse(400, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "Invalid parameters",
-				},
-			},
-		}), nil
+		return nil
 	}
 
 	if t.Data.UserId == "" || t.Data.ConnectionId == "" || t.Data.StartDate == "" || t.Data.EndDate == "" {
 		log.Error("Missing one or several parameters to create entry")
-		return router.JSONResponse(400, hash{
+		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "Missing parameters",
 				},
 			},
-		}), nil
+		})
 	}
 
 	rows, err := db.Query(
@@ -113,23 +105,16 @@ func Add(req *router.Request) (*router.Response, error) {
 		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar)
 		`, t.Data.UserId, t.Data.ConnectionId, t.Data.StartDate, t.Data.EndDate)
 	if err != nil {
-		log.Error(err.Error())
-		return router.JSONResponse(500, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		}), nil
+		return err
 	}
 
 	rows.Close()
 
-	return router.JSONResponse(201, hash{
+	return c.JSON(http.StatusCreated, hash{
 		"data": hash{
 			"success": true,
 		},
-	}), nil
+	})
 }
 
 func init() {

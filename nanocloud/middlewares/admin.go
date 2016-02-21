@@ -22,15 +22,28 @@
 
 package middlewares
 
-import "github.com/Nanocloud/community/nanocloud/router"
+import (
+	"net/http"
+
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/labstack/echo"
+)
 
 type hash map[string]interface{}
 
-func Admin(req *router.Request) (*router.Response, error) {
-	if !req.User.IsAdmin {
-		return router.JSONResponse(403, hash{
+func admin(c *echo.Context, handler echo.HandlerFunc) error {
+	user := c.Get("user").(*users.User)
+
+	if !user.IsAdmin {
+		return c.JSON(http.StatusForbidden, hash{
 			"error": "forbidden",
-		}), nil
+		})
 	}
-	return nil, nil
+	return handler(c)
+}
+
+func Admin(handler echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		return admin(c, handler)
+	}
 }

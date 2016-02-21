@@ -23,11 +23,18 @@
 package utils
 
 import (
+	"encoding/json"
 	"io"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
+
+	"github.com/labstack/echo"
 )
+
+type hash map[string]interface{}
 
 func Env(key, def string) string {
 	v := os.Getenv(key)
@@ -84,4 +91,25 @@ func CopyFile(source string, dest string) (err error) {
 		}
 	}
 	return
+}
+
+func ParseJSONBody(c *echo.Context, dst interface{}) error {
+	body, err := ioutil.ReadAll(c.Request().Body)
+	if err == nil {
+		err = json.Unmarshal(body, dst)
+	}
+	if err != nil {
+		err2 := c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "unable to parse request body",
+				},
+			},
+		})
+		if err2 != nil {
+			return err2
+		}
+		return err
+	}
+	return nil
 }
