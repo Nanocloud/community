@@ -131,34 +131,3 @@ func Add(req *router.Request) (*router.Response, error) {
 		},
 	}), nil
 }
-
-func init() {
-	rows, err := db.Query(
-		`SELECT table_name
-		FROM information_schema.tables
-		WHERE table_name = 'histories'`)
-	if err != nil {
-		log.Error(err.Error())
-		panic(err)
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		log.Info("Histories table already set up")
-		return
-	}
-
-	rows, err = db.Query(
-		`CREATE TABLE histories (
-			userid        varchar(36) NOT NULL DEFAULT '',
-			connectionid  varchar(36) NOT NULL DEFAULT '',
-			startdate     varchar(36) NOT NULL DEFAULT '',
-			enddate       varchar(36) NOT NULL DEFAULT ''
-		);`)
-	if err != nil {
-		log.Errorf("Unable to create histories table: %s", err)
-		panic(err)
-	}
-
-	rows.Close()
-}

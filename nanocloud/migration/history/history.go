@@ -20,35 +20,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration
+package history
 
 import (
-	"github.com/Nanocloud/community/nanocloud/migration/apps"
-	"github.com/Nanocloud/community/nanocloud/migration/history"
-	"github.com/Nanocloud/community/nanocloud/migration/oauth"
-	"github.com/Nanocloud/community/nanocloud/migration/users"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Migrate() error {
-	err := users.Migrate()
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'histories'`)
 	if err != nil {
+		log.Error(err.Error())
+		panic(err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Info("Histories table already set up")
+		return nil
+	}
+
+	rows, err = db.Query(
+		`CREATE TABLE histories (
+			userid        varchar(36) NOT NULL DEFAULT '',
+			connectionid  varchar(36) NOT NULL DEFAULT '',
+			startdate     varchar(36) NOT NULL DEFAULT '',
+			enddate       varchar(36) NOT NULL DEFAULT ''
+		);`)
+	if err != nil {
+		log.Errorf("Unable to create histories table: %s", err)
 		return err
 	}
 
-	err = oauth.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = apps.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = history.Migrate()
-	if err != nil {
-		return err
-	}
-
+	rows.Close()
 	return nil
 }
