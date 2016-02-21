@@ -25,13 +25,10 @@ import (
 	"os"
 
 	"github.com/Nanocloud/community/modules/iaas/lib/iaas"
-	"github.com/Nanocloud/nano"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 )
-
-var module nano.Module
 
 type Configuration struct {
 	artURL   string
