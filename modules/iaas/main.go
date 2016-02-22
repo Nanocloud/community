@@ -61,7 +61,16 @@ func (h *handler) ListRunningVM(c *echo.Context) error {
 	}
 
 	vmList := h.iaasCon.CheckVMStates(response)
-	return c.JSON(http.StatusOK, vmList)
+	var res = make([]hash, len(vmList))
+	for i, val := range vmList {
+		r := hash{
+			"id":         val.Name,
+			"type":       "vm",
+			"attributes": val,
+		}
+		res[i] = r
+	}
+	return c.JSON(http.StatusOK, hash{"data": res})
 }
 
 func (h *handler) DownloadVM(c *echo.Context) error {
