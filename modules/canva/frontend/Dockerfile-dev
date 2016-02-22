@@ -1,0 +1,9 @@
+FROM nanocloud/nanocloud-canva:dev
+MAINTAINER \
+  Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
+
+RUN npm install -g ember-cli
+ENV EMBER_CLI_INJECT_LIVE_RELOAD_BASEURL=https://localhost:4200/canva/
+ENV EMBER_CLI_INJECT_LIVE_RELOAD_PORT=49152
+
+CMD ember serve --live-reload-port 49152 --ssl true --ssl-key /opt/ssl/nginx.key --ssl-cert /opt/ssl/nginx.crt

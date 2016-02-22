@@ -15,6 +15,7 @@ nanocloud-backend:
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
   - PORT=8080
   - FRONT_DIR=/opt/front/website
+  - CANVA_FRONT_DIR=/opt/canva/dist
   - WIN_PASSWORD=Nanocloud123+
   - WIN_PORT=1119
   - WIN_USER=Administrator
@@ -38,6 +39,12 @@ nanocloud-frontend:
  container_name: "nanocloud-webapp"
  volumes:
   - /opt/front
+
+nanocloud-canva:
+ build: ./canva/frontend
+ container_name: "nanocloud-canva"
+ volumes:
+  - /opt/canva
 
 proxy:
  image: nginx:1.9
