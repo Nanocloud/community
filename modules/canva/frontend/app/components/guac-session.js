@@ -11,6 +11,14 @@ export default Ember.Component.extend({
   guac_token: null,
   connectionname: null,
 
+  modalMessage: "",
+  isShowingModal: false,
+  actions: {
+    toggleErrorModal: function() {
+      this.toggleProperty('isShowingModal');
+    }
+  },
+
   _forgeConnectionString: function(token, connectionName) {
 
     // Calculate optimal width/height for display
@@ -55,12 +63,38 @@ export default Ember.Component.extend({
       tunnel
     );
     this.get('element').appendChild(this.guacamole.getDisplay().getElement());
+
     tunnel.onerror = function(error) {
-      console.log("Error " + error);
-    };
+
+      if (this.get('isShowingModal') == true)
+	return ;
+
+      // Impossible to connect
+      if (error.code == 512) {
+	this.set('modalMessage', "Cannot connect to remote session");
+      } else {
+	this.set('modalMessage', error.message);
+      }
+      this.triggerAction({
+	action:'toggleErrorModal',
+	target: this,
+      });
+    }.bind(this);
+
     tunnel.onstatechange = function(state) {
-      console.log("Stage changed " + state);
-    };
+
+      if (this.get('isShowingModal') == true)
+	return ;
+
+      // If disconnected
+      if (state == 2) {
+	this.set('modalMessage', "You have been disconnected");
+	this.triggerAction({
+	  action:'toggleErrorModal',
+	  target: this,
+	});
+      }
+    }.bind(this);
 
     jQuery(window).onunload = function() {
       if (this.guacamole) {
