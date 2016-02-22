@@ -53,7 +53,7 @@ export default Ember.Component.extend({
       this.get('element').children().remove();
     }	
   },
-  
+
   startSession: function(token, connectionName) {
 
     this.removeSession();
@@ -71,7 +71,7 @@ export default Ember.Component.extend({
 
       // Impossible to connect
       if (error.code == 512) {
-	this.set('modalMessage', "Cannot connect to remote session");
+	this.set('modalMessage', "Cannot connect to remote application");
       } else {
 	this.set('modalMessage', error.message);
       }
@@ -89,6 +89,25 @@ export default Ember.Component.extend({
       // If disconnected
       if (state == 2) {
 	this.set('modalMessage', "You have been disconnected");
+	this.triggerAction({
+	  action:'toggleErrorModal',
+	  target: this,
+	});
+      }
+    }.bind(this);
+
+    this.guacamole.onstatechange = function(state) {
+
+      if (state == 3) { // If connected
+	this.set('isShowingModal', false);
+	return ;
+      }
+
+      if (this.get('isShowingModal') == true)
+	return ;
+
+      if (state == 1) { // If connecting
+	this.set('modalMessage', "Connecting to remote application...");
 	this.triggerAction({
 	  action:'toggleErrorModal',
 	  target: this,
@@ -118,7 +137,6 @@ export default Ember.Component.extend({
     keyboard.onkeyup = function (keysym) {
       this.guacamole.sendKeyEvent(0, keysym);
     }.bind(this);
-
   },
 
   triggerSession: function() {
