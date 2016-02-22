@@ -29,13 +29,13 @@ export default Ember.Component.extend({
 
     // Build base connect string
     var connectString =
-	"token="             + token +
-	"&GUAC_DATA_SOURCE=" + "noauthlogged" +
-	"&GUAC_ID="          + connectionName +
-	"&GUAC_TYPE="        + "c" + // connection
-	"&GUAC_WIDTH="       + Math.floor(optimal_width) +
-	"&GUAC_HEIGHT="      + Math.floor(optimal_height) +
-	"&GUAC_DPI="         + Math.floor(optimal_dpi);
+        "token="             + token +
+        "&GUAC_DATA_SOURCE=" + "noauthlogged" +
+        "&GUAC_ID="          + connectionName +
+        "&GUAC_TYPE="        + "c" + // connection
+        "&GUAC_WIDTH="       + Math.floor(optimal_width) +
+        "&GUAC_HEIGHT="      + Math.floor(optimal_height) +
+        "&GUAC_DPI="         + Math.floor(optimal_dpi);
 
     // Add audio mimetypes to connect string
     connectString += "&GUAC_AUDIO=" + "audio%2Fwav";
@@ -67,57 +67,57 @@ export default Ember.Component.extend({
     tunnel.onerror = function(error) {
 
       if (this.get('isShowingModal') == true)
-	return ;
+        return ;
 
       // Impossible to connect
       if (error.code == 512) {
-	this.set('modalMessage', "Cannot connect to remote application");
+        this.set('modalMessage', "Cannot connect to remote application");
       } else {
-	this.set('modalMessage', error.message);
+        this.set('modalMessage', error.message);
       }
       this.triggerAction({
-	action:'toggleErrorModal',
-	target: this,
+        action:'toggleErrorModal',
+        target: this,
       });
     }.bind(this);
 
     tunnel.onstatechange = function(state) {
 
       if (this.get('isShowingModal') == true)
-	return ;
+        return ;
 
       // If disconnected
       if (state == 2) {
-	this.set('modalMessage', "You have been disconnected");
-	this.triggerAction({
-	  action:'toggleErrorModal',
-	  target: this,
-	});
+        this.set('modalMessage', "You have been disconnected");
+        this.triggerAction({
+          action:'toggleErrorModal',
+          target: this,
+        });
       }
     }.bind(this);
 
     this.guacamole.onstatechange = function(state) {
 
       if (state == 3) { // If connected
-	this.set('isShowingModal', false);
-	return ;
+        this.set('isShowingModal', false);
+        return ;
       }
 
       if (this.get('isShowingModal') == true)
-	return ;
+        return ;
 
       if (state == 1) { // If connecting
-	this.set('modalMessage', "Connecting to remote application...");
-	this.triggerAction({
-	  action:'toggleErrorModal',
-	  target: this,
-	});
+        this.set('modalMessage', "Connecting to remote application...");
+        this.triggerAction({
+          action:'toggleErrorModal',
+          target: this,
+        });
       }
     }.bind(this);
 
     jQuery(window).onunload = function() {
       if (this.guacamole) {
-	this.guacamole.disconnect();
+        this.guacamole.disconnect();
       }
     }.bind(this);
     
