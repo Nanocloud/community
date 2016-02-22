@@ -65,13 +65,13 @@ type VMstatus struct {
 }
 
 type VmInfo struct {
-	Ico         string
-	Name        string
-	DisplayName string
-	Status      string
-	Locked      bool
-	CurrentSize string
-	TotalSize   string
+	Ico         string `json:"ico"`
+	Name        string `json:"-"`
+	DisplayName string `json:"display_name"`
+	Status      string `json:"status"`
+	Locked      bool   `json:"locked"`
+	CurrentSize string `json:"current_size"`
+	TotalSize   string `json:"total_size"`
 }
 
 func New(Server, Password, User, SSHPort, InstDir, ArtURL string) *Iaas {
