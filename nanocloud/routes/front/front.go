@@ -27,7 +27,9 @@ import (
 )
 
 var StaticDirectory string
+var StaticCanvaDirectory string
 
 func init() {
 	StaticDirectory = utils.Env("FRONT_DIR", "front")
+	StaticCanvaDirectory = utils.Env("CANVA_FRONT_DIR", "canva")
 }

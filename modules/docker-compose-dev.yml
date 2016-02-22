@@ -23,6 +23,7 @@ nanocloud-backend:
  dockerfile: Dockerfile-dev
  volumes_from:
   - nanocloud-frontend
+  - nanocloud-canva
  volumes:
   - ../nanocloud:/go/src/github.com/Nanocloud/community/nanocloud/
 
@@ -38,6 +39,22 @@ nanocloud-frontend:
   - ../webapp/:/opt/front
  restart: always
  container_name: "nanocloud-frontend"
+
+nanocloud-canva:
+ extends:
+  file: ./docker-compose.yml
+  service: nanocloud-canva
+ volumes:
+  - /opt/canva
+  - ./canva/frontend/:/opt/canva
+  - ./nginx/conf/certificates:/opt/ssl/:ro
+ build: ./canva/frontend
+ dockerfile: Dockerfile-dev
+ ports:
+  - 49152:49152
+  - 4200:4200
+ restart: always
+ container_name: "nanocloud-canva"
 
 proxy:
  extends:

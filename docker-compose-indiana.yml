@@ -16,6 +16,7 @@ nanocloud-backend:
  image: nanocloud/nanocloud-backend:indiana
  volumes_from:
   - nanocloud-frontend
+  - nanocloud-canva
 
 nanocloud-frontend:
  extends:
@@ -25,6 +26,15 @@ nanocloud-frontend:
  container_name: "nanocloud-frontend"
  volumes:
   - /opt/front
+
+nanocloud-canva:
+ extends:
+  file: ./modules/docker-compose.yml
+  service: nanocloud-canva
+ image: nanocloud/nanocloud-canva:indiana
+ container_name: "nanocloud-canva"
+ volumes:
+  - /opt/canva
 
 proxy:
  extends:

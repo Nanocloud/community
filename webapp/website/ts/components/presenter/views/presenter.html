@@ -26,7 +26,7 @@
 							class="md-2-line" ng-repeat="application in presenterCtrl.applications">
 						<ng-md-icon icon="pageview"></ng-md-icon>
 						<div class="md-list-item-text">
-							<h3> {{ application.Application }} </h3>
+							<h3> {{ application.display_name }} </h3>
 						</div>
 					</md-list-item>
 					<md-list-item ng-if="presenterCtrl.applications.length === 0">

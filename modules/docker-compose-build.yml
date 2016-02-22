@@ -14,6 +14,7 @@ nanocloud-backend:
   service: nanocloud-backend
  volumes_from:
   - nanocloud-frontend
+  - nanocloud-canva
 
 nanocloud-frontend:
  extends:
@@ -22,6 +23,14 @@ nanocloud-frontend:
  volumes:
   - /opt/front
  container_name: "nanocloud-frontend"
+
+nanocloud-canva:
+ extends:
+  file: ./docker-compose.yml
+  service: nanocloud-canva
+ volumes:
+  - /opt/canva
+ container_name: "nanocloud-canva"
 
 proxy:
  extends:
