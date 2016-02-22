@@ -68,7 +68,7 @@ export class ServicesFct {
 		return this.servicesSvc.getAll().then((services: IService[]) => {
 			let state = false;
 			services.forEach(function(service: IService) {
-				if (service.Ico === "windows" && service.Status === "running") {
+				if (service.ico === "windows" && service.status === "running") {
 					state = true;
 				}
 			});

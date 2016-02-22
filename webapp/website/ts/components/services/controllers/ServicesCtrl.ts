@@ -63,8 +63,8 @@ export class ServicesCtrl {
 	}
 
 	toggle(service: IService) {
-		if (!service.Locked) {
-			if (service.Status === "running") {
+		if (!service.locked) {
+			if (service.status === "running") {
 				this.servicesSvc.startStopService(service);
 			} else {
 				this.servicesSvc.start(service);

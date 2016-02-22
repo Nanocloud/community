@@ -52,12 +52,25 @@ func (h *handler) ListRunningVM(c *echo.Context) error {
 	if err != nil {
 		log.Error("Unable to retrieve VM states list")
 		return c.JSON(http.StatusInternalServerError, hash{
-			"error": "Unable te retrieve states of VMs: " + err.Error(),
+			"error": [1]hash{
+				hash{
+					"detail": "Unable te retrieve states of VMs: " + err.Error(),
+				},
+			},
 		})
 	}
 
 	vmList := h.iaasCon.CheckVMStates(response)
-	return c.JSON(http.StatusOK, vmList)
+	var res = make([]hash, len(vmList))
+	for i, val := range vmList {
+		r := hash{
+			"id":         val.Name,
+			"type":       "vm",
+			"attributes": val,
+		}
+		res[i] = r
+	}
+	return c.JSON(http.StatusOK, hash{"data": res})
 }
 
 func (h *handler) DownloadVM(c *echo.Context) error {
@@ -65,7 +78,11 @@ func (h *handler) DownloadVM(c *echo.Context) error {
 
 	if vmname == "" {
 		return c.JSON(http.StatusBadRequest, hash{
-			"error": "No VM ID provided",
+			"error": [1]hash{
+				hash{
+					"detail": "No VM ID provided",
+				},
+			},
 		})
 	}
 
@@ -80,7 +97,11 @@ func (h *handler) StartVM(c *echo.Context) error {
 
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, hash{
-			"error": "No VM name provided",
+			"error": [1]hash{
+				hash{
+					"detail": "No VM name provided",
+				},
+			},
 		})
 	}
 
@@ -88,7 +109,11 @@ func (h *handler) StartVM(c *echo.Context) error {
 	if err != nil {
 		log.Error("Error while starting VM")
 		return c.JSON(http.StatusInternalServerError, hash{
-			"error": "Unable to start the specified VM",
+			"error": [1]hash{
+				hash{
+					"detail": "Unable to start the specified VM",
+				},
+			},
 		})
 	}
 
@@ -102,14 +127,22 @@ func (h *handler) StopVM(c *echo.Context) error {
 
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, hash{
-			"error": "No VM name provided",
+			"error": [1]hash{
+				hash{
+					"detail": "No VM name provided",
+				},
+			},
 		})
 	}
 
 	err := h.iaasCon.Stop(name)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, hash{
-			"error": "Unable to stop the specified VM",
+			"error": [1]hash{
+				hash{
+					"detail": "Unable to stop the specified VM",
+				},
+			},
 		})
 	}
 

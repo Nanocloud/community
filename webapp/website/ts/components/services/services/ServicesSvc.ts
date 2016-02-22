@@ -25,14 +25,14 @@
 "use strict";
 
 export interface IService {
-	Ico: string;
-	Name: string;
-	DisplayName: string;
-	Locked: boolean;
-	Status: string;
+	ico: string;
+	name: string;
+	display_name: string;
+	locked: boolean;
+	status: string;
 	FontColor: string;
-	CurrentSize: number;
-	TotalSize: number;
+	current_size: number;
+	total_size: number;
 	VM: string;
 }
 
@@ -57,18 +57,22 @@ export class ServicesSvc {
 
 	getAll(): angular.IPromise<IService[]> {
 		return this.$http.get("/api/iaas").then(
-			(res: angular.IHttpPromiseCallbackArg<IService[]>) => {
-				if (!res.data) {
+			(res: angular.IHttpPromiseCallbackArg<any>) => {
+				if (!res.data.data) {
 					return [];
 				}
-				for (let srv of res.data) {
-					if (srv.Ico === "windows") {
+				let arr: IService[] = [];
+				for (let data of res.data.data) {
+					if (data.attributes.ico === "windows") {
 						this.downloadStarted = false;
 						this.windowsReady = true;
-						break;
 					}
+					let svc: IService;
+					svc = data.attributes;
+					svc.name = data.id;
+					arr.push(svc);
 				}
-				return res.data;
+				return arr;
 			},
 			() => []);
 	}
@@ -81,12 +85,12 @@ export class ServicesSvc {
 	}
 
 	start(service: IService): angular.IPromise<any> {
-		return this.$http.post("/api/iaas/" + service.Name + "/start", null).then(
+		return this.$http.post("/api/iaas/" + service.name + "/start", null).then(
 			function() {
-				service.Status = "booting";
+				service.status = "booting";
 			},
 			function() {
-				service.Status = "available";
+				service.status = "available";
 			});
 	}
 
@@ -104,12 +108,12 @@ export class ServicesSvc {
 	}
 
 	stop(service: IService): angular.IPromise<any> {
-		return this.$http.post("/api/iaas/" + service.Name + "/stop", null).then(
+		return this.$http.post("/api/iaas/" + service.name + "/stop", null).then(
 			function() {
-				service.Status = "available";
+				service.status = "available";
 			},
 			function() {
-				service.Status = "running";
+				service.status = "running";
 			});
 	}
 
