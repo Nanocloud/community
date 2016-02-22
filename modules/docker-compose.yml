@@ -12,7 +12,6 @@ nanocloud-backend:
  build: ../nanocloud
  environment:
   - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
   - PORT=8080
   - FRONT_DIR=/opt/front/website
@@ -50,11 +49,6 @@ proxy:
   - 443:443
  restart: always
  container_name: "proxy"
-
-rabbitmq:
- image: rabbitmq:3.5
- restart: always
- container_name: "rabbitmq"
 
 postgres:
  image: postgres:9.4

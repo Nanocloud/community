@@ -28,11 +28,6 @@ proxy:
   file: ./docker-compose.yml
   service: proxy
 
-rabbitmq:
- extends:
-  file: ./docker-compose.yml
-  service: rabbitmq
-
 postgres:
  extends:
   file: ./docker-compose.yml

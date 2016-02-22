@@ -23,11 +23,10 @@
 package main
 
 import (
-	"github.com/Nanocloud/community/nanocloud/middlewares"
+	m "github.com/Nanocloud/community/nanocloud/middlewares"
 	"github.com/Nanocloud/community/nanocloud/migration"
 	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
-	"github.com/Nanocloud/community/nanocloud/router"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
@@ -53,43 +52,42 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Any("/api/*", router.ServeHTTP)
 
 	/**
 	 * APPS
 	 */
-	router.Get("/apps", middlewares.OAuth2, apps.ListApplications)
-	router.Delete("/apps/:app_id", middlewares.OAuth2, apps.UnpublishApplication)
-	router.Get("/apps/me", middlewares.OAuth2, apps.ListUserApps)
-	router.Post("/apps", middlewares.OAuth2, apps.PublishApplication)
-	router.Get("/apps/connections", middlewares.OAuth2, apps.GetConnections)
-	router.Patch("/apps/:app_id", middlewares.OAuth2, middlewares.Admin, apps.ChangeAppName)
+	e.Get("/api/apps", m.OAuth2(m.Admin(apps.ListApplications)))
+	e.Delete("/api/apps/:app_id", m.OAuth2(m.Admin(apps.UnpublishApplication)))
+	e.Get("/api/apps/me", m.OAuth2(apps.ListUserApps))
+	e.Post("/api/apps", m.OAuth2(apps.PublishApplication))
+	e.Get("/api/apps/connections", m.OAuth2(apps.GetConnections))
+	e.Patch("/api/apps/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
 
 	go appsModel.CheckPublishedApps()
 
 	/**
 	 * HISTORY
 	 */
-	router.Get("/history", middlewares.OAuth2, history.List)
-	router.Post("/history", middlewares.OAuth2, history.Add)
+	e.Get("/api/history", m.OAuth2(history.List))
+	e.Post("/api/history", m.OAuth2(history.Add))
 
 	/**
 	 * USERS
 	 */
-	router.Patch("/users/:id", middlewares.OAuth2, middlewares.Admin, users.Update)
-	router.Get("/users", middlewares.OAuth2, middlewares.Admin, users.Get)
-	router.Post("/users", middlewares.OAuth2, middlewares.Admin, users.Post)
-	router.Delete("/users/:id", middlewares.OAuth2, middlewares.Admin, users.Delete)
-	router.Put("/users/:id", middlewares.OAuth2, middlewares.Admin, users.UpdatePassword)
-	router.Get("/users/:id", middlewares.OAuth2, middlewares.Admin, users.GetUser)
+	e.Patch("/api/users/:id", m.OAuth2(m.Admin(users.Update)))
+	e.Get("/api/users", m.OAuth2(m.Admin(users.Get)))
+	e.Post("/api/users", m.OAuth2(m.Admin(users.Post)))
+	e.Delete("/api/users/:id", m.OAuth2(m.Admin(users.Delete)))
+	e.Put("/api/users/:id", m.OAuth2(m.Admin(users.UpdatePassword)))
+	e.Get("/api/users/:id", m.OAuth2(m.Admin(users.GetUser)))
 
 	/**
 	 * IAAS
 	 */
-	router.Get("/iaas", middlewares.OAuth2, middlewares.Admin, iaas.ListRunningVM)
-	router.Post("/iaas/:id/stop", middlewares.OAuth2, middlewares.Admin, iaas.StopVM)
-	router.Post("/iaas/:id/start", middlewares.OAuth2, middlewares.Admin, iaas.StartVM)
-	router.Post("/iaas/:id/download", middlewares.OAuth2, middlewares.Admin, iaas.DownloadVM)
+	e.Get("/api/iaas", m.OAuth2(m.Admin(iaas.ListRunningVM)))
+	e.Post("/api/iaas/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
+	e.Post("/api/iaas/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
+	e.Post("/api/iaas/:id/download", m.OAuth2(m.Admin(iaas.DownloadVM)))
 
 	/**
 	 * FRONT
@@ -99,12 +97,12 @@ func main() {
 	/**
 	 * ME
 	 */
-	router.Get("/me", middlewares.OAuth2, me.Get)
+	e.Get("/api/me", m.OAuth2(me.Get))
 
 	/**
 	 * VERSION
 	 */
-	router.Get("/version", version.Get)
+	e.Get("/api/version", version.Get)
 
 	/**
 	 * OAUTH

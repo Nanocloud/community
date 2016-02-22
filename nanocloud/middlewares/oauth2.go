@@ -23,31 +23,38 @@
 package middlewares
 
 import (
-	"github.com/Nanocloud/community/nanocloud/models/users"
+	"errors"
+
 	"github.com/Nanocloud/community/nanocloud/oauth2"
-	"github.com/Nanocloud/community/nanocloud/router"
+	"github.com/labstack/echo"
 )
 
-func OAuth2(req *router.Request) (*router.Response, error) {
-	r := req.Request()
-	w := req.Response()
+func oAuth2(c *echo.Context, handler echo.HandlerFunc) error {
+	r := c.Request()
+	w := c.Response()
 
 	user, err := oauth2.GetUser(w, r)
 	if err != nil {
 		b, fail := err.ToJSON()
 		if fail != nil {
-			return nil, fail
+			return fail
 		}
 
-		res := router.Response{
-			ContentType: "application/json",
-			Body:        b,
-			StatusCode:  err.HTTPStatusCode,
-		}
-
-		return &res, nil
+		w.WriteHeader(err.HTTPStatusCode)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
+		return nil
 	}
 
-	req.User = user.(*users.User)
-	return nil, nil
+	if user != nil {
+		c.Set("user", user)
+		return handler(c)
+	}
+	return errors.New("unable to authenticate the user")
+}
+
+func OAuth2(handler echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		return oAuth2(c, handler)
+	}
 }
