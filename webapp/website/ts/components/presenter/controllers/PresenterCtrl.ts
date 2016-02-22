@@ -51,11 +51,7 @@ export class PresenterCtrl {
 	}
 
 	openApplication(application: IApplication, e: MouseEvent) {
-		let appToken = btoa(application.alias + "\0c\0noauthlogged");
-		let url = "/guacamole/#/client/" + appToken;
-		if (localStorage["accessToken"]) {
-			url += "?access_token=" + localStorage["accessToken"];
-		}
+		let url = "/canva/#/canva/" + localStorage["accessToken"] + "/" + application.alias;
 		window.open(url, "_blank");
 	}
 
