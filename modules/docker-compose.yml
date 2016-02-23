@@ -79,4 +79,3 @@ iaas-module:
   - ../installation_dir:/var/lib/nanocloud/
  restart: always
  container_name: "iaas-module"
- privileged: true
