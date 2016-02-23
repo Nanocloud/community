@@ -336,9 +336,6 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 			&appParam.Alias,
 		)
 
-		if !user.IsAdmin && (appParam.Alias == "hapticPowershell" || appParam.Alias == "Desktop") {
-			continue
-		}
 		if count := len(kExecutionServers); count > 0 {
 			execServ = kExecutionServers[rand.Intn(count)]
 		} else {
