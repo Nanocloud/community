@@ -51,7 +51,13 @@ export class PresenterCtrl {
 	}
 
 	openApplication(application: IApplication, e: MouseEvent) {
-		let url = "/canva/#/canva/" + localStorage["accessToken"] + "/" + application.alias;
+		let alias = "";
+		if (application.alias === "Desktop") {
+			alias = "hapticDesktop";
+		} else {
+			alias = application.alias;
+		}
+		let url = "/canva/#/canva/" + localStorage["accessToken"] + "/" + alias;
 		window.open(url, "_blank");
 	}
 
