@@ -47,10 +47,7 @@ nanocloud-canva:
   - /opt/canva
 
 proxy:
- image: nginx:1.9
- volumes:
-  - ./nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-  - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
+ build: ./nginx
  ports:
   - 80:80
   - 443:443
