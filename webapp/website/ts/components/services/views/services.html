@@ -11,8 +11,8 @@
 			<i ng-if="service.status === 'booting'" class="fa fa-spinner fa-spin fa-2x" ng-style="{'margin-right':'10px','color':'green'}">  </i>
 			<div class="md-list-item-text" layout="column">
 				<h3>{{ service.display_name }}</h3>
-				<p>Status : <strong>{{ service.status }}</strong> <strong ng-if="servicesCtrl.services[0].CurrentSize">{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize | number : 2}} %</strong></p>
-				<md-progress-linear md-mode="determinate" ng-if="servicesCtrl.services[0].CurrentSize" value="{{servicesCtrl.services[0].CurrentSize * 100 / servicesCtrl.services[0].TotalSize}}"></md-progress-linear>
+				<p>Status : <strong>{{ service.status }}</strong> <strong ng-if="service.current_size">{{service.current_size * 100 / service.total_size | number : 2}} %</strong></p>
+				<md-progress-linear md-mode="determinate" ng-if="service.current_size" value="{{service.current_size * 100 / service.total_size}}"></md-progress-linear>
 				<p ng-if="!service.locked && service.status !== 'download'">
 					Please click <strong style="color: #2980b9">here</strong> to
 					<strong ng-if="service.status === 'available'">boot</strong>
