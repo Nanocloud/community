@@ -33,10 +33,6 @@ if [ -z "$(which docker || true)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
   exit 2
 fi
-if [ -z "$(which docker-compose || true)" ]; then
-  echo "$(date "${DATE_FMT}") Docker-compose is missing, please install *docker-compose*"
-  exit 2
-fi
 
 docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud nanocloud/community:${COMMUNITY_TAG}
 ${PWD}/nanocloud/installation_dir/scripts/start.sh ${COMMUNITY_TAG}

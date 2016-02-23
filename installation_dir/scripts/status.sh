@@ -28,6 +28,8 @@ DATE_FMT="+%Y/%m/%d %H:%M:%S"
 ROOT_DIR=${CURRENT_DIR}/../..
 NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 
+${ROOT_DIR}/installer/check_version.sh
+
 CURL_CMD=$(which curl)
 WGET_CMD=$(which wget)
 if [ -n "${CURL_CMD}" ]; then
