@@ -100,6 +100,11 @@ check_dependencies() {
         echo "$(date "${DATE_FMT}") Installed docker is incompatible. Expected " $DOCKER_VERSION_REQUIRED_MAJOR.$DOCKER_VERSION_REQUIRED_MINOR.$DOCKER_VERSION_REQUIRED_FIX " but found " $(docker version --format '{{.Server.Version}}')
         exit 2
     fi
+
+    if [ -z "$(which curl)" -o -z "$(which wget)" ]; then
+      echo "$(date "${DATE_FMT}") No download method found, please install *curl* or *wget*"
+      exit 2
+    fi
 }
 
 check_dependencies
