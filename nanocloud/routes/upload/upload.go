@@ -76,12 +76,13 @@ func Get(w http.ResponseWriter, r *http.Request) {
 
 // Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
-	user, oauthErr := oauth2.GetUser(w, r)
-	if user == nil || oauthErr != nil {
+	rawuser, oauthErr := oauth2.GetUser(w, r)
+	if rawuser == nil || oauthErr != nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
-	userPath := filepath.Join(kUploadDir, user.(*users.User).Id)
+	user := rawuser.(*users.User)
+	userPath := filepath.Join(kUploadDir, user.Id)
 
 	// get the multipart data
 	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
@@ -131,7 +132,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		"path": upPath,
 	}).Info("file uploaded")
 
-	syncOut, err := syncUploadedFile(upPath)
+	syncOut, err := syncUploadedFile(upPath, user.Sam, user.WindowsPassword)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"output": syncOut,
@@ -196,16 +197,14 @@ func assembleUpload(path, filename string) error {
 	return nil
 }
 
-func syncUploadedFile(path string) (string, error) {
-	winPassword := utils.Env("WIN_PASSWORD", "")
+func syncUploadedFile(path, sam, pwd string) (string, error) {
 	winPort := utils.Env("WIN_PORT", "")
-	winUser := utils.Env("WIN_USER", "")
 	winServer := utils.Env("WIN_SERVER", "")
 
 	cmd := exec.Command(
 		"sshpass",
 		"-p",
-		winPassword,
+		pwd,
 		"scp",
 		"-o",
 		"UserKnownHostsFile=/dev/null",
@@ -214,7 +213,7 @@ func syncUploadedFile(path string) (string, error) {
 		"-P",
 		winPort,
 		path,
-		winUser+"@"+winServer+":C:\\Users\\Administrator\\Desktop\\",
+		sam+"@"+winServer+":C:\\Users\\"+sam+"\\Desktop\\",
 	)
 
 	output, err := cmd.CombinedOutput()
