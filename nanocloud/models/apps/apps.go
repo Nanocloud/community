@@ -66,11 +66,11 @@ type ApplicationParams struct {
 }
 
 type ApplicationParamsWin struct {
-	Id             int
-	CollectionName string
-	Alias          string
-	DisplayName    string
-	FilePath       string
+	Id             int    `json:"-"`
+	CollectionName string `json:"collection_name"`
+	Alias          string `json:"alias"`
+	DisplayName    string `json:"display_name"`
+	FilePath       string `json:"file_path"`
 }
 
 type Connection struct {
