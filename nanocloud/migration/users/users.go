@@ -23,8 +23,12 @@
 package users
 
 import (
+	"errors"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/utils"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Migrate() error {
@@ -59,7 +63,7 @@ func Migrate() error {
 
 	rows.Close()
 
-	_, err = users.CreateUser(
+	admin, err := users.CreateUser(
 		true,
 		"admin@nanocloud.com",
 		"John",
@@ -70,6 +74,34 @@ func Migrate() error {
 
 	if err != nil {
 		return err
+	}
+
+	password := utils.Env("WIN_PASSWORD", "")
+	sam := utils.Env("WIN_USER", "")
+
+	result, err := db.Exec(
+		`UPDATE users
+				SET sam = $1::varchar,
+				windows_password = $2::varchar
+				WHERE id = $3::varchar;`,
+		sam,
+		password,
+		admin.Id,
+	)
+
+	if err != nil {
+		log.Error("Failed to update admin account: ", err)
+		return err
+	}
+
+	updated, err := result.RowsAffected()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	if updated != 1 {
+		return errors.New("Unable to set admin password")
 	}
 	return nil
 }

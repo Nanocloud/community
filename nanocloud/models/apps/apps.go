@@ -335,7 +335,8 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 		rows.Scan(
 			&appParam.Alias,
 		)
-		if user.Sam != "" && (appParam.Alias == "hapticPowershell" || appParam.Alias == "Desktop") {
+
+		if !user.IsAdmin && (appParam.Alias == "hapticPowershell" || appParam.Alias == "Desktop") {
 			continue
 		}
 		if count := len(kExecutionServers); count > 0 {
@@ -343,15 +344,8 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 		} else {
 			execServ = kServer
 		}
-		var username string
-		var pwd string
-		if user.Sam == "" {
-			username = kUser
-			pwd = kPassword
-		} else {
-			username = user.Sam
-			pwd = user.WindowsPassword
-		}
+		username := user.Sam
+		pwd := user.WindowsPassword
 		var conn Connection
 		if appParam.Alias != "Desktop" {
 			conn = Connection{
