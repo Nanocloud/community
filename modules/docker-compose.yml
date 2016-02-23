@@ -47,10 +47,7 @@ nanocloud-canva:
   - /opt/canva
 
 proxy:
- image: nginx:1.9
- volumes:
-  - ./nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-  - ./nginx/conf/certificates:/etc/nginx/ssl/:ro
+ build: ./nginx
  ports:
   - 80:80
   - 443:443
@@ -76,9 +73,7 @@ iaas-module:
   - SERVER=localhost
   - USER=Administrator
   - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.3.1/
- volumes:
-  - ../installation_dir:/var/lib/nanocloud/
-  - /dev/kvm:/dev/kvm
+ devices:
+  - /dev/kvm
  restart: always
  container_name: "iaas-module"
- privileged: true
