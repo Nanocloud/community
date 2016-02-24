@@ -75,7 +75,16 @@ func List(c *echo.Context) error {
 		histories = []HistoryInfo{}
 	}
 
-	return c.JSON(http.StatusOK, hash{"data": histories})
+	var response = make([]hash, len(histories))
+	for i, val := range histories {
+		res := hash{
+			"id":         i,
+			"type":       "history",
+			"attributes": val,
+		}
+		response[i] = res
+	}
+	return c.JSON(http.StatusOK, hash{"data": response})
 }
 
 // Add a new log entry to the database
