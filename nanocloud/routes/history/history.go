@@ -89,15 +89,40 @@ func List(c *echo.Context) error {
 
 // Add a new log entry to the database
 func Add(c *echo.Context) error {
-	var t struct {
-		Data HistoryInfo
-	}
-	err := utils.ParseJSONBody(c, &t)
+	var attr hash
+
+	err := utils.ParseJSONBody(c, &attr)
 	if err != nil {
-		return nil
+		return err
 	}
 
-	if t.Data.UserId == "" || t.Data.ConnectionId == "" || t.Data.StartDate == "" || t.Data.EndDate == "" {
+	data, ok := attr["data"].(map[string]interface{})
+	if ok == false {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "data is missing",
+				},
+			},
+		})
+	}
+
+	attributes, ok := data["attributes"].(map[string]interface{})
+	if ok == false {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "attributes is missing",
+				},
+			},
+		})
+	}
+
+	user_id, ok := attributes["user_id"].(string)
+	connection_id, ok := attributes["connection_id"].(string)
+	start_date, ok := attributes["start_date"].(string)
+	end_date, ok := attributes["end_date"].(string)
+	if user_id == "" || connection_id == "" || start_date == "" || end_date == "" {
 		log.Error("Missing one or several parameters to create entry")
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
@@ -112,7 +137,7 @@ func Add(c *echo.Context) error {
 		`INSERT INTO histories
 		(userid, connectionid, startdate, enddate)
 		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar)
-		`, t.Data.UserId, t.Data.ConnectionId, t.Data.StartDate, t.Data.EndDate)
+		`, user_id, connection_id, start_date, end_date)
 	if err != nil {
 		return err
 	}
@@ -121,7 +146,14 @@ func Add(c *echo.Context) error {
 
 	return c.JSON(http.StatusCreated, hash{
 		"data": hash{
-			"success": true,
+			"attributes": hash{
+				"user_id":       user_id,
+				"connection_id": connection_id,
+				"start_date":    start_date,
+				"end_date":      end_date,
+			},
+			"type": "history",
+			"id":   0,
 		},
 	})
 }
