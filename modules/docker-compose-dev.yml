@@ -60,6 +60,9 @@ proxy:
  extends:
   file: ./docker-compose.yml
   service: proxy
+ ports:
+  - 80:80
+  - 443:433
 
 postgres:
  extends:

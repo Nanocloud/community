@@ -48,9 +48,6 @@ nanocloud-canva:
 
 proxy:
  build: ./nginx
- ports:
-  - 80:80
-  - 443:443
  restart: always
  container_name: "proxy"
 
