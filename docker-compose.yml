@@ -2,7 +2,7 @@ guacamole-client:
  extends:
   file: ./modules/docker-compose.yml
   service: guacamole-client
- image: nanocloud/guacamole-client:0.3.1
+ image: nanocloud/guacamole-client:0.4.0rc1
 
 guacamole-server:
  extends:
@@ -16,7 +16,7 @@ nanocloud-backend:
  volumes_from:
   - nanocloud-frontend
   - nanocloud-canva
- image: nanocloud/nanocloud-backend:0.3.1
+ image: nanocloud/nanocloud-backend:0.4.0rc1
 
 nanocloud-frontend:
  extends:
@@ -25,7 +25,7 @@ nanocloud-frontend:
  container_name: "nanocloud-frontend"
  volumes:
   - /opt/front
- image: nanocloud/nanocloud-frontend:0.3.1
+ image: nanocloud/nanocloud-frontend:0.4.0rc1
 
 nanocloud-canva:
  extends:
@@ -34,7 +34,7 @@ nanocloud-canva:
  container_name: "nanocloud-canva"
  volumes:
   - /opt/canva
- image: nanocloud/nanocloud-canva:0.3.1
+ image: nanocloud/nanocloud-canva:0.4.0rc1
 
 proxy:
  extends:
@@ -53,4 +53,4 @@ iaas-module:
  extends:
   file: ./modules/docker-compose.yml
   service: iaas-module
- image: nanocloud/iaas-module:0.3.1
+ image: nanocloud/iaas-module:0.4.0rc1

@@ -22,7 +22,7 @@
 
 SCRIPT_UID=$(id -u)
 
-COMMUNITY_TAG="0.3.1"
+COMMUNITY_TAG="0.4.0rc1"
 COMMAND=${1}
 
 if [ "${COMMAND}" = "indiana" ]; then
