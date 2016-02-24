@@ -74,4 +74,5 @@ iaas-module:
  dockerfile: Dockerfile-dev
  volumes:
   - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
+  - ./iaas/scripts/:/var/lib/nanocloud/scripts
   - ../installation_dir/:/var/lib/nanocloud
