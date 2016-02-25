@@ -58,7 +58,7 @@ export default Ember.Component.extend({
 
     this.removeSession();
 
-    let tunnel = new Guacamole.WebSocketTunnel('wss://localhost/guacamole/websocket-tunnel?' + this._forgeConnectionString(token, connectionName));
+    let tunnel = new Guacamole.WebSocketTunnel('/guacamole/websocket-tunnel?' + this._forgeConnectionString(token, connectionName));
     this.guacamole = new Guacamole.Client(
       tunnel
     );
