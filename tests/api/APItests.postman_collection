@@ -532,15 +532,14 @@
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
-			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Ico is present\"] = (typeof res[0].Ico) === \"string\";\ntests[\"Ico is windows\"] = res[0].Ico === \"windows\";\ntests[\"Name is present\"] = (typeof res[0].Name) === \"string\";\ntests[\"Name is windows\"] = res[0].Name === \"windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64\";\ntests[\"DisplayName is present\"] = (typeof res[0].DisplayName) === \"string\";\ntests[\"DisplayName is WinAD\"] = res[0].DisplayName === \"Windows Active Directory\";\ntests[\"Status is present\"] = (typeof res[0].Status) === \"string\";\n//tests[\"Status is available\"] = res[0].Status === \"available\";\ntests[\"Locked is present\"] = (typeof res[0].Locked) === \"boolean\";\ntests[\"Locked is false\"] = res[0].Locked === false;\n",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Ico is present\"] = (typeof res.data[0].attributes.ico) === \"string\";\ntests[\"Ico is windows\"] = res.data[0].attributes.ico === \"windows\";\ntests[\"Name is present\"] = (typeof res.data[0].id) === \"string\";\ntests[\"Name is windows\"] = res.data[0].id === \"windows\";\ntests[\"DisplayName is present\"] = (typeof res.data[0].attributes.display_name) === \"string\";\ntests[\"DisplayName is WinAD\"] = res.data[0].attributes.display_name === \"Windows Active Directory\";\ntests[\"Status is present\"] = (typeof res.data[0].attributes.status) === \"string\";\ntests[\"Status is running\"] = res.data[0].attributes.status === \"running\";\ntests[\"Locked is present\"] = (typeof res.data[0].attributes.locked) === \"boolean\";\ntests[\"Locked is false\"] = res.data[0].attributes.locked === false;",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1453472793644,
+			"time": 1456395421222,
 			"name": "list running vms, check windows is down",
 			"description": "Get OAuth token for admin user",
 			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
-			"responses": [],
-			"folder": "f94369b7-4663-d336-3891-6b32a5756af6"
+			"responses": []
 		},
 		{
 			"id": "42084a45-743a-afbf-1e0b-43e15c29797d",
@@ -1155,15 +1154,14 @@
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
-			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Ico is present\"] = (typeof res.data[0].attributes.ico) === \"string\";\ntests[\"Ico is windows\"] = res.data[0].attributes.ico === \"windows\";\ntests[\"Name is present\"] = (typeof res.data[0].id) === \"string\";\ntests[\"Name is windows\"] = res.data[0].id === \"windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64\";\ntests[\"DisplayName is present\"] = (typeof res.data[0].attributes.display_name) === \"string\";\ntests[\"DisplayName is WinAD\"] = res.data[0].attributes.display_name === \"Windows Active Directory\";\ntests[\"Status is present\"] = (typeof res.data[0].attributes.status) === \"string\";\ntests[\"Status is running\"] = res.data[0].attributes.status === \"running\";\ntests[\"Locked is present\"] = (typeof res.data[0].attributes.locked) === \"boolean\";\ntests[\"Locked is false\"] = res.data[0].attributes.locked === false;\n",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Ico is present\"] = (typeof res.data[0].attributes.ico) === \"string\";\ntests[\"Ico is windows\"] = res.data[0].attributes.ico === \"windows\";\ntests[\"Name is present\"] = (typeof res.data[0].id) === \"string\";\ntests[\"Name is windows\"] = res.data[0].id === \"windows\";\ntests[\"DisplayName is present\"] = (typeof res.data[0].attributes.display_name) === \"string\";\ntests[\"DisplayName is WinAD\"] = res.data[0].attributes.display_name === \"Windows Active Directory\";\ntests[\"Status is present\"] = (typeof res.data[0].attributes.status) === \"string\";\ntests[\"Status is running\"] = res.data[0].attributes.status === \"running\";\ntests[\"Locked is present\"] = (typeof res.data[0].attributes.locked) === \"boolean\";\ntests[\"Locked is false\"] = res.data[0].attributes.locked === false;\n",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456138764936,
+			"time": 1456395386693,
 			"name": "list running vms",
 			"description": "Get OAuth token for admin user",
 			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
-			"responses": [],
-			"folder": "f94369b7-4663-d336-3891-6b32a5756af6"
+			"responses": []
 		},
 		{
 			"id": "d9ce8d37-f38d-55d9-e76c-fc0b30c4318f",

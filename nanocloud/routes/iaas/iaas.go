@@ -46,8 +46,8 @@ func proxy(c *echo.Context) error {
 	}
 
 	w := c.Response()
-	w.WriteHeader(resp.StatusCode)
 	w.Header().Set("Content-Type", contentType)
+	w.WriteHeader(resp.StatusCode)
 	w.Write(body)
 	return nil
 }
