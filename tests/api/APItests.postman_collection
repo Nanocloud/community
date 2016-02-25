@@ -1,102 +1,154 @@
 {
-	"id": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-	"name": "Nanocloud Documentation",
+	"id": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+	"name": "Nanocloud Tests",
 	"description": "",
 	"order": [],
 	"folders": [
 		{
-			"owner": "257176",
-			"lastUpdatedBy": "257176",
-			"lastRevision": 126678354,
-			"id": "61c6455a-8392-87d0-5f92-22199709653f",
-			"name": "1 - Authentification",
+			"id": "d855ef77-35d3-6bbd-eb3c-3f023f93061b",
+			"name": "[005]INIT",
 			"description": "",
 			"order": [
-				"00ff46d3-20f0-da9c-a017-5006329f5056"
-			]
-		},
-		{
-			"owner": "257176",
-			"lastUpdatedBy": "257176",
-			"lastRevision": 126678355,
-			"id": "d22c95cd-a5e8-e2e6-9078-21fcaa07025b",
-			"name": "2 - Users Module",
-			"description": "",
-			"order": [
-				"307b9555-75dc-f59d-97e2-52ae448d1955",
-				"f5c0500c-f0c4-223d-a673-00d5c751cb08",
-				"057b0749-18e0-f241-e4c5-6d4bb72a4e1d",
-				"369ff516-627a-efd9-8055-a4825f2a8d4e",
-				"0c191cc8-1144-0b23-5fca-67dce2e265ae",
-				"bf8e3d79-b4b1-1af7-51d8-423badde7b9c"
-			]
-		},
-		{
-			"owner": "257176",
-			"lastUpdatedBy": "257176",
-			"lastRevision": 126678357,
-			"id": "186ff37f-614a-4cc9-0f22-e1bc6af117a8",
-			"name": "3 - History Module",
-			"description": "",
-			"order": [
-				"c2d9195a-b647-c37b-d2ff-9959744a5dfc",
-				"6a46e7ef-1fee-0c13-6af3-69bcf434436e"
+				"4e86fc91-3383-99c6-6e0d-dc4d7e2acea7"
 			],
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66"
+			"owner": "275951",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081"
 		},
 		{
-			"owner": "257176",
-			"lastUpdatedBy": "257176",
-			"lastRevision": 126755461,
-			"id": "938a3098-99e7-58a0-ff17-fe43d8f70a15",
-			"name": "4 - Apps Module",
-			"description": "",
+			"id": "1be5d67d-10fe-f021-44df-397932227b3e",
+			"name": "[010]USERS",
+			"description": "Test Requests for users module",
 			"order": [
-				"324dd28d-146c-8855-d824-dcf944745ea3",
-				"507315f7-1044-9b43-0d43-2f81b31477a9",
-				"d1e21c07-2ec0-9e36-cc10-3a6633f834a1",
-				"ff943fe3-ffd5-3782-0370-43ce351657b7",
-				"c683d196-cea8-4106-44a1-0376d3956c30",
-				"25b09b81-769e-4847-338d-42e105af6666"
+				"0af2f42a-6c45-66d2-80d3-28f37f76172f",
+				"f03d0c0f-4ce9-830f-9136-6d42e64f6533",
+				"42084a45-743a-afbf-1e0b-43e15c29797d",
+				"27529468-5f81-06a6-7403-b9238d592ac3",
+				"32e1cf83-bf1b-217e-5e53-ebaed5eeb516",
+				"bb9fa920-c4f5-21c8-aa1f-ffd4e24a495b",
+				"ef91785b-7d62-ad38-295c-5462b97d4751",
+				"2331c850-7c0e-2784-74d9-7eeaa7e80168",
+				"f78ca83d-3eb0-951b-a4d9-79daea9c7bc5",
+				"31bbf70b-30d1-baf7-67f9-ada0ae8ddb23",
+				"301480fb-1b14-43aa-4b51-2fd50ea3e932",
+				"b1ad4419-db3b-10e4-c175-e08b7bc1dbe2",
+				"772ed6af-c860-f9e6-64c2-274a5f1bea69",
+				"9207ebdd-b7f0-2f9a-02c6-8e31a308a48e",
+				"04069651-0120-651a-8b1b-5506e13d70d1",
+				"dbaaa717-8983-fbd9-6fdb-f763661dd285"
 			],
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66"
+			"owner": "275951",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081"
 		},
 		{
-			"owner": "257176",
-			"lastUpdatedBy": "257176",
-			"lastRevision": 126678359,
-			"id": "df688457-e4d8-8938-8505-abe6e56c4bb2",
-			"name": "5 - Iaas Module",
+			"id": "df3c3019-f223-b64a-0665-6387ad6445f5",
+			"name": "[030]HISTORY",
 			"description": "",
 			"order": [
-				"a15a3a0c-b3f0-72b3-5538-c8078edded94",
-				"8884fa7b-62d2-b253-b270-dd2f9ae0fd15"
+				"91c082c0-df67-d1d1-19a8-471ba2adb3ea",
+				"106d3e14-9ab8-168d-8059-8b405e662887",
+				"4b185a1d-5251-2bfd-628d-deb4c7ac5c5a",
+				"b5519847-2196-d38b-99c5-27a191e5821b"
 			],
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66"
+			"owner": "275951",
+			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5"
+		},
+		{
+			"id": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a",
+			"name": "[040]APPS",
+			"description": "Test request for apps module",
+			"order": [
+				"e5f1b38a-4bbc-9291-ddf1-1d7cc4527b5d",
+				"6d2900f9-9f06-2a74-3e61-b68eb62d0d26",
+				"f5de550e-0ed5-e0f1-5a70-4867cd880b8d",
+				"bbd7e53a-45cb-357c-79b2-086aa09d7166",
+				"6df657b2-3bf3-be26-8004-453a3556f39b",
+				"e8e886cb-6fad-2f6b-00b3-5d918c1a8c20",
+				"fd4600af-6212-ea55-db1c-9ce40ca468d4",
+				"30d612ba-4160-f6d0-e82a-0d208936bcd0",
+				"ab869ac1-941e-11db-f143-ea81f16428ae",
+				"13e828c1-c33a-648b-2b6f-8292244a4953",
+				"331674d3-e453-b69b-6e9d-447cd94d1fed",
+				"18cddde2-078e-58dd-47d8-75a722b889d2",
+				"37ac8b97-776a-378a-088a-a298ca127e13",
+				"7974cf4f-468e-b208-113d-673067634084"
+			],
+			"owner": "275951",
+			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5"
+		},
+		{
+			"id": "bffb9fe9-c9bc-dd2f-c480-f7071c43c924",
+			"name": "[045] USER RIGHTS",
+			"description": "",
+			"order": [
+				"d9ce8d37-f38d-55d9-e76c-fc0b30c4318f",
+				"1db597d3-3a0d-008d-e35c-b4185c0a083c",
+				"871fbd44-55fb-5650-b6d5-4e1232d6ebd7",
+				"cf60e67b-924b-bda2-6177-334971600893",
+				"36b45180-d743-b33a-82f2-aa1824bf8479",
+				"be677d73-7699-e8aa-7016-2171c69b4a9b",
+				"6fcb5205-5219-f685-5c25-7f4f3e7eb6c1",
+				"75086441-a885-0851-e72a-c7281f929eb4",
+				"bc11f4a0-f94b-9782-de6c-fe7f3a9138b2",
+				"e0ddcf86-8d71-b0d3-3393-ebcfe727d19d"
+			],
+			"owner": "275951",
+			"collectionId": "b01cca43-bf38-08e7-2042-339c72ba27ba"
+		},
+		{
+			"id": "f94369b7-4663-d336-3891-6b32a5756af6",
+			"name": "[050]IAAS",
+			"description": "",
+			"order": [
+				"d1310e9d-6f03-63b8-1936-c30772c4d1db",
+				"6b8f44fe-9c52-ca37-756c-0b3c4a7a0b88",
+				"40efe361-1459-3df9-5169-7c94ed30d27c"
+			],
+			"owner": "275951",
+			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5"
 		}
 	],
 	"timestamp": 0,
-	"owner": "257176",
+	"owner": "275951",
 	"remoteLink": "",
 	"public": false,
 	"requests": [
 		{
-			"id": "00ff46d3-20f0-da9c-a017-5006329f5056",
-			"headers": "Content-Type: application/json\nAuthorization: Basic OTQwNWZiNmIwZTU5ZDI5OTdlM2M3NzdhMjJkOGYwZTYxN2E5ZjViMzZiNjU2NWM3NTc5ZTViZTZkZWI4ZjdhZTo5MDUwZDY3YzJiZTA5NDNmMmM2MzUwNzA1MmRkZWRiM2FlMzRhMzBlMzliYmJiZGFiMjQxYzkzZjhiNWNmMzQx\n",
-			"url": "http://localhost/oauth/token",
-			"preRequestScript": "",
+			"id": "04069651-0120-651a-8b1b-5506e13d70d1",
+			"headers": "Content-Type: application/json\nAuthorization: Basic {{_OAUTH_CLIENT_HTTP_BASIC}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/oauth/token",
+			"preRequestScript": "var env = {\n    PROTOCOL: \"http\",\n    HOST: \"127.0.0.1\",\n    ADMIN_USERNAME: \"admin@nanocloud.com\",\n    ADMIN_PASSWORD: \"admin\",\n    APP_KEY: \"9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae\",\n    APP_SECRET: \"9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341\"\n};\n\nfor (var key in env) {\n    var value = postman.getEnvironmentVariable(key);\n    if (typeof value === \"undefined\") {\n        postman.setEnvironmentVariable(key, env[key]);\n    }\n}\n\nvar appKey = postman.getEnvironmentVariable(\"APP_KEY\");\nvar appSecret = postman.getEnvironmentVariable(\"APP_SECRET\");\n\n/*\n * Use this technique instead of Basic auth to prevent basic base64 key\n * to be saved.\n */\npostman.setEnvironmentVariable(\"_OAUTH_CLIENT_HTTP_BASIC\", btoa(appKey + \":\" + appSecret))",
 			"pathVariables": {},
 			"method": "POST",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 401\"] = responseCode.code === 401;\n \nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = typeof(res.error) === \"string\";",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456308024901,
-			"name": "Login to Nanocloud",
-			"description": "Get an OAuth token for the user logging in.",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
+			"time": 1455618843235,
+			"name": "Login with valid user but wrong password",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"rawModeData": "{\n    \"username\": \"{{TEST_USER_EMAIL}}\",\n    \"password\": \"inValidP4ssword2!\",\n    \"grant_type\": \"password\"\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "0af2f42a-6c45-66d2-80d3-28f37f76172f",
+			"headers": "Content-Type: application/json\nAuthorization: Basic {{_OAUTH_CLIENT_HTTP_BASIC}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/oauth/token",
+			"preRequestScript": "var appKey = postman.getEnvironmentVariable(\"APP_KEY\");\nvar appSecret = postman.getEnvironmentVariable(\"APP_SECRET\");\n\n/*\n * Use this technique instead of Basic auth to prevent basic base64 key\n * to be saved.\n */\npostman.setEnvironmentVariable(\"_OAUTH_CLIENT_HTTP_BASIC\", btoa(appKey + \":\" + appSecret))",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n \nvar res = JSON.parse(responseBody);\ntests[\"Token type is \\\"Bearer\\\"\"] = res.type === \"Bearer\";\ntests[\"Token is present\"] = (typeof res.access_token) === \"string\";\n\npostman.setEnvironmentVariable(\"ACCESS_TOKEN\", res.access_token);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455618493057,
+			"name": "Admin Login copy",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
 			"responses": [
 				{
 					"status": "",
@@ -105,7 +157,7 @@
 						"name": "OK",
 						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
 					},
-					"time": 112,
+					"time": 137,
 					"headers": [
 						{
 							"name": "Cache-Control",
@@ -134,7 +186,7 @@
 						{
 							"name": "Date",
 							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:00:30 GMT",
+							"value": "Tue, 23 Feb 2016 17:14:07 GMT",
 							"description": "The date and time that the message was sent"
 						},
 						{
@@ -152,7 +204,7 @@
 					],
 					"cookies": [],
 					"mime": "",
-					"text": "{\"access_token\":\"iDAwAqbhZmQOzZzbOqHjLAFeN\",\"type\":\"Bearer\"}",
+					"text": "{\"access_token\":\"kUGHFHTKYjEzODMqNJljUbwbX\",\"type\":\"Bearer\"}",
 					"language": "javascript",
 					"rawDataType": "text",
 					"state": {
@@ -167,10 +219,10 @@
 					"isSample": true,
 					"scrollToResult": true,
 					"runTests": true,
-					"id": "0773eabb-c934-5b50-e21f-7c7150be8b17",
-					"name": "Login as a Admin",
+					"id": "01a79227-c33b-9bf4-e489-822a7ce7b5da",
+					"name": "login",
 					"request": {
-						"url": "http://localhost/oauth/token",
+						"url": "http://127.0.0.1/oauth/token",
 						"headers": [
 							{
 								"key": "Content-Type",
@@ -192,7 +244,7 @@
 							{
 								"key": "Postman-Token",
 								"name": "Postman-Token",
-								"value": "7d1ae532-0119-61c7-5106-2f7a2a52df7e"
+								"value": "5c3fa118-21b1-205b-125e-f61da51fc503"
 							}
 						],
 						"data": "{\n    \"username\": \"admin@nanocloud.com\",\n    \"password\": \"admin\",\n    \"grant_type\": \"password\"\n}",
@@ -201,231 +253,257 @@
 					}
 				}
 			],
-			"rawModeData": "{\n    \"username\": \"admin@nanocloud.com\",\n    \"password\": \"admin\",\n    \"grant_type\": \"password\"\n}"
+			"rawModeData": "{\n    \"username\": \"{{ADMIN_USERNAME}}\",\n    \"password\": \"{{ADMIN_PASSWORD}}\",\n    \"grant_type\": \"password\"\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e",
+			"isFromCollection": true,
+			"collectionRequestId": "0af2f42a-6c45-66d2-80d3-28f37f76172f"
 		},
 		{
-			"id": "057b0749-18e0-f241-e4c5-6d4bb72a4e1d",
-			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/users",
+			"id": "106d3e14-9ab8-168d-8059-8b405e662887",
+			"headers": "Authorization: Bearer {{ACCESS_TOKEN}}\nContent-Type: application/json\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/history",
 			"preRequestScript": "",
 			"pathVariables": {},
-			"method": "GET",
+			"method": "POST",
 			"data": [],
-			"dataMode": "params",
+			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 201\"] = responseCode.code === 201;\n\nvar res = JSON.parse(responseBody);\ntests[\"connection_id is present\"] = res.data.attributes.connection_id\ntests[\"end_date is present\"] = res.data.attributes.end_date\ntests[\"start_date is present\"] = res.data.attributes.start_date\ntests[\"user_id is present\"] = res.data.attributes.user_id\ntests[\"type is present\"] = res.data.type",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456308351625,
-			"name": "List all users",
-			"description": "Returns a list of all the users in the database",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 20,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "481",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:05:57 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":[{\"attributes\":{\"email\":\"admin@nanocloud.com\",\"activated\":true,\"is_admin\":true,\"first_name\":\"John\",\"last_name\":\"Doe\",\"sam\":\"Administrator\",\"windows_password\":\"Nanocloud123+\"},\"id\":\"99e84ac9-edda-4598-a878-e3cdb571f182\",\"type\":\"user\"},{\"attributes\":{\"email\":\"karkool@mail.com\",\"activated\":true,\"is_admin\":false,\"first_name\":\"karl\",\"last_name\":\"kool\",\"sam\":\"$R21000-ONM2R462SDA7\",\"windows_password\":\"CsyZcMbgs4D+\"},\"id\":\"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\"type\":\"user\"}]}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "d3c31ce4-0a9e-0977-a6db-0b87e8b2a07a",
-					"name": "List all Users",
-					"request": {
-						"url": "http://localhost/api/users",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer iDAwAqbhZmQOzZzbOqHjLAFeN",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "1ab4100f-3966-0ca8-78c8-93d4cfeefa86"
-							}
-						],
-						"data": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"karl\",\n           \"last_name\": \"kool\",  \n           \"email\": \"karkool@mail.com\",\n           \"password\": \"Nano123+\"\n       }\n    }\n}",
-						"method": "GET",
-						"dataMode": "params"
-					}
-				}
-			]
+			"time": 1456326946100,
+			"name": "Add a valid history entry",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"attributes\": {\n            \"user_id\": \"{{TEST_USER_ID}}\",\n            \"connection_id\": \"testConnectionId\",\n            \"start_date\": \"monday\",\n            \"end_date\": \"tuesday\"\n        }\n    }\n}"
 		},
 		{
-			"id": "0c191cc8-1144-0b23-5fca-67dce2e265ae",
+			"id": "13e828c1-c33a-648b-2b6f-8292244a4953",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/users/{{USER_ID}}",
+			"url": "http://localhost/api/apps/calc",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PATCH",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456308478806,
-			"name": "Disable a user",
-			"description": "Disables the specified user",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 22,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "262",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:08:00 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"attributes\":{\"email\":\"karkool@mail.com\",\"activated\":false,\"is_admin\":false,\"first_name\":\"karl\",\"last_name\":\"kool\",\"sam\":\"$R21000-ONM2R462SDA7\",\"windows_password\":\"CsyZcMbgs4D+\"},\"id\":\"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\"success\":true,\"type\":\"user\"}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "9710892f-fe8f-66c6-4181-ed4b4a3fbf23",
-					"name": "Disable the User",
-					"request": {
-						"url": "http://localhost/api/users/1bef827a-e22c-4ac7-956a-b32c3d3c1de5",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer iDAwAqbhZmQOzZzbOqHjLAFeN",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "359c1534-8317-cfbc-346f-693db4a39294"
-							}
-						],
-						"data": "{     \n    \"data\" : {\n        \"id\": \"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\n        \"attributes\": {\n            \"activated\" : false\n        }\n    }\n}",
-						"method": "PATCH",
-						"dataMode": "raw"
-					}
-				}
-			],
-			"rawModeData": "{     \n    \"data\" : {\n        \"id\": \"{{USER_ID}}\",\n        \"attributes\": {\n            \"activated\" : false\n        }\n    }\n}"
+			"time": 1456310316431,
+			"name": "Change app name",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"newcalc\"\n        }\n    }\n}"
 		},
 		{
-			"id": "25b09b81-769e-4847-338d-42e105af6666",
+			"id": "18cddde2-078e-58dd-47d8-75a722b889d2",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/calc",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PATCH",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 400\"] = responseCode.code === 400;\n\nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455888296828,
+			"name": "Change app name with invalid one",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"\"\n        }\n    }\n}",
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "1db597d3-3a0d-008d-e35c-b4185c0a083c",
+			"headers": "Content-Type: application/json\nAuthorization: Basic {{_OAUTH_CLIENT_HTTP_BASIC}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/oauth/token",
+			"preRequestScript": "var appKey = postman.getEnvironmentVariable(\"APP_KEY\");\nvar appSecret = postman.getEnvironmentVariable(\"APP_SECRET\");\n\n/*\n * Use this technique instead of Basic auth to prevent basic base64 key\n * to be saved.\n */\npostman.setEnvironmentVariable(\"_OAUTH_CLIENT_HTTP_BASIC\", btoa(appKey + \":\" + appSecret))",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "tests[\"Status code is 200\"] = responseCode.code === 200;\ntests[\"Response is not empty\"] = parseInt(responseHeaders['Content-Length'], 10) > 0\ntests[\"Response type is JSON\"] = responseHeaders['Content-Type'].split(\";\")[0] === \"application/json\"\n\nvar res = JSON.parse(responseBody);\ntests[\"Token type is \\\"Bearer\\\"\"] = res.type === \"Bearer\";\ntests[\"Token is present\"] = (typeof res.access_token) === \"string\";\n\n\n\npostman.setEnvironmentVariable(\"TEST_USER_ACCESS_TOKEN\", res.access_token);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1454693893719,
+			"name": "Login with a user",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"rawModeData": "{\n    \"username\": \"{{TEST_USER_EMAIL}}\",\n    \"password\": \"{{TEST_USER_PASSWORD}}\",\n    \"grant_type\": \"password\"\n}",
+			"folder": "bffb9fe9-c9bc-dd2f-c480-f7071c43c924"
+		},
+		{
+			"id": "2331c850-7c0e-2784-74d9-7eeaa7e80168",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PATCH",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455802485875,
+			"name": "Disable the user",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{     \n    \"data\" : {\n        \"id\": \"{{TEST_USER_ID}}\",\n        \"attributes\": {\n            \"activated\" : false\n        }\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "27529468-5f81-06a6-7403-b9238d592ac3",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n \nvar res = JSON.parse(responseBody);\ntests[\"id is present\"] = (typeof res.data.id) === \"string\";\ntests[\"email is present\"] = (typeof res.data.attributes.email) === \"string\";\ntests[\"email has the right value\"] = res.data.attributes.email === postman.getEnvironmentVariable(\"TEST_USER_EMAIL\");\ntests[\"activated is present\"] = (typeof res.data.attributes.activated) === \"boolean\";\ntests[\"activated has the right value\"] = res.data.attributes.activated === true;\ntests[\"is_admin is present\"] = (typeof res.data.attributes.is_admin) === \"boolean\";\ntests[\"is_admin has the right value\"] = res.data.attributes.is_admin === false;\ntests[\"first_name is present\"] = (typeof res.data.attributes.first_name) === \"string\";\ntests[\"first_name has the right value\"] = res.data.attributes.first_name === postman.getEnvironmentVariable(\"TEST_USER_FIRSTNAME\");\ntests[\"last_name is present\"] = (typeof res.data.attributes.last_name) === \"string\";\ntests[\"last_name has the right value\"] = res.data.attributes.last_name === postman.getEnvironmentVariable(\"TEST_USER_LASTNAME\");\ntests[\"sam is present\"] = (typeof res.data.attributes.sam) === \"string\";\ntests[\"windows_password is present\"] = (typeof res.data.attributes.windows_password) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455812914452,
+			"name": "Get User Infos",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "301480fb-1b14-43aa-4b51-2fd50ea3e932",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 409\"] = responseCode.code === 409;\n \nvar res = JSON.parse(responseBody);\ntests[\"Error is returned\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455878810529,
+			"name": "Add the same user again",
+			"description": "Add a user to the database and contact possible other modules so they can add the user too.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"{{TEST_USER_FIRSTNAME}}\",\n           \"last_name\": \"{{TEST_USER_LASTNAME}}\",  \n           \"email\": \"{{TEST_USER_EMAIL}}\",\n           \"password\": \"{{TEST_USER_PASSWORD}}\"\n       }\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "30d612ba-4160-f6d0-e82a-0d208936bcd0",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/me",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"id is present\"] = (typeof res.data[0].id) === \"number\";\ntests[\"collection name is present\"] = (typeof res.data[0].attributes.collection_name) === \"string\";\ntests[\"collection name is 'collection'\"] = res.data[0].attributes.collection_name === \"collection\";\ntests[\"alias is present\"] = (typeof res.data[0].attributes.alias) === \"string\";\ntests[\"alias is 'calc'\"] = res.data[0].attributes.alias === \"calc\";\ntests[\"display Name is present\"] = (typeof res.data[0].attributes.display_name) === \"string\";\ntests[\"display Name is 'calc'\"] = res.data[0].attributes.display_name === \"calc\";\ntests[\"filepath is present\"] = (typeof res.data[0].attributes.file_path) === \"string\";\ntests[\"filepath1 has the correct value\"] = res.data[0].attributes.file_path === \"C:\\\\Windows\\\\System32\\\\calc.exe\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455894282604,
+			"name": "List apps for sam",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "31bbf70b-30d1-baf7-67f9-ada0ae8ddb23",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 404\"] = responseCode.code === 404;\n \nvar res = JSON.parse(responseBody);\ntests[\"id is present\"] = (typeof res.id) === \"undefined\";\ntests[\"email is present\"] = (typeof res.email) === \"undefined\";\ntests[\"activated is present\"] = (typeof res.activated) === \"undefined\";\ntests[\"is_admin is present\"] = (typeof res.is_admin) === \"undefined\";\ntests[\"first_name is present\"] = (typeof res.first_name) === \"undefined\";\ntests[\"last_name is present\"] = (typeof res.last_name) === \"undefined\";\ntests[\"sam is present\"] = (typeof res.sam) === \"undefined\";\ntests[\"windowsPassword is present\"] = (typeof res.windows_password) === \"undefined\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455715967171,
+			"name": "Get User Infos of deleted user",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "32e1cf83-bf1b-217e-5e53-ebaed5eeb516",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"email of admin if present\"] = (typeof res.data[0].attributes.email) === \"string\";\ntests[\"email of admin has the right value\"] = res.data[0].attributes.email === postman.getEnvironmentVariable(\"ADMIN_USERNAME\");\ntests[\"activated field of admin if present\"] = (typeof res.data[0].attributes.activated) === \"boolean\";\ntests[\"admin is activated\"] = res.data[0].attributes.activated === true;\ntests[\"is_admin field of admin if present\"] = (typeof res.data[0].attributes.is_admin) === \"boolean\";\ntests[\"admin is really the admin\"] = res.data[0].attributes.is_admin === true;\ntests[\"id of previsoulsy created user is present\"] = (typeof res.data[1].id) === \"string\";\ntests[\"email of previsoulsy created user is present\"] = (typeof res.data[1].attributes.email) === \"string\";\ntests[\"email of previsoulsy created user has the right value\"] = res.data[1].attributes.email === postman.getEnvironmentVariable(\"TEST_USER_EMAIL\");\ntests[\"activated of previsoulsy created user is present\"] = (typeof res.data[1].attributes.activated) === \"boolean\";\ntests[\"activated of previsoulsy created user has the right value\"] = res.data[1].attributes.activated === true;\ntests[\"is_admin of previsoulsy created user is present\"] = (typeof res.data[1].attributes.is_admin) === \"boolean\";\ntests[\"is_admin of previsoulsy created user has the right value\"] = res.data[1].attributes.is_admin === false;\ntests[\"first_name of previsoulsy created user is present\"] = (typeof res.data[1].attributes.first_name) === \"string\";\ntests[\"first_name of previsoulsy created user has the right value\"] = res.data[1].attributes.first_name === postman.getEnvironmentVariable(\"TEST_USER_FIRSTNAME\");\ntests[\"last_name of previsoulsy created user is present\"] = (typeof res.data[1].attributes.last_name) === \"string\";\ntests[\"last_name of previsoulsy created user has the right value\"] = res.data[1].attributes.last_name === postman.getEnvironmentVariable(\"TEST_USER_LASTNAME\");\ntests[\"sam of previsoulsy created user is present\"] = (typeof res.data[1].attributes.sam) === \"string\";\ntests[\"windows_password of previsoulsy created user is present\"] = (typeof res.data[1].attributes.windows_password) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456155808250,
+			"name": "List Users",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "331674d3-e453-b69b-6e9d-447cd94d1fed",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/calcdsd",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PATCH",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 404\"] = responseCode.code === 404;\n\nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455888293304,
+			"name": "Change unknown app name",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"newcalc\"\n        }\n    }\n}",
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "36b45180-d743-b33a-82f2-aa1824bf8479",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PATCH",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327649560,
+			"name": "Disable the user copy",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{     \n    \"data\" : {\n        \"id\": \"{{TEST_USER_ID}}\",\n        \"attributes\": {\n            \"activated\" : false\n        }\n    }\n}"
+		},
+		{
+			"id": "37ac8b97-776a-378a-088a-a298ca127e13",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
 			"url": "http://localhost/api/apps/calc",
 			"preRequestScript": "",
@@ -434,124 +512,53 @@
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456310785843,
+			"time": 1456310660278,
 			"name": "Unpublish application",
 			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 11303,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "25",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:45:35 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"success\":true}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "f4632d3c-37cd-7d55-2b17-15f449e5e470",
-					"name": "Unpublish an Application",
-					"request": {
-						"url": "http://localhost/api/apps/calc",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "a52dcac9-ce9d-4a09-db7e-9bb9b8a933de"
-							}
-						],
-						"data": "",
-						"method": "DELETE",
-						"dataMode": "raw"
-					}
-				}
-			],
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
 			"rawModeData": ""
 		},
 		{
-			"id": "307b9555-75dc-f59d-97e2-52ae448d1955",
+			"id": "40efe361-1459-3df9-5169-7c94ed30d27c",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/users",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/iaas",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Ico is present\"] = (typeof res[0].Ico) === \"string\";\ntests[\"Ico is windows\"] = res[0].Ico === \"windows\";\ntests[\"Name is present\"] = (typeof res[0].Name) === \"string\";\ntests[\"Name is windows\"] = res[0].Name === \"windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64\";\ntests[\"DisplayName is present\"] = (typeof res[0].DisplayName) === \"string\";\ntests[\"DisplayName is WinAD\"] = res[0].DisplayName === \"Windows Active Directory\";\ntests[\"Status is present\"] = (typeof res[0].Status) === \"string\";\n//tests[\"Status is available\"] = res[0].Status === \"available\";\ntests[\"Locked is present\"] = (typeof res[0].Locked) === \"boolean\";\ntests[\"Locked is false\"] = res[0].Locked === false;\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1453472793644,
+			"name": "list running vms, check windows is down",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "f94369b7-4663-d336-3891-6b32a5756af6"
+		},
+		{
+			"id": "42084a45-743a-afbf-1e0b-43e15c29797d",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 201\"] = responseCode.code === 201;\n \nvar res = JSON.parse(responseBody);\ntests[\"id is present\"] = (typeof res.data.id) === \"string\";\n\npostman.setEnvironmentVariable(\"TEST_USER_ID\", res.data.id);",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456308202039,
-			"name": "Add a user",
-			"description": "Add a user to the database and contact possible other modules (i.e ldap) so they can add the user too.",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
+			"time": 1455878175578,
+			"name": "Add a valid User",
+			"description": "Add a user to the database and contact possible other modules so they can add the user too.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
 			"responses": [
 				{
 					"status": "",
@@ -560,7 +567,7 @@
 						"name": "Created",
 						"detail": "The request has been fulfilled and resulted in a new resource being created."
 					},
-					"time": 197,
+					"time": 261,
 					"headers": [
 						{
 							"name": "Connection",
@@ -583,7 +590,7 @@
 						{
 							"name": "Date",
 							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:03:29 GMT",
+							"value": "Tue, 23 Feb 2016 17:14:51 GMT",
 							"description": "The date and time that the message was sent"
 						},
 						{
@@ -595,7 +602,7 @@
 					],
 					"cookies": [],
 					"mime": "",
-					"text": "{\"data\":{\"id\":\"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\"}}",
+					"text": "{\"data\":{\"id\":\"d2f81ec2-e751-409e-834a-d3cf2e085fdb\"}}",
 					"language": "javascript",
 					"rawDataType": "text",
 					"state": {
@@ -610,10 +617,10 @@
 					"isSample": true,
 					"scrollToResult": true,
 					"runTests": true,
-					"id": "9a72b33a-57ce-b3ce-05de-507279029299",
-					"name": "Add a User",
+					"id": "497526e4-7c96-abf9-6ee0-b926940b0345",
+					"name": "add user",
 					"request": {
-						"url": "http://localhost/api/users",
+						"url": "http://127.0.0.1/api/users",
 						"headers": [
 							{
 								"key": "Content-Type",
@@ -623,7 +630,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer iDAwAqbhZmQOzZzbOqHjLAFeN",
+								"value": "Bearer kUGHFHTKYjEzODMqNJljUbwbX",
 								"name": "Authorization",
 								"enabled": true
 							},
@@ -635,7 +642,7 @@
 							{
 								"key": "Postman-Token",
 								"name": "Postman-Token",
-								"value": "18472a11-2c00-5f97-2c34-7f09ef394371"
+								"value": "5fffcdc9-28cb-8aa5-cdba-f9ac454aa345"
 							}
 						],
 						"data": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"karl\",\n           \"last_name\": \"kool\",  \n           \"email\": \"karkool@mail.com\",\n           \"password\": \"Nano123+\"\n       }\n    }\n}",
@@ -644,485 +651,65 @@
 					}
 				}
 			],
-			"rawModeData": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"{{TEST_USER_FIRSTNAME}}\",\n           \"last_name\": \"{{TEST_USER_LASTNAME}}\",  \n           \"email\": \"{{TEST_USER_EMAIL}}\",\n           \"password\": \"{{TEST_USER_PASSWORD}}\"\n       }\n    }\n}"
+			"rawModeData": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"{{TEST_USER_FIRSTNAME}}\",\n           \"last_name\": \"{{TEST_USER_LASTNAME}}\",  \n           \"email\": \"{{TEST_USER_EMAIL}}\",\n           \"password\": \"{{TEST_USER_PASSWORD}}\"\n       }\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
 		},
 		{
-			"id": "324dd28d-146c-8855-d824-dcf944745ea3",
-			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/apps",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456309673475,
-			"name": "Publish Application",
-			"description": "Publish an application",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 18726,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "25",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:28:18 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"success\":true}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "4a7187f5-7dc1-b11e-d17c-c4d0fefdba72",
-					"name": "Publish an Application",
-					"request": {
-						"url": "http://localhost/api/apps",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "4fe2b065-0b64-7f1b-eb8a-c2a83a93f2b7"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}",
-						"method": "POST",
-						"dataMode": "raw"
-					}
-				}
-			],
-			"rawModeData": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}"
-		},
-		{
-			"id": "369ff516-627a-efd9-8055-a4825f2a8d4e",
-			"headers": "Authorization: Bearer {{ACCESS_TOKEN}}\nContent-Type: application/json\n",
-			"url": "http://localhost/api/users/{{USER_ID}}",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456308410521,
-			"name": "Change a password",
-			"description": "Changes the password of the specified user.",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 124,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "25",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:07:09 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"success\":true}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "5db72087-69cf-e2b2-14cf-b47d5642c1ff",
-					"name": "Change user password",
-					"request": {
-						"url": "http://localhost/api/users/1bef827a-e22c-4ac7-956a-b32c3d3c1de5",
-						"headers": [
-							{
-								"key": "Authorization",
-								"value": "Bearer iDAwAqbhZmQOzZzbOqHjLAFeN",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "243c414d-9e40-b177-3374-5bdd8c503ad8"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"Password\": \"Juju123+\"\n    }\n}",
-						"method": "PUT",
-						"dataMode": "raw"
-					}
-				}
-			],
-			"rawModeData": "{\n    \"data\": {\n        \"Password\": \"{{TEST_USER_NEW_PASSWORD}}\"\n    }\n}"
-		},
-		{
-			"id": "507315f7-1044-9b43-0d43-2f81b31477a9",
-			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/apps",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456309869611,
-			"name": "List published applications",
-			"description": "Lists all available applications",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 44,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "505",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:31:11 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":[{\"attributes\":{\"collection_name\":\"\",\"alias\":\"Desktop\",\"display_name\":\"Desktop\",\"file_path\":\"\"},\"id\":1,\"type\":\"application\"},{\"attributes\":{\"collection_name\":\"collection\",\"alias\":\"hapticPowershell\",\"display_name\":\"hapticPowershell\",\"file_path\":\"C:\\\\Windows\\\\system32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\"},\"id\":3,\"type\":\"application\"},{\"attributes\":{\"collection_name\":\"collection\",\"alias\":\"calc\",\"display_name\":\"calc\",\"file_path\":\"C:/Windows/System32/calc.exe\"},\"id\":56,\"type\":\"application\"}]}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "95c84e23-d70c-90ac-583f-e4118663d1a8",
-					"name": "List published applications",
-					"request": {
-						"url": "http://localhost/api/apps",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "45e421ec-803e-17f9-94aa-a6dbf432b031"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}",
-						"method": "GET",
-						"dataMode": "params"
-					}
-				}
-			]
-		},
-		{
-			"id": "6a46e7ef-1fee-0c13-6af3-69bcf434436e",
+			"id": "4b185a1d-5251-2bfd-628d-deb4c7ac5c5a",
 			"headers": "Content-Tyoe: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/history",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/history",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"user_id is present\"] = (typeof res.data[0].attributes.user_id) === \"string\";\ntests[\"user_id has the correct value\"] = res.data[0].attributes.user_id === postman.getEnvironmentVariable(\"TEST_USER_ID\");\ntests[\"connection_id is present\"] = (typeof res.data[0].attributes.connection_id) === \"string\";\ntests[\"connection_id has the correct value\"] = res.data[0].attributes.connection_id === \"testConnectionId\";\ntests[\"start_date is present\"] = (typeof res.data[0].attributes.start_date) === \"string\";\ntests[\"start_date has the correct value\"] = res.data[0].attributes.start_date === \"monday\";\ntests[\"end_date is present\"] = (typeof res.data[0].attributes.end_date) === \"string\";\ntests[\"end_date has the correct value\"] = res.data[0].attributes.end_date === \"tuesday\";\n",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456309481015,
+			"time": 1456327197090,
 			"name": "List history entries",
 			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK"
-					},
-					"time": 20,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": ""
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "178",
-							"description": ""
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": ""
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:23:58 GMT",
-							"description": ""
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": ""
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":[{\"attributes\":{\"user_id\":\"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\"connection_id\":\"testConnectionId\",\"start_date\":\"monday\",\"end_date\":\"tuesday\"},\"id\":0,\"type\":\"history\"}]}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "2e1d13dc-006e-7d8d-7b1d-e89c627d76e6",
-					"name": "List history entries",
-					"request": {
-						"url": "http://localhost/api/history",
-						"headers": [
-							{
-								"key": "Content-Tyoe",
-								"value": "application/json",
-								"name": "Content-Tyoe",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "fa6257cf-169d-e66c-596e-463f01aceda4"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"user_id\": \"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\n        \"connection_id\": \"testConnectionId\",\n        \"start_date\": \"monday\",\n        \"end_date\": \"tuesday\"\n    }\n}",
-						"method": "GET",
-						"dataMode": "params"
-					}
-				}
-			]
-		},
-		{
-			"id": "8884fa7b-62d2-b253-b270-dd2f9ae0fd15",
-			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/stop",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.success === true;",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456311359925,
-			"name": "Stop windows",
-			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
 			"responses": []
 		},
 		{
-			"id": "a15a3a0c-b3f0-72b3-5538-c8078edded94",
-			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/iaas",
-			"preRequestScript": "",
+			"id": "4e86fc91-3383-99c6-6e0d-dc4d7e2acea7",
+			"headers": "",
+			"url": "{{PROTOCOL}}://{{HOST}}/",
+			"preRequestScript": "function initEnv() {\n    var env = {\n        PROTOCOL: \"https\",\n        HOST: \"127.0.0.1\",\n        ADMIN_USERNAME: \"admin@nanocloud.com\",\n        ADMIN_PASSWORD: \"admin\",\n        APP_KEY: \"9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae\",\n        APP_SECRET: \"9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341\",\n        TEST_USER_FIRSTNAME: \"karl\",\n        TEST_USER_LASTNAME: \"kool\",\n        TEST_USER_PASSWORD: \"Nano123+\",\n        TEST_USER_NEW_PASSWORD: \"Juju123+\",\n        TEST_USER_EMAIL: \"karkool@mail.com\",\n    };\n    \n    for (var key in env) {\n        var value = postman.getEnvironmentVariable(key);\n        if (typeof value === \"undefined\") {\n            postman.setEnvironmentVariable(key, env[key]);\n        }\n    }\n}\n\ninitEnv();\n\nfunction init() {\n    var checkUnderscoreCase = function(obj) {\n        for (var key in obj) {\n            if (!/^[a-z_]*$/.test(key)) {\n                return false;\n            }\n            \n            if (typeof obj[key] === \"object\") {\n                if (!checkUnderscoreCase(obj[key])) {\n                    return false;\n                }\n            }\n        }\n        return true;\n    };\n    \n   \n   \n    if (tests[\"Reponse Content-Type is present\"] = !!postman.getResponseHeader('Content-Type')) {\n        tests[\"Content-Type type is JSON\"] = postman.getResponseHeader('Content-Type').split(\";\")[0] === \"application/json\";\n    } else {\n        tests[\"Content-Type type is JSON\"] = false;\n    }\n    \n    if (tests[\"Reponse Content-Length is present\"] = !!postman.getResponseHeader('Content-Length')) {\n        tests[\"Response is not empty\"] = parseInt(responseHeaders['Content-Length'], 10) > 0;\n    } else {\n        tests[\"Response is not empty\"] = false;\n    }\n    \n    var res;\n    \n   try {\n        res = JSON.parse(responseBody);\n        tests[\"JSON is valid\"] = true;\n    } catch (err) {\n        tests[\"JSON is valid\"] = false;\n    }\n    tests[\"Response is a JSON object\"] = (typeof res === \"object\" && res !== null);\n    \n    //if (tests[\"Response is a JSON object\"] = (typeof res === \"object\")) {\n    //    tests[\"JSON notation is underscore case\"] = checkUnderscoreCase(res);\n    //}\n    \n    // return false is any of the tests failed\n    return _.values(tests).indexOf(false) === -1;\n}\n\npostman.setEnvironmentVariable(\"__init__\", init.toString());",
 			"pathVariables": {},
 			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "tests[\"API is reachable\"] = responseCode.code === 200;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1452865455654,
+			"name": "Init  copy",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"isFromCollection": true,
+			"folder": "d855ef77-35d3-6bbd-eb3c-3f023f93061b"
+		},
+		{
+			"id": "6b8f44fe-9c52-ca37-756c-0b3c4a7a0b88",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/stop",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456310848520,
-			"name": "list running vms",
-			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
+			"time": 1456311355385,
+			"name": "Stop windows",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
 			"responses": [
 				{
 					"status": "",
@@ -1131,7 +718,7 @@
 						"name": "OK",
 						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
 					},
-					"time": 796,
+					"time": 1139,
 					"headers": [
 						{
 							"name": "Connection",
@@ -1142,7 +729,7 @@
 						{
 							"name": "Content-Length",
 							"key": "Content-Length",
-							"value": "180",
+							"value": "16",
 							"description": "The length of the response body in octets (8-bit bytes)"
 						},
 						{
@@ -1154,7 +741,7 @@
 						{
 							"name": "Date",
 							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:47:30 GMT",
+							"value": "Wed, 24 Feb 2016 10:51:30 GMT",
 							"description": "The date and time that the message was sent"
 						},
 						{
@@ -1166,7 +753,7 @@
 					],
 					"cookies": [],
 					"mime": "",
-					"text": "{\"data\":[{\"attributes\":{\"ico\":\"windows\",\"display_name\":\"Windows Active Directory\",\"status\":\"running\",\"locked\":false,\"current_size\":\"\",\"total_size\":\"\"},\"id\":\"windows\",\"type\":\"vm\"}]}",
+					"text": "{\"success\":true}",
 					"language": "html",
 					"rawDataType": "text",
 					"state": {
@@ -1181,10 +768,10 @@
 					"isSample": true,
 					"scrollToResult": true,
 					"runTests": true,
-					"id": "f62903ed-b8c1-a46b-6c69-412769cc2130",
-					"name": "List running vms",
+					"id": "91f90ddf-20c8-35c5-967d-181c563c486e",
+					"name": "stop vm",
 					"request": {
-						"url": "http://localhost/api/iaas",
+						"url": "http://localhost/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/stop",
 						"headers": [
 							{
 								"key": "Content-Type",
@@ -1206,263 +793,525 @@
 							{
 								"key": "Postman-Token",
 								"name": "Postman-Token",
-								"value": "af6550aa-d216-ee09-aedc-b19b42b5c707"
+								"value": "a63270df-9926-82fd-866f-2752a49cd110"
 							}
 						],
 						"data": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"newcalc\"\n        }\n    }\n}",
-						"method": "GET",
+						"method": "POST",
 						"dataMode": "params"
 					}
 				}
 			]
 		},
 		{
-			"id": "bf8e3d79-b4b1-1af7-51d8-423badde7b9c",
+			"id": "6d2900f9-9f06-2a74-3e61-b68eb62d0d26",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/users/{{USER_ID}}",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/me",
 			"preRequestScript": "",
 			"pathVariables": {},
-			"method": "DELETE",
+			"method": "GET",
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456308670775,
-			"name": "Delete a user",
-			"description": "Deletes the specified user from the database.",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 62,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "25",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:08:30 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"success\":true}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "2717795d-7eb7-6c6a-59ff-1a9712db3dd4",
-					"name": "Delete the User",
-					"request": {
-						"url": "http://localhost/api/users/1bef827a-e22c-4ac7-956a-b32c3d3c1de5",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer iDAwAqbhZmQOzZzbOqHjLAFeN",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "b6db17f1-8aaa-320b-11ad-48edb180e514"
-							}
-						],
-						"data": "{     \n    \"data\" : {\n        \"id\": \"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\n        \"attributes\": {\n            \"activated\" : false\n        }\n    }\n}",
-						"method": "DELETE",
-						"dataMode": "params"
-					}
-				}
-			]
+			"time": 1452867143837,
+			"name": "List empty apps list for sam",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
 		},
 		{
-			"id": "c2d9195a-b647-c37b-d2ff-9959744a5dfc",
-			"headers": "Authorization: Bearer {{ACCESS_TOKEN}}\nContent-Type: application/json\n",
-			"url": "http://localhost/api/history",
+			"id": "6df657b2-3bf3-be26-8004-453a3556f39b",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 400\"] = responseCode.code === 400;\n\nvar res = JSON.parse(responseBody);\ntests[\"Error field is present\"] = (typeof res.error[0].detail) === \"string\";",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456319172788,
-			"name": "Add a  history entry",
-			"description": "Adds an entry to the history databse",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 201,
-						"name": "Created",
-						"detail": "The request has been fulfilled and resulted in a new resource being created."
-					},
-					"time": 13,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "176",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 13:06:11 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"attributes\":{\"connection_id\":\"testConnectionId\",\"end_date\":\"tuesday\",\"start_date\":\"monday\",\"user_id\":\"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\"},\"id\":0,\"type\":\"history\"}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "5b01200f-4249-02fd-ac29-93a76b1f5855",
-					"name": "Add an History entry",
-					"request": {
-						"url": "http://localhost/api/history",
-						"headers": [
-							{
-								"key": "Authorization",
-								"value": "Bearer eAbsDvfYWUxGiICqHKtPubaYm",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "c3c9a884-d35e-3189-4769-e9f136658c26"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"attributes\": {\n            \"user_id\": \"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\n            \"connection_id\": \"testConnectionId\",\n            \"start_date\": \"monday\",\n            \"end_date\": \"tuesday\"\n        }\n    }\n}",
-						"method": "POST",
-						"dataMode": "raw"
-					}
-				}
-			],
-			"rawModeData": "{\n    \"data\": {\n        \"attributes\": {\n            \"user_id\": \"{{USER_ID}}\",\n            \"connection_id\": \"testConnectionId\",\n            \"start_date\": \"monday\",\n            \"end_date\": \"tuesday\"\n        }\n    }\n}"
+			"time": 1455887407314,
+			"name": "Publish app with empty name",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"    \"\n        }\n    }\n}",
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
 		},
 		{
-			"id": "c683d196-cea8-4106-44a1-0376d3956c30",
+			"id": "6fcb5205-5219-f685-5c25-7f4f3e7eb6c1",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);\n\n\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327079759,
+			"name": "Lists all apps copy",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": []
+		},
+		{
+			"id": "75086441-a885-0851-e72a-c7281f929eb4",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327577385,
+			"name": "Publish valid app copy",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}"
+		},
+		{
+			"id": "772ed6af-c860-f9e6-64c2-274a5f1bea69",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/apps/calc",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/INVALIDUSER",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PATCH",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 404\"] = responseCode.code === 404;\n\nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = (typeof res.error[0].detail) === \"string\";",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456310789382,
-			"name": "Change app name",
+			"time": 1455802536562,
+			"name": "Disable non-existing user",
 			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{     \n    \"data\" : {\n        \"id\": \"INVALIDUSER\",\n        \"attributes\": {\n            \"activated\" : false\n        }\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "7974cf4f-468e-b208-113d-673067634084",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/notepad",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455716161314,
+			"name": "Unpublish an invalid app",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "",
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "871fbd44-55fb-5650-b6d5-4e1232d6ebd7",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327060315,
+			"name": "Get User Infos copy",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": []
+		},
+		{
+			"id": "91c082c0-df67-d1d1-19a8-471ba2adb3ea",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/history",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1452865845714,
+			"name": "List empty history entries",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "df3c3019-f223-b64a-0665-6387ad6445f5"
+		},
+		{
+			"id": "9207ebdd-b7f0-2f9a-02c6-8e31a308a48e",
+			"headers": "Content-Type: application/json\nAuthorization: Basic {{_OAUTH_CLIENT_HTTP_BASIC}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/oauth/token",
+			"preRequestScript": "var env = {\n    PROTOCOL: \"http\",\n    HOST: \"127.0.0.1\",\n    ADMIN_USERNAME: \"admin@nanocloud.com\",\n    ADMIN_PASSWORD: \"admin\",\n    APP_KEY: \"9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae\",\n    APP_SECRET: \"9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341\"\n};\n\nfor (var key in env) {\n    var value = postman.getEnvironmentVariable(key);\n    if (typeof value === \"undefined\") {\n        postman.setEnvironmentVariable(key, env[key]);\n    }\n}\n\nvar appKey = postman.getEnvironmentVariable(\"APP_KEY\");\nvar appSecret = postman.getEnvironmentVariable(\"APP_SECRET\");\n\n/*\n * Use this technique instead of Basic auth to prevent basic base64 key\n * to be saved.\n */\npostman.setEnvironmentVariable(\"_OAUTH_CLIENT_HTTP_BASIC\", btoa(appKey + \":\" + appSecret))",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 401\"] = responseCode.code === 401;\n \nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = typeof(res.error) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455618826950,
+			"name": "Login with unknown user",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"rawModeData": "{\n    \"username\": \"invalid@mail.com\",\n    \"password\": \"{{TEST_USER_PASSWORD}}\",\n    \"grant_type\": \"password\"\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "ab869ac1-941e-11db-f143-ea81f16428ae",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/connections",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"calc Connection hostname is present\"] = (typeof res.data[2].attributes.hostname) === \"string\";\ntests[\"calc Connection hostname has the correct value\"] = res.data[2].attributes.hostname === \"iaas-module\";\ntests[\"calc Connection port is present\"] = (typeof res.data[2].attributes.port) === \"string\";\ntests[\"calc Connection port is 'collection'\"] = res.data[2].attributes.port === \"3389\";\ntests[\"calc Connection username is present\"] = (typeof res.data[2].attributes.username) === \"string\";\ntests[\"calc Connection password is present\"] = (typeof res.data[2].attributes.password) === \"string\";\ntests[\"calc Connection remote_app is present\"] = (typeof res.data[2].attributes.remote_app) === \"string\";\ntests[\"calc Connection remote_app has the correct value\"] = res.data[2].attributes.remote_app === \"||calc\";\ntests[\"calc Connection protocol is present\"] = (typeof res.data[2].attributes.protocol) === \"string\";\ntests[\"calc Connection protocol has the correct value\"] = res.data[2].attributes.protocol === \"rdp\";\n\ntests[\"Desktop Connection hostname is present\"] = (typeof res.data[0].attributes.hostname) === \"string\";\ntests[\"Desktop Connection hostname has the correct value\"] = res.data[0].attributes.hostname === \"iaas-module\";\ntests[\"Desktop Connection port is present\"] = (typeof res.data[0].attributes.port) === \"string\";\ntests[\"Desktop Connection port is 'collection'\"] = res.data[0].attributes.port === \"3389\";\ntests[\"Desktop Connection username is present\"] = (typeof res.data[0].attributes.username) === \"string\";\ntests[\"Desktop Connection username is Admin\"] = res.data[0].attributes.username === \"Administrator\";\ntests[\"Desktop Connection password is present\"] = (typeof res.data[0].attributes.password) === \"string\";\ntests[\"Desktop Connection password is correct\"] =  res.data[0].attributes.password === \"Nanocloud123+\";\ntests[\"Desktop Connection remote_app is present\"] = (typeof res.data[0].attributes.remote_app) === \"string\";\ntests[\"Desktop Connection remote_app has the correct value\"] = res.data[0].attributes.remote_app === \"\";\ntests[\"Desktop Connection protocol is present\"] = (typeof res.data[0].attributes.protocol) === \"string\";\ntests[\"Desktop Connection protocol has the correct value\"] = res.data[0].attributes.protocol === \"rdp\";\n\ntests[\"hapticPowershell Connection hostname is present\"] = (typeof res.data[1].attributes.hostname) === \"string\";\ntests[\"hapticPowershell Connection hostname has the correct value\"] = res.data[1].attributes.hostname === \"iaas-module\";\ntests[\"hapticPowershell Connection port is present\"] = (typeof res.data[1].attributes.port) === \"string\";\ntests[\"hapticPowershell Connection port is 'collection'\"] = res.data[1].attributes.port === \"3389\";\ntests[\"hapticPowershell Connection username is present\"] = (typeof res.data[1].attributes.username) === \"string\";\ntests[\"hapticPowershell Connection username is Admin\"] = res.data[1].attributes.username === \"Administrator\";\ntests[\"hapticPowershell Connection password is present\"] = (typeof res.data[1].attributes.password) === \"string\";\ntests[\"hapticPowershell Connection password is correct\"] =  res.data[1].attributes.password === \"Nanocloud123+\";\ntests[\"hapticPowershell Connection remote_app is present\"] = (typeof res.data[1].attributes.remote_app) === \"string\";\ntests[\"hapticPowershell Connection remote_app has the correct value\"] = res.data[1].attributes.remote_app === \"||hapticPowershell\";\ntests[\"hapticPowershell Connection protocol is present\"] = (typeof res.data[1].attributes.protocol) === \"string\";\ntests[\"hapticPowershell Connection protocol has the correct value\"] = res.data[1].attributes.protocol === \"rdp\";\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455894207147,
+			"name": "Lists all connections",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "b1ad4419-db3b-10e4-c175-e08b7bc1dbe2",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/invalidUUID",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 404\"] = responseCode.code === 404;\n\nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455555012894,
+			"name": "Delete non-existing user",
+			"description": "Deletes the specified user from the database.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "b5519847-2196-d38b-99c5-27a191e5821b",
+			"headers": "Authorization: Bearer {{ACCESS_TOKEN}}\nContent-Type: application/json\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/history",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 400\"] = responseCode.code === 400;\n\nvar res = JSON.parse(responseBody);\ntests[\"error field is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455629444891,
+			"name": "Add an invalid history",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n\n}",
+			"folder": "df3c3019-f223-b64a-0665-6387ad6445f5"
+		},
+		{
+			"id": "bb9fa920-c4f5-21c8-aa1f-ffd4e24a495b",
+			"headers": "Authorization: Bearer {{ACCESS_TOKEN}}\nContent-Type: application/json\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455556019319,
+			"name": "Change Password",
+			"description": "Changes the password of the specified user.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"Password\": \"{{TEST_USER_NEWPASSWORD}}\"\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "bbd7e53a-45cb-357c-79b2-086aa09d7166",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/notepad",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456330239356,
+			"name": "Unpublish invalid app",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": ""
+		},
+		{
+			"id": "bc11f4a0-f94b-9782-de6c-fe7f3a9138b2",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps/calc",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327088751,
+			"name": "Unpublish application copy",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": ""
+		},
+		{
+			"id": "be677d73-7699-e8aa-7016-2171c69b4a9b",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327073668,
+			"name": "Delete User for cleanup copy",
+			"description": "Deletes the specified user from the database.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": []
+		},
+		{
+			"id": "cf60e67b-924b-bda2-6177-334971600893",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327064184,
+			"name": "Change Password copy",
+			"description": "Changes the password of the specified user.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n     \"password\": \"{{TEST_USER_NEWPASSWORD}}\"\n    }\n}"
+		},
+		{
+			"id": "d1310e9d-6f03-63b8-1936-c30772c4d1db",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/iaas",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Ico is present\"] = (typeof res.data[0].attributes.ico) === \"string\";\ntests[\"Ico is windows\"] = res.data[0].attributes.ico === \"windows\";\ntests[\"Name is present\"] = (typeof res.data[0].id) === \"string\";\ntests[\"Name is windows\"] = res.data[0].id === \"windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64\";\ntests[\"DisplayName is present\"] = (typeof res.data[0].attributes.display_name) === \"string\";\ntests[\"DisplayName is WinAD\"] = res.data[0].attributes.display_name === \"Windows Active Directory\";\ntests[\"Status is present\"] = (typeof res.data[0].attributes.status) === \"string\";\ntests[\"Status is running\"] = res.data[0].attributes.status === \"running\";\ntests[\"Locked is present\"] = (typeof res.data[0].attributes.locked) === \"boolean\";\ntests[\"Locked is false\"] = res.data[0].attributes.locked === false;\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456138764936,
+			"name": "list running vms",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "f94369b7-4663-d336-3891-6b32a5756af6"
+		},
+		{
+			"id": "d9ce8d37-f38d-55d9-e76c-fc0b30c4318f",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 201\"] = responseCode.code === 201;\n \nvar res = JSON.parse(responseBody);\ntests[\"id is present\"] = (typeof res.data.id) === \"string\";\n\npostman.setEnvironmentVariable(\"TEST_USER_ID\", res.data.id);",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455878884154,
+			"name": "Add a valid User copy",
+			"description": "Add a user to the database and contact possible other modules so they can add the user too.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"{{TEST_USER_FIRSTNAME}}\",\n           \"last_name\": \"{{TEST_USER_LASTNAME}}\",  \n           \"email\": \"{{TEST_USER_EMAIL}}\",\n           \"password\": \"{{TEST_USER_PASSWORD}}\" \n       }\n    }\n}",
+			"folder": "bffb9fe9-c9bc-dd2f-c480-f7071c43c924"
+		},
+		{
+			"id": "dbaaa717-8983-fbd9-6fdb-f763661dd285",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455878032500,
+			"name": "Delete User for cleanup",
+			"description": "Deletes the specified user from the database.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "e0ddcf86-8d71-b0d3-3393-ebcfe727d19d",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{TEST_USER_ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/iaas",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 403\"] = responseCode.code === 403;\n\nvar res = JSON.parse(responseBody);\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456327092780,
+			"name": "list running vms",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": []
+		},
+		{
+			"id": "e5f1b38a-4bbc-9291-ddf1-1d7cc4527b5d",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1452866359408,
+			"name": "List empty apps list",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "e8e886cb-6fad-2f6b-00b3-5d918c1a8c20",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456330274997,
+			"name": "Publish an invalid application",
+			"description": "",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/Systecoulala.exe\"\n        }\n    }\n}"
+		},
+		{
+			"id": "ef91785b-7d62-ad38-295c-5462b97d4751",
+			"headers": "Authorization: Bearer {{ACCESS_TOKEN}}\nContent-Type: application/json\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/INVALID_ID",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 404\"] = responseCode.code === 404;\n\nvar res = JSON.parse(responseBody);\ntests[\"Error field is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455555938297,
+			"name": "Change Password of unknown user",
+			"description": "Changes the password of the specified user.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"Password\": \"{{TEST_USER_NEWPASSWORD}}\"\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "f03d0c0f-4ce9-830f-9136-6d42e64f6533",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 400\"] = responseCode.code === 400;\n \nvar res = JSON.parse(responseBody);\ntests[\"error is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455878159273,
+			"name": "Add a invalid User",
+			"description": "Add a invalid User to see if the server respond width a bad request http status code.",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
 			"responses": [
 				{
 					"status": "",
 					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+						"code": 400,
+						"name": "Bad Request",
+						"detail": "The request cannot be fulfilled due to bad syntax."
 					},
-					"time": 24,
+					"time": 33,
 					"headers": [
 						{
 							"name": "Connection",
@@ -1473,7 +1322,7 @@
 						{
 							"name": "Content-Length",
 							"key": "Content-Length",
-							"value": "25",
+							"value": "41",
 							"description": "The length of the response body in octets (8-bit bytes)"
 						},
 						{
@@ -1485,7 +1334,7 @@
 						{
 							"name": "Date",
 							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:39:04 GMT",
+							"value": "Tue, 23 Feb 2016 17:14:36 GMT",
 							"description": "The date and time that the message was sent"
 						},
 						{
@@ -1497,7 +1346,7 @@
 					],
 					"cookies": [],
 					"mime": "",
-					"text": "{\"data\":{\"success\":true}}",
+					"text": "{\"error\":[{\"detail\":\"email is missing\"}]}",
 					"language": "javascript",
 					"rawDataType": "text",
 					"state": {
@@ -1512,10 +1361,10 @@
 					"isSample": true,
 					"scrollToResult": true,
 					"runTests": true,
-					"id": "dc7c75fc-9c87-7545-43e8-46c1b6cf88cd",
-					"name": "Change App name",
+					"id": "4a0f99e5-e12a-2662-bf40-3b461f169890",
+					"name": "add invalid user",
 					"request": {
-						"url": "http://localhost/api/apps/calc",
+						"url": "http://127.0.0.1/api/users",
 						"headers": [
 							{
 								"key": "Content-Type",
@@ -1525,7 +1374,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
+								"value": "Bearer kUGHFHTKYjEzODMqNJljUbwbX",
 								"name": "Authorization",
 								"enabled": true
 							},
@@ -1537,346 +1386,77 @@
 							{
 								"key": "Postman-Token",
 								"name": "Postman-Token",
-								"value": "0e6b8c2c-6148-751b-d194-576b91393d58"
+								"value": "a1a923f6-00f6-ec6b-a9d9-af115fa38bcf"
 							}
 						],
-						"data": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"newcalc\"\n        }\n    }\n}",
-						"method": "PATCH",
+						"data": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"karl\",\n           \"last_name\": \"kool\",  \n           \"password\": \"Nano123+\"\n       }\n    }\n}",
+						"method": "POST",
 						"dataMode": "raw"
 					}
 				}
 			],
-			"rawModeData": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"newcalc\"\n        }\n    }\n}"
+			"rawModeData": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"{{TEST_USER_FIRSTNAME}}\",\n           \"last_name\": \"{{TEST_USER_LASTNAME}}\",  \n           \"password\": \"{{TEST_USER_PASSWORD}}\"\n       }\n    }\n}",
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
 		},
 		{
-			"id": "d1e21c07-2ec0-9e36-cc10-3a6633f834a1",
+			"id": "f5de550e-0ed5-e0f1-5a70-4867cd880b8d",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/apps/me",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"Success field is present\"] = (typeof res.data.success) === \"boolean\";\ntests[\"Operation succeeded\"] = res.data.success === true;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1455894631964,
+			"name": "Publish valid app",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"rawModeData": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}",
+			"folder": "ab5ebb3e-f7c9-7046-489f-44673ca6d48a"
+		},
+		{
+			"id": "f78ca83d-3eb0-951b-a4d9-79daea9c7bc5",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/users/{{TEST_USER_ID}}",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n \nvar res = JSON.parse(responseBody);\ntests[\"id is present\"] = (typeof res.data.id) === \"string\";\ntests[\"email is present\"] = (typeof res.data.attributes.email) === \"string\";\ntests[\"email has the right value\"] = res.data.attributes.email === postman.getEnvironmentVariable(\"TEST_USER_EMAIL\");\ntests[\"activated is present\"] = (typeof res.data.attributes.activated) === \"boolean\";\ntests[\"activated has the right value\"] = res.data.attributes.activated === false;\ntests[\"is_admin is present\"] = (typeof res.data.attributes.is_admin) === \"boolean\";\ntests[\"is_admin has the right value\"] = res.data.attributes.is_admin === false;\ntests[\"first_name is present\"] = (typeof res.data.attributes.first_name) === \"string\";\ntests[\"first_name has the right value\"] = res.data.attributes.first_name === postman.getEnvironmentVariable(\"TEST_USER_FIRSTNAME\");\ntests[\"last_name is present\"] = (typeof res.data.attributes.last_name) === \"string\";\ntests[\"last_name has the right value\"] = res.data.attributes.last_name === postman.getEnvironmentVariable(\"TEST_USER_LASTNAME\");\ntests[\"sam is present\"] = (typeof res.data.attributes.sam) === \"string\";\ntests[\"windows_password is present\"] = (typeof res.data.attributes.windows_password) === \"string\";",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456309929178,
-			"name": "List apps list for sam",
+			"time": 1455902306966,
+			"name": "Get User Infos to verify if he is disabled",
 			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 31,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "167",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:32:42 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":[{\"attributes\":{\"collection_name\":\"collection\",\"alias\":\"calc\",\"display_name\":\"calc\",\"file_path\":\"C:/Windows/System32/calc.exe\"},\"id\":56,\"type\":\"application\"}]}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "a8e01c9b-e974-e152-1171-9f54a47feed0",
-					"name": "List Apps for Sam",
-					"request": {
-						"url": "http://localhost/api/apps/me",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "726357d3-3fbd-b564-c34f-0bd43a05e439"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}",
-						"method": "GET",
-						"dataMode": "params"
-					}
-				}
-			]
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [],
+			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
 		},
 		{
-			"id": "f5c0500c-f0c4-223d-a673-00d5c751cb08",
+			"id": "fd4600af-6212-ea55-db1c-9ce40ca468d4",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/users/{{USER_ID}}",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/apps",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
 			"data": [],
 			"dataMode": "params",
 			"version": 2,
-			"tests": "",
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\n\ntests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar res = JSON.parse(responseBody);\ntests[\"hapticPowershell id is present\"] = (typeof res.data[0].id) === \"number\";\ntests[\"hapticPowershell collection name is present\"] = (typeof res.data[0].attributes.collection_name) === \"string\";\ntests[\"hapticPowershell collection name is 'collection'\"] = res.data[1].attributes.collection_name === \"collection\";\ntests[\"hapticPowershell alias is present\"] = (typeof res.data[0].attributes.alias) === \"string\";\ntests[\"hapticPowershell alias is 'hapticPowershell'\"] = res.data[1].attributes.alias === \"hapticPowershell\";\ntests[\"hapticPowershell display Name is present\"] = (typeof res.data[0].attributes.display_name) === \"string\";\ntests[\"hapticPowershell display Name is 'hapticPowershell'\"] = res.data[1].attributes.display_name === \"hapticPowershell\";\ntests[\"hapticPowershell filepath is present\"] = (typeof res.data[0].attributes.file_path) === \"string\";\ntests[\"hapticPowershell filepath has the correct value\"] = res.data[1].attributes.file_path === \"C:\\\\Windows\\\\system32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\";\n\ntests[\"Dekstop id is present\"] = (typeof res.data[1].id) === \"number\";\ntests[\"Dekstop collection name is present\"] = (typeof res.data[1].attributes.collection_name) === \"string\";\ntests[\"Dekstop collection name is 'collection'\"] = res.data[0].attributes.collection_name === \"\";\ntests[\"Dekstop alias is present\"] = (typeof res.data[1].attributes.alias) === \"string\";\ntests[\"Dekstop alias is 'Dekstop'\"] = res.data[0].attributes.alias === \"Desktop\";\ntests[\"Dekstop display Name is present\"] = (typeof res.data[1].attributes.display_name) === \"string\";\ntests[\"Dekstop display Name is 'Dekstop'\"] = res.data[0].attributes.display_name === \"Desktop\";\ntests[\"Dekstop filepath is present\"] = (typeof res.data[1].attributes.file_path) === \"string\";\ntests[\"Dekstop filepath has the correct value\"] = res.data[0].attributes.file_path === \"\";\n\ntests[\"calc id is present\"] = (typeof res.data[2].id) === \"number\";\ntests[\"calc collection name is present\"] = (typeof res.data[2].attributes.collection_name) === \"string\";\ntests[\"calc collection name is 'collection'\"] = res.data[2].attributes.collection_name === \"collection\";\ntests[\"calc alias is present\"] = (typeof res.data[2].attributes.alias) === \"string\";\ntests[\"calc alias is 'calc'\"] = res.data[2].attributes.alias === \"calc\";\ntests[\"calc display Name is present\"] = (typeof res.data[2].attributes.display_name) === \"string\";\ntests[\"calc display Name is 'calc'\"] = res.data[2].attributes.display_name === \"calc\";\ntests[\"calc filepath is present\"] = (typeof res.data[2].attributes.file_path) === \"string\";\ntests[\"calc filepath has the correct value\"] = res.data[2].attributes.file_path === \"C:/Windows/System32/calc.exe\";\n\n\n",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1456308306590,
-			"name": "Get Infos on a user",
-			"description": "Returns all the infos available of the user identified by the UUID given in the URL parameter",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 22,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "246",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:05:13 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":{\"attributes\":{\"email\":\"karkool@mail.com\",\"activated\":true,\"is_admin\":false,\"first_name\":\"karl\",\"last_name\":\"kool\",\"sam\":\"$R21000-ONM2R462SDA7\",\"windows_password\":\"CsyZcMbgs4D+\"},\"id\":\"1bef827a-e22c-4ac7-956a-b32c3d3c1de5\",\"type\":\"user\"}}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "99726104-b1ef-4095-0bc2-572544bdf266",
-					"name": "Get informations about the User",
-					"request": {
-						"url": "http://localhost/api/users/1bef827a-e22c-4ac7-956a-b32c3d3c1de5",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer iDAwAqbhZmQOzZzbOqHjLAFeN",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "960c07e3-9ed1-c399-9f0b-82858d4b768b"
-							}
-						],
-						"data": "{     \n    \"data\" : {\n       \"type\": \"user\",\n       \"attributes\": {\n           \"first_name\": \"karl\",\n           \"last_name\": \"kool\",  \n           \"email\": \"karkool@mail.com\",\n           \"password\": \"Nano123+\"\n       }\n    }\n}",
-						"method": "GET",
-						"dataMode": "params"
-					}
-				}
-			]
-		},
-		{
-			"id": "ff943fe3-ffd5-3782-0370-43ce351657b7",
-			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
-			"url": "http://localhost/api/apps/connections",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1456310793717,
-			"name": "Lists all connections",
-			"description": "",
-			"collectionId": "a73443fa-bf6c-db1b-bc43-73114b193a66",
-			"responses": [
-				{
-					"status": "",
-					"responseCode": {
-						"code": 200,
-						"name": "OK",
-						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
-					},
-					"time": 30,
-					"headers": [
-						{
-							"name": "Connection",
-							"key": "Connection",
-							"value": "keep-alive",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"name": "Content-Length",
-							"key": "Content-Length",
-							"value": "622",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"name": "Content-Type",
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"description": "The mime type of this content"
-						},
-						{
-							"name": "Date",
-							"key": "Date",
-							"value": "Wed, 24 Feb 2016 10:37:52 GMT",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"name": "Server",
-							"key": "Server",
-							"value": "nginx/1.9.10",
-							"description": "A name for the server"
-						}
-					],
-					"cookies": [],
-					"mime": "",
-					"text": "{\"data\":[{\"attributes\":{\"hostname\":\"iaas-module\",\"port\":\"3389\",\"username\":\"Administrator\",\"password\":\"Nanocloud123+\",\"remote_app\":\"\",\"protocol\":\"rdp\",\"app_name\":\"hapticDesktop\"},\"id\":0,\"type\":\"application\"},{\"attributes\":{\"hostname\":\"iaas-module\",\"port\":\"3389\",\"username\":\"Administrator\",\"password\":\"Nanocloud123+\",\"remote_app\":\"||hapticPowershell\",\"protocol\":\"rdp\",\"app_name\":\"hapticPowershell\"},\"id\":1,\"type\":\"application\"},{\"attributes\":{\"hostname\":\"iaas-module\",\"port\":\"3389\",\"username\":\"Administrator\",\"password\":\"Nanocloud123+\",\"remote_app\":\"||calc\",\"protocol\":\"rdp\",\"app_name\":\"calc\"},\"id\":2,\"type\":\"application\"}]}",
-					"language": "javascript",
-					"rawDataType": "text",
-					"state": {
-						"size": "normal"
-					},
-					"previewType": "html",
-					"searchResultScrolledTo": -1,
-					"forceNoPretty": false,
-					"write": true,
-					"empty": false,
-					"failed": false,
-					"isSample": true,
-					"scrollToResult": true,
-					"runTests": true,
-					"id": "0da3a548-1be7-74ba-206b-aa80a654df00",
-					"name": "List connections",
-					"request": {
-						"url": "http://localhost/api/apps/connections",
-						"headers": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"name": "Content-Type",
-								"enabled": true
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
-								"name": "Authorization",
-								"enabled": true
-							},
-							{
-								"key": "Cache-Control",
-								"name": "Cache-Control",
-								"value": "no-cache"
-							},
-							{
-								"key": "Postman-Token",
-								"name": "Postman-Token",
-								"value": "e0305e9c-23e7-1480-134a-ab6f86a0d0b8"
-							}
-						],
-						"data": "{\n    \"data\": {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"path\": \"C:/Windows/System32/calc.exe\"\n        }\n    }\n}",
-						"method": "GET",
-						"dataMode": "params"
-					}
-				}
-			]
+			"time": 1456330332866,
+			"name": "Lists all apps",
+			"description": "Get OAuth token for admin user",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": []
 		}
 	]
 }
