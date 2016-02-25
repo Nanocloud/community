@@ -15,16 +15,16 @@ function waitForNanocloudToBeOnline() {
   try {
     var returnedValue = proc.execSync(command);
   } catch (e) {
-    waitForNanocloudToBeOnline();
+    setInterval(waitForNanocloudToBeOnline, 2000);
   }
 
-  if (returnedValue.toString() == "200\n") {
+  if (returnedValue && returnedValue.toString() == "200\n") {
     console.log("Nanocloud available");
 
     return ;
   }
 
-  waitForNanocloudToBeOnline();
+  setInterval(waitForNanocloudToBeOnline, 2000);
 }
 
 function setHost() {
