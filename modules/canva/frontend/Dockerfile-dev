@@ -1,4 +1,4 @@
-FROM nanocloud/nanocloud-canva:dev
+FROM nanocloud/nanocloud-canva
 MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
