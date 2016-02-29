@@ -46,8 +46,8 @@ services:
    - nanocloud
 
  nanocloud-canva:
+  image: nanocloud/nanocloud-canva
   build: ./canva/frontend
-  image: nanocloud/nanocloud-camva
   container_name: "nanocloud-canva"
   volumes:
    - /opt/canva
