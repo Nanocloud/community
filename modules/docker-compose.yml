@@ -1,76 +1,99 @@
-guacamole-client:
- build: ./canva/guacamole-client
- restart: always
- container_name: "guacamole-client"
+version: '2'
 
-guacamole-server:
- image: glyptodon/guacd:0.9.8
- restart: always
- container_name: "guacamole-server"
+services:
+ guacamole-client:
+  build: ./canva/guacamole-client
+  restart: always
+  container_name: "guacamole-client"
+  networks:
+   - nanocloud
 
-nanocloud-backend:
- build: ../nanocloud
- environment:
-  - ENV=production
-  - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-  - PORT=8080
-  - FRONT_DIR=/opt/front/website
-  - CANVA_FRONT_DIR=/opt/canva/dist
-  - WIN_PASSWORD=Nanocloud123+
-  - WIN_PORT=1119
-  - WIN_USER=Administrator
-  - WIN_SERVER=iaas-module
-  - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
-  - BASE=DC=intra,DC=localdomain,DC=com
-  - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
-  - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
-  - USER=Administrator
-  - SSH_PORT=1119
-  - RDP_PORT=3389
-  - SERVER=iaas-module
-  - PASSWORD=Nanocloud123+
-  - WINDOWS_DOMAIN=intra.localdomain.com
-  - EXECUTION_SERVERS=iaas-module
- restart: always
- container_name: "nanocloud-api"
+ nanocloud-backend:
+  build: ../nanocloud
+  environment:
+    - ENV=production
+    - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+    - PORT=8080
+    - FRONT_DIR=/opt/front/website
+    - CANVA_FRONT_DIR=/opt/canva/dist
+    - WIN_PASSWORD=Nanocloud123+
+    - WIN_PORT=1119
+    - WIN_USER=Administrator
+    - WIN_SERVER=iaas-module
+    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
+    - BASE=DC=intra,DC=localdomain,DC=com
+    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
+    - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
+    - USER=Administrator
+    - SSH_PORT=1119
+    - RDP_PORT=3389
+    - SERVER=iaas-module
+    - PASSWORD=Nanocloud123+
+    - WINDOWS_DOMAIN=intra.localdomain.com
+    - EXECUTION_SERVERS=iaas-module
+  restart: always
+  container_name: "nanocloud-api"
+  networks:
+   - nanocloud
 
-nanocloud-frontend:
- build: ../webapp
- container_name: "nanocloud-webapp"
- volumes:
-  - /opt/front
+ guacamole-server:
+  image: glyptodon/guacd:0.9.8
+  restart: always
+  container_name: "guacamole-server"
+  networks:
+   - nanocloud
 
-nanocloud-canva:
- build: ./canva/frontend
- container_name: "nanocloud-canva"
- volumes:
-  - /opt/canva
+ nanocloud-canva:
+  build: ./canva/frontend
+  container_name: "nanocloud-canva"
+  volumes:
+   - /opt/canva
+  networks:
+   - nanocloud
 
-proxy:
- build: ./nginx
- restart: always
- container_name: "proxy"
+ proxy:
+  build: ./nginx
+  restart: always
+  container_name: "proxy"
+  networks:
+   - nanocloud
 
-postgres:
- image: postgres:9.4
- environment:
-  - PGDATA=/var/lib/postgresql/data/pgdata
-  - POSTGRES_USER=nanocloud
- restart: always
- container_name: "postgres"
+ nanocloud-frontend:
+  build: ../webapp
+  container_name: "nanocloud-webapp"
+  volumes:
+   - /opt/front
+  networks:
+   - nanocloud
 
-iaas-module:
- build: ./iaas
- environment:
-  - ENV=production
-  - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-  - INSTALLATION_DIR=/var/lib/nanocloud
-  - SSH_PORT=1119
-  - PASSWORD=Nanocloud123+
-  - SERVER=localhost
-  - USER=Administrator
-  - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.4.0/
- devices:
-  - /dev/kvm
- restart: always
- container_name: "iaas-module"
+ iaas-module:
+  build: ./iaas
+  environment:
+    - ENV=production
+    - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+    - INSTALLATION_DIR=/var/lib/nanocloud
+    - SSH_PORT=1119
+    - PASSWORD=Nanocloud123+
+    - SERVER=localhost
+    - USER=Administrator
+    - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.4.0/
+  devices:
+   - /dev/kvm
+  restart: always
+  container_name: "iaas-module"
+  networks:
+   - nanocloud
+
+ postgres:
+  image: postgres:9.4
+  environment:
+   - PGDATA=/var/lib/postgresql/data/pgdata
+   - POSTGRES_USER=nanocloud
+  restart: always
+  container_name: "postgres"
+  networks:
+   - nanocloud
+
+networks:
+ nanocloud:
+  driver: bridge

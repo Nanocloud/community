@@ -1,57 +1,64 @@
-guacamole-client:
- extends:
-  file: ./modules/docker-compose.yml
-  service: guacamole-client
- image: nanocloud/guacamole-client:0.4.0
+version: '2'
 
-guacamole-server:
- extends:
-  file: ./modules/docker-compose.yml
-  service: guacamole-server
+services:
+ guacamole-client:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: guacamole-client
+  image: nanocloud/guacamole-client:0.4.0
 
-nanocloud-backend:
- extends:
-  file: ./modules/docker-compose.yml
-  service: nanocloud-backend
- volumes_from:
-  - nanocloud-frontend
-  - nanocloud-canva
- image: nanocloud/nanocloud-backend:0.4.0
+ guacamole-server:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: guacamole-server
 
-nanocloud-frontend:
- extends:
-  file: ./modules/docker-compose.yml
-  service: nanocloud-backend
- container_name: "nanocloud-frontend"
- volumes:
-  - /opt/front
- image: nanocloud/nanocloud-frontend:0.4.0
+ nanocloud-backend:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-backend
+  volumes_from:
+   - nanocloud-frontend
+   - nanocloud-canva
+  image: nanocloud/nanocloud-backend:0.4.0
 
-nanocloud-canva:
- extends:
-  file: ./modules/docker-compose.yml
-  service: nanocloud-canva
- container_name: "nanocloud-canva"
- volumes:
-  - /opt/canva
- image: nanocloud/nanocloud-canva:0.4.0
+ nanocloud-frontend:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-backend
+  container_name: "nanocloud-frontend"
+  volumes:
+   - /opt/front
+  image: nanocloud/nanocloud-frontend:0.4.0
 
-proxy:
- extends:
-  file: ./modules/docker-compose.yml
-  service: proxy
- ports:
-  - 80:80
-  - 443:443
- image: nanocloud/proxy:0.4.0
+ nanocloud-canva:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-canva
+  container_name: "nanocloud-canva"
+  volumes:
+   - /opt/canva
+  image: nanocloud/nanocloud-canva:0.4.0
+  
+ proxy:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: proxy
+  ports:
+   - 80:80
+   - 443:443
+  image: nanocloud/proxy:0.4.0
 
-postgres:
- extends:
-  file: ./modules/docker-compose.yml
-  service: postgres
+ postgres:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: postgres
 
-iaas-module:
- extends:
-  file: ./modules/docker-compose.yml
-  service: iaas-module
- image: nanocloud/iaas-module:0.4.0
+ iaas-module:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: iaas-module
+  image: nanocloud/iaas-module:0.4.0
+
+networks:
+ nanocloud:
+  driver: bridge
