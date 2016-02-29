@@ -60,6 +60,7 @@ services:
   build:
    context: ./canva/frontend
    dockerfile: Dockerfile-dev
+  image: nanocloud/nanocloud-canva:dev
   ports:
    - 49152:49152
    - 4200:4200
@@ -70,6 +71,7 @@ services:
   extends:
    file: ./docker-compose.yml
    service: proxy
+  image: nanocloud/proxy:dev
   ports:
    - 80:80
    - 443:443
