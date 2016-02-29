@@ -71,14 +71,6 @@ services:
   networks:
    - nanocloud
 
- nanocloud-frontend:
-  build: ../webapp
-  container_name: "nanocloud-webapp"
-  volumes:
-   - /opt/front
-  networks:
-   - nanocloud
-
  postgres:
   image: postgres:9.4
   environment:
