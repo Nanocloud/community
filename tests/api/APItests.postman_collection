@@ -99,12 +99,13 @@
 			"name": "[050]IAAS",
 			"description": "",
 			"order": [
+				"dc22a000-07bd-246d-b6f7-9227b77c504b",
 				"d1310e9d-6f03-63b8-1936-c30772c4d1db",
 				"6b8f44fe-9c52-ca37-756c-0b3c4a7a0b88",
 				"40efe361-1459-3df9-5169-7c94ed30d27c"
 			],
 			"owner": "275951",
-			"collectionId": "519b7eb9-1ff1-c26b-d4c3-f346e69c01f5"
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081"
 		}
 	],
 	"timestamp": 0,
@@ -1203,6 +1204,116 @@
 			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
 			"responses": [],
 			"folder": "1be5d67d-10fe-f021-44df-397932227b3e"
+		},
+		{
+			"id": "dc22a000-07bd-246d-b6f7-9227b77c504b",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer {{ACCESS_TOKEN}}\n",
+			"url": "{{PROTOCOL}}://{{HOST}}/api/iaas/non-existing-windows/start",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "if (!eval(postman.getEnvironmentVariable(\"__init__\")) && !init()) return tests;\nvar res = JSON.parse(responseBody);\ntests[\"Status code is 500\"] = responseCode.code === 500;\ntests[\"Error is present\"] = (typeof res.error[0].detail) === \"string\";",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1456758816151,
+			"name": "Start non existing windows",
+			"description": "Check if api return an error",
+			"collectionId": "efa77957-ec19-3bbb-52e5-ecd4bdeb4081",
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 1139,
+					"headers": [
+						{
+							"name": "Connection",
+							"key": "Connection",
+							"value": "keep-alive",
+							"description": "Options that are desired for the connection"
+						},
+						{
+							"name": "Content-Length",
+							"key": "Content-Length",
+							"value": "16",
+							"description": "The length of the response body in octets (8-bit bytes)"
+						},
+						{
+							"name": "Content-Type",
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "Date",
+							"key": "Date",
+							"value": "Wed, 24 Feb 2016 10:51:30 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "Server",
+							"key": "Server",
+							"value": "nginx/1.9.10",
+							"description": "A name for the server"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"success\":true}",
+					"language": "html",
+					"rawDataType": "text",
+					"state": {
+						"size": "normal"
+					},
+					"previewType": "html",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"isSample": true,
+					"scrollToResult": true,
+					"runTests": true,
+					"id": "ba4b1eba-48c3-38a7-7e94-dcc99ffe8714",
+					"name": "stop vm",
+					"request": {
+						"url": "http://localhost/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/stop",
+						"headers": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"name": "Content-Type",
+								"enabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer dtbFMKdjhusOXhhJfntMOQCrO",
+								"name": "Authorization",
+								"enabled": true
+							},
+							{
+								"key": "Cache-Control",
+								"name": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Postman-Token",
+								"name": "Postman-Token",
+								"value": "a63270df-9926-82fd-866f-2752a49cd110"
+							}
+						],
+						"data": "{\n    \"data\" : {\n        \"type\": \"application\",\n        \"attributes\": {\n            \"display_name\": \"newcalc\"\n        }\n    }\n}",
+						"method": "POST",
+						"dataMode": "params"
+					}
+				}
+			]
 		},
 		{
 			"id": "e0ddcf86-8d71-b0d3-3393-ebcfe727d19d",
