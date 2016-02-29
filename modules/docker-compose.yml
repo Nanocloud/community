@@ -2,6 +2,7 @@ version: '2'
 
 services:
  guacamole-client:
+  image: nanocloud/guacamole-client
   build: ./canva/guacamole-client
   restart: always
   container_name: "guacamole-client"
@@ -10,27 +11,28 @@ services:
 
  nanocloud-backend:
   build: ../nanocloud
+w  image: nanocloud/nanocloud-backend
   environment:
-    - ENV=production
-    - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-    - PORT=8080
-    - FRONT_DIR=/opt/front/website
-    - CANVA_FRONT_DIR=/opt/canva/dist
-    - WIN_PASSWORD=Nanocloud123+
-    - WIN_PORT=1119
-    - WIN_USER=Administrator
-    - WIN_SERVER=iaas-module
-    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
-    - BASE=DC=intra,DC=localdomain,DC=com
-    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
-    - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
-    - USER=Administrator
-    - SSH_PORT=1119
-    - RDP_PORT=3389
-    - SERVER=iaas-module
-    - PASSWORD=Nanocloud123+
-    - WINDOWS_DOMAIN=intra.localdomain.com
-    - EXECUTION_SERVERS=iaas-module
+   - ENV=production
+   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
+   - PORT=8080
+   - FRONT_DIR=/opt/front/website
+   - CANVA_FRONT_DIR=/opt/canva/dist
+   - WIN_PASSWORD=Nanocloud123+
+   - WIN_PORT=1119
+   - WIN_USER=Administrator
+   - WIN_SERVER=iaas-module
+   - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
+   - BASE=DC=intra,DC=localdomain,DC=com
+   - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
+   - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
+   - USER=Administrator
+   - SSH_PORT=1119
+   - RDP_PORT=3389
+   - SERVER=iaas-module
+   - PASSWORD=Nanocloud123+
+   - WINDOWS_DOMAIN=intra.localdomain.com
+   - EXECUTION_SERVERS=iaas-module
   restart: always
   container_name: "nanocloud-api"
   networks:
@@ -45,14 +47,21 @@ services:
 
  nanocloud-canva:
   build: ./canva/frontend
+  image: nanocloud/nanocloud-camva
   container_name: "nanocloud-canva"
   volumes:
    - /opt/canva
   networks:
    - nanocloud
 
+ nanocloud-frontend:
+  image: nanocloud/nanocloud-frontend
+  build: ../webapp
+  container_name: "nanocloud-webapp"
+
  proxy:
   build: ./nginx
+  image: nanocloud/proxy
   restart: always
   container_name: "proxy"
   networks:
@@ -67,16 +76,17 @@ services:
    - nanocloud
 
  iaas-module:
+  image: nanocloud/iaas-module
   build: ./iaas
   environment:
-    - ENV=production
-    - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-    - INSTALLATION_DIR=/var/lib/nanocloud
-    - SSH_PORT=1119
-    - PASSWORD=Nanocloud123+
-    - SERVER=localhost
-    - USER=Administrator
-    - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.4.0/
+   - ENV=production
+   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
+   - INSTALLATION_DIR=/var/lib/nanocloud
+   - SSH_PORT=1119
+   - PASSWORD=Nanocloud123+
+   - SERVER=localhost
+   - USER=Administrator
+   - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.4.0/
   devices:
    - /dev/kvm
   restart: always
