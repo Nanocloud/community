@@ -58,6 +58,10 @@ w  image: nanocloud/nanocloud-backend
   image: nanocloud/nanocloud-frontend
   build: ../webapp
   container_name: "nanocloud-webapp"
+  volumes:
+   - /opt/front
+  networks:
+   - nanocloud
 
  proxy:
   build: ./nginx
