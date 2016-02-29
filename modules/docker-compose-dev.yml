@@ -8,6 +8,7 @@ services:
   build:
    context: ./canva/guacamole-client
    dockerfile: Dockerfile-dev
+  image: nanocloud/guacamole-client:dev
   ports:
    - 8000:8000
   volumes:
@@ -31,6 +32,7 @@ services:
    - nanocloud-canva
   volumes:
    - ../nanocloud:/go/src/github.com/Nanocloud/community/nanocloud/
+  image: nanocloud/nanocloud-backend:dev
 
  nanocloud-frontend:
   extends:
@@ -45,6 +47,7 @@ services:
    - ../webapp/:/opt/front
   restart: always
   container_name: "nanocloud-frontend"
+  image: nanocloud/nanocloud-frontend:dev
 
  nanocloud-canva:
   extends:
@@ -76,6 +79,11 @@ services:
    file: ./docker-compose.yml
    service: postgres
 
+ postgres:
+  extends:
+   file: ./docker-compose.yml
+   service: postgres
+
  iaas-module:
   extends:
    file: ./docker-compose.yml
@@ -83,6 +91,7 @@ services:
   build:
    context: ./iaas
    dockerfile: Dockerfile-dev
+  image: nanocloud/iaas-module:dev
   volumes:
    - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
    - ./iaas/scripts/:/var/lib/nanocloud/scripts
