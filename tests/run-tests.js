@@ -122,8 +122,7 @@ function login(next) {
   }, function(res) {
     TOKEN = res.access_token;
     console.log("Got token : " + TOKEN);
-    if (next)
-      next();
+    next();
   });
 }
 
