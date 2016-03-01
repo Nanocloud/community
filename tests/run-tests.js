@@ -8,35 +8,6 @@ var TOKEN = null;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-function waitForNanocloudToBeOnline() {
-  var command = 'curl --output /dev/null --insecure --silent --write-out \'%{http_code}\n\' "https://$(docker exec proxy hostname -I | awk \'{print $1}\')"';
-
-  console.log("Try to connect")
-  try {
-    var returnedValue = proc.execSync(command);
-  } catch (e) {
-    setInterval(waitForNanocloudToBeOnline, 2000);
-  }
-
-  if (returnedValue && returnedValue.toString() == "200\n") {
-    console.log("Nanocloud available");
-
-    return ;
-  }
-
-  setInterval(waitForNanocloudToBeOnline, 2000);
-}
-
-function setHost() {
-  var command = "docker exec proxy hostname -I | awk \'{print $1}\'";
-
-  console.log("Determining host")
-  var returnedValue = proc.execSync(command);
-
-  HOST = returnedValue.toString().trim();
-  console.log("Host address: " + HOST)
-}
-
 function request(options, callback) {
   var message = "";
   var status = null;
@@ -80,6 +51,37 @@ function request(options, callback) {
   req.end();
 }
 
+function waitForNanocloudToBeOnline(next) {
+  var command = 'curl --output /dev/null --insecure --silent --write-out \'%{http_code}\n\' "https://$(docker exec proxy hostname -I | awk \'{print $1}\')"';
+
+  console.log("Try to connect")
+  proc.exec(command, function (err, stdout, stderr) {
+
+    console.log(stdout);
+    if (!err) {
+      if (stdout == "200\n") {
+        console.log("Nanocloud available");
+
+        return next();
+      }
+    }
+
+    setInterval(waitForNanocloudToBeOnline, 2000);
+  });
+
+}
+
+function setHost(next) {
+  var command = "docker exec proxy hostname -I | awk \'{print $1}\'";
+
+  console.log("Determining host")
+  var returnedValue = proc.execSync(command);
+
+  HOST = returnedValue.toString().trim();
+  console.log("Host address: " + HOST);
+  next();
+}
+
 function bootWindows(next) {
   request({
     path: '/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/start',
@@ -97,11 +99,10 @@ function waitForWindowsToBeRunning(next) {
     verb: 'GET',
   }, function(res) {
     if (res.data[0].attributes.status != "running") {
-      waitForWindowsToBeRunning();
+      waitForWindowsToBeRunning(next);
     }
     else
-      if (next)
-        next();
+      next();
   });
 }
 
@@ -126,23 +127,23 @@ function login(next) {
   });
 }
 
-function setHostInEnv() {
+function setHostInEnv(next) {
   var command = 'sed -i "s/value\\": \\"127.0.0.1\\"/value\\": \\"$(docker exec proxy hostname -I | awk \'{print $1}\')\\"/g" api/NanoEnv.postman_environment'
 
   console.log("Setting host in api file")
   var returnedValue = proc.execSync(command);
 
   console.log(returnedValue.toString());
+  next();
 }
 
 function done() {
   console.log('Ready to perform tests')
 }
 
-waitForNanocloudToBeOnline();
-setHost();
-
 async.waterfall([
+  waitForNanocloudToBeOnline,
+  setHost,
   setHostInEnv,
   login,
   bootWindows,
