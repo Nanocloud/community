@@ -40,6 +40,7 @@ var (
 	VMShutdownFailed = errors.New("VM Shutdown Failed")
 	VMStartupFailed  = errors.New("VM Startup Failed")
 	VMDownloadFailed = errors.New("VM Download Failed")
+	VMNotFound       = errors.New("Specified VM does not exists")
 )
 
 type Iaas struct {
@@ -297,8 +298,13 @@ func (i *Iaas) Stop(name string) error {
 
 func (i *Iaas) Start(name string) error {
 	log.Info("Starting : ", name)
+	_, err := os.Stat(fmt.Sprintf("%s/images/%s.qcow2", i.InstDir, name))
+	if os.IsNotExist(err) {
+		log.Error("Can't find ", name)
+		return VMNotFound
+	}
 	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", i.InstDir, name))
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		log.Error("Failed to start vm: ", err)
 		return VMStartupFailed

@@ -111,7 +111,7 @@ func (h *handler) StartVM(c *echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "Unable to start the specified VM",
+					"detail": err.Error(),
 				},
 			},
 		})
