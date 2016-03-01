@@ -1,51 +1,58 @@
-guacamole-client:
- extends:
-  file: ./docker-compose.yml
-  service: guacamole-client
+version: '2'
 
-guacamole-server:
- extends:
-  file: ./docker-compose.yml
-  service: guacamole-server
+services:
+ guacamole-client:
+  extends:
+   file: ./docker-compose.yml
+   service: guacamole-client
 
-nanocloud-backend:
- extends:
-  file: ./docker-compose.yml
-  service: nanocloud-backend
- volumes_from:
-  - nanocloud-frontend
-  - nanocloud-canva
+ guacamole-server:
+  extends:
+   file: ./docker-compose.yml
+   service: guacamole-server
 
-nanocloud-frontend:
- extends:
-  file: ./docker-compose.yml
-  service: nanocloud-frontend
- volumes:
-  - /opt/front
- container_name: "nanocloud-frontend"
+ nanocloud-backend:
+  extends:
+   file: ./docker-compose.yml
+   service: nanocloud-backend
+  volumes_from:
+   - nanocloud-frontend
+   - nanocloud-canva
+   
+ nanocloud-frontend:
+  extends:
+   file: ./docker-compose.yml
+   service: nanocloud-frontend
+  volumes:
+   - /opt/front
+  container_name: "nanocloud-frontend"
 
-nanocloud-canva:
- extends:
-  file: ./docker-compose.yml
-  service: nanocloud-canva
- volumes:
-  - /opt/canva
- container_name: "nanocloud-canva"
+ nanocloud-canva:
+  extends:
+   file: ./docker-compose.yml
+   service: nanocloud-canva
+  volumes:
+   - /opt/canva
+  container_name: "nanocloud-canva"
 
-proxy:
- extends:
-  file: ./docker-compose.yml
-  service: proxy
- ports:
-  - 80:80
-  - 443:443
+ proxy:
+  extends:
+   file: ./docker-compose.yml
+   service: proxy
+  ports:
+   - 80:80
+   - 443:443
 
-postgres:
- extends:
-  file: ./docker-compose.yml
-  service: postgres
+ iaas-module:
+  extends:
+   file: ./docker-compose.yml
+   service: iaas-module
 
-iaas-module:
- extends:
-  file: ./docker-compose.yml
-  service: iaas-module
+ postgres:
+  extends:
+   file: ./docker-compose.yml
+   service: postgres
+
+networks:
+ nanocloud:
+  driver: bridge

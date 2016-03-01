@@ -1,57 +1,63 @@
-guacamole-client:
- extends:
-  file: ./modules/docker-compose.yml
-  service: guacamole-client
- image: nanocloud/guacamole-client:indiana
+version: '2'
 
-guacamole-server:
- extends:
-  file: ./modules/docker-compose.yml
-  service: guacamole-server
+services:
+ guacamole-client:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: guacamole-client
+  image: nanocloud/guacamole-client:indiana
 
-nanocloud-backend:
- extends:
-  file: ./modules/docker-compose.yml
-  service: nanocloud-backend
- image: nanocloud/nanocloud-backend:indiana
- volumes_from:
-  - nanocloud-frontend
-  - nanocloud-canva
+ guacamole-server:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: guacamole-server
 
-nanocloud-frontend:
- extends:
-  file: ./modules/docker-compose.yml
-  service: nanocloud-backend
- image: nanocloud/nanocloud-frontend:indiana
- container_name: "nanocloud-frontend"
- volumes:
-  - /opt/front
+ nanocloud-backend:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-backend
+  image: nanocloud/nanocloud-backend:indiana
+  volumes_from:
+   - nanocloud-frontend
 
-nanocloud-canva:
- extends:
-  file: ./modules/docker-compose.yml
-  service: nanocloud-canva
- image: nanocloud/nanocloud-canva:indiana
- container_name: "nanocloud-canva"
- volumes:
-  - /opt/canva
+ nanocloud-canva:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-canva
+  image: nanocloud/nanocloud-canva:indiana
+  container_name: "nanocloud-canva"
+  volumes:
+   - /opt/canva
 
-proxy:
- extends:
-  file: ./modules/docker-compose.yml
-  service: proxy
- ports:
-  - 80:80
-  - 443:443
- image: nanocloud/proxy:indiana
+ proxy:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: proxy
+  ports:
+   - 80:80
+   - 443:443
+  image: nanocloud/proxy:indiana
 
-postgres:
- extends:
-  file: ./modules/docker-compose.yml
-  service: postgres
+ nanocloud-frontend:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-backend
+  image: nanocloud/nanocloud-frontend:indiana
+  container_name: "nanocloud-frontend"
+  volumes:
+   - /opt/front
 
-iaas-module:
- extends:
-  file: ./modules/docker-compose.yml
-  service: iaas-module
- image: nanocloud/iaas-module:indiana
+ iaas-module:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: iaas-module
+  image: nanocloud/iaas-module:indiana
+
+ postgres:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: postgres
+
+networks:
+ nanocloud:
+  driver: bridge

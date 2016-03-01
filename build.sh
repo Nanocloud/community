@@ -65,10 +65,9 @@ else
         echo "0" > modules/build_output
     fi
 
-    if [ -f "${NANOCLOUD_OUTPUT}" -o "${NANOCLOUD_SKIP_DEV}" = "false" ]; then
+    if [ "${NANOCLOUD_SKIP_DEV}" = "false" ]; then
 	echo "# Building Nanocloud dev mode"
-	# Let's re tag images
-	docker images | awk '/^modules/ { printf "docker tag -f %s nanocloud/%s:dev\n", $1, $1; }' | sed 's/\/modules_/\//' | sh
+
 	${DOCKER_COMPOSE} -f modules/docker-compose-dev.yml build
 	echo "Build dev environment completed"
     fi

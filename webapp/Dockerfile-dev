@@ -1,4 +1,4 @@
-FROM nanocloud/nanocloud-frontend:dev
+FROM nanocloud/nanocloud-frontend
 MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 

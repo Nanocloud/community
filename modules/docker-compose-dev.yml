@@ -1,81 +1,104 @@
-guacamole-client:
- extends:
-  file: ./docker-compose.yml
-  service: guacamole-client
- build: ./canva/guacamole-client
- dockerfile: Dockerfile-dev
- ports:
-  - 8000:8000
- volumes:
-  - ./canva/guacamole-client/:/opt
-  - ./canva/guacamole-client/noauth-logged/target/guacamole-auth-noauthlogged-0.9.8.jar:/etc/guacamole/extensions/guacamole-auth-noauthlogged-0.9.8.jar
+version: '2'
 
-guacamole-server:
- extends:
-  file: ./docker-compose.yml
-  service: guacamole-server
+services:
+ guacamole-client:
+  extends:
+   file: ./docker-compose.yml
+   service: guacamole-client
+  build:
+   context: ./canva/guacamole-client
+   dockerfile: Dockerfile-dev
+  image: nanocloud/guacamole-client:dev
+  ports:
+   - 8000:8000
+  volumes:
+   - ./canva/guacamole-client/:/opt
+   - ./canva/guacamole-client/noauth-logged/target/guacamole-auth-noauthlogged-0.9.8.jar:/etc/guacamole/extensions/guacamole-auth-noauthlogged-0.9.8.jar
 
-nanocloud-backend:
- extends:
-  file: ./docker-compose.yml
-  service: nanocloud-backend
- build: ../nanocloud
- dockerfile: Dockerfile-dev
- volumes_from:
-  - nanocloud-frontend
-  - nanocloud-canva
- volumes:
-  - ../nanocloud:/go/src/github.com/Nanocloud/community/nanocloud/
+ guacamole-server:
+  extends:
+   file: ./docker-compose.yml
+   service: guacamole-server
 
-nanocloud-frontend:
- extends:
-  file: ./docker-compose.yml
-  service: nanocloud-frontend
- volumes:
-  - /opt/front
- build: ../webapp
- dockerfile: Dockerfile-dev
- volumes:
-  - ../webapp/:/opt/front
- restart: always
- container_name: "nanocloud-frontend"
+ nanocloud-backend:
+  extends:
+   file: ./docker-compose.yml
+   service: nanocloud-backend
+  build:
+   context: ../nanocloud
+   dockerfile: Dockerfile-dev
+  volumes_from:
+   - nanocloud-frontend
+   - nanocloud-canva
+  volumes:
+   - ../nanocloud:/go/src/github.com/Nanocloud/community/nanocloud/
+  image: nanocloud/nanocloud-backend:dev
 
-nanocloud-canva:
- extends:
-  file: ./docker-compose.yml
-  service: nanocloud-canva
- volumes:
-  - /opt/canva
-  - ./canva/frontend/:/opt/canva
-  - ./nginx/conf/certificates:/opt/ssl/:ro
- build: ./canva/frontend
- dockerfile: Dockerfile-dev
- ports:
-  - 49152:49152
-  - 4200:4200
- restart: always
- container_name: "nanocloud-canva"
+ nanocloud-frontend:
+  extends:
+   file: ./docker-compose.yml
+   service: nanocloud-frontend
+  volumes:
+   - /opt/front
+  build:
+   context: ../webapp
+   dockerfile: Dockerfile-dev
+  volumes:
+   - ../webapp/:/opt/front
+  restart: always
+  container_name: "nanocloud-frontend"
+  image: nanocloud/nanocloud-frontend:dev
 
-proxy:
- extends:
-  file: ./docker-compose.yml
-  service: proxy
- ports:
-  - 80:80
-  - 443:443
+ nanocloud-canva:
+  extends:
+   file: ./docker-compose.yml
+   service: nanocloud-canva
+  volumes:
+   - /opt/canva
+   - ./canva/frontend/:/opt/canva
+   - ./nginx/conf/certificates:/opt/ssl/:ro
+  build:
+   context: ./canva/frontend
+   dockerfile: Dockerfile-dev
+  image: nanocloud/nanocloud-canva:dev
+  ports:
+   - 49152:49152
+   - 4200:4200
+  restart: always
+  container_name: "nanocloud-canva"
 
-postgres:
- extends:
-  file: ./docker-compose.yml
-  service: postgres
+ proxy:
+  extends:
+   file: ./docker-compose.yml
+   service: proxy
+  image: nanocloud/proxy:dev
+  ports:
+   - 80:80
+   - 443:443
 
-iaas-module:
- extends:
-  file: ./docker-compose.yml
-  service: iaas-module
- build: ./iaas
- dockerfile: Dockerfile-dev
- volumes:
-  - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
-  - ./iaas/scripts/:/var/lib/nanocloud/scripts
-  - ../installation_dir/:/var/lib/nanocloud
+ postgres:
+  extends:
+   file: ./docker-compose.yml
+   service: postgres
+
+ postgres:
+  extends:
+   file: ./docker-compose.yml
+   service: postgres
+
+ iaas-module:
+  extends:
+   file: ./docker-compose.yml
+   service: iaas-module
+  build:
+   context: ./iaas
+   dockerfile: Dockerfile-dev
+  image: nanocloud/iaas-module:dev
+  volumes:
+   - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
+   - ./iaas/scripts/:/var/lib/nanocloud/scripts
+   - ../installation_dir/:/var/lib/nanocloud
+
+networks:
+ nanocloud:
+  driver: bridge

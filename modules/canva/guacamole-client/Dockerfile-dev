@@ -1,4 +1,4 @@
-FROM nanocloud/guacamole-client:dev
+FROM nanocloud/guacamole-client
 MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 

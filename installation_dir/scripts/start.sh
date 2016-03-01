@@ -29,7 +29,11 @@ NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${ROOT_DIR}/installation_dir"}
 DOCKER_COMPOSE_BUILD_OUTPUT="${ROOT_DIR}/modules/build_output"
 CHANNEL_FILE=${NANOCLOUD_DIR}/channel
 
-COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
+if [ "${1}" = "" ]; then
+    COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
+else
+    COMMUNITY_CHANNEL=${1}
+fi
 
 if [ "${COMMUNITY_CHANNEL}" = "" ]; then
     COMMAND=${1}
@@ -51,16 +55,16 @@ ${ROOT_DIR}/installer/check_version.sh
 if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from local build"
     if [ "${COMMUNITY_CHANNEL}" = "dev" ]; then
-	docker-compose --file "${ROOT_DIR}/modules/docker-compose-dev.yml" --x-networking up -d
+	docker-compose --file "${ROOT_DIR}/modules/docker-compose-dev.yml" up -d
     else
-	docker-compose --file "${ROOT_DIR}/modules/docker-compose-build.yml" --x-networking up -d
+	docker-compose --file "${ROOT_DIR}/modules/docker-compose-build.yml" up -d
     fi
 else
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub $COMMUNITY_CHANNEL"
     if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
-	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" --x-networking up -d
+	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" up -d
     else
-	docker-compose --file "${ROOT_DIR}/docker-compose.yml" --x-networking up -d
+	docker-compose --file "${ROOT_DIR}/docker-compose.yml" up -d
     fi
 fi
 
