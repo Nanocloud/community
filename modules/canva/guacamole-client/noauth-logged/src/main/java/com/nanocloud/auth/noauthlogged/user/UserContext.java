@@ -185,6 +185,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 			config.setParameter("password", connection.getJSONObject("attributes").getString("password"));
 			config.setParameter("security", "nla");
 			config.setParameter("ignore-cert", "true");
+			config.setParameter("enable-printing", "true");
 			if (connection.getJSONObject("attributes").has("remote_app")) {
 				config.setParameter("remote-app", connection.getJSONObject("attributes").getString("remote_app"));
 			}

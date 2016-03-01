@@ -115,12 +115,35 @@ export default Ember.Component.extend({
       }
     }.bind(this);
 
+    this.guacamole.onfile = function(stream, mimetype, filename) {
+      let blob_reader = new Guacamole.BlobReader(stream, mimetype);
+
+      blob_reader.onprogress = function() {
+        stream.sendAck("Received", Guacamole.Status.Code.SUCCESS);
+      }.bind(this);
+
+      blob_reader.onend = function() {
+        //Download file in browser
+        var element = document.createElement('a');
+        element.setAttribute('href', window.URL.createObjectURL(blob_reader.getBlob()));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+      }.bind(this);
+
+      stream.sendAck("Ready", Guacamole.Status.Code.SUCCESS);
+    }.bind(this);
+
     jQuery(window).onunload = function() {
       if (this.guacamole) {
         this.guacamole.disconnect();
       }
     }.bind(this);
-    
+
     let mouse = new Guacamole.Mouse(this.guacamole.getDisplay().getElement());
     let keyboard = new Guacamole.Keyboard(document);
 
