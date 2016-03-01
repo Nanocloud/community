@@ -83,6 +83,7 @@ function setHost(next) {
 }
 
 function bootWindows(next) {
+  console.log("Booting Windows");
   request({
     path: '/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/start',
     verb: 'POST'
@@ -149,4 +150,3 @@ async.waterfall([
   waitForWindowsToBeRunning,
   done
 ])
-
