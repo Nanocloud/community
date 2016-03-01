@@ -341,7 +341,12 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 		} else {
 			execServ = kServer
 		}
-		username := user.Sam
+		var username string
+		if user.Sam == "Administrator" {
+			username = user.Sam + "@" + kWindowsDomain
+		} else {
+			username = user.Sam
+		}
 		pwd := user.WindowsPassword
 		var conn Connection
 		if appParam.Alias != "Desktop" {
@@ -370,71 +375,6 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 
 	return connections, nil
 }
-
-/*
-func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, error) {
-
-	// Seed random number generator
-	rand.Seed(time.Now().UTC().UnixNano())
-	var connections []Connection
-
-	rows, err := db.Query("SELECT alias FROM apps")
-
-	if err != nil {
-		log.Error("Unable to retrieve apps list from Postgres: ", err.Error())
-		return nil, AppsListUnavailable
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		appParam := ApplicationParams{}
-		rows.Scan(
-			&appParam.Alias,
-		)
-		for _, user := range *users {
-
-			var conn Connection
-			if count := len(kExecutionServers); count > 0 {
-				conn.Hostname = kExecutionServers[rand.Intn(count)]
-			} else {
-				conn.Hostname = kServer
-			}
-			conn.Port = kRDPPort
-			conn.Protocol = kProtocol
-			if user.Sam != "" && appParam.Alias != "hapticPowershell" && appParam.Alias != "Desktop" {
-				conn.Username = user.Sam
-				conn.Password = user.WindowsPassword
-			} else {
-				continue
-			}
-			conn.RemoteApp = "||" + appParam.Alias
-			conn.AppName = appParam.Alias
-			connections = append(connections, conn)
-		}
-		if appParam.Alias != "Desktop" && user.Sam == "" {
-			connections = append(connections, Connection{
-				Hostname:  kServer,
-				Port:      kRDPPort,
-				Protocol:  kProtocol,
-				Username:  kUser,
-				Password:  kPassword,
-				RemoteApp: "||" + appParam.Alias,
-				AppName:   appParam.Alias,
-			})
-		}
-	}
-	connections = append(connections, Connection{
-		Hostname:  kServer,
-		Port:      kRDPPort,
-		Protocol:  kProtocol,
-		Username:  kUser,
-		Password:  kPassword,
-		RemoteApp: "",
-		AppName:   "hapticDesktop",
-	})
-	return connections, nil
-}*/
 
 func init() {
 	kUser = utils.Env("USER", "Administrator")
