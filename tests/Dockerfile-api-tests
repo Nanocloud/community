@@ -1,7 +1,7 @@
 FROM node:0.10.42
 MAINTAINER Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
-RUN npm install -g newman
+RUN npm install -g newman@1
 COPY ./ /opt
 
 WORKDIR /opt
