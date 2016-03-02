@@ -146,12 +146,17 @@ export default Ember.Component.extend({
 
     let mouse = new Guacamole.Mouse(this.guacamole.getDisplay().getElement());
     let keyboard = new Guacamole.Keyboard(document);
+    let display = this.guacamole.getDisplay();
 
     this.guacamole.connect();
 
     mouse.onmousedown = mouse.onmouseup = mouse.onmousemove = function(mouseState) {
       this.guacamole.sendMouseState(mouseState);
     }.bind(this);
+
+    display.oncursor = function(canvas, x, y) {
+      display.showCursor(!mouse.setCursor(canvas, x, y));
+    }
 
     keyboard.onkeydown = function (keysym) {
       this.guacamole.sendKeyEvent(1, keysym);
