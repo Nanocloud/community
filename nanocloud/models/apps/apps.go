@@ -341,12 +341,7 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 		} else {
 			execServ = kServer
 		}
-		var username string
-		if user.Sam == "Administrator" {
-			username = user.Sam + "@" + kWindowsDomain
-		} else {
-			username = user.Sam
-		}
+		username := user.Sam + "@" + kWindowsDomain
 		pwd := user.WindowsPassword
 		var conn Connection
 		if appParam.Alias != "Desktop" {
