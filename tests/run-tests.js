@@ -131,10 +131,16 @@ function setHostInEnv(next) {
   var command = 'sed -i "s/value\\": \\"127.0.0.1\\"/value\\": \\"$(docker exec proxy hostname -I | awk \'{print $1}\')\\"/g" api/NanoEnv.postman_environment'
 
   console.log("Setting host in api file")
-  var returnedValue = proc.execSync(command);
+  proc.exec(command, function (err, stdout, stderr) {
 
-  console.log(returnedValue.toString());
-  next();
+    if (err) {
+      console.log(stdout);
+      console.log(stderr);
+      throw "Cannot set host in environment file"
+    }
+    return next();
+
+  });
 }
 
 function done() {
