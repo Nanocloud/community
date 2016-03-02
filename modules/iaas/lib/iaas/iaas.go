@@ -21,6 +21,7 @@
 package iaas
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -179,30 +180,25 @@ func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
 }
 
 func (i *Iaas) CheckRDS() bool {
-
-	cmd := exec.Command(
-		"sshpass", "-p", i.Password,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "ConnectTimeout=1",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", i.SSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			i.User,
-			i.Server,
-		),
-		"powershell.exe \"Write-Host (Get-Service -Name RDMS).status\"",
-	)
-	response, err := cmd.CombinedOutput()
+	resp, err := http.Get("http://" + i.Server + ":9090/checkrds")
 	if err != nil {
-		log.Error("Failed to check windows' state", err, string(response))
+		log.Error(err)
 		return false
 	}
 
-	if strings.Contains(string(response), "Running") {
-		return true
+	if resp.StatusCode != http.StatusOK {
+		return false
 	}
-	return false
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+
+	var ret map[string]map[string]bool
+	err = json.Unmarshal(b, &ret)
+	return ret["data"]["success"]
 }
 
 func generateDownloadURL(url string, vm string) string {
@@ -274,25 +270,27 @@ func (i *Iaas) GetList() (VMstatus, error) {
 
 func (i *Iaas) Stop(name string) error {
 	log.Info("stopping : ", name)
-
-	cmd := exec.Command(
-		"sshpass", "-p", i.Password,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", i.SSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			i.User,
-			i.Server,
-		),
-		"powershell.exe \"Stop-Computer -Force\"",
-	)
-	response, err := cmd.CombinedOutput()
+	resp, err := http.Get("http://" + i.Server + ":9090/shutdown")
 	if err != nil {
-		log.Error("Failed to execute sshpass command to shutdown windows", err, string(response))
+		log.Error(err)
 		return VMShutdownFailed
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return VMShutdownFailed
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return VMShutdownFailed
+	}
+
+	var ret map[string]map[string]bool
+	err = json.Unmarshal(b, &ret)
+	if ret["data"]["success"] == false {
+		return VMShutdownFailed
+	}
 	return nil
 }
 

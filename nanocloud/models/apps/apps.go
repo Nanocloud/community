@@ -191,6 +191,17 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 	return applications, nil
 }
 
+func AddApp(params ApplicationParams) error {
+	_, err := db.Query(
+		`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, params.CollectionName, params.Alias, params.DisplayName, params.FilePath)
+	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+		log.Error("Error inserting app into postgres: ", err.Error())
+	}
+}
+
 func CheckPublishedApps() {
 	_, err := db.Query(
 		`INSERT INTO apps
