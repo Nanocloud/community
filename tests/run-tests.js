@@ -3,7 +3,7 @@
 var http = require('https');
 var proc = require('child_process');
 var async = require("async");
-var HOST = null;
+var HOST = process.argv[2];
 var TOKEN = null;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -52,7 +52,7 @@ function request(options, callback) {
 }
 
 function waitForNanocloudToBeOnline(next) {
-  var command = 'curl --output /dev/null --insecure --silent --write-out \'%{http_code}\n\' "https://$(docker exec proxy hostname -I | awk \'{print $1}\')"';
+  var command = 'curl --output /dev/null --insecure --silent --write-out \'%{http_code}\n\' "https://'+ HOST +'"';
 
   console.log("Try to connect")
   proc.exec(command, function (err, stdout, stderr) {
@@ -69,17 +69,6 @@ function waitForNanocloudToBeOnline(next) {
     setInterval(waitForNanocloudToBeOnline, 2000);
   });
 
-}
-
-function setHost(next) {
-  var command = "docker exec proxy hostname -I | awk \'{print $1}\'";
-
-  console.log("Determining host")
-  var returnedValue = proc.execSync(command);
-
-  HOST = returnedValue.toString().trim();
-  console.log("Host address: " + HOST);
-  next();
 }
 
 function bootWindows(next) {
@@ -128,7 +117,7 @@ function login(next) {
 }
 
 function setHostInEnv(next) {
-  var command = 'sed -i "s/value\\": \\"127.0.0.1\\"/value\\": \\"$(docker exec proxy hostname -I | awk \'{print $1}\')\\"/g" api/NanoEnv.postman_environment'
+  var command = 'sed -i "s/value\\": \\"127.0.0.1\\"/value\\": \\"'+ HOST +'\\"/g" api/NanoEnv.postman_environment'
 
   console.log("Setting host in api file")
   proc.exec(command, function (err, stdout, stderr) {
@@ -149,7 +138,6 @@ function done() {
 
 async.waterfall([
   waitForNanocloudToBeOnline,
-  setHost,
   setHostInEnv,
   login,
   bootWindows,
