@@ -29,7 +29,6 @@ import (
 	vmsConn "github.com/Nanocloud/community/nanocloud/connectors/vms"
 	m "github.com/Nanocloud/community/nanocloud/middlewares"
 	"github.com/Nanocloud/community/nanocloud/migration"
-	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
@@ -88,6 +87,9 @@ func main() {
 		log.Error(err)
 		return
 	}
+	p := echo.New()
+	p.Post("/app", apps.AddApplication)
+	p.Run(":8181")
 
 	err = initVms()
 	if err != nil {
@@ -114,8 +116,6 @@ func main() {
 	e.Post("/api/apps", m.OAuth2(m.Admin(apps.PublishApplication)))
 	e.Get("/api/apps/connections", m.OAuth2(apps.GetConnections))
 	e.Patch("/api/apps/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
-
-	go appsModel.CheckPublishedApps()
 
 	/**
 	 * HISTORY

@@ -156,6 +156,36 @@ func UnpublishApplication(c *echo.Context) error {
 	})
 }
 
+func AddApplication(c *echo.Context) error {
+	var p apps.ApplicationParams
+
+	err := utils.ParseJSONBody(c, &p)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "App infos are invalid",
+				},
+			},
+		})
+	}
+	err = apps.AddApp(params)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, hash{
+			"error": [1]hash{
+				hash{
+					"detail": err,
+				},
+			},
+		})
+	}
+	return c.JSON(http.StatusOK, hash{
+		"data": hash{
+			"success": true,
+		},
+	})
+}
+
 func PublishApplication(c *echo.Context) error {
 	var params struct {
 		Data struct {
