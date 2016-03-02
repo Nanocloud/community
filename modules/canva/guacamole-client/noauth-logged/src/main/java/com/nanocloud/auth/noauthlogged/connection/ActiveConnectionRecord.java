@@ -26,6 +26,11 @@ public class ActiveConnectionRecord implements ConnectionRecord {
 		return null;
 	}
 
+	@Override
+	public String getConnectionIdentifier() {
+		return null;
+	}
+
 	public String getConnectionName() {
 		return this.name;
 	}

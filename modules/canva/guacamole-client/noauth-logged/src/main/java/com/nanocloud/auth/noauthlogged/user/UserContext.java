@@ -18,6 +18,7 @@ import org.glyptodon.guacamole.net.auth.ConnectionGroup;
 import org.glyptodon.guacamole.net.auth.Directory;
 import org.glyptodon.guacamole.net.auth.User;
 import org.glyptodon.guacamole.net.auth.simple.*;
+import org.glyptodon.guacamole.net.auth.ConnectionRecordSet;
 import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -86,6 +87,11 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 	@Override
 	public Directory<User> getUserDirectory() throws GuacamoleException {
 		return this.userDirectory;
+	}
+
+	@Override
+	public ConnectionRecordSet getConnectionHistory() throws GuacamoleException {
+		return null;
 	}
 
 	@Override

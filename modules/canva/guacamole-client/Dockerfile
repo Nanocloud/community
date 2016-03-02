@@ -4,7 +4,7 @@ MAINTAINER Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 RUN apt-get update && apt-get -y install maven \
     openjdk-7-jdk
 
-ENV GUAC_VERSION=0.9.8
+ENV GUAC_VERSION=0.9.9
 ENV GUACAMOLE_HOME="/etc/guacamole"
 
 RUN wget http://sourceforge.net/projects/guacamole/files/current/binary/guacamole-${GUAC_VERSION}.war/download -O /usr/local/tomcat/webapps/guacamole.war
