@@ -39,7 +39,7 @@ services:
    - nanocloud
 
  guacamole-server:
-  image: glyptodon/guacd:0.9.8
+  image: glyptodon/guacd:0.9.9
   restart: always
   container_name: "guacamole-server"
   networks:
