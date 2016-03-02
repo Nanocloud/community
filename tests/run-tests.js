@@ -66,7 +66,9 @@ function waitForNanocloudToBeOnline(next) {
       }
     }
 
-    setInterval(waitForNanocloudToBeOnline, 2000);
+    setTimeout(function () {
+      waitForNanocloudToBeOnline(next);
+    }, 2000);
   });
 
 }
