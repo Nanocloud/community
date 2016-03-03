@@ -12,7 +12,7 @@ function request(options, callback) {
   var message = "";
   var status = null;
 
-  var headers = options.headers || {};
+  var headers = options.headers || {};
   var param = JSON.stringify(options.param) || "";
 
   if (TOKEN) {
