@@ -6,4 +6,4 @@ COPY ./ /opt
 
 WORKDIR /opt
 
-CMD newman -x --insecure -c /opt/api/APItests.postman_collection -e /opt/api/NanoEnv.postman_environment
+CMD newman -x --insecure -c /opt/api/APItests.postman_collection -e /opt/api/NanoEnv.postman_environment -r 1200000
