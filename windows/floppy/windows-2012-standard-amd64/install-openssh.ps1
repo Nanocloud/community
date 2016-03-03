@@ -1,4 +1,4 @@
-﻿Invoke-WebRequest https://github.com/PowerShell/Win32-OpenSSH/releases/download/latest/OpenSSH-Win64.zip -OutFile C:\openssh.zip
+﻿Invoke-WebRequest https://github.com/PowerShell/Win32-OpenSSH/releases/download/2_25_2016/OpenSSH-Win64.zip -OutFile C:\openssh.zip
 $zip = "C:\openssh.zip"
 $dest = "C:\Program Files"
 Add-Type -assembly "system.io.compression.filesystem"
