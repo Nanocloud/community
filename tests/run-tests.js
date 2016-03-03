@@ -85,7 +85,7 @@ function bootWindows(next) {
 }
 
 function waitForWindowsToBeRunning(next) {
-  console.log("Wainting for Windows to be running....");
+  console.log("Waiting for Windows to be running....");
   request({
     path: '/api/iaas',
     verb: 'GET',
