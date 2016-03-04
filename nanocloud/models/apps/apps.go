@@ -150,6 +150,7 @@ func GetAllApps() ([]ApplicationParams, error) {
 		applications = []ApplicationParams{}
 	}
 	return applications, nil
+
 }
 
 func GetUserApps(userId string) ([]ApplicationParams, error) {
@@ -200,6 +201,7 @@ func AddApp(params ApplicationParams) error {
 	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		log.Error("Error inserting app into postgres: ", err.Error())
 	}
+	return nil
 }
 
 func CheckPublishedApps() {
@@ -216,29 +218,19 @@ func CheckPublishedApps() {
 		var applications []ApplicationParamsWin
 		var winapp ApplicationParamsWin
 		var apps []ApplicationParams
-		cmd := exec.Command(
-			"sshpass", "-p", kPassword,
-			"ssh", "-o", "StrictHostKeyChecking=no",
-			"-o", "UserKnownHostsFile=/dev/null",
-			"-o", "LogLevel=quiet",
-			"-p", kSSHPort,
-			fmt.Sprintf(
-				"%s@%s",
-				kUser,
-				kServer,
-			),
-			"powershell.exe \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
-		)
-		response, err := cmd.CombinedOutput()
-
+		resp, err := http.Get("http://" + kServer + ":9090/apps")
 		if err != nil {
-			log.Error("Failed to execute sshpass command ", err, string(response))
+			log.Error(err)
 			continue
 		}
-		err = json.Unmarshal(response, &applications)
+		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-
-			err = json.Unmarshal(response, &winapp)
+			log.Error(err)
+			continue
+		}
+		err = json.Unmarshal(b, &apps)
+		if err != nil {
+			err = json.Unmarshal(b, &winapp)
 			if err != nil {
 				continue
 			}
@@ -266,12 +258,10 @@ func CheckPublishedApps() {
 				DisplayName:    app.DisplayName,
 				Alias:          app.Alias,
 				FilePath:       app.FilePath,
-				IconContents:   app.IconContents,
 			})
 		}
 
 		for _, application := range apps {
-
 			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
 				_, err := db.Query(
 					`INSERT INTO apps
@@ -293,23 +283,7 @@ func CheckPublishedApps() {
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
 func UnpublishApp(Alias string) error {
-	cmd := exec.Command(
-		"sshpass", "-p", kPassword,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", kSSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			kUser,
-			kServer,
-		),
-		"powershell.exe \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
-	)
-	response, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Error("Failed to execute sshpass command to unpublish an app", err, string(response))
-		return UnpublishFailed
-	}
+	////////TODO
 	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
 	if err != nil {
 		log.Error("delete from postgres failed: ", err)
@@ -319,21 +293,21 @@ func UnpublishApp(Alias string) error {
 }
 
 func PublishApp(path string) error {
-	cmd := exec.Command(
-		"sshpass", "-p", kPassword,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", kSSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			kUser,
-			kServer,
-		),
-		"powershell.exe -file C:\\publishApplication.ps1 "+path,
-	)
-	response, err := cmd.CombinedOutput()
+	p, err := json.Marshal(path)
 	if err != nil {
-		log.Error("Failed to execute sshpass command to publish an app", err, string(response))
+		log.Error(err)
+		return PublishFailed
+	}
+	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", bytes.NewBuffer(p))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		return PublishFailed
+	}
+	if resp.Status != "200 OK" {
+		log.Error("Plaza return code: " + resp.Status)
 		return PublishFailed
 	}
 	return nil
