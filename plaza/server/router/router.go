@@ -20,11 +20,17 @@ func Start() {
 	e.Get("/", about.Get)
 	e.Get("/files", files.Get)
 	e.Post("/upload", files.Post)
-	e.Post("/nanocloud", apps.Nano)
 
 	e.Get("/shutdown", power.ShutDown)
 	e.Get("/restart", power.Restart)
 	e.Get("/checkrds", power.CheckRDS)
+
+	/***
+	APPS
+	***/
+
+	e.Post("/publishapp", apps.PublishApp)
+	e.Get("/apps", apps.GetApps)
 
 	/***
 	PROVISIONING

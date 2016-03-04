@@ -169,7 +169,7 @@ func AddApplication(c *echo.Context) error {
 			},
 		})
 	}
-	err = apps.AddApp(params)
+	err = apps.AddApp(p)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{

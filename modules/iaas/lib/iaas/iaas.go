@@ -196,9 +196,10 @@ func (i *Iaas) CheckRDS() bool {
 		return false
 	}
 
-	var ret map[string]map[string]bool
-	err = json.Unmarshal(b, &ret)
-	return ret["data"]["success"]
+	if strings.Contains(string(b), "Running") {
+		return true
+	}
+	return false
 }
 
 func generateDownloadURL(url string, vm string) string {
