@@ -40,11 +40,12 @@ services:
   extends:
    file: ./docker-compose.yml
    service: nanocloud-frontend
+  volumes:
+   - /opt/front
   build:
    context: ../webapp
    dockerfile: Dockerfile-dev
   volumes:
-   - /opt/front
    - ../webapp/:/opt/front
    - ./nginx/conf/certificates:/opt/ssl/:ro
   ports:
