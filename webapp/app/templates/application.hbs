@@ -1,7 +1,7 @@
 {{#if session.isAuthenticated}}
   <a {{action 'invalidateSession'}}>Logout</a>
+  <br />
+  {{outlet}}
 {{else}}
   {{render "login" login}}
 {{/if}}
-
-{{outlet}}
