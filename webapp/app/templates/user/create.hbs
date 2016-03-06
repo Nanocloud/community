@@ -1,0 +1,21 @@
+<form {{action 'add' on='submit'}}>
+  <label for="email">Email</label>
+  {{input id='email' placeholder='User email' value=model.email}}
+
+  <label for="first_name">Firstname</label>
+  {{input id='first_name' placeholder='User firstname' value=model.first_name}}
+
+  <label for="last_name">Lastname</label>
+  {{input id='last_name' placeholder='User lastname' value=model.last_name}}
+
+  <label for="password">Password</label>
+  {{input id='password' placeholder='Enter Password' type='password' value=model.password}}
+
+  <label for="password2">Password</label>
+  {{input id='password2' placeholder='Enter Password again' type='password' value=model.password2}}
+  
+  <button type="submit">Create</button>
+  {{#if errorMessage}}
+    <p>{{errorMessage}}</p>
+  {{/if}}
+</form>
