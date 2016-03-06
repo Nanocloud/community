@@ -1,0 +1,14 @@
+User list:
+<br />
+
+{{#each model as |user|}}
+  {{#unless user.isNew}}
+    {{user.first_name}} {{user.last_name}} ({{user.email}})
+    {{#if user.is_admin}}
+      is administrator
+    {{/if}}
+  {{/unless}}
+<br />
+{{/each}}
+
+{{render 'user.create' newUser}}
