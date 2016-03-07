@@ -61,6 +61,7 @@ module.exports = function(admin) {
     })
   })
 
+  var user_id = null;
   describe("Create user", function() {
 
     var request = nano.as(admin).post("api/users", {
@@ -74,6 +75,15 @@ module.exports = function(admin) {
         }
       }
     }).shouldReturn(201)
+        .shouldBeJSONAPI();
+
+    user_id = request.response.data.data.id;
+  });
+
+  describe("Remove user", function() {
+
+    var request = nano.as(admin).delete("api/users/" + user_id)
+        .shouldReturn(200)
         .shouldBeJSONAPI();
 
   })
