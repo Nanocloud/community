@@ -283,12 +283,6 @@ func CheckPublishedApps() {
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
 func UnpublishApp(Alias string) error {
-	////////TODO
-	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
-	if err != nil {
-		log.Error("delete from postgres failed: ", err)
-		return UnpublishFailed
-	}
 	return nil
 }
 
