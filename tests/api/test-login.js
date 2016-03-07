@@ -37,14 +37,13 @@ module.exports = function() {
       additionalProperties: false
     };
 
-    var clientId = '9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae:9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341';
     var request = nano.post('oauth/token', {
       username: 'admin@nanocloud.com',
       password: 'admin',
       grant_type: 'password'
     }, {
       headers: {
-        Authorization: 'Basic ' + new Buffer(clientId).toString('base64'),
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
         'Content-Type': 'application/json'
       }
     }).shouldReturn(200)
