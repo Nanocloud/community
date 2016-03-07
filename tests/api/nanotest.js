@@ -85,6 +85,11 @@ var nano = {
 
         return this;
       },
+      delete: function(url) {
+        this. response = makeRequest('DELETE', url);
+
+        return this;
+      },
       shouldReturn: function(code) {
         it("should return " + code, function() {
           expect(this).to.have.status(code)
