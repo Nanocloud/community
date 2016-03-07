@@ -10,6 +10,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "chai": "^3.5.0",
+    "chai-subset": "^1.2.1",
     "extend-object": "^1.0.0",
     "jsonapi-validator": "^1.0.1",
     "mocha": "^2.4.5",

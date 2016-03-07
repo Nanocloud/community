@@ -21,16 +21,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var chaiSubset = require('chai-subset')
-var chakramMatchers = require("./index.js");
-var exports = module.exports = {};
-exports.chai = null
+module.exports = function (chai, utils) {
 
-exports.initialize = function () {
+  var setContainsFlag = function () {
+    utils.flag(this, 'contains', true);
+  };
 
-  exports.chai = require('chai')
-  chakramMatchers.map(function (matcher) {
-    exports.chai.use(matcher);
-  });
-  exports.chai.use(chaiSubset);
+  utils.addProperty(chai.Assertion.prototype, "comprise", setContainsFlag);
+  utils.addProperty(chai.Assertion.prototype, "comprised", setContainsFlag);
 };
+

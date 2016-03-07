@@ -21,16 +21,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var chaiSubset = require('chai-subset')
-var chakramMatchers = require("./index.js");
-var exports = module.exports = {};
-exports.chai = null
+module.exports = function (chai, utils) {
+  var flag = utils.flag;
+  utils.addMethod(chai.Assertion.prototype, 'json', function () {
 
-exports.initialize = function () {
+    var object = this._obj.response.data;
+    var toMatch = arguments[arguments.length-1];
 
-  exports.chai = require('chai')
-  chakramMatchers.map(function (matcher) {
-    exports.chai.use(matcher);
+    // Let's make it more json-api friendly
+    toMatch = {
+      data: [
+        {
+          attributes: toMatch
+        }
+      ]
+    };
+    if(typeof(toMatch) === 'function') {
+      toMatch(object);
+    } else {
+      var assert = new chai.Assertion(object);
+      utils.transferFlags(this, assert, false);
+
+      if(flag(this, 'contains')) {
+        assert.to.containSubset(toMatch);
+      } else {
+        assert.to.deep.equal(toMatch);
+      }
+    }
   });
-  exports.chai.use(chaiSubset);
-};
+}

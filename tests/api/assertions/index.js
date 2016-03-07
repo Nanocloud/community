@@ -24,5 +24,7 @@
 module.exports = [
   require('./statuscode.js'),
   require('./headers.js'),
-  require('./schema.js')
+  require('./schema.js'),
+  require('./json.js'),
+  require('./comprise.js'),
 ];
