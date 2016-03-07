@@ -21,7 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
 var sync = require('urllib-sync');
 var extend = require('extend-object');
 var plugins = require('./assertions/plugins');
@@ -125,6 +126,18 @@ var nano = {
         it("should comply to JSON API schema", function() {
           expect(valid).to.equal(true);
         });
+
+        return this;
+      },
+      shouldBeJSONAPIError: function(error) {
+
+        this.shouldBeJSONAPI();
+
+        it("should return expected json-api error schema", function() {
+          var assert = new chai.Assertion(this.response.data.errors);
+
+          assert.to.containSubset([error]);
+        }.bind(this));
 
         return this;
       },
