@@ -59,7 +59,7 @@ var nano = {
       });
 
       // Get pure javascript object out of response Buffer
-      if (request.headers['content-type'] == 'application/json; charset=utf-8') {
+      if (request.headers['content-type'].split(';').indexOf('application/json') != -1) {
         request.data = JSON.parse(request.data.toString());
       }
 
