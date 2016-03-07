@@ -87,7 +87,10 @@ var nano = {
       },
       shouldBeJSON: function() {
         it("should be valid JSON", function() {
-          expect(this).to.have.header('content-type', 'application/json; charset=utf-8')
+          expect(this.response.headers).to.have.property('content-type');
+
+          var values = this.response.headers['content-type'].split(';');
+          expect(values).to.include('application/json')
         }.bind(this));
 
         return this;
