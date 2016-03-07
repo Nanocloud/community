@@ -73,11 +73,8 @@ module.exports = function(admin) {
           "password": nano.USER_PASSWORD
         }
       }
-    }).shouldReturn(200)
-        .shouldBeJSON();
+    }).shouldReturn(201)
+        .shouldBeJSONAPI();
 
-    it("Should return 403", function() {
-      expect(request).to.have.status(403);
-    })
   })
 }
