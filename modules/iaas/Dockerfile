@@ -19,4 +19,5 @@ RUN mkdir -p /var/lib/nanocloud/downloads && mkdir -p /var/lib/nanocloud/images 
 COPY ./scripts/ /var/lib/nanocloud/scripts/
 
 EXPOSE 8080
+EXPOSE 9090
 CMD ["./iaas"]
