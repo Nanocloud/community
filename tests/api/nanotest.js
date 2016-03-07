@@ -45,13 +45,11 @@ var expect = function(value) {
 
 var nano = {
   _request: function(user) {
-    var makeRequest = function(verb, url, data) {
-      var headers = {};
+    var makeRequest = function(verb, url, data, options) {
+      var headers = (options && options.headers) ? options.headers : {};
       if (user) {
-        headers = {
-          Authorization: 'Bearer ' + user.access_token,
-          'Content-Type': 'application/json'
-        }
+        headers['Authorization'] = 'Bearer ' + user.access_token;
+        headers['Content-Type'] = 'application/json';
       }
 
       var request = sync.request('https://localhost/' + url, {
@@ -70,8 +68,8 @@ var nano = {
 
     return {
       response: null,
-      post: function(url, params) {
-        this.response = makeRequest('POST', url, params);
+      post: function(url, params, options) {
+        this.response = makeRequest('POST', url, params, options);
 
         return this;
       },
@@ -131,7 +129,10 @@ var nano = {
     return this._request(user);
   },
   get: function(url) {
-    return this._request(null).get(url);
+    return this._request().get(url);
+  },
+  post: function(url, params, options) {
+    return this._request().post(url, params, options);
   },
   login: function(credentials) {
     var clientId = '9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae:9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341';
