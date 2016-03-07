@@ -116,15 +116,20 @@ var nano = {
 
         return this;
       },
+      shouldComplyToNotJsonAPI: function(schema) {
+
+        it("should return expected schema", function() {
+          expect(this).to.have.schema(schema)
+        }.bind(this));
+
+        return this;
+      },
       shouldComplyTo: function(schema) {
         var JSONAPIschema = require('./JSONAPIschema.json');
 
         JSONAPIschema.definitions.attributes = schema;
-        it("should return expected schema", function() {
-          expect(this).to.have.schema(JSONAPIschema)
-        }.bind(this));
 
-        return this;
+        return this.shouldComplyToNotJsonAPI(JSONAPIschema);
       }
     }
   },
