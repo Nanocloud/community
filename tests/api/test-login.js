@@ -34,6 +34,7 @@ module.exports = function() {
         access_token: {type: 'string'},
         type: {'type': 'string'}
       },
+      required: ['access_token', 'type'],
       additionalProperties: false
     };
 
