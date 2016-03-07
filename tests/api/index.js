@@ -54,6 +54,18 @@ describe("List users", function() {
       .shouldReturn(200)
       .shouldBeJSONAPI()
       .shouldComplyTo(expectedSchema);
+
+  it("should contain the admin",  function() {
+    return expect(request).to.comprise.of.json({
+      email: 'admin@nanocloud.com',
+      activated: true,
+      is_admin: true,
+      first_name: "John",
+      last_name: "Doe",
+      sam: "Administrator",
+      windows_password: "Nanocloud123+"
+    });
+  })
 })
 
 describe("Create user", function() {
