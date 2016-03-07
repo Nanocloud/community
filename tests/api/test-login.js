@@ -24,14 +24,35 @@
 var nano = require('./nanotest');
 var expect = nano.expect;
 
-describe("nanocloud is Online", function() {
-  var request = nano.get('/').shouldReturn(200);
-})
+module.exports = function() {
 
-var admin = nano.login({
-  username: 'admin@nanocloud.com',
-  password: 'admin'
-});
+  describe('Login as an admin', function() {
 
-require('./test-login')();
-require('./test-users')(admin);
+    var expectedSchema = {
+      type: 'object',
+      properties: {
+        access_token: {type: 'string'},
+        type: {'type': 'string'}
+      },
+      additionalProperties: false
+    };
+
+    var clientId = '9405fb6b0e59d2997e3c777a22d8f0e617a9f5b36b6565c7579e5be6deb8f7ae:9050d67c2be0943f2c63507052ddedb3ae34a30e39bbbbdab241c93f8b5cf341';
+    var request = nano.post('oauth/token', {
+      username: 'admin@nanocloud.com',
+      password: 'admin',
+      grant_type: 'password'
+    }, {
+      headers: {
+        Authorization: 'Basic ' + new Buffer(clientId).toString('base64'),
+        'Content-Type': 'application/json'
+      }
+    }).shouldReturn(200)
+        .shouldBeJSON()
+        .shouldComplyToNotJsonAPI(expectedSchema);
+
+    it('should issue Bearer tokens', function() {
+      expect(request.response.data.type).to.equal('Bearer')
+    })
+  })
+}
