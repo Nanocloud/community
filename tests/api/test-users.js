@@ -67,10 +67,10 @@ module.exports = function(admin) {
       "data" : {
         "type": "user",
         "attributes": {
-          "first_name": "{{TEST_USER_FIRSTNAME}}",
-          "last_name": "{{TEST_USER_LASTNAME}}",
-          "email": "{{TEST_USER_EMAIL}}",
-          "password": "{{TEST_USER_PASSWORD}}"
+          "first_name": nano.USER_FIRSTNAME,
+          "last_name": nano.USER_LASTNAME,
+          "email": nano.USER_EMAIL,
+          "password": nano.USER_PASSWORD
         }
       }
     }).shouldReturn(200)
