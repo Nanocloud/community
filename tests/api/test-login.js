@@ -38,8 +38,8 @@ module.exports = function() {
     };
 
     var request = nano.post('oauth/token', {
-      username: 'admin@nanocloud.com',
-      password: 'admin',
+      username: nano.ADMIN_USERNAME,
+      password: nano.ADMIN_PASSWORD,
       grant_type: 'password'
     }, {
       headers: {

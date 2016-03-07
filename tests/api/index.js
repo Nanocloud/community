@@ -29,8 +29,8 @@ describe("nanocloud is Online", function() {
 })
 
 var admin = nano.login({
-  username: 'admin@nanocloud.com',
-  password: 'admin'
+  username: nano.ADMIN_USERNAME,
+  password: nano.ADMIN_PASSWORD
 });
 
 require('./test-login')();
