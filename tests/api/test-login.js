@@ -54,5 +54,62 @@ module.exports = function() {
     it('should issue Bearer tokens', function() {
       expect(request.response.data.type).to.equal('Bearer')
     })
+  });
+
+  var expectedErrorSchema = {
+    type: 'object',
+    properties: {
+      error: {type: 'string'},
+      error_description: {'type': 'string'}
+    },
+    required: ['error', 'error_description'],
+    additionalProperties: false
+  };
+
+  describe('Login with an invalid user', function() {
+
+    var request = nano.post('oauth/token', {
+      username: 'george.burdell@gatech.edu',
+      password: 'fake',
+      grant_type: 'password'
+    }, {
+      headers: {
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
+        'Content-Type': 'application/json'
+      }
+    }).shouldReturn(401)
+        .shouldBeJSON()
+        .shouldComplyToNotJsonAPI(expectedErrorSchema);
+
+    it('should return access_denied', function() {
+      expect(request.response.data.error).to.equal("access_denied");
+    });
+
+    it('should return "Invalid User Credentials" as an error description', function() {
+      expect(request.response.data.error_description).to.equal("Invalid User Credentials");
+    });
+  });
+
+  describe('Login without specifying grant_type', function() {
+
+    var request = nano.post('oauth/token', {
+      username: 'george.burdell@gatech.edu',
+      password: 'fake',
+    }, {
+      headers: {
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
+        'Content-Type': 'application/json'
+      }
+    }).shouldReturn(400)
+        .shouldBeJSON()
+        .shouldComplyToNotJsonAPI(expectedErrorSchema);
+
+    it('should return access_denied', function() {
+      expect(request.response.data.error).to.equal("invalid_request");
+    });
+
+    it('should return "Invalid User Credentials" as an error description', function() {
+      expect(request.response.data.error_description).to.equal("grant_type is missing");
+    });
   })
 }
