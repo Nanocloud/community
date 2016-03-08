@@ -171,7 +171,7 @@ var nano = {
     return this._request().post(url, params, options);
   },
   login: function(credentials) {
-    var user = sync.request('https://localhost/oauth/token', {
+    var user = sync.request(nano.PROTOCOL + '://' + nano.HOST + ':' + nano.PORT + '/oauth/token', {
       method: 'POST',
       dataType: 'json',
       data: {
