@@ -71,6 +71,7 @@ services:
   extends:
    file: ./docker-compose.yml
    service: proxy
+  build: ./nginx
   image: nanocloud/proxy:dev
   ports:
    - 80:80

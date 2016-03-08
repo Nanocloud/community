@@ -2,16 +2,12 @@ version: '2'
 
 services:
  guacamole-client:
-  image: nanocloud/guacamole-client
-  build: ./canva/guacamole-client
   restart: always
   container_name: "guacamole-client"
   networks:
    - nanocloud
 
  nanocloud-backend:
-  image: nanocloud/nanocloud-backend
-  build: ../nanocloud
   environment:
    - ENV=production
    - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
@@ -46,8 +42,6 @@ services:
    - nanocloud
 
  nanocloud-canva:
-  image: nanocloud/nanocloud-canva
-  build: ./canva/frontend
   container_name: "nanocloud-canva"
   volumes:
    - /opt/canva
@@ -55,8 +49,6 @@ services:
    - nanocloud
 
  nanocloud-frontend:
-  image: nanocloud/nanocloud-frontend
-  build: ../webapp
   container_name: "nanocloud-webapp"
   volumes:
    - /opt/front
@@ -64,8 +56,6 @@ services:
    - nanocloud
 
  proxy:
-  build: ./nginx
-  image: nanocloud/proxy
   restart: always
   container_name: "proxy"
   networks:
@@ -82,8 +72,6 @@ services:
    - nanocloud
 
  iaas-module:
-  image: nanocloud/iaas-module
-  build: ./iaas
   environment:
    - ENV=production
    - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
