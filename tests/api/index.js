@@ -25,7 +25,7 @@ var nano = require('./nanotest');
 var expect = nano.expect;
 
 describe("nanocloud is Online", function() {
-  var request = nano.get('/').shouldReturn(200);
+  var request = nano.get('').shouldReturn(200);
 })
 
 var admin = nano.login({
