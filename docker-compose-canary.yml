@@ -20,6 +20,14 @@ services:
   volumes_from:
    - nanocloud-frontend
    - nanocloud-canva
+ nanocloud-frontend:
+  extends:
+   file: ./modules/docker-compose.yml
+   service: nanocloud-frontend
+  container_name: "nanocloud-frontend"
+  volumes:
+   - /opt/front
+  image: nanocloud/nanocloud-frontend:latest
 
  nanocloud-canva:
   extends:
@@ -38,15 +46,6 @@ services:
    - 80:80
    - 443:443
   image: nanocloud/proxy:indiana
-
- nanocloud-frontend:
-  extends:
-   file: ./modules/docker-compose.yml
-   service: nanocloud-backend
-  image: nanocloud/nanocloud-frontend
-  container_name: "nanocloud-frontend"
-  volumes:
-   - /opt/front
 
  iaas-module:
   extends:
