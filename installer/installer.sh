@@ -25,8 +25,8 @@ SCRIPT_UID=$(id -u)
 COMMUNITY_TAG="0.4.0"
 COMMAND=${1}
 
-if [ "${COMMAND}" = "indiana" ]; then
-    COMMUNITY_TAG="indiana"
+if [ "${COMMAND}" = "canary" ]; then
+    COMMUNITY_TAG="canary"
 fi
 
 if [ -z "$(which docker || true)" ]; then
