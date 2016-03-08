@@ -19,6 +19,7 @@ services:
   image: nanocloud/nanocloud-backend
   volumes_from:
    - nanocloud-frontend
+   - nanocloud-canva
 
  nanocloud-canva:
   extends:
