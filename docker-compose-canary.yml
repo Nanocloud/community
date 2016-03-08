@@ -45,7 +45,7 @@ services:
   ports:
    - 80:80
    - 443:443
-  image: nanocloud/proxy:indiana
+  image: nanocloud/proxy
 
  iaas-module:
   extends:
