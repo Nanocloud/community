@@ -16,10 +16,11 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: nanocloud-backend
-  image: nanocloud/nanocloud-backend
   volumes_from:
    - nanocloud-frontend
    - nanocloud-canva
+  image: nanocloud/nanocloud-backend
+
  nanocloud-frontend:
   extends:
    file: ./modules/docker-compose.yml
@@ -33,10 +34,10 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: nanocloud-canva
-  image: nanocloud/nanocloud-canva
   container_name: "nanocloud-canva"
   volumes:
    - /opt/canva
+  image: nanocloud/nanocloud-canva
 
  proxy:
   extends:
