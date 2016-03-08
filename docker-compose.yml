@@ -24,7 +24,7 @@ services:
  nanocloud-frontend:
   extends:
    file: ./modules/docker-compose.yml
-   service: nanocloud-backend
+   service: nanocloud-frontend
   container_name: "nanocloud-frontend"
   volumes:
    - /opt/front
