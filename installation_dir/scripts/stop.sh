@@ -41,8 +41,8 @@ if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     docker-compose --file "${ROOT_DIR}/modules/docker-compose-build.yml" stop
 else
     echo "$(date "${DATE_FMT}") Stopping nanocloud containers from docker hub $COMMUNITY_CHANNEL"
-    if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
-	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" stop
+    if [ "${COMMUNITY_CHANNEL}" = "canary" ]; then
+	docker-compose --file "${ROOT_DIR}/docker-compose-canary.yml" stop
     elif [ "${COMMUNITY_CHANNEL}" = "dev" ]; then
 	docker-compose --file "${ROOT_DIR}/modules/docker-compose-dev.yml" stop
     else

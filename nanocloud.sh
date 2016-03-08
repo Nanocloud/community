@@ -30,8 +30,8 @@ DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/modules/build_output"
 
 COMMAND=${1}
 
-if [ "${COMMAND}" = "indiana" ]; then
-    COMMUNITY_CHANNEL="indiana"
+if [ "${COMMAND}" = "canary" ]; then
+    COMMUNITY_CHANNEL="canary"
 elif [ "${COMMAND}" = "dev" ]; then
     COMMUNITY_CHANNEL="dev"
 else

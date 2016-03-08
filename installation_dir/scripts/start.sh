@@ -38,8 +38,8 @@ fi
 if [ "${COMMUNITY_CHANNEL}" = "" ]; then
     COMMAND=${1}
 
-    if [ "${COMMAND}" = "indiana" ]; then
-	COMMUNITY_CHANNEL="indiana"
+    if [ "${COMMAND}" = "canary" ]; then
+	COMMUNITY_CHANNEL="canary"
     elif [ "${COMMAND}" = "dev" ]; then
 	COMMUNITY_CHANNEL="dev"
     else
@@ -61,8 +61,8 @@ if [ -f "${DOCKER_COMPOSE_BUILD_OUTPUT}" ]; then
     fi
 else
     echo "$(date "${DATE_FMT}") Starting nanocloud containers from docker hub $COMMUNITY_CHANNEL"
-    if [ "${COMMUNITY_CHANNEL}" = "indiana" ]; then
-	docker-compose --file "${ROOT_DIR}/docker-compose-indiana.yml" up -d
+    if [ "${COMMUNITY_CHANNEL}" = "canary" ]; then
+	docker-compose --file "${ROOT_DIR}/docker-compose-canary.yml" up -d
     else
 	docker-compose --file "${ROOT_DIR}/docker-compose.yml" up -d
     fi

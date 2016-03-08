@@ -5,7 +5,7 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: guacamole-client
-  image: nanocloud/guacamole-client:indiana
+  image: nanocloud/guacamole-client
 
  guacamole-server:
   extends:
@@ -16,7 +16,7 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: nanocloud-backend
-  image: nanocloud/nanocloud-backend:indiana
+  image: nanocloud/nanocloud-backend
   volumes_from:
    - nanocloud-frontend
 
@@ -24,7 +24,7 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: nanocloud-canva
-  image: nanocloud/nanocloud-canva:indiana
+  image: nanocloud/nanocloud-canva
   container_name: "nanocloud-canva"
   volumes:
    - /opt/canva
@@ -42,7 +42,7 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: nanocloud-backend
-  image: nanocloud/nanocloud-frontend:indiana
+  image: nanocloud/nanocloud-frontend
   container_name: "nanocloud-frontend"
   volumes:
    - /opt/front
@@ -51,7 +51,7 @@ services:
   extends:
    file: ./modules/docker-compose.yml
    service: iaas-module
-  image: nanocloud/iaas-module:indiana
+  image: nanocloud/iaas-module
 
  postgres:
   extends:
