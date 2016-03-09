@@ -23,11 +23,6 @@
 SCRIPT_UID=$(id -u)
 
 COMMUNITY_TAG="0.4.0"
-COMMAND=${1}
-
-if [ "${COMMAND}" = "canary" ]; then
-    COMMUNITY_TAG="canary"
-fi
 
 if [ -z "$(which docker || true)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
@@ -35,4 +30,4 @@ if [ -z "$(which docker || true)" ]; then
 fi
 
 docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud nanocloud/community:${COMMUNITY_TAG}
-${PWD}/nanocloud/installation_dir/scripts/start.sh ${COMMUNITY_TAG}
+docker-compose ${PWD}/nanocloud/docker-compose.yml up -d
