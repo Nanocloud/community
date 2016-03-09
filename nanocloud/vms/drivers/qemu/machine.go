@@ -1,3 +1,25 @@
+/*
+ * Nanocloud Community, a comprehensive platform to turn any application
+ * into a cloud solution.
+ *
+ * Copyright (C) 2016 Nanocloud Software
+ *
+ * This file is part of Nanocloud community.
+ *
+ * Nanocloud community is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Nanocloud community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package qemu
 
 import (
@@ -5,14 +27,14 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/Nanocloud/community/nanocloud/vms"
 	log "github.com/Sirupsen/logrus"
 )
 
 type machine struct {
-	id string
+	id     string
+	server string
 }
 
 type VmInfo struct {
@@ -37,21 +59,21 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 		log.Error(err)
 		return vms.StatusUnknown, err
 	}
-	type Status struct {
-		Id         string `json:"id"`
-		Type       string `json:"type"`
-		Attributes VmInfo
-	}
-	var State struct {
-		Data []Status `json:"data"`
+
+	var state struct {
+		Data []struct {
+			Id         string `json:"id"`
+			Type       string `json:"type"`
+			Attributes VmInfo
+		} `json:"data"`
 	}
 
-	err = json.Unmarshal(body, &State)
+	err = json.Unmarshal(body, &state)
 	if err != nil {
 		log.Error(err)
 		return vms.StatusUnknown, err
 	}
-	for _, val := range State.Data {
+	for _, val := range state.Data {
 		switch val.Attributes.Status {
 		case "running":
 			return vms.StatusUp, nil
@@ -68,8 +90,7 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 }
 
 func (m *machine) IP() (net.IP, error) {
-	iaas := os.Getenv("WIN_SERVER")
-	return []byte(iaas), nil
+	return []byte(m.server), nil
 }
 
 func (m *machine) Type() (vms.MachineType, error) {
