@@ -58,7 +58,6 @@ export class AuthenticationSvc {
 
 	logout(): angular.IPromise<void> {
 		let dfr = this.$q.defer<void>();
-		sessionStorage.clear();
 		localStorage.clear();
 		this.$http.defaults.headers.common["Authorization"] = "";
 		dfr.resolve();
