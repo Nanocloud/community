@@ -25,28 +25,14 @@ SCRIPT_FULL_PATH=$(readlink -e "${0}")
 CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
-CHANNEL_FILE=${NANOCLOUD_DIR}/channel
-COMMUNITY_CHANNEL=$(cat ${CHANNEL_FILE})
+${CURRENT_DIR}/installer/check_version.sh
 
-${CURRENT_DIR}/check_version.sh
-
-sh $NANOCLOUD_DIR/scripts/stop.sh ${COMMUNITY_CHANNEL}
-
-docker-compose -f ${CURRENT_DIR}/modules/docker-compose.yml down
-docker-compose -f ${CURRENT_DIR}/modules/docker-compose-dev.yml down
-docker-compose -f ${CURRENT_DIR}/docker-compose.yml down
+# Power down all production container
+docker-compose down
 
 # Remove all docker images related to Nanocloud
 docker images | awk '/^nanocloud\// { printf "docker rmi -f %s:%s\n", $1, $2; }' | sh
 
-echo "$(date "${DATE_FMT}") Removing installed files"
-rm -f ${NANOCLOUD_DIR}/pid/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.pid
-rm -rf ${CURRENT_DIR}/modules/build_output
-rm -f ${NANOCLOUD_DIR}/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
-rm -f ${NANOCLOUD_DIR}/downloads/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
-rm -f ${CHANNEL_FILE}
-
 echo "$(date "${DATE_FMT}") Nanocloud uninstalled"
 echo "$(date "${DATE_FMT}") To install Nanocloud again, use :"
-echo "$(date "${DATE_FMT}")     # $(readlink -e ${CURRENT_DIR}/nanocloud.sh)"
+echo "$(date "${DATE_FMT}")     # $PWD/install.sh"
