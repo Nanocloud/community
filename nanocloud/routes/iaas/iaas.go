@@ -11,6 +11,24 @@ import (
 
 type hash map[string]interface{}
 
+type JsonMachine struct {
+	Id     string
+	Name   string
+	Status string
+	Ip     string
+}
+
+func MachinetoStruct(rawmachine vm.Machine) JsonMachine {
+	var mach JsonMachine
+	mach.Id = rawmachine.Id()
+	mach.Name, _ = rawmachine.Name()
+	status, _ := rawmachine.Status()
+	mach.Status = vm.StatusToString(status)
+	ip, _ := rawmachine.IP()
+	mach.Ip = string(ip)
+	return mach
+}
+
 func ListRunningVM(c *echo.Context) error {
 	machines, err := vms.Machines()
 	if err != nil {
@@ -71,7 +89,7 @@ func StopVM(c *echo.Context) error {
 	}
 	return c.JSON(
 		http.StatusOK, hash{
-			"success": true,
+			"vm": MachinetoStruct(machine),
 		})
 }
 
@@ -91,13 +109,13 @@ func StartVM(c *echo.Context) error {
 	}
 	return c.JSON(
 		http.StatusOK, hash{
-			"success": true,
+			"vm": MachinetoStruct(machine),
 		})
 }
 
 func CreateVM(c *echo.Context) error {
 	//TODO READ BODY TO GET PASSWORD AND TYPE
-	_, err := vms.Create(c.Param("id"), "", nil)
+	vm, err := vms.Create(c.Param("id"), "", nil)
 	if err != nil {
 		return c.JSON(
 			http.StatusInternalServerError, hash{
@@ -110,6 +128,6 @@ func CreateVM(c *echo.Context) error {
 	}
 	return c.JSON(
 		http.StatusOK, hash{
-			"success": true,
+			"vm": MachinetoStruct(vm),
 		})
 }
