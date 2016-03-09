@@ -26,6 +26,7 @@ import (
 	"os"
 
 	"github.com/Nanocloud/community/nanocloud/vms"
+	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/qemu"
 	log "github.com/Sirupsen/logrus"
 )
@@ -39,9 +40,12 @@ func getInstance() (*vms.VM, error) {
 		if len(iaas) == 0 {
 			log.Fatal("No iaas provided")
 		}
-		server := os.Getenv("WIN_SERVER")
-		m := make(map[string]string, 1)
-		m["server"] = server
+		m := make(map[string]string, 0)
+		m["servers"] = os.Getenv("EXECUTION_SERVERS")
+		m["ad"] = os.Getenv("WIN_SERVER")
+		m["sshport"] = os.Getenv("SSH_PORT")
+		m["password"] = os.Getenv("WIN_PASSWORD")
+		m["user"] = os.Getenv("WIN_USER")
 		var err error
 		_vm, err = vms.Open(iaas, m)
 		return _vm, err

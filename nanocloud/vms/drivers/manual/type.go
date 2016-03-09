@@ -20,12 +20,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package qemu
+package manual
 
-import "github.com/Nanocloud/community/nanocloud/vms"
+type machineType struct {
+	id    string
+	label string
+	size  string
+	cpu   int
+	ram   int
+}
 
-type driver struct{}
+func (t *machineType) Id() string {
+	return t.id
+}
 
-func (d *driver) Open(options map[string]string) (vms.VM, error) {
-	return &vm{server: options["ad"]}, nil
+func (t *machineType) Label() string {
+	return t.label
+}
+
+var defaultType *machineType
+
+func init() {
+	defaultType = &machineType{
+		id:    "default",
+		label: "Default",
+		size:  "60GB",
+		cpu:   2,
+		ram:   4096,
+	}
 }
