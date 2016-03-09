@@ -56,7 +56,7 @@ export class LoginCtrl {
 	}
 
 	signIn() {
-		sessionStorage.setItem("user", this.credentials.email);
+		localStorage.setItem("user", this.credentials.email);
 		this.authSvc
 			.login(this.credentials)
 			.then(

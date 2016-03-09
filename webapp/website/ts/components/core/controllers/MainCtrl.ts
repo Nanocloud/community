@@ -48,7 +48,7 @@ export class MainCtrl {
 		$rootScope: angular.IRootScopeService,
 		$http: angular.IHttpService
 	) {
-		this.user = sessionStorage.getItem("user");
+		this.user = localStorage.getItem("user");
 
 		this.menus = _.sortBy(MainMenu.menus, (m: INavMenu) => m.title);
 		this.checkMenuState($state.current);

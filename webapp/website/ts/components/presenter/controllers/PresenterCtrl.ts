@@ -41,7 +41,7 @@ export class PresenterCtrl {
 		private appsSvc: ApplicationsSvc
 	) {
 		this.loadApplications();
-		this.user = sessionStorage.getItem("user");
+		this.user = localStorage.getItem("user");
 	}
 
 	loadApplications(): angular.IPromise<void> {
