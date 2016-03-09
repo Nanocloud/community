@@ -40,6 +40,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	logger "github.com/labstack/gommon/log"
 )
 
 func main() {
@@ -50,6 +51,7 @@ func main() {
 	}
 
 	e := echo.New()
+	e.SetLogLevel(logger.DEBUG)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -87,7 +89,7 @@ func main() {
 	e.Get("/api/iaas", m.OAuth2(m.Admin(iaas.ListRunningVM)))
 	e.Post("/api/iaas/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
 	e.Post("/api/iaas/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
-	e.Post("/api/iaas/:id/download", m.OAuth2(m.Admin(iaas.DownloadVM)))
+	e.Post("/api/iaas/:id/download", m.OAuth2(m.Admin(iaas.CreateVM)))
 
 	/**
 	 * FRONT

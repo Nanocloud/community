@@ -25,15 +25,11 @@
 "use strict";
 
 export interface IService {
-	ico: string;
 	name: string;
-	display_name: string;
-	locked: boolean;
+	id: string;
 	status: string;
-	FontColor: string;
-	current_size: number;
-	total_size: number;
-	VM: string;
+	ip: string;
+	locked: boolean;
 }
 
 export class ServicesSvc {
@@ -63,13 +59,10 @@ export class ServicesSvc {
 				}
 				let arr: IService[] = [];
 				for (let data of res.data.data) {
-					if (data.attributes.ico === "windows") {
-						this.downloadStarted = false;
-						this.windowsReady = true;
-					}
+					this.downloadStarted = false;
+					this.windowsReady = true;
 					let svc: IService;
 					svc = data.attributes;
-					svc.name = data.id;
 					arr.push(svc);
 				}
 				return arr;
@@ -85,7 +78,7 @@ export class ServicesSvc {
 	}
 
 	start(service: IService): angular.IPromise<any> {
-		return this.$http.post("/api/iaas/" + service.name + "/start", null).then(
+		return this.$http.post("/api/iaas/" + service.id + "/start", null).then(
 			function() {
 				service.status = "booting";
 			},

@@ -19,6 +19,7 @@ services:
    - FRONT_DIR=/opt/front/website
    - CANVA_FRONT_DIR=/opt/canva/dist
    - WIN_PASSWORD=Nanocloud123+
+   - IAAS=qemu
    - WIN_PORT=1119
    - WIN_USER=Administrator
    - WIN_SERVER=iaas-module
