@@ -22,12 +22,56 @@
 
 SCRIPT_UID=$(id -u)
 
+DATE_FMT="+%Y/%m/%d %H:%M:%S"
 COMMUNITY_TAG="0.4.0"
+COMMAND=${1}
 
 if [ -z "$(which docker || true)" ]; then
   echo "$(date "${DATE_FMT}") Docker is missing, please install *docker*"
   exit 2
 fi
 
+function check_docker_compose_file {
+    DOCKERCOMPOSEFILE=${PWD}/nanocloud/docker-compose.yml
+
+    if [ -z "$(ls -l $DOCKERCOMPOSEFILE 2> /dev/null || true)" ]; then
+        echo "$(date "${DATE_FMT}") Could not find $DOCKERCOMPOSEFILE"
+        exit 2
+    fi
+}
+
+case $COMMAND in
+    "start")
+        check_docker_compose_file
+        docker-compose -f ${PWD}/nanocloud/docker-compose.yml up -d
+        ;;
+    "stop")
+        check_docker_compose_file
+        docker-compose -f ${PWD}/nanocloud/docker-compose.yml kill
+        ;;
+    "status")
+        NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://$(docker exec proxy hostname -I | awk '{print $1}')")
+        if [ "${NANOCLOUD_STATUS}" != "200" ]; then
+            echo "$(date "${DATE_FMT}") Nanocloud is *NOT* running"
+        else
+            echo "$(date "${DATE_FMT}") Nanocloud is running"
+            printf "%s \tURL: https://localhost\n" "$(date "${DATE_FMT}")"
+            printf "%s \tEmail: admin@nanocloud.com\n" "$(date "${DATE_FMT}")"
+            printf "%s \tPassword: admin\n" "$(date "${DATE_FMT}")"
+            echo "$(date "${DATE_FMT}") This URL will only be accessible from this host."
+            echo ""
+            echo "$(date "${DATE_FMT}") Use the following commands as root to start, stop or get status information"
+            echo "$(date "${DATE_FMT}")     # installer.sh start"
+            echo "$(date "${DATE_FMT}")     # installer.sh stop"
+            echo "$(date "${DATE_FMT}")     # installer.sh status"
+        fi
+        ;;
+    "uninstall")
+        ./nanocloud/nanocloud_uninstall.sh
+        rm -rf nanocloud
+        ;;
+esac
+
+# If no argument is provided then install Nanocloud
 docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud nanocloud/community:${COMMUNITY_TAG}
-docker-compose ${PWD}/nanocloud/docker-compose.yml up -d
+docker-compose -f ${PWD}/nanocloud/docker-compose.yml up -d
