@@ -88,7 +88,11 @@ func Migrate() error {
 				id                serial PRIMARY KEY,
 				token             varchar(255) NOT NULL DEFAULT '' UNIQUE,
 				oauth_client_id   integer REFERENCES oauth_clients (id),
-				user_id           varchar(255) NOT NULL DEFAULT ''
+				user_id           varchar(255) NOT NULL DEFAULT '',
+				created_at		  timestamp,
+				user_agent		  varchar(255),
+				ip				  varchar(255),
+				expires_at		  timestamp
 			)`)
 
 		if err != nil {
