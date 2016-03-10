@@ -149,8 +149,8 @@ export default Ember.Component.extend({
     let display = this.guacamole.getDisplay();
 
     window.onresize = function() {
-      let width = window.innerWidth;
-      let height = window.innerHeight;
+      let width = this.get('element').offsetWidth;
+      let height = this.get('element').offsetHeight;
       this.guacamole.sendSize(width, height);
     }.bind(this);
 
