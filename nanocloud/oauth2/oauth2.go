@@ -27,11 +27,7 @@ type Connector interface {
 	GetClient(key, secret string) (interface{}, error)
 	GetUserFromAccessToken(accessToken string) (interface{}, error)
 	AuthenticateUser(username, password string) (interface{}, error)
-	GetAccessToken(interface{}, interface{}) (JSONAble, error)
-}
-
-type JSONAble interface {
-	ToJSON() ([]byte, error)
+	GetAccessToken(interface{}, interface{}, *http.Request) (interface{}, error)
 }
 
 var kConnector Connector
@@ -83,7 +79,7 @@ func GetAccessToken(req *http.Request) (accessToken string, err *OAuthError) {
 	 * Check Authorization Header
 	 */
 
-	accessToken, err = getAuthorizationHeaderValue(req, "Bearer")
+	accessToken, err = GetAuthorizationHeaderValue(req, "Bearer")
 	return
 }
 
@@ -110,7 +106,7 @@ func GetUser(res http.ResponseWriter, req *http.Request) (interface{}, *OAuthErr
 	return nil, &OAuthError{403, ACCESS_DENIED, "Invalid access token"}
 }
 
-func getAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {
+func GetAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {
 	rawHeader := req.Header.Get("Authorization")
 	if len(rawHeader) < 1 {
 		return "", &OAuthError{403, INVALID_REQUEST, "Authorization header is missing"}
@@ -130,7 +126,7 @@ func getAuthorizationHeaderValue(req *http.Request, authType string) (string, *O
 }
 
 func clientBasicAuth(req *http.Request) (interface{}, *OAuthError) {
-	rawAuthToken, err := getAuthorizationHeaderValue(req, "Basic")
+	rawAuthToken, err := GetAuthorizationHeaderValue(req, "Basic")
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +261,7 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		accessToken, fail := kConnector.GetAccessToken(user, client)
+		accessToken, fail := kConnector.GetAccessToken(user, client, req)
 		if fail != nil {
 			log.Error("[OAuth] Cannot Get Access Token: " + fail.Error())
 			oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
@@ -277,7 +273,7 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		rt, fail := accessToken.ToJSON()
+		rt, fail := json.Marshal(accessToken)
 		if fail != nil {
 			log.Error("[OAuth] Unable to serialize access token: " + fail.Error())
 			oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
@@ -307,7 +303,7 @@ func (c dummyConnector) AuthenticateUser(username, password string) (interface{}
 	return nil, errors.New("AuthenticateUser is not implemented")
 }
 
-func (c dummyConnector) GetAccessToken(user, client interface{}) (JSONAble, error) {
+func (c dummyConnector) GetAccessToken(user, client interface{}, req *http.Request) (interface{}, error) {
 	return nil, errors.New("GetAccessToken is not implemented")
 }
 

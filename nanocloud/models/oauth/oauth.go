@@ -23,11 +23,16 @@
 package oauth
 
 import (
-	"encoding/json"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/community/nanocloud/utils"
+	"github.com/satori/go.uuid"
 )
 
 type oauthConnector struct{}
@@ -39,8 +44,9 @@ type Client struct {
 }
 
 type AccessToken struct {
-	Token string
-	Type  string
+	Token     string        `json:"access_token"`
+	Type      string        `json:"token_type"`
+	ExpiresIn time.Duration `json:"expires_in"`
 }
 
 func (c oauthConnector) AuthenticateUser(username, password string) (interface{}, error) {
@@ -51,7 +57,9 @@ func (c oauthConnector) GetUserFromAccessToken(accessToken string) (interface{},
 	rows, err := db.Query(
 		`SELECT user_id
 		FROM oauth_access_tokens
-		WHERE token = $1::varchar`,
+		WHERE token = $1::varchar
+		AND expires_at > NOW()
+		`,
 		accessToken,
 	)
 
@@ -96,45 +104,48 @@ func (c oauthConnector) GetClient(key string, secret string) (interface{}, error
 	return nil, nil
 }
 
-func (at AccessToken) ToJSON() ([]byte, error) {
-	m := make(map[string]string)
-	m["access_token"] = at.Token
-	m["type"] = at.Type
-
-	return json.Marshal(&m)
+func removeExpiredTokens() {
+	db.Exec(
+		`DELETE FROM oauth_access_tokens
+		WHERE expires_at < NOW()`,
+	)
 }
 
-func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth2.JSONAble, error) {
+func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}, req *http.Request) (interface{}, error) {
+	removeExpiredTokens()
+
 	user := rawUser.(*users.User)
 	client := rawClient.(*Client)
 
-	rows, err := db.Query(
-		`SELECT token
-		FROM oauth_access_tokens
-		WHERE oauth_client_id = $1::integer
-		AND user_id = $2::varchar`,
-		client.Id, user.Id,
-	)
+	ua := req.UserAgent()
 
-	if err != nil {
-		return nil, err
+	// Get IP client address
+	var ip string
+	if os.Getenv("TRUST_PROXY") == "true" {
+		xForwardedFor := req.Header["X-Forwarded-For"]
+		if len(xForwardedFor) > 0 {
+			ip = xForwardedFor[0]
+		}
 	}
 
-	defer rows.Close()
-	if rows.Next() {
-		accessToken := AccessToken{}
-		accessToken.Type = "Bearer"
-		rows.Scan(&accessToken.Token)
-		return accessToken, nil
+	if len(ip) == 0 {
+		addr := req.RemoteAddr
+		i := strings.LastIndex(addr, ":")
+		ip = addr[0:i]
 	}
 
+	id := uuid.NewV4().String()
 	token := utils.RandomString(25)
 
-	rows, err = db.Query(
+	rows, err := db.Query(
 		`INSERT INTO oauth_access_tokens
-		(token, oauth_client_id, user_id)
-		VALUES ($1::varchar, $2::integer, $3::varchar)`,
-		token, client.Id, user.Id,
+		(id, token, oauth_client_id, user_id,
+		 created_at, user_agent, ip, expires_at)
+		VALUES
+		($1::varchar, $2::varchar, $3::integer, $4::varchar,
+		 NOW(), $5::varchar, $6::varchar, NOW() + interval '1 day')`,
+		id, token, client.Id, user.Id,
+		ua, ip,
 	)
 
 	if err != nil {
@@ -143,7 +154,11 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}) (oauth2.J
 
 	rows.Close()
 
-	accessToken := AccessToken{token, "Bearer"}
+	accessToken := AccessToken{
+		Token:     token,
+		Type:      "Bearer",
+		ExpiresIn: 60 * 60 * 24,
+	}
 	return accessToken, nil
 }
 

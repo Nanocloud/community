@@ -30,6 +30,7 @@ services:
    - PASSWORD=Nanocloud123+
    - WINDOWS_DOMAIN=intra.localdomain.com
    - EXECUTION_SERVERS=iaas-module
+   - TRUST_PROXY=true
   restart: always
   container_name: "nanocloud-api"
   networks:
