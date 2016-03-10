@@ -24,7 +24,9 @@
 				<md-list>
 					<md-list-item ng-click="presenterCtrl.startDesktop($event, presenterCtrl.getAppUrl(application))"
 							class="md-2-line" ng-repeat="application in presenterCtrl.applications">
-						<ng-md-icon icon="pageview"></ng-md-icon>
+						<img ng-if="application.icon_content != ''" ng-src="{{
+						'data:image/png;base64,' + application.icon_content }}"
+						class='md-avatar' style="border-radius:0;">
 						<div class="md-list-item-text">
 							<h3> {{ application.display_name }} </h3>
 						</div>

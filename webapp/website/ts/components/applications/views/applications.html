@@ -50,6 +50,8 @@
 	<md-card-content>
 		<md-list role="list">
 			<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="app in applicationsCtrl.applications">
+				<img ng-if="app.icon_content.length > 0" ng-src="{{'data:image/png;base64,' + app.icon_content }}"
+					class='md-avatar' style="border-radius:0;">
 				<h3>{{ app.display_name }}</h3>
 				<md-card-actions class="md-secondary">
 					<md-button ng-click="applicationsCtrl.startDesktop($event, applicationsCtrl.getAppUrl(app))">

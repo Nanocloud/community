@@ -63,6 +63,7 @@ type ApplicationParams struct {
 	Alias          string `json:"alias"`
 	DisplayName    string `json:"display_name"`
 	FilePath       string `json:"file_path"`
+	IconContents   []byte `json:"icon_content"`
 }
 
 type ApplicationParamsWin struct {
@@ -71,6 +72,7 @@ type ApplicationParamsWin struct {
 	Alias          string
 	DisplayName    string
 	FilePath       string
+	IconContents   []byte
 }
 
 type Connection struct {
@@ -118,9 +120,9 @@ func GetAllApps() ([]ApplicationParams, error) {
 	rows, err := db.Query(
 		`SELECT id, collection_name,
 	alias, display_name,
-	file_path
-	FROM apps`,
-	)
+	file_path,
+	icon_content
+	FROM apps`)
 
 	if err != nil {
 		log.Error("Connection to postgres failed: ", err.Error())
@@ -138,6 +140,7 @@ func GetAllApps() ([]ApplicationParams, error) {
 			&appParam.Alias,
 			&appParam.DisplayName,
 			&appParam.FilePath,
+			&appParam.IconContents,
 		)
 		applications = append(applications, appParam)
 
@@ -147,7 +150,6 @@ func GetAllApps() ([]ApplicationParams, error) {
 		applications = []ApplicationParams{}
 	}
 	return applications, nil
-
 }
 
 func GetUserApps(userId string) ([]ApplicationParams, error) {
@@ -155,7 +157,8 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 	rows, err := db.Query(
 		`SELECT id, collection_name,
 	alias, display_name,
-	file_path
+	file_path,
+	icon_content
 	FROM apps`,
 	)
 
@@ -175,6 +178,7 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 			&appParam.Alias,
 			&appParam.DisplayName,
 			&appParam.FilePath,
+			&appParam.IconContents,
 		)
 		if appParam.Alias != "hapticPowershell" && appParam.Alias != "Desktop" {
 			applications = append(applications, appParam)
@@ -190,9 +194,9 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 func CheckPublishedApps() {
 	_, err := db.Query(
 		`INSERT INTO apps
-			(collection_name, alias, display_name, file_path)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
-			`, "", "Desktop", "Desktop", "")
+			(collection_name, alias, display_name, file_path, icon_content)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+			`, "", "Desktop", "Desktop", "", "")
 	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
 	}
@@ -215,12 +219,14 @@ func CheckPublishedApps() {
 			"powershell.exe \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
 		)
 		response, err := cmd.CombinedOutput()
+
 		if err != nil {
 			log.Error("Failed to execute sshpass command ", err, string(response))
 			continue
 		}
 		err = json.Unmarshal(response, &applications)
 		if err != nil {
+
 			err = json.Unmarshal(response, &winapp)
 			if err != nil {
 				continue
@@ -230,12 +236,14 @@ func CheckPublishedApps() {
 				DisplayName:    winapp.DisplayName,
 				Alias:          winapp.Alias,
 				FilePath:       winapp.FilePath,
+				IconContents:    winapp.IconContents,
 			}
+
 			_, err := db.Query(
 				`INSERT INTO apps
-			(collection_name, alias, display_name, file_path)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
-			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath)
+			(collection_name, alias, display_name, file_path, icon_content)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
 			if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 				log.Error("Error inserting app into postgres: ", err.Error())
 			}
@@ -247,16 +255,18 @@ func CheckPublishedApps() {
 				DisplayName:    app.DisplayName,
 				Alias:          app.Alias,
 				FilePath:       app.FilePath,
+				IconContents:   app.IconContents,
 			})
 		}
 
 		for _, application := range apps {
+
 			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
 				_, err := db.Query(
 					`INSERT INTO apps
-			(collection_name, alias, display_name, file_path)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
-			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath)
+			(collection_name, alias, display_name, file_path, icon_content)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
 				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 					log.Error("Error inserting app into postgres: ", err.Error())
 				}
