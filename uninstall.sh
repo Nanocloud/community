@@ -34,5 +34,3 @@ docker-compose down
 docker images | awk '/^nanocloud\// { printf "docker rmi -f %s:%s\n", $1, $2; }' | sh
 
 echo "$(date "${DATE_FMT}") Nanocloud uninstalled"
-echo "$(date "${DATE_FMT}") To install Nanocloud again, use :"
-echo "$(date "${DATE_FMT}")     # $PWD/install.sh"

@@ -67,7 +67,7 @@ case $COMMAND in
         fi
         ;;
     "uninstall")
-        ./nanocloud/nanocloud_uninstall.sh
+        ./nanocloud/uninstall.sh
         rm -rf nanocloud
         ;;
 esac
