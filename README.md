@@ -87,7 +87,7 @@ If you are ready to wait 30 minutes to build a new image,you will need some pack
 Then run :
 
 ```
-env PACKER_LOG=1 ./windows/build_windows.sh
+env PACKER_LOG=1 ./windows/build-windows.sh
 ```
 
 Afterwards, You can run the following command to copy your Windows image to your running IaaS container.
