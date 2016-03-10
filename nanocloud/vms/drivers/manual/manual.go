@@ -20,26 +20,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vms
+package manual
 
-import (
-	"github.com/Nanocloud/community/nanocloud/vms"
-)
+import "github.com/Nanocloud/community/nanocloud/vms"
 
-var vm *vms.VM
-
-func SetVM(v *vms.VM) {
-	vm = v
-}
-
-func Machines() ([]vms.Machine, error) {
-	return (*vm).Machines()
-}
-
-func Machine(id string) (vms.Machine, error) {
-	return (*vm).Machine(id)
-}
-
-func Create(name, password string, t vms.MachineType) (vms.Machine, error) {
-	return (*vm).Create(name, password, t)
+func init() {
+	vms.Register("manual", &driver{})
 }

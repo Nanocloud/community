@@ -20,26 +20,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vms
+package manual
 
-import (
-	"github.com/Nanocloud/community/nanocloud/vms"
-)
-
-var vm *vms.VM
-
-func SetVM(v *vms.VM) {
-	vm = v
+type machineType struct {
+	id    string
+	label string
+	size  string
+	cpu   int
+	ram   int
 }
 
-func Machines() ([]vms.Machine, error) {
-	return (*vm).Machines()
+func (t *machineType) Id() string {
+	return t.id
 }
 
-func Machine(id string) (vms.Machine, error) {
-	return (*vm).Machine(id)
+func (t *machineType) Label() string {
+	return t.label
 }
 
-func Create(name, password string, t vms.MachineType) (vms.Machine, error) {
-	return (*vm).Create(name, password, t)
+var defaultType *machineType
+
+func init() {
+	defaultType = &machineType{
+		id:    "default",
+		label: "Default",
+		size:  "60GB",
+		cpu:   2,
+		ram:   4096,
+	}
 }
