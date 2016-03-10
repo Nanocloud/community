@@ -33,6 +33,7 @@ export class ApplicationsCtrl {
 
 	applications: IApplication[];
 	windowsState: boolean = false;
+	loadWindowHasFinished: boolean = false;
 
 	private accessToken: string;
 
@@ -47,8 +48,12 @@ export class ApplicationsCtrl {
 		private servicesFct: ServicesFct,
 		private $mdDialog: angular.material.IDialogService
 	) {
+		this.loadWindowHasFinished = false;
 		this.servicesFct.getWindowsStatus().then((windowsState: boolean) => {
+			console.log("getting state");
+			this.loadWindowHasFinished = true;
 			this.windowsState = windowsState;
+
 		});
 		this.accessToken = localStorage["accessToken"];
 		this.applications = [];

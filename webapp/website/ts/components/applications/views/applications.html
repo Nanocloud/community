@@ -1,4 +1,4 @@
-<md-card ng-if="applicationsCtrl.windowsState">
+<md-card ng-if="applicationsCtrl.loadWindowHasFinished && applicationsCtrl.windowsState">
 	<md-card-content>
 		<h2 class="md-title">Upload to VM</h2>
 		<div flow-init="{target: '/upload'}"
@@ -36,7 +36,7 @@
 	</md-card-actions>
 </md-card>
 
-<md-card ng-if="!applicationsCtrl.windowsState">
+<md-card ng-if="applicationsCtrl.loadWindowHasFinished && !applicationsCtrl.windowsState">
 	<md-card-content>
 		<p>
 			<strong>Windows</strong> seems to be unavailable, please ensure services are up and running in <strong>Services</strong> page.
@@ -44,7 +44,7 @@
 	</md-card-content>
 </md-card>
 
-<md-card ng-if="applicationsCtrl.applications.length !== 0">
+<md-card ng-if="applicationsCtrl.loadWindowHasFinished && applicationsCtrl.windowsState && applicationsCtrl.applications.length !== 0">
 	<md-card-content>
 		<md-list role="list">
 			<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="app in applicationsCtrl.applications">
@@ -64,3 +64,8 @@
 		</md-list>
 	</md-card-content>
 </md-card>
+
+<div ng-if="!applicationsCtrl.loadWindowHasFinished" layout="row" layout-sm="column" layout-align="space-around">
+	<md-progress-circular md-mode="indeterminate" md-diameter="96"></md-progress-circular>
+</div>
+

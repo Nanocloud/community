@@ -1,4 +1,4 @@
-<md-card ng-if="!usersCtrl.windowsState">
+<md-card ng-if="usersCtrl.loadWindowHasFinished && !usersCtrl.windowsState">
 	<md-card-content>
 		<p>
 			<strong>Windows</strong> seems to be unavailable, please ensure services are up and running in <strong>Services</strong> page.
@@ -6,7 +6,7 @@
 	</md-card-content>
 </md-card>
 
-<md-card flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
+<md-card ng-if="usersCtrl.loadWindowHasFinished && usersCtrl.windowsState" flex-sm="90" flex-gt-sm="60" flex-gt-lg="35">
 	<md-card-content>
 		<md-list>
 			<md-list-item class="md-2-line" ng-repeat="user in usersCtrl.users">
@@ -31,7 +31,7 @@
 	</md-card-content>
 </md-card>
 
-<div style="text-align: right;">
+<div ng-if="usersCtrl.loadWindowHasFinished && usersCtrl.windowsState" style="text-align: right;">
 	<md-button ng-click="usersCtrl.startAddUser($event)" class="md-primary"
 			ng-disabled="!usersCtrl.windowsState" aria-label="Add a new user">
 		<md-tooltip>Add a new user</md-tooltip>
@@ -69,4 +69,8 @@
 			</p>
 		</md-card-content>
 	</md-card>
+</div>
+
+<div ng-if="!usersCtrl.loadWindowHasFinished" layout="row" layout-sm="column" layout-align="space-around">
+	<md-progress-circular md-mode="indeterminate" md-diameter="96"></md-progress-circular>
 </div>
