@@ -35,6 +35,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/iaas"
+	"github.com/Nanocloud/community/nanocloud/routes/logout"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/upload"
@@ -87,6 +88,11 @@ func main() {
 	e.SetLogLevel(logger.DEBUG)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	/**
+	 * LOGOUT
+	 */
+	e.Post("/api/logout", m.OAuth2(logout.Post))
 
 	/**
 	 * APPS

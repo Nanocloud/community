@@ -56,12 +56,13 @@ export class AuthenticationSvc {
 			});
 	}
 
-	logout(): angular.IPromise<void> {
-		let dfr = this.$q.defer<void>();
-		localStorage.clear();
-		this.$http.defaults.headers.common["Authorization"] = "";
-		dfr.resolve();
-		return dfr.promise;
+	logout(): angular.IPromise<any> {
+		return this.$http
+		.post("/api/logout", {})
+		.then((res: any) => {
+			localStorage.clear();
+			this.$http.defaults.headers.common["Authorization"] = "";
+		});
 	}
 
 }

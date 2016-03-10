@@ -79,7 +79,7 @@ func GetAccessToken(req *http.Request) (accessToken string, err *OAuthError) {
 	 * Check Authorization Header
 	 */
 
-	accessToken, err = getAuthorizationHeaderValue(req, "Bearer")
+	accessToken, err = GetAuthorizationHeaderValue(req, "Bearer")
 	return
 }
 
@@ -106,7 +106,7 @@ func GetUser(res http.ResponseWriter, req *http.Request) (interface{}, *OAuthErr
 	return nil, &OAuthError{403, ACCESS_DENIED, "Invalid access token"}
 }
 
-func getAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {
+func GetAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {
 	rawHeader := req.Header.Get("Authorization")
 	if len(rawHeader) < 1 {
 		return "", &OAuthError{403, INVALID_REQUEST, "Authorization header is missing"}
@@ -126,7 +126,7 @@ func getAuthorizationHeaderValue(req *http.Request, authType string) (string, *O
 }
 
 func clientBasicAuth(req *http.Request) (interface{}, *OAuthError) {
-	rawAuthToken, err := getAuthorizationHeaderValue(req, "Basic")
+	rawAuthToken, err := GetAuthorizationHeaderValue(req, "Basic")
 	if err != nil {
 		return nil, err
 	}
