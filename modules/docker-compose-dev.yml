@@ -13,7 +13,7 @@ services:
    - 8000:8000
   volumes:
    - ./canva/guacamole-client/:/opt
-   - ./canva/guacamole-client/noauth-logged/target/guacamole-auth-noauthlogged-0.9.9.jar:/etc/guacamole/extensions/guacamole-auth-noauthlogged-0.9.9.jar
+   - ./canva/guacamole-client/noauth-logged/target/:/etc/guacamole/extensions/
 
  guacamole-server:
   extends:
