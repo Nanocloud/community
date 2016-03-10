@@ -23,6 +23,10 @@
 package main
 
 import (
+	"errors"
+	"os"
+
+	vmsConn "github.com/Nanocloud/community/nanocloud/connectors/vms"
 	m "github.com/Nanocloud/community/nanocloud/middlewares"
 	"github.com/Nanocloud/community/nanocloud/migration"
 	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
@@ -37,14 +41,43 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/users"
 	"github.com/Nanocloud/community/nanocloud/routes/version"
 	"github.com/Nanocloud/community/nanocloud/utils"
+	"github.com/Nanocloud/community/nanocloud/vms"
+	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
+	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/qemu"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	logger "github.com/labstack/gommon/log"
 )
 
+func initVms() error {
+	iaas := os.Getenv("IAAS")
+	if len(iaas) == 0 {
+		return errors.New("No iaas provided")
+	}
+	m := make(map[string]string, 0)
+	m["servers"] = os.Getenv("EXECUTION_SERVERS")
+	m["ad"] = os.Getenv("WIN_SERVER")
+	m["sshport"] = os.Getenv("SSH_PORT")
+	m["password"] = os.Getenv("WIN_PASSWORD")
+	m["user"] = os.Getenv("WIN_USER")
+
+	vm, err := vms.Open(iaas, m)
+	if err != nil {
+		return err
+	}
+	vmsConn.SetVM(vm)
+	return nil
+}
+
 func main() {
 	err := migration.Migrate()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	err = initVms()
 	if err != nil {
 		log.Error(err)
 		return

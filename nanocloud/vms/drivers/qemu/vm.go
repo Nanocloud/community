@@ -84,5 +84,5 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 }
 
 func (v *vm) Machine(id string) (vms.Machine, error) {
-	return &machine{id: id}, nil
+	return &machine{id: id, server: v.server}, nil
 }
