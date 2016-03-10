@@ -85,7 +85,7 @@ func Migrate() error {
 	} else {
 		rows, err = db.Query(
 			`CREATE TABLE oauth_access_tokens (
-				id                serial PRIMARY KEY,
+				id                varchar(255) PRIMARY KEY,
 				token             varchar(255) NOT NULL DEFAULT '' UNIQUE,
 				oauth_client_id   integer REFERENCES oauth_clients (id),
 				user_id           varchar(255) NOT NULL DEFAULT '',

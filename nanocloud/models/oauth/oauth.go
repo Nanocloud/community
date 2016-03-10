@@ -32,6 +32,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/community/nanocloud/utils"
+	"github.com/satori/go.uuid"
 )
 
 type oauthConnector struct{}
@@ -133,16 +134,17 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}, req *http
 		ip = addr[0:i]
 	}
 
+	id := uuid.NewV4().String()
 	token := utils.RandomString(25)
 
 	rows, err := db.Query(
 		`INSERT INTO oauth_access_tokens
-		(token, oauth_client_id, user_id,
+		(id, token, oauth_client_id, user_id,
 		 created_at, user_agent, ip, expires_at)
 		VALUES
-		($1::varchar, $2::integer, $3::varchar,
-		 NOW(), $4::varchar, $5::varchar, NOW() + interval '1 day')`,
-		token, client.Id, user.Id,
+		($1::varchar, $2::varchar, $3::integer, $4::varchar,
+		 NOW(), $5::varchar, $6::varchar, NOW() + interval '1 day')`,
+		id, token, client.Id, user.Id,
 		ua, ip,
 	)
 

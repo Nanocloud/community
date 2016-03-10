@@ -38,6 +38,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/logout"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
+	"github.com/Nanocloud/community/nanocloud/routes/tokens"
 	"github.com/Nanocloud/community/nanocloud/routes/upload"
 	"github.com/Nanocloud/community/nanocloud/routes/users"
 	"github.com/Nanocloud/community/nanocloud/routes/version"
@@ -150,6 +151,12 @@ func main() {
 	 * OAUTH
 	 */
 	e.Any("/oauth/*", oauth.Handler)
+
+	/**
+	 * TOKENS
+	 */
+	e.Get("/api/tokens", m.OAuth2(tokens.Get))
+	e.Delete("/api/tokens/:id", m.OAuth2(tokens.Delete))
 
 	/**
 	 * UPLOAD
