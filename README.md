@@ -46,7 +46,7 @@ You also need to install the following packages on your distribution:
 
 * *docker* 1.10+
 * *docker-compose* 1.6.2
-* *curl* or *wget*
+* *curl* to check status
 
 ## Uninstall
 
