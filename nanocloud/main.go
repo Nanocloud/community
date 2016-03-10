@@ -42,7 +42,6 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/version"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	"github.com/Nanocloud/community/nanocloud/vms"
-	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/qemu"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
