@@ -51,7 +51,7 @@ export default Ember.Component.extend({
     if (this.guacamole) {
       this.guacamole.disconnect();
       this.get('element').children().remove();
-    }	
+    }
   },
 
   startSession: function(token, connectionName) {
@@ -147,6 +147,12 @@ export default Ember.Component.extend({
     let mouse = new Guacamole.Mouse(this.guacamole.getDisplay().getElement());
     let keyboard = new Guacamole.Keyboard(document);
     let display = this.guacamole.getDisplay();
+
+    window.onresize = function() {
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      this.guacamole.sendSize(width, height);
+    }.bind(this);
 
     this.guacamole.connect();
 
