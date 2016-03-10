@@ -23,17 +23,19 @@
 	</md-card-content>
 
 	<md-card-actions layout="row" layout-align="end center">
-		<md-button href="/canva/#/canva/{{ applicationsCtrl.accessToken }}/hapticDesktop"
+		<md-button ng-click="applicationsCtrl.startDesktop($event, applicationsCtrl.getDesktopUrl())"
+			 style="margin-right:5px;"
 				target="_blank" class="md-raised">
 			<md-tooltip>Open Windows desktop to install your application</md-tooltip>
 			<ng-md-icon icon="windows"></ng-md-icon> Desktop
 		</md-button>
-		<md-button href="/canva/#/canva/{{ applicationsCtrl.accessToken }}/hapticPowershell"
-				target="_blank" class="md-raised md-primary">
+		<md-button ng-click="applicationsCtrl.startDesktop($event, applicationsCtrl.getPublishUrl())"
+			class="md-raised md-primary">
 			<md-tooltip>Publish an application</md-tooltip>
 			<ng-md-icon icon="cloud_done"></ng-md-icon> Publish
 		</md-button>
 	</md-card-actions>
+
 </md-card>
 
 <md-card ng-if="applicationsCtrl.loadWindowHasFinished && !applicationsCtrl.windowsState">
@@ -50,7 +52,7 @@
 			<md-list-item class="secondary-button-padding md-no-proxy md-with-secondary" ng-repeat="app in applicationsCtrl.applications">
 				<h3>{{ app.display_name }}</h3>
 				<md-card-actions class="md-secondary">
-					<md-button ng-click="applicationsCtrl.openApplication($event, app)">
+					<md-button ng-click="applicationsCtrl.startDesktop($event, applicationsCtrl.getAppUrl(app))">
 						<ng-md-icon icon='pageview' size='14'></ng-md-icon> Open
 					</md-button>
 					<md-button ng-click="applicationsCtrl.startRenameApplication($event, app)">
