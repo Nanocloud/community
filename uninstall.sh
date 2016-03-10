@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
@@ -25,23 +25,12 @@ SCRIPT_FULL_PATH=$(readlink -e "${0}")
 CURRENT_DIR=$(dirname "${SCRIPT_FULL_PATH}")
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
 
-NANOCLOUD_DIR=${NANOCLOUD_DIR:-"${CURRENT_DIR}/installation_dir"}
-DOCKER_COMPOSE_BUILD_OUTPUT="${CURRENT_DIR}/modules/build_output"
+${CURRENT_DIR}/installer/check_version.sh
 
-COMMAND=${1}
+# Power down all production container
+docker-compose down
 
-if [ "${COMMAND}" = "canary" ]; then
-    COMMUNITY_CHANNEL="canary"
-elif [ "${COMMAND}" = "dev" ]; then
-    COMMUNITY_CHANNEL="dev"
-else
-    COMMUNITY_CHANNEL="stable"
-fi
+# Remove all docker images related to Nanocloud
+docker images | awk '/^nanocloud\// { printf "docker rmi -f %s:%s\n", $1, $2; }' | sh
 
-WINDOWS_QCOW2_FILENAME="${CURRENT_DIR}/windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2"
-if [ -f "${WINDOWS_QCOW2_FILENAME}" ]; then
-  echo "$(date "${DATE_FMT}") Local Windows image found, copying"
-  cp "${WINDOWS_QCOW2_FILENAME}" "${CURRENT_DIR}/installation_dir/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2"
-fi
-
-bash $NANOCLOUD_DIR/scripts/start.sh ${COMMUNITY_CHANNEL}
+echo "$(date "${DATE_FMT}") Nanocloud uninstalled"

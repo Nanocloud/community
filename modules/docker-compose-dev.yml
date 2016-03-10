@@ -98,7 +98,7 @@ services:
   volumes:
    - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
    - ./iaas/scripts/:/var/lib/nanocloud/scripts
-   - ../installation_dir/:/var/lib/nanocloud
+   - ../installation_dir/images:/var/lib/nanocloud/images
 
 networks:
  nanocloud:
