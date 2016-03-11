@@ -47,7 +47,7 @@ import (
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/qemu"
 	log "github.com/Sirupsen/logrus"
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	logger "github.com/labstack/gommon/log"
 )

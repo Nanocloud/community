@@ -10,6 +10,7 @@ RUN apt-get update && \
 COPY ./ /go/src/github.com/Nanocloud/community/nanocloud
 WORKDIR /go/src/github.com/Nanocloud/community/nanocloud
 
+RUN mkdir -p /go/src/github.com/labstack && git clone git@github.com:labstack/echo.git -b v1 /go/src/github.com/labstack/echo
 RUN go get && go build
 
 EXPOSE 8080
