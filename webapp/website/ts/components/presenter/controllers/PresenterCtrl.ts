@@ -21,6 +21,7 @@
  */
 
 /// <reference path="../../../../../typings/tsd.d.ts" />
+/// <amd-dependency path="../../applications/controllers/DesktopCtrl" />
 /// <amd-dependency path="../../applications/services/ApplicationsSvc" />
 import { ApplicationsSvc, IApplication } from "../../applications/services/ApplicationsSvc";
 
@@ -30,24 +31,34 @@ export class PresenterCtrl {
 
 	applications: any;
 	user: string;
+	private accessToken: string;
 
 	static $inject = [
 		"$state",
-		"ApplicationsSvc"
+		"ApplicationsSvc",
+		"$mdDialog",
+		"$sce"
 	];
 
 	constructor(
 		private $state: angular.ui.IStateService,
-		private appsSvc: ApplicationsSvc
-	) {
+		private appsSvc: ApplicationsSvc,
+		private $mdDialog: angular.material.IDialogService,
+		private $sce: angular.ISCEService) {
 		this.loadApplications();
 		this.user = localStorage.getItem("user");
+		this.accessToken = localStorage["accessToken"];
 	}
 
 	loadApplications(): angular.IPromise<void> {
 		return this.appsSvc.getApplicationForUser().then((applications: IApplication[]) => {
 			this.applications = applications;
 		});
+	}
+
+	getAppUrl(application: IApplication) {
+		let url = "/canva/#/canva/" + this.accessToken + "/" + application.alias;
+		return this.$sce.trustAsResourceUrl(url);
 	}
 
 	openApplication(application: IApplication, e: MouseEvent) {
@@ -68,7 +79,26 @@ export class PresenterCtrl {
 	logout() {
 		this.$state.go("logout");
 	}
+	startDesktop(e: MouseEvent, url: string): angular.IPromise<any> {
+		let o = this.getDefaultDesktopDlgOpt(e);
+		o.locals = { desktop: this.$mdDialog, url: url };
+		o.escapeToClose = false;
+		o.onComplete = function() {
+			$("#VDI")[0]["contentWindow"].focus();
+		};
+		return this.$mdDialog
+			.show(o);
+	}
 
+	private getDefaultDesktopDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
+		return {
+			controller: "DesktopCtrl",
+			controllerAs: "desktopCtrl",
+			templateUrl: "./js/components/applications/views/desktop.html",
+			parent: angular.element(document.body),
+			targetEvent: e
+		};
+	}
 }
 
 angular.module("haptic.presenter").controller("PresenterCtrl", PresenterCtrl);

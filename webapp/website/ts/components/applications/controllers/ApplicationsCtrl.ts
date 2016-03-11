@@ -24,6 +24,7 @@
 /// <amd-dependency path="../services/ApplicationsSvc" />
 /// <amd-dependency path="../../services/services/ServicesFct" />
 /// <amd-dependency path="./ApplicationCtrl" />
+/// <amd-dependency path="./DesktopCtrl" />
 import { ApplicationsSvc, IApplication } from "../services/ApplicationsSvc";
 import { ServicesFct } from "../../services/services/ServicesFct";
 
@@ -40,14 +41,15 @@ export class ApplicationsCtrl {
 	static $inject = [
 		"ApplicationsSvc",
 		"ServicesFct",
-		"$mdDialog"
+		"$mdDialog",
+		"$sce"
 	];
 
 	constructor(
 		private applicationsSrv: ApplicationsSvc,
 		private servicesFct: ServicesFct,
-		private $mdDialog: angular.material.IDialogService
-	) {
+		private $mdDialog: angular.material.IDialogService,
+		private $sce: angular.ISCEService) {
 		this.loadWindowHasFinished = false;
 		this.servicesFct.getWindowsStatus().then((windowsState: boolean) => {
 			this.loadWindowHasFinished = true;
@@ -115,10 +117,45 @@ export class ApplicationsCtrl {
 		window.open(url, "_blank");
 	}
 
+	getDesktopUrl() {
+		return this.$sce.trustAsResourceUrl("/canva/#/canva/" + this.accessToken + "/hapticDesktop");
+	}
+
+	getPublishUrl() {
+		return this.$sce.trustAsResourceUrl("/canva/#/canva/" + this.accessToken + "/hapticPowershell");
+	}
+
+	getAppUrl(application: IApplication) {
+		let url = "/canva/#/canva/" + this.accessToken + "/" + application.alias;
+		return this.$sce.trustAsResourceUrl(url);
+	}
+
 	percentDone(file: any) {
 		return Math.round(file._prevUploadedSize / file.size * 100).toString();
 	}
 
+	startDesktop(e: MouseEvent, url: string): angular.IPromise<any> {
+		let o = this.getDefaultDesktopDlgOpt(e);
+		o.locals = { desktop: this.$mdDialog, url: url };
+		o.escapeToClose = false;
+		o.onComplete = function() {
+			setTimeout(function() {
+				$("#VDI")[0]["contentWindow"].focus();
+			}, 2000);
+		};
+		return this.$mdDialog
+			.show(o);
+	}
+
+	private getDefaultDesktopDlgOpt(e: MouseEvent): angular.material.IDialogOptions {
+		return {
+			controller: "DesktopCtrl",
+			controllerAs: "desktopCtrl",
+			templateUrl: "./js/components/applications/views/desktop.html",
+			parent: angular.element(document.body),
+			targetEvent: e
+		};
+	}
 }
 
 angular.module("haptic.applications").controller("ApplicationsCtrl", ApplicationsCtrl);
