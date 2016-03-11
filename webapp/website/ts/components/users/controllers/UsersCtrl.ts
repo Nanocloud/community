@@ -34,6 +34,7 @@ export class UsersCtrl {
 	users: any;
 	displayHelp: boolean;
 	windowsState: boolean = false;
+	loadWindowHasFinished: boolean = false;
 
 	static $inject = [
 		"UsersSvc",
@@ -45,7 +46,9 @@ export class UsersCtrl {
 		private servicesFct: ServicesFct,
 		private $mdDialog: angular.material.IDialogService
 	) {
+		this.loadWindowHasFinished = false;
 		this.servicesFct.getWindowsStatus().then((windowsState: boolean) => {
+			this.loadWindowHasFinished = true;
 			this.windowsState = windowsState;
 		});
 		this.loadUsers();
