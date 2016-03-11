@@ -48,7 +48,8 @@ func Migrate() error {
 			collection_name		varchar(36),
 			alias		varchar(36) UNIQUE,
 			display_name		varchar(36),
-			file_path		 varchar(255)
+			file_path		varchar(255),
+			icon_content		bytea
 		);`)
 	if err != nil {
 		log.Errorf("Unable to create apps table: %s", err)
