@@ -31,7 +31,7 @@ import (
 	"os"
 	"time"
 
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -93,7 +93,7 @@ func CopyFile(source string, dest string) (err error) {
 	return
 }
 
-func ParseJSONBody(c *echo.Context, dst interface{}) error {
+func ParseJSONBody(c echo.Context, dst interface{}) error {
 	body, err := ioutil.ReadAll(c.Request().Body)
 	if err == nil {
 		err = json.Unmarshal(body, dst)

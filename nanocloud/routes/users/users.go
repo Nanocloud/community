@@ -31,12 +31,12 @@ import (
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
 
-func Delete(c *echo.Context) error {
+func Delete(c echo.Context) error {
 	userId := c.Param("id")
 	if len(userId) == 0 {
 		return c.JSON(http.StatusBadRequest, hash{
@@ -128,7 +128,7 @@ func Disable(userId string) (int, error) {
 	return 0, nil
 }
 
-func Update(c *echo.Context) error {
+func Update(c echo.Context) error {
 	var attr map[string]map[string]interface{}
 
 	err := utils.ParseJSONBody(c, &attr)
@@ -209,7 +209,7 @@ func Update(c *echo.Context) error {
 	})
 }
 
-func Get(c *echo.Context) error {
+func Get(c echo.Context) error {
 	users, err := users.FindUsers()
 	if err != nil {
 		return errors.New(
@@ -229,7 +229,7 @@ func Get(c *echo.Context) error {
 	return c.JSON(http.StatusOK, hash{"data": response})
 }
 
-func Post(c *echo.Context) error {
+func Post(c echo.Context) error {
 	var attr hash
 
 	err := utils.ParseJSONBody(c, &attr)
@@ -342,7 +342,7 @@ func Post(c *echo.Context) error {
 	})
 }
 
-func UpdatePassword(c *echo.Context) error {
+func UpdatePassword(c echo.Context) error {
 	userId := c.Param("id")
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, hash{
@@ -394,7 +394,7 @@ func UpdatePassword(c *echo.Context) error {
 	})
 }
 
-func GetUser(c *echo.Context) error {
+func GetUser(c echo.Context) error {
 	userId := c.Param("id")
 	if userId == "" {
 		return c.JSON(http.StatusBadRequest, hash{

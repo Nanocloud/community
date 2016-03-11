@@ -7,7 +7,7 @@ import (
 	"gopkg.in/labstack/echo.v1"
 )
 
-func Post(c *echo.Context) error {
+func Post(c echo.Context) error {
 	user := c.Get("user").(*users.User)
 	req := c.Request()
 	accessToken, _ := oauth2.GetAuthorizationHeaderValue(req, "Bearer")
