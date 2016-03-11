@@ -26,7 +26,7 @@ import (
 	"errors"
 
 	"github.com/Nanocloud/community/nanocloud/oauth2"
-	"github.com/labstack/echo"
+	"gopkg.in/labstack/echo.v1"
 )
 
 func oAuth2(c *echo.Context, handler echo.HandlerFunc) error {

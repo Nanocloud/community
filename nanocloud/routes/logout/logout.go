@@ -4,7 +4,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
-	"github.com/labstack/echo"
+	"gopkg.in/labstack/echo.v1"
 )
 
 func Post(c *echo.Context) error {

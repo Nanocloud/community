@@ -25,7 +25,7 @@ package version
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"gopkg.in/labstack/echo.v1"
 )
 
 const appversion = "0.4.0"
