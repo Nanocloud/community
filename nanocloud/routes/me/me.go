@@ -26,7 +26,7 @@ import (
 	"net/http"
 
 	"github.com/Nanocloud/community/nanocloud/models/users"
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
