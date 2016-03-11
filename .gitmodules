@@ -1,0 +1,33 @@
+[submodule "nanocloud/vendor/github.com/labstack/echo"]
+	path = nanocloud/vendor/github.com/labstack/echo
+	url = https://github.com/labstack/echo.git
+[submodule "nanocloud/vendor/github.com/lib/pq"]
+	path = nanocloud/vendor/github.com/lib/pq
+	url = https://github.com/lib/pq.git
+[submodule "nanocloud/vendor/github.com/Sirupsen/logrus"]
+	path = nanocloud/vendor/github.com/Sirupsen/logrus
+	url = https://github.com/Sirupsen/logrus.git
+[submodule "nanocloud/vendor/github.com/satori/go.uuid"]
+	path = nanocloud/vendor/github.com/satori/go.uuid
+	url = https://github.com/satori/go.uuid.git
+[submodule "nanocloud/vendor/github.com/labstack/gommon"]
+	path = nanocloud/vendor/github.com/labstack/gommon
+	url = https://github.com/labstack/gommon.git
+[submodule "nanocloud/vendor/github.com/mattn/go-colorable"]
+	path = nanocloud/vendor/github.com/mattn/go-colorable
+	url = https://github.com/mattn/go-colorable.git
+[submodule "nanocloud/vendor/github.com/mattn/go-isatty"]
+	path = nanocloud/vendor/github.com/mattn/go-isatty
+	url = https://github.com/mattn/go-isatty.git
+[submodule "nanocloud/vendor/golang.org/x/crypto"]
+	path = nanocloud/vendor/golang.org/x/crypto
+	url = https://go.googlesource.com/crypto
+[submodule "nanocloud/vendor/golang.org/x/net"]
+	path = nanocloud/vendor/golang.org/x/net
+	url = https://go.googlesource.com/net
+[submodule "nanocloud/vendor/gopkg.in/asn1-ber.v1"]
+	path = nanocloud/vendor/gopkg.in/asn1-ber.v1
+	url = https://gopkg.in/asn1-ber.v1
+[submodule "nanocloud/vendor/gopkg.in/ldap.v2"]
+	path = nanocloud/vendor/gopkg.in/ldap.v2
+	url = https://gopkg.in/ldap.v2
