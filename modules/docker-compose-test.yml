@@ -12,7 +12,7 @@ services:
    file: ./docker-compose.yml
    service: guacamole-server
   build: ./guacd
-  images: nanocloud/guacamole-server
+  image: nanocloud/guacamole-server
 
  nanocloud-backend:
   extends:
