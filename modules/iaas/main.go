@@ -26,7 +26,7 @@ import (
 
 	"github.com/Nanocloud/community/modules/iaas/lib/iaas"
 	log "github.com/Sirupsen/logrus"
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 )
 

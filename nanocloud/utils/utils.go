@@ -31,7 +31,7 @@ import (
 	"os"
 	"time"
 
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}

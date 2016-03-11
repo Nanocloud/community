@@ -28,7 +28,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/connectors/vms"
 	vm "github.com/Nanocloud/community/nanocloud/vms"
 	log "github.com/Sirupsen/logrus"
-	"gopkg.in/labstack/echo.v1"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
