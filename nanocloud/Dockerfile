@@ -1,4 +1,4 @@
-FROM golang:1.5.2
+FROM golang:1.6
 MAINTAINER \
   Romain Soufflet <romain.soufflet@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
