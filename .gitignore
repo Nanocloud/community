@@ -28,3 +28,4 @@ windows/output-windows-2012R2-qemu/
 
 # Ignore backend vendor
 nanocloud/vendor/*
+modules/iaas/vendor/*
