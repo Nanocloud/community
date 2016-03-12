@@ -78,7 +78,6 @@ func ListRunningVM(c *echo.Context) error {
 		Name   string `json:"name"`
 		Ip     string `json:"ip"`
 		Status string `json:"status"`
-		Id     string `json:"id"`
 	}
 	type virtmachine struct {
 		Id  string `json:"id"`
@@ -91,7 +90,7 @@ func ListRunningVM(c *echo.Context) error {
 			log.Error(err)
 			return retJsonError(c, err)
 		}
-		res[i].Att.Id = val.Id()
+		res[i].Id = val.Id()
 		status, err := val.Status()
 		if err != nil {
 			log.Error(err)
@@ -99,7 +98,7 @@ func ListRunningVM(c *echo.Context) error {
 		}
 		res[i].Att.Status = vm.StatusToString(status)
 		ip, _ := val.IP()
-		res[i].Att.Ip = string(ip)
+		res[i].Att.Ip = ip.String()
 		if err != nil {
 			log.Error(err)
 			return retJsonError(c, err)
