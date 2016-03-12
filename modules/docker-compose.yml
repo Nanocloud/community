@@ -12,7 +12,7 @@ services:
    - ENV=production
    - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
    - PORT=8080
-   - FRONT_DIR=/opt/front/website
+   - FRONT_DIR=/opt/front/dist
    - CANVA_FRONT_DIR=/opt/canva/dist
    - WIN_PASSWORD=Nanocloud123+
    - IAAS=qemu

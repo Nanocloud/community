@@ -46,6 +46,10 @@ services:
   volumes:
    - /opt/front
    - ../webapp/:/opt/front
+   - ./nginx/conf/certificates:/opt/ssl/:ro
+  ports:
+   - 49153:49153
+   - 4201:4201
   restart: always
   container_name: "nanocloud-frontend"
   image: nanocloud/nanocloud-frontend:dev
