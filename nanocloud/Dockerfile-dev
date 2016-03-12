@@ -5,4 +5,4 @@ MAINTAINER \
 ENV GOBIN $GOPATH/bin
 RUN go get github.com/pilu/fresh
 
-CMD ["fresh"]
+CMD ./install.sh && fresh
