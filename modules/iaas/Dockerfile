@@ -1,4 +1,4 @@
-FROM golang:1.5.1
+FROM golang:1.6
 MAINTAINER \
   William Riancho <william.riancho@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> 
@@ -13,8 +13,7 @@ COPY ./ /go/src/github.com/Nanocloud/community/modules/iaas
 
 WORKDIR /go/src/github.com/Nanocloud/community/modules/iaas
 
-RUN mkdir -p /go/src/github.com/labstack && git clone git@github.com:labstack/echo.git -b v1 /go/src/github.com/labstack/echo
-RUN go get ./... && go build
+RUN ./install.sh && go build
 
 RUN mkdir -p /var/lib/nanocloud/downloads && mkdir -p /var/lib/nanocloud/images && mkdir -p /var/lib/nanocloud/pid
 COPY ./scripts/ /var/lib/nanocloud/scripts/
