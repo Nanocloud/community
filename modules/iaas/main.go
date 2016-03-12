@@ -186,10 +186,10 @@ func main() {
 		iaasCon: iaas.New(conf.Server, conf.Password, conf.User, conf.SSHPort, conf.instDir, conf.artURL),
 	}
 
-	e.Get("/api/iaas", h.ListRunningVM)
-	e.Post("/api/iaas/:id/stop", h.StopVM)
-	e.Post("/api/iaas/:id/start", h.StartVM)
-	e.Post("/api/iaas/:id/download", h.DownloadVM)
+	e.Get("/api/vms", h.ListRunningVM)
+	e.Post("/api/vms/:id/stop", h.StopVM)
+	e.Post("/api/vms/:id/start", h.StartVM)
+	e.Post("/api/vms/:id/download", h.DownloadVM)
 
 	e.Run(":8080")
 }
