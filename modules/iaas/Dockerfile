@@ -1,4 +1,4 @@
-FROM golang:1.5.1
+FROM golang:1.6
 MAINTAINER \
   William Riancho <william.riancho@nanocloud.com> \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> 
