@@ -63,6 +63,7 @@ export class ServicesSvc {
 					this.windowsReady = true;
 					let svc: IService;
 					svc = data.attributes;
+					svc.id = data.id;
 					arr.push(svc);
 				}
 				return arr;
