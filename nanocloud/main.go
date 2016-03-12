@@ -129,7 +129,7 @@ func main() {
 	e.Get("/api/vms", m.OAuth2(m.Admin(iaas.ListRunningVM)))
 	e.Post("/api/vms/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
 	e.Post("/api/vms/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
-	e.Post("/api/vms/:id/download", m.OAuth2(m.Admin(iaas.DownloadVM)))
+	e.Post("/api/vms/:id/download", m.OAuth2(m.Admin(iaas.CreateVM)))
 
 	/**
 	 * FRONT
