@@ -30,13 +30,13 @@
 $blue-lighter: #f1faff;
 $blue-light: #8edafb;
 
-$gray-dark:                 #373a3c !default;
+$gray-dark:                 #9B9B9B !default;
 $gray:                      #55595c !default;
 $gray-light:                #818a91 !default;
 $gray-lighter:              #eef4f9 !default;
 $gray-lightest:             #ffffff !default;
 
-$brand-primary:             #1A75BC !default;
+$brand-primary:             #47A0DD !default;
 $brand-success:             #5cb85c !default;
 $brand-info:                #5bc0de !default;
 $brand-warning:             #f0ad4e !default;
@@ -47,9 +47,9 @@ $brand-danger:              #d9534f !default;
 //
 // Quickly modify global styling by enabling or disabling optional features.
 
-$enable-flex:               false !default;
-$enable-rounded:            true !default;
-$enable-shadows:            false !default;
+$enable-flex:               true !default;
+$enable-rounded:            false !default;
+$enable-shadows:            true !default;
 $enable-gradients:          false !default;
 $enable-transitions:        false !default;
 $enable-hover-media-query:  false !default;
