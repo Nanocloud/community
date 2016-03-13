@@ -8,18 +8,18 @@ export default Ember.Component.extend({
   aborted: false,
 
   showElement() {
-    $('.element-active-state').css("opacity", "1");
+    Ember.$('.element-active-state').css("opacity", "1");
   },
 
   hideElement() {
-    $('.element-active-state').css("opacity", "0");
+    Ember.$('.element-active-state').css("opacity", "0");
   },
 
-  dragEnter(e) {
+  dragEnter() {
     this.showElement();
   },
 
-  dragLeave(e) {
+  dragLeave() {
     this.hideElement();
   },
 
@@ -37,9 +37,9 @@ export default Ember.Component.extend({
 
   didInsertElement() {
 
-    this.flow = new Flow({
+    this.flow = new window.Flow({
       target: '/upload',
-      headers: { Authorization : "Bearer " + this.get('session.data.authenticated.access_token') },
+      headers: { Authorization : "Bearer " + this.get('session.access_token') },
       singleFile: true
     });
 
@@ -49,11 +49,13 @@ export default Ember.Component.extend({
       this.flow.upload();
     });
 
-    this.flow.on('complete', (event, flow) => {
-      if (!this.aborted)
+    this.flow.on('complete', () => {
+      if (!this.aborted) {
         this.set('onCompleteMessage', "Completed");
-      else
+      }
+      else {
         this.set('onCompleteMessage', "Aborted");
+      }
       this.set('loadingFile', false);
       setTimeout(() => {
         this.set('onCompleteMessage', null);
@@ -61,11 +63,11 @@ export default Ember.Component.extend({
       }, 3000);
     });
 
-    this.flow.on('uploadStart', (event, flow) => {
+    this.flow.on('uploadStart', () => {
       this.set('loadingFile', 0);
     });
 
-    this.flow.on('fileProgress', (flow, file) => {
+    this.flow.on('fileProgress', (flow) => {
       this.set('loadingFile', Math.floor(flow.progress() * 100));
     });
   }
