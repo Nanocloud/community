@@ -29,7 +29,7 @@ export default Ember.Route.extend({
         this._invalidateSession();
         reject(issue);
       });
-    };
+    });
   },
 
   _invalidateSession: function() {
