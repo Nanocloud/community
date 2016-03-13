@@ -129,14 +129,14 @@ func Disable(userId string) (int, error) {
 }
 
 func Update(c *echo.Context) error {
-	var attr map[string]map[string]interface{}
+	var attr hash
 
 	err := utils.ParseJSONBody(c, &attr)
 	if err != nil {
 		return nil
 	}
 
-	data, ok := attr["data"]
+	data, ok := attr["data"].(map[string]interface{})
 	if ok == false {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
@@ -158,50 +158,40 @@ func Update(c *echo.Context) error {
 		})
 	}
 
-	activated, ok := attributes["activated"]
-	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "activated field is missing",
-				},
-			},
-		})
-	}
-
-	if activated != false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "activated field must be false",
-				},
-			},
-		})
-	}
-
-	code, err := Disable(c.Param("id"))
-	if err != nil {
-		return c.JSON(code, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		})
-	}
-
 	user, err := users.GetUser(c.Param("id"))
-	if user == nil {
-		return c.JSON(http.StatusOK, hash{
-			"data": hash{
-				"success": true,
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Could not find user",
+				},
 			},
 		})
 	}
 
+	password, ok := attributes["password"].(string)
+	if ok == false || password == "" {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "password is missing",
+				},
+			},
+		})
+	}
+
+	error := users.UpdateUserPassword(user.Id, password);
+	if error != nil {
+		return c.JSON(http.StatusInternalServerError, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Cannot set new password",
+				},
+			},
+		})
+	}
 	return c.JSON(http.StatusOK, hash{
 		"data": hash{
-			"success":    true,
 			"id":         user.Id,
 			"type":       "user",
 			"attributes": user,
@@ -388,6 +378,7 @@ func UpdatePassword(c *echo.Context) error {
 		log.Errorf("Unable to update user password: %s", err.Error())
 		return err
 	}
+
 
 	return c.JSON(http.StatusOK, hash{
 		"data": hash{

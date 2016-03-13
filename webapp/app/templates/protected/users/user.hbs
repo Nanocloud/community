@@ -1,3 +1,34 @@
-<h1>{{model.firstName}}</h1>
+<div class="section">
+  <h1>{{model.fullName}} {{#if model.isAdmin}}<i class="material-icons">verified_user</i>{{/if}}</h1>
 
-{{outlet}}
+    <table class="table">
+      <tbody>
+        <tr>
+          <th scope="row">Email address</th>
+          <td>{{model.email}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Password</th>
+          <td>
+            {{#if editingPassword}}
+              {{input placeholder='Password' type='password' value=model.password}}
+              {{input placeholder='Password Confirmation' type='password' value=passwordConfirmation}}
+              <button {{action 'changePassword'}}type="button" class="btn btn-primary">Change password</button>
+              <button {{action 'toggleEditPassword'}}type="button" class="btn btn-danger-outline">Cancel</button>
+              {{#if errorMessage}}
+                <p>{{errorMessage}}</p>
+              {{/if}}
+            {{else}}
+              ****** <button {{action 'toggleEditPassword'}}type="button" class="btn btn-link"><i {{action 'toggleEditPassword'}} class="material-icons">mode_edit</i></button>
+            {{/if}}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">UUID</th>
+          <td>{{model.id}}</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+</div>
