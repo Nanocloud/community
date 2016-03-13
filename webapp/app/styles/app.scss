@@ -28,3 +28,11 @@ h1, h2, h3, h4, h5, h6 {
 	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
 	background: $gray-lightest;
 }
+
+.loading-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
