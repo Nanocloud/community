@@ -15,6 +15,7 @@ Router.map(function() {
       this.route('new');
       this.route('machine', { path: '/:machine_id' });
     });
+    this.route('applications');
   });
 
   this.route('login');

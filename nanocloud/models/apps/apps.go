@@ -59,11 +59,11 @@ var (
 
 type ApplicationParams struct {
 	Id             int    `json:"-"`
-	CollectionName string `json:"collection_name"`
+	CollectionName string `json:"collection-name"`
 	Alias          string `json:"alias"`
-	DisplayName    string `json:"display_name"`
-	FilePath       string `json:"file_path"`
-	IconContents   []byte `json:"icon_content"`
+	DisplayName    string `json:"display-name"`
+	FilePath       string `json:"file-path"`
+	IconContents   []byte `json:"icon-content"`
 }
 
 type ApplicationParamsWin struct {
@@ -236,7 +236,7 @@ func CheckPublishedApps() {
 				DisplayName:    winapp.DisplayName,
 				Alias:          winapp.Alias,
 				FilePath:       winapp.FilePath,
-				IconContents:    winapp.IconContents,
+				IconContents:   winapp.IconContents,
 			}
 
 			_, err := db.Query(
