@@ -20,5 +20,24 @@ module.exports = function(defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
+  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.eot', {
+    destDir: 'assets/fonts'
+  });
+  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.ijmap', {
+    destDir: 'assets/fonts'
+  });
+  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.svg', {
+    destDir: 'assets/fonts'
+  });
+  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.ttf', {
+    destDir: 'assets/fonts'
+  });
+  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.woff', {
+    destDir: 'assets/fonts'
+  });
+  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.woff2', {
+    destDir: 'assets/fonts'
+  });
+
   return app.toTree();
 };
