@@ -16,6 +16,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: lighter;
 }
 
+h1 {
+  margin-bottom: 40px;
+}
+
 .ember-application > .ember-view {
   width: 100%;
   height: 100%;
