@@ -1,8 +1,6 @@
 <div class="section">
   <h1>Users</h1>
 
-  {{#link-to 'protected.users.new'}}Add user{{/link-to}}
-
   <table class="table">
     <thead>
     <tr>
@@ -25,4 +23,9 @@
     {{/each}}
     </tbody>
   </table>
+
+
+  {{#link-to 'protected.users.new' class='btn btn-primary pull-xs-right'}}Add user{{/link-to}}
+  <div class="clearfix"></div>
+
 </div>

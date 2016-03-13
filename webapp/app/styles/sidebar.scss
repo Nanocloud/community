@@ -55,7 +55,6 @@
     display: none;
   }
 
-  padding-top: 54px;
   width: 250px;
   position: absolute;
   height: 100%;
@@ -92,4 +91,13 @@
 
     }
   }
+}
+
+.sidebar-logo {
+	height: 85px;
+	background-color: $brand-primary;
+	background-image: url('/assets/images/logo.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 65%;
 }
