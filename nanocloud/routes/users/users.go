@@ -200,6 +200,27 @@ func Update(c *echo.Context) error {
 }
 
 func Get(c *echo.Context) error {
+	user := c.Get("user").(*users.User)
+	if c.Query("me") == "true" {
+		return c.JSON(http.StatusOK, hash{
+			"data": hash{
+				"id":         user.Id,
+				"type":       "user",
+				"attributes": user,
+			},
+		})
+	}
+
+	if !user.IsAdmin {
+		return c.JSON(http.StatusUnauthorized, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Unauthorized",
+				},
+			},
+		})
+	}
+
 	users, err := users.FindUsers()
 	if err != nil {
 		return errors.New(

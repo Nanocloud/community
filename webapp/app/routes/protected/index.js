@@ -3,6 +3,10 @@ import Ember from 'ember';
 export default Ember.Route.extend({
 
   redirect() {
-    this.transitionTo('protected.machines');
+    if (this.get('session.user.isAdmin')) {
+      this.transitionTo('protected.machines');
+    } else {
+      this.transitionTo('protected.applications');
+    }
   }
 });

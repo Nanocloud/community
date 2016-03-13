@@ -5,14 +5,16 @@
       <div class="top-nav">
         <div class="sidebar-logo"></div>
         <ul class="nav">
-          <li>
-            {{#link-to 'protected.machines'}}
-              <span class="icon">
-                <i class="material-icons">desktop_windows</i>
-              </span>
-              Machines
-            {{/link-to}}
-          </li>
+          {{#if session.user.isAdmin}}
+            <li>
+              {{#link-to 'protected.machines'}}
+                <span class="icon">
+                  <i class="material-icons">desktop_windows</i>
+                </span>
+                Machines
+              {{/link-to}}
+            </li>
+          {{/if}}
 
           <li>
             {{#link-to 'protected.applications'}}
@@ -23,23 +25,25 @@
             {{/link-to}}
           </li>
 
-          <li>
-            <a href="#">
-              <span class="icon">
-                <i class="material-icons">insert_drive_file</i>
-              </span>
-              Drive
-            </a>
-          </li>
+          <!--<li>-->
+            <!--<a href="#">-->
+              <!--<span class="icon">-->
+                <!--<i class="material-icons">insert_drive_file</i>-->
+              <!--</span>-->
+              <!--Drive-->
+            <!--</a>-->
+          <!--</li>-->
 
-          <li>
-            {{#link-to 'protected.users'}}
-              <span class="icon">
-                <i class="material-icons">group</i>
-              </span>
-              Users
-            {{/link-to}}
-          </li>
+          {{#if session.user.isAdmin}}
+            <li>
+              {{#link-to 'protected.users'}}
+                <span class="icon">
+                  <i class="material-icons">group</i>
+                </span>
+                Users
+              {{/link-to}}
+            </li>
+          {{/if}}
         </ul>
       </div>
       <div class="bottom-nav">
@@ -62,7 +66,7 @@
       </button>
       <ul class="nav navbar-nav pull-xs-right">
         <li class="nav-item">
-        <a class="nav-link" >{{session.user.first-name}} {{session.user.last-name}}</a>
+        <a class="nav-link">{{session.user.firstName}} {{session.user.lastName}}</a>
         </li>
       </ul>
     </nav>
