@@ -2,9 +2,10 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 
-  that: this,
-	token: null,
-	loadingFile: null,
+  session: Ember.inject.service('session'),
+  loadingFile: null,
+  flow: null,
+  aborted: false,
 
   showElement() {
     $('.element-active-state').css("opacity", "1");
@@ -23,35 +24,49 @@ export default Ember.Component.extend({
   },
 
   drop() {
+    this.hideElement();
   },
 
-  initDropZone: function(){
+  actions: {
 
-    var that = this.that;
+    cancelDownload() {
+      this.set('aborted', true);
+      this.flow.cancel();
+    }
+  },
 
-		var flow = new Flow({
-      target: 'http://localhost:8080/upload',
-			headers: { Authorization: "Bearer YhcWIstQBdULmysDQXXkACayL" },
-			singleFile: true
-		});
+  didInsertElement() {
 
-		flow.assignDrop(this.element);
+    this.flow = new Flow({
+      target: '/upload',
+      headers: { Authorization : "Bearer " + this.get('session.data.authenticated.access_token') },
+      singleFile: true
+    });
 
-		flow.on('filesSubmitted', function(){
-      console.log('submit file');
-			flow.upload();
-		});
+    this.flow.assignDrop(this.element);
 
-		flow.on('complete', function(event, flow){
-      console.log('complete');
-		});
+    this.flow.on('filesSubmitted', () => {
+      this.flow.upload();
+    });
 
-		flow.on('uploadStart', function(event, flow){
-		});
+    this.flow.on('complete', (event, flow) => {
+      if (!this.aborted)
+        this.set('onCompleteMessage', "Completed");
+      else
+        this.set('onCompleteMessage', "Aborted");
+      this.set('loadingFile', false);
+      setTimeout(() => {
+        this.set('onCompleteMessage', null);
+        this.set('aborted', false);
+      }, 3000);
+    });
 
-		flow.on('fileProgress', function(flow, file){
-      console.log(flow.progress());
-		});
+    this.flow.on('uploadStart', (event, flow) => {
+      this.set('loadingFile', 0);
+    });
 
-	}.on('didInsertElement')
+    this.flow.on('fileProgress', (flow, file) => {
+      this.set('loadingFile', Math.floor(flow.progress() * 100));
+    });
+  }
 });
