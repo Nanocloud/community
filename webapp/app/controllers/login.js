@@ -8,7 +8,7 @@ export default Ember.Controller.extend({
       let { identification, password } = this.getProperties('identification', 'password');
 
       this.get('session').authenticate('authenticator:oauth2', identification, password)
-        .then((user) => {
+        .then(() => {
           this.transitionToRoute('/');
         })
         .catch((reason) => {
