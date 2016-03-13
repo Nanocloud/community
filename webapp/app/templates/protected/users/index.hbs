@@ -6,6 +6,7 @@
     <tr>
       <th>Name</th>
       <th>Email</th>
+      <th>Status</th>
     </tr>
     </thead>
     <tbody>
@@ -14,6 +15,7 @@
         <tr>
          <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
          <td>{{user.email}}</td>
+         <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
         </tr>
       {{/unless}}
     {{/each}}
