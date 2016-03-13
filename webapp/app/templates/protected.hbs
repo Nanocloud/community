@@ -1,0 +1,62 @@
+<nav class="navbar-fixed-top main-navbar navbar navbar-light bg-faded">
+  <a class="navbar-brand"><img src="/assets/images/nanocloud.png" height="30" width="172" /></a>
+  <button {{action "toggleSidebar"}} class="navbar-toggler pull-xs-right hidden-lg-up" type="button">
+    &#9776;
+  </button>
+
+  <button {{action "invalidateSession"}} class="navbar-toggler pull-xs-right" type="button">
+    Logout
+  </button>
+</nav>
+
+<div class="global-container">
+  <div class="sidebar bg-faded">
+    <div class="sidebar-content">
+      <ul class="nav">
+
+
+
+        <li>
+          {{#link-to 'protected.machines'}}
+            <span class="icon">
+              <i class="material-icons">desktop_windows</i>
+            </span>
+            Machines
+          {{/link-to}}
+        </li>
+
+        <li>
+          <a href="#">
+            <span class="icon">
+              <i class="material-icons">apps</i>
+            </span>
+            Application
+          </a>
+        </li>
+
+        <li>
+          <a href="#">
+            <span class="icon">
+              <i class="material-icons">insert_drive_file</i>
+            </span>
+            Drive
+          </a>
+        </li>
+
+        <li>
+          {{#link-to 'protected.users'}}
+            <span class="icon">
+              <i class="material-icons">group</i>
+            </span>
+            Users
+          {{/link-to}}
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <div class="main-content {{if showSidebar "show-sidebar"}}">
+    {{outlet}}
+  </div>
+</div>

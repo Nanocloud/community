@@ -170,10 +170,6 @@ func oauthErrorReply(res http.ResponseWriter, oauthErr OAuthError) error {
 	return nil
 }
 
-func isJSON(contentType string) bool {
-	return strings.SplitN(contentType, ";", 2)[0] == "application/json"
-}
-
 func HandleRequest(res http.ResponseWriter, req *http.Request) {
 	res.Header().Add("Cache-Control", "no-store")
 	res.Header().Add("Pragma", "no-cache")
@@ -191,30 +187,17 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if !isJSON(req.Header.Get("Content-Type")) {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "Only JSON body is accepted"})
-			return
-		}
+		error := req.ParseForm();
 
-		decoder := json.NewDecoder(req.Body)
-		form := make(map[string]interface{})
-
-		fail := decoder.Decode(&form)
-		if fail != nil {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "Unable to parse the request body"})
+		if error != nil {
+			oauthErrorReply(res, OAuthError{401, INVALID_REQUEST, "Unable to parse the request body"})
 			return
 		}
 
 		// grant_type
-		raw := form["grant_type"]
-		if raw == nil {
+		grantType := req.FormValue("grant_type")
+		if grantType == "" {
 			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "grant_type is missing"})
-			return
-		}
-
-		grantType, isString := raw.(string)
-		if !isString {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "grant_type is invalid"})
 			return
 		}
 
@@ -224,30 +207,19 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 		}
 
 		// username
-		raw = form["username"]
-		if raw == nil {
+		username := req.FormValue("username")
+		if username == "" {
 			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "username is missing"})
 			return
 		}
 
-		username, isString := raw.(string)
-		if !isString {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "username is invalid"})
-			return
-		}
-
 		// password
-		raw = form["password"]
-		if raw == nil {
+		password := req.FormValue("password")
+		if password == "" {
 			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "password is missing"})
 			return
 		}
 
-		password, isString := raw.(string)
-		if !isString {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "password is invalid"})
-			return
-		}
 
 		user, fail := kConnector.AuthenticateUser(username, password)
 

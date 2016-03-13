@@ -1,29 +1,12 @@
 {
-  "name": "HapticFrontCore",
-  "version": "0.1.0",
-  "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "typings"
-  ],
+  "name": "nanocloud",
   "dependencies": {
-    "requirejs": "2.x",
-    "jquery": "2.x",
-    "lodash": "3.x",
-    "angular": "1.4.9",
-    "angular-animate": "1.4.9",
-    "angular-aria": "1.4.9",
-    "angular-cookies": "1.4.9",
-    "angular-ui-router": "0.2.x",
-    "ui-router-extras": "0.1.x",
-    "angular-material": "1.0.3",
-    "angular-material-icons": "latest",
-    "ng-flow": "2.x",
-    "font-awesome": "^4.5.0"
-  },
-  "resolutions": {
-    "angular": "1.4.9"
+    "ember": "~2.4.1",
+    "ember-cli-shims": "0.1.0",
+    "ember-cli-test-loader": "0.2.2",
+    "ember-qunit-notifications": "0.1.0",
+    "bootstrap": "v4.0.0-alpha.2",
+    "material-design-icons": "^2.2.1",
+    "flow.js": "^2.10.1"
   }
 }

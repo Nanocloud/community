@@ -91,6 +91,26 @@ func main() {
 	e.Use(middleware.Recover())
 
 	/**
+	* CORS Policy
+	 */
+	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			req := c.Request()
+
+			headers := c.Response().Header()
+			headers.Set("Access-Control-Allow-Origin", "*")
+			headers.Set("Access-Control-Allow-Headers", "Authorization")
+			headers.Set("Access-Control-Allow-Methods", "GET, PATCH, PUT, POST, DELETE, OPTIONS")
+
+			if "OPTIONS" != req.Method {
+				h(c)
+			}
+
+			return nil
+		}
+	})
+
+	/**
 	 * LOGOUT
 	 */
 	e.Post("/api/logout", m.OAuth2(logout.Post))
@@ -126,10 +146,10 @@ func main() {
 	/**
 	 * IAAS
 	 */
-	e.Get("/api/iaas", m.OAuth2(m.Admin(iaas.ListRunningVM)))
-	e.Post("/api/iaas/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
-	e.Post("/api/iaas/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
-	e.Post("/api/iaas/:id/download", m.OAuth2(m.Admin(iaas.CreateVM)))
+	e.Get("/api/vms", m.OAuth2(m.Admin(iaas.ListRunningVM)))
+	e.Post("/api/vms/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
+	e.Post("/api/vms/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
+	e.Post("/api/vms/:id/download", m.OAuth2(m.Admin(iaas.CreateVM)))
 
 	/**
 	 * FRONT
