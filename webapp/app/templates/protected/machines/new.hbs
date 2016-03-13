@@ -1,0 +1,11 @@
+<div class="section">
+  <form {{action 'createMachine' on='submit'}}>
+    <fieldset class="form-group">
+      {{input type="text" value=machineName placeholder="Machine Name"}}
+    </fieldset>
+    <fieldset class="form-group">
+      {{input type="password" value=adminPassword placeholder="Administrator Password"}}
+    </fieldset>
+    <button type="submit" class="btn btn-primary">Create</button>
+  </form>
+</div>

@@ -34,8 +34,8 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
-	"github.com/Nanocloud/community/nanocloud/routes/iaas"
 	"github.com/Nanocloud/community/nanocloud/routes/logout"
+	"github.com/Nanocloud/community/nanocloud/routes/machines"
 	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/tokens"
@@ -124,12 +124,13 @@ func main() {
 	e.Get("/api/users/:id", m.OAuth2(m.Admin(users.GetUser)))
 
 	/**
-	 * IAAS
+	 * MACHINES
 	 */
-	e.Get("/api/vms", m.OAuth2(m.Admin(iaas.ListRunningVM)))
-	e.Post("/api/vms/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
-	e.Post("/api/vms/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
-	e.Post("/api/vms/:id/download", m.OAuth2(m.Admin(iaas.CreateVM)))
+	e.Get("/api/machines", m.OAuth2(m.Admin(machines.Machines)))
+	e.Get("/api/machines/:id", m.OAuth2(m.Admin(machines.GetMachine)))
+	e.Patch("/api/machines/:id", m.OAuth2(m.Admin(machines.PatchMachine)))
+	e.Post("/api/machines", m.OAuth2(m.Admin(machines.CreateMachine)))
+	e.Delete("/api/machines/:id", m.OAuth2(m.Admin(machines.DeleteMachine)))
 
 	/**
 	 * FRONT

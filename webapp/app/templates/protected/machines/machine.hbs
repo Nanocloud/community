@@ -1,0 +1,14 @@
+<div class="section">
+  <h1><div class="machine-status {{model.status}}"></div> {{model.name}}</h1>
+  <div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary" {{action 'startMachine'}} disabled={{model.isUp}}>
+      Start
+    </button>
+    <button type="button" class="btn btn-secondary" {{action 'stopMachine'}} disabled={{model.isDown}}>
+      Stop
+    </button>
+    <button type="button" class="btn btn-secondary" {{action 'terminateMachine'}} disabled={{model.isUp}}>
+      Terminate
+    </button>
+  </div>
+</div>

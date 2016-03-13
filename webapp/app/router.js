@@ -11,7 +11,10 @@ Router.map(function() {
       this.route('user', { path: '/:user_id' });
       this.route('new');
     });
-    this.route('machines');
+    this.route('machines', function() {
+      this.route('new');
+      this.route('machine', { path: '/:machine_id' });
+    });
   });
 
   this.route('login');
