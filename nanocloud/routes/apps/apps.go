@@ -71,38 +71,33 @@ func GetConnections(c *echo.Context) error {
 }
 
 func ListApplications(c *echo.Context) error {
-	applications, err := apps.GetAllApps()
-	if err == apps.GetAppsFailed {
-		return c.JSON(http.StatusInternalServerError, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		})
-	}
-
-	var response = make([]hash, len(applications))
-	for i, val := range applications {
-		res := hash{
-			"id":         val.Id,
-			"type":       "application",
-			"attributes": val,
-		}
-		response[i] = res
-	}
-	return c.JSON(http.StatusOK, hash{"data": response})
-}
-
-// ========================================================================================================================
-// Procedure: ListUserApps
-//
-// Does:
-// - Return list of applications available for the current user
-// ========================================================================================================================
-func ListUserApps(c *echo.Context) error {
 	user := c.Get("user").(*users.User)
-	applications, err := apps.GetUserApps(user.Id)
+
+	if !user.IsAdmin {
+		applications, err := apps.GetUserApps(user.Id)
+		if err == apps.GetAppsFailed {
+			return c.JSON(http.StatusInternalServerError, hash{
+				"error": [1]hash{
+					hash{
+						"detail": err.Error(),
+					},
+				},
+			})
+		}
+
+		var response = make([]hash, len(applications))
+		for i, val := range applications {
+			res := hash{
+				"id":         val.Id,
+				"type":       "application",
+				"attributes": val,
+			}
+			response[i] = res
+		}
+		return c.JSON(http.StatusOK, hash{"data": response})
+	}
+
+	applications, err := apps.GetAllApps()
 	if err == apps.GetAppsFailed {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{

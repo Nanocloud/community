@@ -1,5 +1,7 @@
 <div class="section p-a-2">
-  {{drag-n-drop}}<br/>
+  <div>
+    {{drag-n-drop}}
+  </div>
   <h1>Applications</h1>
   <table class="table application-table">
     <tbody>
@@ -16,6 +18,8 @@
             <td>{{application.alias}}</td>
           </tr>
         {{/unless}}
+      {{else}}
+          No application available.
       {{/each}}
     </tbody>
   </table>

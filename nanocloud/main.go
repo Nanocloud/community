@@ -36,12 +36,10 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/logout"
 	"github.com/Nanocloud/community/nanocloud/routes/machines"
-	"github.com/Nanocloud/community/nanocloud/routes/me"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/tokens"
 	"github.com/Nanocloud/community/nanocloud/routes/upload"
 	"github.com/Nanocloud/community/nanocloud/routes/users"
-	"github.com/Nanocloud/community/nanocloud/routes/version"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	"github.com/Nanocloud/community/nanocloud/vms"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
@@ -108,9 +106,8 @@ func main() {
 	/**
 	 * APPS
 	 */
-	e.Get("/api/applications", m.OAuth2(m.Admin(apps.ListApplications)))
+	e.Get("/api/applications", m.OAuth2(apps.ListApplications))
 	e.Delete("/api/applications/:app_id", m.OAuth2(m.Admin(apps.UnpublishApplication)))
-	e.Get("/api/applications/me", m.OAuth2(apps.ListUserApps))
 	e.Post("/api/applications", m.OAuth2(m.Admin(apps.PublishApplication)))
 	e.Get("/api/applications/connections", m.OAuth2(apps.GetConnections))
 	e.Patch("/api/applications/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
@@ -127,11 +124,11 @@ func main() {
 	 * USERS
 	 */
 	e.Patch("/api/users/:id", m.OAuth2(m.Admin(users.Update)))
-	e.Get("/api/users", m.OAuth2(m.Admin(users.Get)))
+	e.Get("/api/users", m.OAuth2(users.Get))
 	e.Post("/api/users", m.OAuth2(m.Admin(users.Post)))
 	e.Delete("/api/users/:id", m.OAuth2(m.Admin(users.Delete)))
 	e.Put("/api/users/:id", m.OAuth2(m.Admin(users.UpdatePassword)))
-	e.Get("/api/users/:id", m.OAuth2(m.Admin(users.GetUser)))
+	e.Get("/api/users/:id", m.OAuth2(users.GetUser))
 
 	/**
 	 * MACHINES
@@ -147,16 +144,6 @@ func main() {
 	 */
 	e.Static("/canva/", front.StaticCanvaDirectory)
 	e.Static("/", front.StaticDirectory)
-
-	/**
-	 * ME
-	 */
-	e.Get("/api/me", m.OAuth2(me.Get))
-
-	/**
-	 * VERSION
-	 */
-	e.Get("/api/version", version.Get)
 
 	/**
 	 * OAUTH
