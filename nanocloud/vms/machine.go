@@ -50,9 +50,9 @@ type Machine interface {
 func StatusToString(status MachineStatus) string {
 	switch status {
 	case StatusDown:
-		return "available"
+		return "down"
 	case StatusUp:
-		return "running"
+		return "up"
 	case StatusTerminated:
 		return "terminated"
 	case StatusBooting:

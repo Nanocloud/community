@@ -1,0 +1,39 @@
+
+.machine {
+  background: #FFFFFF;
+  box-shadow: 0px 0px 2px 3px rgba(118,151,178,0.16);
+  width: 254px;
+  padding: 20px;
+}
+
+.machine-status {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  margin-right: 20px;
+
+  &.unknown {
+    background-color: #F45835;
+  }
+
+	&.down {
+    background-color: #CDCDCD;
+  }
+
+	&.up {
+    background-color: #2CC24E;
+  }
+
+	&.terminated {
+    background-color: #525252;
+  }
+
+	&.booting {
+    background-color: #F4B835;
+  }
+
+	&.downloading {
+    background-color: #8EDAFB;
+  }
+}
