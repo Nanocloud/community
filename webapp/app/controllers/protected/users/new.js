@@ -11,8 +11,8 @@ export default Ember.Controller.extend({
         return ;
       }
       this.model.save()
-      .then(() => {
-        this.set('errorMessage', "User successfully created");
+        .then(() => {
+          this.transitionToRoute('protected.users');
       }, (errorMessage) => {
         this.set('errorMessage', errorMessage);
       });
