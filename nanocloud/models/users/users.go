@@ -47,8 +47,8 @@ func GetUserFromEmailPassword(email, password string) (*User, error) {
 	rows, err := db.Query(
 		`SELECT id, activated,
 		email, password,
-		first_name, last_name,
-		is_admin
+		firstname, lastname,
+		isadmin
 		FROM users
 		WHERE email = $1::varchar`,
 		email,
@@ -87,9 +87,9 @@ func GetUserFromEmailPassword(email, password string) (*User, error) {
 func FindUsers() (*[]User, error) {
 	rows, err := db.Query(
 		`SELECT id,
-		first_name, last_name,
-		email, is_admin, activated,
-		sam, windows_password
+		firstname, lastname,
+		email, isadmin, activated,
+		sam, windowspassword
 		FROM users`,
 	)
 	if err != nil {
@@ -169,8 +169,8 @@ func CreateUser(
 	rows, err := db.Query(
 		`INSERT INTO users
 		(id, email, activated,
-		first_name, last_name,
-		password, is_admin)
+		firstname, lastname,
+		password, isadmin)
 		VALUES(
 			$1::varchar, $2::varchar, $3::bool,
 			$4::varchar, $5::varchar,
@@ -196,8 +196,8 @@ func CreateUser(
 	rows, err = db.Query(
 		`SELECT id, activated,
 		email,
-		first_name, last_name,
-		is_admin, sam, windows_password
+		firstname, lastname,
+		isadmin, sam, windowspassword
 		FROM users
 		WHERE id = $1::varchar`,
 		id)
@@ -227,7 +227,7 @@ func UpdateUserAd(id, sam, password string) error {
 	res, err := db.Exec(
 		`UPDATE users
 		SET sam = $1::varchar,
-		windows_password = $2::varchar
+		windowspassword = $2::varchar
 		WHERE id = $3::varchar`,
 		sam, password, id)
 	if err != nil {
@@ -286,9 +286,9 @@ func UpdateUserPassword(id string, password string) error {
 func GetUser(id string) (*User, error) {
 	rows, err := db.Query(
 		`SELECT id,
-		first_name, last_name,
-		email, is_admin, activated,
-		sam, windows_password
+		firstname, lastname,
+		email, isadmin, activated,
+		sam, windowspassword
 		FROM users
 		WHERE id = $1::varchar`,
 		id)

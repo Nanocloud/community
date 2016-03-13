@@ -48,14 +48,14 @@ func Migrate() error {
 	rows, err = db.Query(
 		`CREATE TABLE users (
 				id               varchar(36) PRIMARY KEY,
-				first_name       varchar(36) NOT NULL DEFAULT '',
-				last_name        varchar(36) NOT NULL DEFAULT '',
+				firstname        varchar(36) NOT NULL DEFAULT '',
+				lastname         varchar(36) NOT NULL DEFAULT '',
 				email            varchar(36) NOT NULL DEFAULT '' UNIQUE,
 				password         varchar(60) NOT NULL DEFAULT '',
-				is_admin         boolean,
+				isadmin          boolean,
 				activated        boolean,
 				sam              varchar(35) NOT NULL DEFAULT '',
-				windows_password varchar(36) NOT NULL DEFAULT ''
+				windowspassword  varchar(36) NOT NULL DEFAULT ''
 			);`)
 	if err != nil {
 		return err
