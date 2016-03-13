@@ -38,16 +38,25 @@
       transform: translate3d(250px, 0px, 0px);
     }
   }
+
+}
+
+.navbar-brand {
+  padding: 0.5rem 1rem;
+}
+
+.bottom-nav {
+  position: absolute;
+  bottom: 0px;
+  width: 250px;
 }
 
 .sidebar-content {
-  height: 100%;
   overflow: auto;
   display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
-
 }
 
 .sidebar {
@@ -55,7 +64,8 @@
     display: none;
   }
 
-  padding-top: 54px;
+  z-index: 10000;
+
   width: 250px;
   position: absolute;
   height: 100%;
