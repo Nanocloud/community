@@ -12,6 +12,7 @@ Router.map(function() {
       this.route('new');
     });
     this.route('machines');
+    this.route('applications');
   });
 
   this.route('login');
