@@ -46,6 +46,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/vms"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/qemu"
+	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/vmwarefusion"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -58,11 +59,20 @@ func initVms() error {
 		return errors.New("No iaas provided")
 	}
 	m := make(map[string]string, 0)
-	m["servers"] = os.Getenv("EXECUTION_SERVERS")
-	m["ad"] = os.Getenv("WIN_SERVER")
-	m["sshport"] = os.Getenv("SSH_PORT")
-	m["password"] = os.Getenv("WIN_PASSWORD")
-	m["user"] = os.Getenv("WIN_USER")
+
+	switch iaas {
+
+	case "vmwarefusion":
+		m["PLAZA_LOCATION"] = os.Getenv("PLAZA_LOCATION")
+		m["STORAGE_DIR"] = os.Getenv("STORAGE_DIR")
+
+	default:
+		m["servers"] = os.Getenv("EXECUTION_SERVERS")
+		m["ad"] = os.Getenv("WIN_SERVER")
+		m["sshport"] = os.Getenv("SSH_PORT")
+		m["password"] = os.Getenv("WIN_PASSWORD")
+		m["user"] = os.Getenv("WIN_USER")
+	}
 
 	vm, err := vms.Open(iaas, m)
 	if err != nil {
