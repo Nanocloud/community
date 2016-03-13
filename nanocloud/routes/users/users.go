@@ -270,23 +270,23 @@ func Post(c *echo.Context) error {
 		})
 	}
 
-	firstName, ok := attributes["first_name"].(string)
+	firstName, ok := attributes["firstname"].(string)
 	if ok == false || firstName == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "first_name is missing",
+					"detail": "firstname is missing",
 				},
 			},
 		})
 	}
 
-	lastName, ok := attributes["last_name"].(string)
+	lastName, ok := attributes["lastname"].(string)
 	if ok == false || lastName == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "last_name is missing",
+					"detail": "lastname is missing",
 				},
 			},
 		})
@@ -338,6 +338,8 @@ func Post(c *echo.Context) error {
 	return c.JSON(http.StatusCreated, hash{
 		"data": hash{
 			"id": newUser.Id,
+			"type":       "user",
+			"attributes": newUser,
 		},
 	})
 }

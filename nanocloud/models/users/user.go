@@ -4,9 +4,9 @@ type User struct {
 	Id              string `json:"-"`
 	Email           string `json:"email"`
 	Activated       bool   `json:"activated"`
-	IsAdmin         bool   `json:"is-admin"`
-	FirstName       string `json:"first-name"`
-	LastName        string `json:"last-name"`
+	IsAdmin         bool   `json:"isadmin"`
+	FirstName       string `json:"firstname"`
+	LastName        string `json:"lastname"`
 	Sam             string `json:"sam"`
-	WindowsPassword string `json:"windows_password"`
+	WindowsPassword string `json:"windowspassword"`
 }

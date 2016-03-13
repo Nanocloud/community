@@ -4,16 +4,16 @@
     {{input id='email' placeholder='User email' value=model.email}}
 
     <label for="first_name">Firstname</label>
-    {{input id='first_name' placeholder='User firstname' value=model.first_name}}
+    {{input id='first_name' placeholder='User firstname' value=model.firstname}}
 
     <label for="last_name">Lastname</label>
-    {{input id='last_name' placeholder='User lastname' value=model.last_name}}
+    {{input id='last_name' placeholder='User lastname' value=model.lastname}}
 
     <label for="password">Password</label>
     {{input id='password' placeholder='Enter Password' type='password' value=model.password}}
 
     <label for="password2">Password</label>
-    {{input id='password2' placeholder='Enter Password again' type='password' value=model.password2}}
+    {{input id='password2' placeholder='Enter Password again' type='password' value=passwordConfirmation}}
 
     <button type="submit">Create</button>
     {{#if errorMessage}}
