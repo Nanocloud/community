@@ -1,0 +1,60 @@
+.drag-n-drop-container {
+  height: 150px;
+  background-color: gainsboro;
+  //border: 4px dotted #B7DBFF;
+  background: #E8F2FB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.inner-element {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-n-drop-container .element-default-state {
+  border: 3px dotted #C7D8E0;
+}
+
+.drag-n-drop-container .element-active-state {
+  opacity: 0;
+  background-color: #f1faff;
+  border: 3px dotted #59AAD0;
+}
+
+.drag-n-drop-container .text {
+  font-size: 27px;
+  pointer-events: none;
+}
+
+.drag-n-drop-container .progress {
+  position: absolute;
+    bottom: 20px;
+    width: 80%;
+    pointer-events: none;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.drag-n-drop-container .completed-message {
+  position: relative;
+  top: 45px;
+  width: 90%;
+  text-align: center;
+  color: #1582AF;
+  pointer-events: none;
+}
+
+.btn-cancel-upload {
+  position: relative;
+  top: 10px;
+}
