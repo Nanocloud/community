@@ -7,6 +7,11 @@ module.exports = function(defaults) {
     // Add options here
   });
 
+  app.import('vendor/guacamole-common-js.js', {
+    type: 'vendor',
+    prepend: true
+  });
+
   app.import('bower_components/flow.js/dist/flow.js');
   // Use `app.import` to add additional libraries to the generated
   // output files.
