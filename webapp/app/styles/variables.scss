@@ -350,22 +350,6 @@ $dropdown-link-disabled-color:   $gray-light !default;
 
 $dropdown-header-color:          $gray-light !default;
 
-
-// Z-index master list
-//
-// Warning: Avoid customizing these values. They're used for a bird's eye view
-// of components dependent on the z-axis and are designed to all work together.
-
-$zindex-navbar:            1000 !default;
-$zindex-dropdown:          1000 !default;
-$zindex-popover:           1060 !default;
-$zindex-tooltip:           1070 !default;
-$zindex-navbar-fixed:      1030 !default;
-$zindex-navbar-sticky:     1030 !default;
-$zindex-modal-bg:          1040 !default;
-$zindex-modal:             1050 !default;
-
-
 // Navbar
 
 $navbar-border-radius:              $border-radius !default;

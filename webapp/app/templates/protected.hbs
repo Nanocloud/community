@@ -1,5 +1,4 @@
 <nav class="navbar-fixed-top main-navbar navbar navbar-light bg-faded">
-  <a class="navbar-brand"><img src="/assets/images/nanocloud.png" height="30" width="172" /></a>
   <button {{action "toggleSidebar"}} class="navbar-toggler pull-xs-right hidden-lg-up" type="button">
     &#9776;
   </button>
@@ -7,9 +6,10 @@
 
 </nav>
 
-<div class="global-container">
+{{#if showSidebar}}
   <div class="sidebar bg-faded">
     <div class="sidebar-content">
+      <a class="nav navbar-brand"><img src="/assets/images/nanocloud-logo.png" style="margin: auto" /></a>
       <ul class="nav">
         <li>
           {{#link-to 'protected.machines'}}
@@ -59,8 +59,8 @@
       </div>
     </div>
   </div>
+{{/if}}
 
-  <div class="main-content {{if showSidebar "show-sidebar"}}">
-    {{outlet}}
-  </div>
+<div class="main-content">
+  {{outlet}}
 </div>
