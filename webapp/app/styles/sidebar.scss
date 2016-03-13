@@ -42,7 +42,12 @@
 
 .sidebar-content {
   height: 100%;
-  overflow-y: scroll;
+  overflow: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+
 }
 
 .sidebar {
@@ -63,7 +68,9 @@
   li {
     list-style-type: none;
 
-    a {
+    a, button {
+      border: none;
+      background: none;
       .icon {
         margin-right: 10px;
       }
@@ -85,5 +92,4 @@
 
     }
   }
-
 }

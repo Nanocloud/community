@@ -4,9 +4,7 @@
     &#9776;
   </button>
 
-  <button {{action "invalidateSession"}} class="navbar-toggler pull-xs-right" type="button">
-    Logout
-  </button>
+
 </nav>
 
 <div class="global-container">
@@ -49,6 +47,16 @@
           {{/link-to}}
         </li>
       </ul>
+      <div class="bottom-nav">
+        <ul class="nav">
+          <li>
+            <button {{action "invalidateSession"}} type="button">
+              <i class="material-icons">power_settings_new</i>
+              Logout
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 
