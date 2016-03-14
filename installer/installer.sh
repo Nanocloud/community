@@ -23,7 +23,7 @@
 SCRIPT_UID=$(id -u)
 
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
-COMMUNITY_TAG="0.4.0"
+COMMUNITY_TAG="0.5.0rc1"
 COMMAND=${1}
 
 if [ -z "$(which docker || true)" ]; then
