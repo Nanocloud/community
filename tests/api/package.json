@@ -1,6 +1,6 @@
 {
   "name": "nanocloud-api-test",
-  "version": "0.5.0rc1",
+  "version": "0.5.0",
   "description": "Test for Nanocloud API",
   "main": "index.js",
   "scripts": {
