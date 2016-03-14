@@ -72,6 +72,8 @@ case $COMMAND in
         ;;
 esac
 
-# If no argument is provided then install Nanocloud
-docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud --rm nanocloud/community:${COMMUNITY_TAG}
-docker-compose -f ${PWD}/nanocloud/docker-compose.yml up -d
+if [ -z "${COMMAND}" ]; then
+    # If no argument is provided then install Nanocloud
+    docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud --rm nanocloud/community:${COMMUNITY_TAG}
+    docker-compose -f ${PWD}/nanocloud/docker-compose.yml up -d
+fi
