@@ -31,7 +31,7 @@ if [ -z "$(which docker || true)" ]; then
   exit 2
 fi
 
-function check_docker_compose_file {
+check_docker_compose_file () {
     DOCKERCOMPOSEFILE=${PWD}/nanocloud/docker-compose.yml
 
     if [ -z "$(ls -l $DOCKERCOMPOSEFILE 2> /dev/null || true)" ]; then
