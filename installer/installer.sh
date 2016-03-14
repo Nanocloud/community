@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
