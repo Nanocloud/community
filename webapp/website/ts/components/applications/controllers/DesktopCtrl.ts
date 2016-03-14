@@ -41,6 +41,10 @@ export class DesktopCtrl {
 	private closeApp() {
 		this.desktop.hide();
 	}
+
+	focusVDI() {
+		$("#VDI")[0]["contentWindow"].focus();
+	}
 }
 
 angular.module("haptic.applications").controller("DesktopCtrl", DesktopCtrl);
