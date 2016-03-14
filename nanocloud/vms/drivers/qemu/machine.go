@@ -80,6 +80,7 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 		case "booting":
 			return vms.StatusBooting, nil
 		case "download":
+			return vms.MachineStatus{Status: 5, CurrentSize: val.Attributes.CurrentSize, TotalSize: val.Attributes.TotalSize}, nil
 			return vms.StatusDownloading, nil
 		case "available":
 			return vms.StatusDown, nil

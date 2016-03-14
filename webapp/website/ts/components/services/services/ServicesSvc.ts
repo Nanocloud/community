@@ -30,6 +30,8 @@ export interface IService {
 	status: string;
 	ip: string;
 	locked: boolean;
+	total_size: number;
+	current_size: number;
 }
 
 export class ServicesSvc {
@@ -64,6 +66,8 @@ export class ServicesSvc {
 					let svc: IService;
 					svc = data.attributes;
 					svc.id = data.id;
+					svc.total_size = data.attributes["total-size"];
+					svc.current_size = data.attributes["current-size"];
 					arr.push(svc);
 				}
 				return arr;
