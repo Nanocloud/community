@@ -75,9 +75,11 @@ func ListRunningVM(c *echo.Context) error {
 			})
 	}
 	type attr struct {
-		Name   string `json:"name"`
-		Ip     string `json:"ip"`
-		Status string `json:"status"`
+		Name        string `json:"name"`
+		Ip          string `json:"ip"`
+		Status      string `json:"status"`
+		TotalSize   string `json:"total-size"`
+		CurrentSize string `json:"current-size"`
 	}
 	type virtmachine struct {
 		Id  string `json:"id"`
@@ -97,6 +99,8 @@ func ListRunningVM(c *echo.Context) error {
 			return retJsonError(c, err)
 		}
 		res[i].Att.Status = vm.StatusToString(status)
+		res[i].Att.CurrentSize = status.CurrentSize
+		res[i].Att.TotalSize = status.TotalSize
 		ip, _ := val.IP()
 		res[i].Att.Ip = ip.String()
 		if err != nil {
