@@ -22,7 +22,10 @@
 
 package main
 
-import "github.com/Nanocloud/community/plaza/server/router"
+import (
+	"github.com/Nanocloud/community/plaza/server/router"
+	log "github.com/Sirupsen/logrus"
+)
 
 /*
 func connectToLogger() {
@@ -56,5 +59,9 @@ func main() {
 }*/
 
 func main() {
+	err := provisionning.ProvisionAll()
+	if err != nil {
+		log.Error(err)
+	}
 	router.Start()
 }

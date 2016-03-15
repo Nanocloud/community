@@ -23,11 +23,12 @@
 package apps
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"io/ioutil"
 	"math/rand"
-	"os/exec"
+	"net/http"
 	"strings"
 	"time"
 
@@ -239,7 +240,7 @@ func CheckPublishedApps() {
 				DisplayName:    winapp.DisplayName,
 				Alias:          winapp.Alias,
 				FilePath:       winapp.FilePath,
-				IconContents:    winapp.IconContents,
+				IconContents:   winapp.IconContents,
 			}
 
 			_, err := db.Query(

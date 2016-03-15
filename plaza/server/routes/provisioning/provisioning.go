@@ -1,12 +1,16 @@
 package provisioning
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/labstack/echo"
+	"github.com/Nanocloud/community/nanocloud/vendor/github.com/labstack/echo"
+
+	//"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -52,6 +56,8 @@ var commands = map[string][]string{
 	},
 }
 
+var confPath = "C:/prov.json"
+
 func executeCommands(commands []string, c *echo.Context) error {
 	var err error
 	var resp string
@@ -64,6 +70,18 @@ func executeCommands(commands []string, c *echo.Context) error {
 		}
 	}
 	return retok(c)
+}
+
+func ProvisionAll() {
+	if _, err := os.Stat(confPath); os.IsNotExist(err) {
+		os.Create("C:/prov.json")
+	}
+
+	file, err := ioutil.ReadFile("C:/prov.json")
+	if err != nil {
+		log.Error(err)
+		return
+	}
 }
 
 func DisableWU(c *echo.Context) error {
