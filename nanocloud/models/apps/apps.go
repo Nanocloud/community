@@ -354,7 +354,7 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 		username := user.Sam + "@" + kWindowsDomain
 		pwd := user.WindowsPassword
 		var conn Connection
-		if appParam.Alias != "Desktop" {
+		if appParam.Alias != "hapticDesktop" {
 			conn = Connection{
 				Hostname:  execServ,
 				Port:      kRDPPort,
