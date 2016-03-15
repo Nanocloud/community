@@ -196,7 +196,7 @@ func CheckPublishedApps() {
 		`INSERT INTO apps
 			(collection_name, alias, display_name, file_path, icon_content)
 			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, "", "Desktop", "Desktop", "", "")
+			`, "", "hapticDesktop", "Desktop", "", "")
 	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
 	}
@@ -236,7 +236,7 @@ func CheckPublishedApps() {
 				DisplayName:    winapp.DisplayName,
 				Alias:          winapp.Alias,
 				FilePath:       winapp.FilePath,
-				IconContents:    winapp.IconContents,
+				IconContents:   winapp.IconContents,
 			}
 
 			_, err := db.Query(
