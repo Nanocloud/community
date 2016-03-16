@@ -2,9 +2,8 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   session: Ember.inject.service('session'),
-  remoteSession: Ember.inject.service('remote-session'),
 
-  guacamole: null,
+  connectionName: null,
 
   showSidebar: false,
   showSingleTab: false,
@@ -13,7 +12,7 @@ export default Ember.Controller.extend({
       this.toggleProperty('showSidebar');
     },
     toggleSingleTab() {
-      this.set('guacamole', this.get('remoteSession').getSession('hapticDesktop', 800, 600));
+      this.set('connectionName', 'hapticDesktop');
 
       this.toggleProperty('showSingleTab');
     }
