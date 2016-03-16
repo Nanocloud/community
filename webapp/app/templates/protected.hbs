@@ -70,8 +70,16 @@
         </li>
       </ul>
     </nav>
+
+    <li cass="nav-item">
+      <button {{ action "toggleSingleTab" }}>Toggle single tab</button>
+    </li>
+
     {{outlet}}
 
-    {{remote-session}}
   </div>
 </div>
+
+{{#single-tab isVisible=showSingleTab}}
+  {{remote-session}}
+{{/single-tab}}

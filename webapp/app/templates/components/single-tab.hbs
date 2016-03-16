@@ -1,0 +1,7 @@
+{{#if isVisible}}
+  {{#modal-dialog containerClassNames="ember-modal-fullscreen"
+   attachment="" targetAttachment=""}}
+    <button {{ action "toggleSingleTab" }}>Close</button>
+    {{yield}}
+  {{/modal-dialog}}
+{{/if}}

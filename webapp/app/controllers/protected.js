@@ -5,9 +5,13 @@ export default Ember.Controller.extend({
   remoteSession: Ember.inject.service('remote-session'),
 
   showSidebar: false,
+  showSingleTab: false,
   actions: {
     toggleSidebar() {
       this.toggleProperty('showSidebar');
+    },
+    toggleSingleTab() {
+      this.toggleProperty('showSingleTab');
     }
   }
 });
