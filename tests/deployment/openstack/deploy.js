@@ -77,7 +77,18 @@ function listServers(project, next) {
     }
 
     return next(null, list);
-    return next(null);
+  });
+}
+
+function getServer(project, id, next) {
+
+  var nova = new ostack.Nova(URL + ':8774/v2/' + PROJECT_ID, project.token);
+  nova.getServer(id, function(error, server) {
+    if (error) {
+      return next(error);
+    }
+
+    return next(null, server);
   });
 }
 
@@ -136,6 +147,23 @@ async.waterfall([
 
       server = _server;
       next(null, project);
+    });
+  },
+  function waitForServerToBeOnline(project, next) { // Wait for server to start
+
+    getServer(project, server.id, function(error, _server) {
+
+      if (error) {
+        next(error);
+      }
+
+      if (_server.status != "ACTIVE") {
+        setTimeout(function() {
+          waitForServerToBeOnline(project, next);
+        }, 1000);
+      } else {
+        return next(null, _server);
+      }
     });
   }
 ], function(error) {
