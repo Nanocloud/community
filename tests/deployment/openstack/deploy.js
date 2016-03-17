@@ -80,15 +80,27 @@ function listServers(project, next) {
   });
 }
 
-function getServer(project, id, next) {
+function getServers(project, ids, next) {
 
+  var servers = [];
   var nova = new ostack.Nova(URL + ':8774/v2/' + PROJECT_ID, project.token);
-  nova.getServer(id, function(error, server) {
+
+  async.forEachOf(ids, function(id, key, callback) {
+    nova.getServer(id, function(error, server) {
+      if (error) {
+        return next(error);
+      }
+
+      servers.push(server);
+      callback();
+    });
+  }, function (error) {
+
     if (error) {
       return next(error);
     }
 
-    return next(null, server);
+    return next(null, servers);
   });
 }
 
@@ -121,7 +133,8 @@ function uploadImage(project, next) {
 
 var project = null;
 var image = null;
-var server = null;
+var windowsServer = null;
+var linuxServer = null;
 
 async.waterfall([
   login,
@@ -145,25 +158,52 @@ async.waterfall([
         next(error);
       }
 
-      server = _server;
+      windowsServer = _server;
       next(null, project);
     });
   },
-  function waitForServerToBeOnline(project, next) { // Wait for server to start
+  function(project, next) {
 
-    getServer(project, server.id, function(error, _server) {
+    createServer(project, {
+      "name": "Spawned by Bamboo",
+      "imageRef": URL + ":9292/v2/images/" + '7d771989-2ccb-47fb-bbb4-75ee6bd00f2f',
+      "flavorRef": URL + ":8774/v2/flavors/2",
+      "user_data": new Buffer("touch /tmp/bertho").toString('base64'),
+      "key_name": "Bertho"
+    }, function(error, _server) {
 
       if (error) {
         next(error);
       }
 
-      if (_server.status != "ACTIVE") {
-        setTimeout(function() {
-          waitForServerToBeOnline(project, next);
-        }, 1000);
-      } else {
-        return next(null, _server);
+      linuxServer = _server;
+      next(null, project);
+    });
+  },
+  function waitForServersToBeOnline(project, next) { // Wait for server to start
+
+    getServers(project, [windowsServer.id, linuxServer.id], function(error, servers) {
+
+      if (error) {
+        next(error);
       }
+
+      var allActive = true;
+
+      async.forEachOf(servers, function(_server, key, callback) {
+        if (_server.status != "ACTIVE") {
+          allActive = false;
+        }
+        callback();
+      }, function() {
+        if (allActive === true) {
+          return next(null, servers);
+        }
+
+        setTimeout(function() {
+          waitForServersToBeOnline(project, next);
+        }, 1000);
+      });
     });
   }
 ], function(error) {
