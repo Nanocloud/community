@@ -43,7 +43,7 @@ func (v *vm) Create(name, password string, t vms.MachineType) (vms.Machine, erro
 
 	m := machine{id: name, server: v.server}
 	ip, _ := m.IP()
-	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.Id()+"/download", "", nil)
+	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.Id()+"/create", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return nil, err

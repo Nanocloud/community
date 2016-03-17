@@ -1,14 +1,13 @@
 package router
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Nanocloud/community/plaza/server/routes/about"
 	"github.com/Nanocloud/community/plaza/server/routes/apps"
 	"github.com/Nanocloud/community/plaza/server/routes/files"
 	"github.com/Nanocloud/community/plaza/server/routes/power"
-	prov "github.com/Nanocloud/community/plaza/server/routes/provisioning"
+	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
 
@@ -35,21 +34,21 @@ func Start() {
 	/***
 	PROVISIONING
 	***/
-
-	e.Post("/disablewu", prov.DisableWU)
-	e.Get("/disablewu", prov.CheckWU)
-	e.Post("/installad", prov.InstallAD)
-	e.Get("/installad", prov.CheckAD)
-	e.Post("/enablerdp", prov.EnableRDP)
-	e.Get("/enablerdp", prov.CheckRDP)
-	e.Post("/installrds", prov.InstallRDS)
-	e.Get("/installrds", prov.CheckRDS)
-	e.Post("/createou", prov.CreateOU)
-	e.Get("/createou", prov.CheckOU)
-	e.Post("/installadcs", prov.InstallADCS)
-	e.Get("/installadcs", prov.CheckADCS)
-	e.Post("/sessiondeploy", prov.SessionDeploy)
-	e.Get("/sessiondeploy", prov.CheckCollection)
+	/*
+		e.Post("/disablewu", prov.DisableWU)
+		e.Get("/disablewu", prov.CheckWU)
+		e.Post("/installad", prov.InstallAD)
+		e.Get("/installad", prov.CheckAD)
+		e.Post("/enablerdp", prov.EnableRDP)
+		e.Get("/enablerdp", prov.CheckRDP)
+		e.Post("/installrds", prov.InstallRDS)
+		e.Get("/installrds", prov.CheckRDS)
+		e.Post("/createou", prov.CreateOU)
+		e.Get("/createou", prov.CheckOU)
+		e.Post("/installadcs", prov.InstallADCS)
+		e.Get("/installadcs", prov.CheckADCS)
+		e.Post("/sessiondeploy", prov.SessionDeploy)
+		e.Get("/sessiondeploy", prov.CheckCollection)*/
 
 	e.SetHTTPErrorHandler(func(err error, c *echo.Context) {
 		c.JSON(

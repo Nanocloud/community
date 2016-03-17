@@ -23,25 +23,27 @@
 package main
 
 import (
-	"github.com/Nanocloud/community/plaza/server/router"
+	"os"
+
+	"github.com/Nanocloud/community/plaza/server/windows/service"
 	log "github.com/Sirupsen/logrus"
 )
 
-/*
 func connectToLogger() {
-	fmt.Printf("Dialling logger... ")
-	conn, err := net.DialTimeout("tcp", "127.0.0.1:8081", 10*time.Second)
-	fmt.Println("done")
+	_, err := os.Create("C:\\log.txt")
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Error(err)
 	}
-	if conn != nil {
-		log.SetOutput(conn)
+	f, err := os.OpenFile("C:\\log.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+	if err != nil {
+		log.Error(err)
 	}
+
+	log.SetOutput(f)
 }
 
 func main() {
+
 	if len(os.Args) < 2 || os.Args[1] != "service" {
 		log.Println("(re)Installing service")
 		err := service.InstallItSelf()
@@ -51,17 +53,8 @@ func main() {
 		return
 	}
 	connectToLogger()
-
 	err := service.Run()
 	if err != nil {
 		log.Println(err)
 	}
-}*/
-
-func main() {
-	err := provisionning.ProvisionAll()
-	if err != nil {
-		log.Error(err)
-	}
-	router.Start()
 }

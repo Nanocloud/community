@@ -27,13 +27,14 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
 
-	"github.com/Nanocloud/community/plaza/server/router"
+	"github.com/Nanocloud/community/plaza/server/routes/provisioning"
+	log "github.com/Sirupsen/logrus"
+
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.org/x/sys/windows/svc/mgr"
@@ -190,7 +191,7 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
 
-	go router.Start()
+	go provisioning.LaunchAll()
 
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
 loop:
