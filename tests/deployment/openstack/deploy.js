@@ -131,6 +131,53 @@ function uploadImage(project, next) {
   });
 }
 
+function associateFloatingIP(project, server, next) {
+
+  var nova = new ostack.Nova(URL + ':8774/v2/' + PROJECT_ID, project.token);
+
+  nova.listFloatingIps(function(error, floatingIPs) {
+
+    if (error) {
+      return next(error);
+    }
+
+    async.filter(floatingIPs, function(floatingIP, callback) {
+
+      callback(!floatingIP.instance_id);
+    }, function(availableIPs) {
+
+      var _associateFloatingIP = function(server_id, ip, callback) {
+
+        nova.associateFloatingIp(server_id, ip.ip, function(error) {
+
+          if (error) {
+            return callback(error);
+          }
+
+          callback(null, server);
+        });
+
+      };
+
+      if (availableIPs.length == 0) {
+
+        nova.createFloatingIp({}, function(error, result) {
+
+          if (error) {
+            next(error);
+          }
+
+          return _associateFloatingIP(server.id, result, next);
+        });
+      } else {
+        var selectedIP = availableIPs[0];
+        _associateFloatingIP(server.id, selectedIP, next);
+      }
+
+    });
+  });
+}
+
 var project = null;
 var image = null;
 var windowsServer = null;
@@ -204,6 +251,17 @@ async.waterfall([
           waitForServersToBeOnline(project, next);
         }, 1000);
       });
+    });
+  },
+  function(servers, next) {
+
+    associateFloatingIP(project, linuxServer, function(error) {
+
+      if (error) {
+        next(error);
+      }
+
+      next(null);
     });
   }
 ], function(error) {
