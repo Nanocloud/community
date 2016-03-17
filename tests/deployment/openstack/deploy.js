@@ -30,6 +30,7 @@ var ostack = require('openstack-wrapper');
 var keystone = new ostack.Keystone(URL + ':5000/v3/');
 var async = require('async');
 var fs = require('fs');
+var Promise = require('promise');
 
 function login(next) {
   keystone.getToken(USERNAME, PASSWORD, function(error, token) {
@@ -192,6 +193,10 @@ function associateFloatingIP(project, server, next) {
 }
 
 var project = null;
+var _resolveWindowsIP = null;
+var windowsIP = new Promise(function(resolve) {
+  _resolveWindowsIP = resolve;
+});
 
 var provisionLinux = function(callback) {
   var linuxServer = null;
@@ -239,6 +244,12 @@ var provisionLinux = function(callback) {
         }
 
         next(null);
+      });
+    },
+    function(next) {
+
+      windowsIP.then(function(ip) {
+        next(null, ip);
       });
     }
   ], function(error) {
@@ -291,6 +302,7 @@ var provisionWindows = function(callback) {
           }, 1000);
         }
 
+        _resolveWindowsIP(_server.addresses['nano-net'][0].addr);
         return next(null);
       });
     }
