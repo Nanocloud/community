@@ -80,6 +80,19 @@ function listServers(project, next) {
   });
 }
 
+function getServer(project, id, next) {
+
+  var nova = new ostack.Nova(URL + ':8774/v2/' + PROJECT_ID, project.token);
+
+  nova.getServer(id, function(error, server) {
+    if (error) {
+      return next(error);
+    }
+
+    next(null, server);
+  });
+}
+
 function getServers(project, ids, next) {
 
   var servers = [];
@@ -146,9 +159,9 @@ function associateFloatingIP(project, server, next) {
       callback(!floatingIP.instance_id);
     }, function(availableIPs) {
 
-      var _associateFloatingIP = function(server_id, ip, callback) {
+      var _associateFloatingIP = function(server, ip, callback) {
 
-        nova.associateFloatingIp(server_id, ip.ip, function(error) {
+        nova.associateFloatingIp(server.id, ip.ip, function(error) {
 
           if (error) {
             return callback(error);
@@ -167,11 +180,11 @@ function associateFloatingIP(project, server, next) {
             next(error);
           }
 
-          return _associateFloatingIP(server.id, result, next);
+          return _associateFloatingIP(server, result, next);
         });
       } else {
         var selectedIP = availableIPs[0];
-        _associateFloatingIP(server.id, selectedIP, next);
+        _associateFloatingIP(server, selectedIP, next);
       }
 
     });
@@ -179,9 +192,118 @@ function associateFloatingIP(project, server, next) {
 }
 
 var project = null;
-var image = null;
-var windowsServer = null;
-var linuxServer = null;
+
+var provisionLinux = function(callback) {
+  var linuxServer = null;
+
+  async.waterfall([
+    function(next) {
+
+      createServer(project, {
+        "name": "Bamboo Linux",
+        "imageRef": URL + ":9292/v2/images/" + '7d771989-2ccb-47fb-bbb4-75ee6bd00f2f',
+        "flavorRef": URL + ":8774/v2/flavors/2"
+      }, function(error, _server) {
+
+        if (error) {
+          next(error);
+        }
+
+        linuxServer = _server;
+        next(null);
+      });
+    },
+    function waitForLinuxToBeOnline(next) {
+
+      getServer(project, linuxServer.id, function(error, _server) {
+
+        if (error) {
+          return next(error);
+        }
+
+        if (_server.status != "ACTIVE") {
+          return setTimeout(function() {
+            waitForLinuxToBeOnline(next);
+          }, 1000);
+        }
+
+        return next(null);
+      });
+    },
+    function(next) {
+
+      associateFloatingIP(project, linuxServer, function(error) {
+
+        if (error) {
+          next(error);
+        }
+
+        next(null);
+      });
+    }
+  ], function(error) {
+
+    if (error) {
+      return callback(error);
+    }
+
+    console.log('Linux is online');
+    return callback(null);
+  });
+};
+
+var provisionWindows = function(callback) {
+  var windowsServer = null;
+  var image = null;
+
+  async.waterfall([
+    function(next) {
+      uploadImage(project, next);
+    },
+    function(_image, next) {
+      image = _image;
+
+      createServer(project, {
+        "name": "Bamboo Windows",
+        "imageRef": URL + ":9292/v2/images/" + image.id,
+        "flavorRef": URL + ":8774/v2/flavors/3"
+      }, function(error, _server) {
+
+        if (error) {
+          return next(error);
+        }
+
+        windowsServer = _server;
+        next(null);
+      });
+    },
+    function waitForWindowsToBeOnline(next) {
+
+      getServer(project, windowsServer.id, function(error, _server) {
+
+        if (error) {
+          return next(error);
+        }
+
+        if (_server.status != "ACTIVE") {
+          return setTimeout(function() {
+            waitForWindowsToBeOnline(next);
+          }, 1000);
+        }
+
+        return next(null);
+      });
+    }
+  ], function(error) {
+
+    if (error) {
+      return callback(error);
+    }
+
+    console.log('Windows is online');
+    return callback(null);
+  });
+};
 
 async.waterfall([
   login,
@@ -189,79 +311,15 @@ async.waterfall([
   function(_project, next) {
     project = _project;
 
-    next(null, project);
-  },
-  uploadImage,
-  function(_image, next) {
-    image = _image;
-
-    createServer(project, {
-      "name": "Spawned by Bamboo",
-      "imageRef": URL + ":9292/v2/images/" + image.id,
-      "flavorRef": URL + ":8774/v2/flavors/3"
-    }, function(error, _server) {
-
+    async.parallel([
+      provisionLinux,
+      provisionWindows
+    ], function(error) {
       if (error) {
         next(error);
       }
 
-      windowsServer = _server;
       next(null, project);
-    });
-  },
-  function(project, next) {
-
-    createServer(project, {
-      "name": "Spawned by Bamboo",
-      "imageRef": URL + ":9292/v2/images/" + '7d771989-2ccb-47fb-bbb4-75ee6bd00f2f',
-      "flavorRef": URL + ":8774/v2/flavors/2",
-      "user_data": new Buffer("touch /tmp/bertho").toString('base64'),
-      "key_name": "Bertho"
-    }, function(error, _server) {
-
-      if (error) {
-        next(error);
-      }
-
-      linuxServer = _server;
-      next(null, project);
-    });
-  },
-  function waitForServersToBeOnline(project, next) { // Wait for server to start
-
-    getServers(project, [windowsServer.id, linuxServer.id], function(error, servers) {
-
-      if (error) {
-        next(error);
-      }
-
-      var allActive = true;
-
-      async.forEachOf(servers, function(_server, key, callback) {
-        if (_server.status != "ACTIVE") {
-          allActive = false;
-        }
-        callback();
-      }, function() {
-        if (allActive === true) {
-          return next(null, servers);
-        }
-
-        setTimeout(function() {
-          waitForServersToBeOnline(project, next);
-        }, 1000);
-      });
-    });
-  },
-  function(servers, next) {
-
-    associateFloatingIP(project, linuxServer, function(error) {
-
-      if (error) {
-        next(error);
-      }
-
-      next(null);
     });
   }
 ], function(error) {
