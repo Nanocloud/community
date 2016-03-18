@@ -8,7 +8,7 @@
   cursor: pointer;
   color: $blue-default;
 
-  & tr td:hover{
+  & .link:hover{
     text-decoration: underline;
   }
 

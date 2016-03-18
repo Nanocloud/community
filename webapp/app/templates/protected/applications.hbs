@@ -4,7 +4,7 @@
     <div class='drag-drop-wrapper'>
       {{drag-n-drop}}
     </div>
-    <button class="btn btn-primary" {{ action "toggleSingleTab" }}>Desktop</button>
+    <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
     <table class="table application-table">
       <tbody>
         {{#each model as |application|}}
@@ -17,20 +17,14 @@
                   <i class='material-icons'>video_label</i>
                 {{/if}}
               </td>
-              <td>{{application.alias}}</td>
-              <td>
+              <td class='name'>{{application.alias}}</td>
+              <td class='link' {{ action "toggleSingleTab" application.alias }}>
                 <span class="icon">
                   <i class="material-icons">ondemand_video</i>
                 </span>
-                Start this app 
+                Start this app
               </td>
-              <td>
-                <span class="icon">
-                  <i class="material-icons">mode_edit</i>
-                </span>
-                Edit mode
-              </td>
-              <td>
+              <td class='link'>
                 <span class="icon">
                   <i class="material-icons">clear</i>
                 </span>
