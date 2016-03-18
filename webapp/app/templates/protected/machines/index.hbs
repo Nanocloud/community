@@ -1,16 +1,17 @@
 <div class="section">
-  <h1>Machines</h1>
-
-  {{#each machines as |machine|}}
+  <h4>Machines</h4>
+  <div class='content-wrapper'>
+    {{#each machines as |machine|}}
     {{#link-to 'protected.machines.machine' machine}}
-      <div class="machine">
-        <div class="machine-status {{machine.status}}"></div>
-        {{machine.name}}
-      </div>
+    <div class="machine">
+      <div class="machine-status {{machine.status}}"></div>
+      {{machine.name}}
+    </div>
     {{/link-to}}
-  {{else}}
+    {{else}}
     There is no machine.
-  {{/each}}
+    {{/each}}
+  </div>
 
   {{#link-to 'protected.machines.new' class='btn btn-primary pull-xs-right'}}
     Add machine

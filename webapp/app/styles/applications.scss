@@ -1,11 +1,23 @@
 
 .icon-col,
 .applications-icon {
-	width: 30px;
+  width: 30px;
 }
 
-.application-table tr:hover {
-	background-color: #f1faff;
-	cursor: pointer;
+.application-table {
+  cursor: pointer;
+  color: $blue-default;
+
+  & tr:hover{
+    text-decoration: underline;
+  }
+}
+
+.drag-drop-wrapper {
+  margin-bottom: 20px;
+}
+
+.application-table {
+  margin-top: 20px;
 }
 

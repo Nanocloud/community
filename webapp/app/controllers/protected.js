@@ -6,15 +6,9 @@ export default Ember.Controller.extend({
   connectionName: null,
 
   showSidebar: false,
-  showSingleTab: false,
   actions: {
     toggleSidebar() {
       this.toggleProperty('showSidebar');
-    },
-    toggleSingleTab() {
-      this.set('connectionName', 'hapticDesktop');
-
-      this.toggleProperty('showSingleTab');
     }
   }
 });

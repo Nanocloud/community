@@ -1,27 +1,34 @@
 <div class="section p-a-2">
-  <div>
-    {{drag-n-drop}}
+  <h4>Applications</h4>
+  <div class='content-wrapper'>
+    <div class='drag-drop-wrapper'>
+      {{drag-n-drop}}
+    </div>
+    <button class="btn btn-primary" {{ action "toggleSingleTab" }}>Desktop</button>
+    <table class="table application-table">
+      <tbody>
+        {{#each model as |application|}}
+          {{#unless user.isNew}}
+            <tr>
+              <td class='icon-col'>
+                {{#if application.iconContent}}
+                  <img class='applications-icon' src="data:image/png;base64, {{ application.iconContent}}">
+                {{else}}
+                  <i class='material-icons'>video_label</i>
+                {{/if}}
+              </td>
+              <td>{{application.alias}}</td>
+            </tr>
+          {{/unless}}
+        {{else}}
+            No application available.
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="clearfix"></div>
   </div>
-  <h1>Applications</h1>
-  <table class="table application-table">
-    <tbody>
-      {{#each model as |application|}}
-        {{#unless user.isNew}}
-          <tr>
-            <td class='icon-col'>
-              {{#if application.iconContent}}
-                <img class='applications-icon' src="data:image/png;base64, {{ application.iconContent}}">
-              {{else}}
-                <i class='material-icons'>video_label</i>
-              {{/if}}
-            </td>
-            <td>{{application.alias}}</td>
-          </tr>
-        {{/unless}}
-      {{else}}
-          No application available.
-      {{/each}}
-    </tbody>
-  </table>
-  <div class="clearfix"></div>
 </div>
+
+{{#single-tab isVisible=showSingleTab}}
+  {{remote-session connectionName=connectionName}}
+{{/single-tab}}
