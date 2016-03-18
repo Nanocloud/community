@@ -23,6 +23,7 @@
 package upload
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -202,23 +203,36 @@ func syncUploadedFile(path, sam, pwd string) (string, error) {
 	winPort := utils.Env("WIN_PORT", "")
 	tab := utils.Env("EXECUTION_SERVERS", "")
 	winServer := strings.Split(tab, ";")[0] // TODO: UPLOAD ON THE CORRECT SERVER
+	winDestination := fmt.Sprintf("C:\\Users\\%s\\Desktop\\Nanocloud", sam)
 
 	cmd := exec.Command(
 		"sshpass",
-		"-p",
-		pwd,
-		"scp",
-		"-o",
-		"UserKnownHostsFile=/dev/null",
-		"-o",
-		"StrictHostKeyChecking=no",
-		"-P",
-		winPort,
-		path,
-		sam+"@"+winServer+":C:\\Users\\"+sam+"\\Desktop\\",
+		"-p", pwd,
+		"ssh",
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "StrictHostKeyChecking=no",
+		"-p", winPort,
+		sam+"@"+winServer,
+		fmt.Sprintf("powershell.exe \"New-Item -ErrorAction Ignore -ItemType directory -Path %s\"", winDestination),
 	)
 
 	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return string(output), err
+	}
+
+	cmd = exec.Command(
+		"sshpass",
+		"-p", pwd,
+		"scp",
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "StrictHostKeyChecking=no",
+		"-P", winPort,
+		path,
+		sam+"@"+winServer+":"+winDestination,
+	)
+
+	output, err = cmd.CombinedOutput()
 	if err != nil {
 		return string(output), err
 	}
