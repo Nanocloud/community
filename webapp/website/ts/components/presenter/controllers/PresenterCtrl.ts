@@ -34,6 +34,7 @@ export class PresenterCtrl {
 	private accessToken: string;
 
 	static $inject = [
+		"$location",
 		"$state",
 		"ApplicationsSvc",
 		"$mdDialog",
@@ -41,12 +42,16 @@ export class PresenterCtrl {
 	];
 
 	constructor(
+		private $location: angular.ILocationService,
 		private $state: angular.ui.IStateService,
 		private appsSvc: ApplicationsSvc,
 		private $mdDialog: angular.material.IDialogService,
 		private $sce: angular.ISCEService) {
 		this.loadApplications();
 		this.user = localStorage.getItem("user");
+		if (this.user === "admin@nanocloud.com") {
+			this.$location.path("/admin");
+		}
 		this.accessToken = localStorage["accessToken"];
 	}
 
