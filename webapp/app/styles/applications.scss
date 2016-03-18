@@ -8,8 +8,13 @@
   cursor: pointer;
   color: $blue-default;
 
-  & tr:hover{
+  & tr td:hover{
     text-decoration: underline;
+  }
+
+  & td .icon i {
+    position: relative;
+    top: 6px;
   }
 }
 
