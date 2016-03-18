@@ -31,6 +31,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
@@ -199,7 +200,8 @@ func assembleUpload(path, filename string) error {
 
 func syncUploadedFile(path, sam, pwd string) (string, error) {
 	winPort := utils.Env("WIN_PORT", "")
-	winServer := utils.Env("WIN_SERVER", "")
+	tab := utils.Env("EXECUTION_SERVERS", "")
+	winServer := strings.Split(tab, ";")[0] // TODO: UPLOAD ON THE CORRECT SERVER
 
 	cmd := exec.Command(
 		"sshpass",
