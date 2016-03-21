@@ -24,6 +24,7 @@
 var PROJECT_ID = process.env.DEPLOYMENT_OS_PROJECT_ID || '';
 var USERNAME = process.env.DEPLOYMENT_OS_USERNAME || "";
 var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
+var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -47,7 +48,8 @@ var provisionLinux = function(callback) {
       project.createServer({
         "name": "Bamboo Linux",
         "imageRef": URL + ":9292/v2/images/" + '7d771989-2ccb-47fb-bbb4-75ee6bd00f2f',
-        "flavorRef": URL + ":8774/v2/flavors/2"
+        "flavorRef": URL + ":8774/v2/flavors/2",
+        "key_name": KEY_NAME
       }, function(error, _server) {
 
         if (error) {
