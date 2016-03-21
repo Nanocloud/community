@@ -89,7 +89,7 @@ func AppExists(appId string) (bool, error) {
 	rows, err := db.Query(
 		`SELECT alias
      FROM apps
-     WHERE id = $1::integer`,
+     WHERE id = $1::int`,
 		appId)
 	if err != nil {
 		return false, err
@@ -106,7 +106,7 @@ func ChangeName(appId, newName string) error {
 	_, err := db.Query(
 		`UPDATE apps
      SET display_name = $1::varchar
-     WHERE id = $2::integer`,
+     WHERE id = $2::int`,
 		newName, appId)
 	if err != nil {
 		log.Error("Changing app name failed: ", err)
@@ -281,7 +281,21 @@ func CheckPublishedApps() {
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
-func UnpublishApp(Alias string) error {
+func UnpublishApp(appId string) error {
+
+	res, err := db.Query("SELECT alias FROM apps WHERE id = $1::int", appId)
+	if err != nil {
+		return err
+	}
+	defer res.Close()
+	var Alias string
+	for res.Next() {
+		err := res.Scan(&Alias)
+		if err != nil {
+			continue
+		}
+	}
+
 	cmd := exec.Command(
 		"sshpass", "-p", kPassword,
 		"ssh", "-o", "StrictHostKeyChecking=no",
