@@ -1,0 +1,40 @@
+<div class="section p-a-2">
+  <h4>Applications</h4>
+  <div class='content-wrapper'>
+    <div class='drag-drop-wrapper'>
+      {{drag-n-drop}}
+    </div>
+    <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
+    <table class="table application-table">
+      <tbody>
+        {{#each model as |application|}}
+            <tr>
+              <td class='icon-col'>
+                {{#if application.iconContent}}
+                  <img class='applications-icon' src="data:image/png;base64, {{ application.iconContent}}">
+                {{else}}
+                  <i class='material-icons'>video_label</i>
+                {{/if}}
+              </td>
+              <td> 
+                {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+              </td>
+              <td class='link'>
+                <span class="icon">
+                  <i class="material-icons">clear</i>
+                </span>
+                Unpublish
+              </td>
+            </tr>
+        {{else}}
+            No application available.
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="clearfix"></div>
+  </div>
+</div>
+
+{{#single-tab isVisible=showSingleTab}}
+  {{remote-session connectionName=connectionName}}
+{{/single-tab}}

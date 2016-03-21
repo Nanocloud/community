@@ -15,7 +15,10 @@ Router.map(function() {
       this.route('new');
       this.route('machine', { path: '/:machine_id' });
     });
-    this.route('applications');
+    this.route('apps', function() {
+      this.route('new');
+      this.route('app', { path: '/:app_id' });
+    });
   });
 
   this.route('login');

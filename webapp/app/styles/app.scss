@@ -82,4 +82,21 @@ a, a:hover, a:active {
   opacity: 1;
 }
 
+.icon_link {
+  color: $blue-default;
+  &:hover {
+    color: darken($blue-default, 20%);
+  }
+}
 
+.close_icon {
+  color: $red;
+  &:hover {
+    color: darken($red, 20%);
+  }
+}
+
+.edit-input-text {
+  border: 0;
+  outline: 0;
+}

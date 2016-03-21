@@ -4,8 +4,8 @@ export default Ember.Controller.extend({
 
   showSingleTab: false,
   actions: {
-    toggleSingleTab() {
-      this.set('connectionName', 'hapticPowershell');
+    toggleSingleTab(name) {
+      this.set('connectionName', name);
       this.toggleProperty('showSingleTab');
     }
   }

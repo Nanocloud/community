@@ -85,12 +85,12 @@ type Connection struct {
 	AppName   string `json:"app_name"`
 }
 
-func AppExists(alias string) (bool, error) {
+func AppExists(appId string) (bool, error) {
 	rows, err := db.Query(
 		`SELECT alias
      FROM apps
-     WHERE alias = $1::varchar`,
-		alias)
+     WHERE id = $1::integer`,
+		appId)
 	if err != nil {
 		return false, err
 	}
@@ -106,7 +106,7 @@ func ChangeName(appId, newName string) error {
 	_, err := db.Query(
 		`UPDATE apps
      SET display_name = $1::varchar
-     WHERE alias = $2::varchar`,
+     WHERE id = $2::integer`,
 		newName, appId)
 	if err != nil {
 		log.Error("Changing app name failed: ", err)

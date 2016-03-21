@@ -203,7 +203,7 @@ func ChangeAppName(c *echo.Context) error {
 	var Name struct {
 		Data struct {
 			Attributes struct {
-				DisplayName string `json:"display_name"`
+				DisplayName string `json:"display-name"`
 			}
 		}
 	}
