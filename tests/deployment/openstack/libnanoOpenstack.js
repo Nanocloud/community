@@ -154,6 +154,13 @@ nano.NanoOSServer.prototype.getStatus = function(callback) {
   });
 };
 
+nano.NanoOSServer.prototype.assignSecurityGroup = function(groupName, callback) {
+
+  this._getNova().assignSecurityGroup(groupName, this.getServer().id, function(error) {
+    callback(error);
+  });
+};
+
 nano.NanoOSServer.prototype.associateFloatingIP = function(callback) {
 
   this._getNova().listFloatingIps(function(error, floatingIPs) {

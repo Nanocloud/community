@@ -77,6 +77,11 @@ var provisionLinux = function(callback) {
         return next(null);
       });
     },
+    function(next) { // Open SSH port
+      linuxServer.assignSecurityGroup("SSH", function(error) {
+        next(error);
+      });
+    },
     function(next) { // Associate public IP
 
       linuxServer.associateFloatingIP(function(error, ip) {
