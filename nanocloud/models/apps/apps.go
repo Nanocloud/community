@@ -88,8 +88,8 @@ type Connection struct {
 func AppExists(appId string) (bool, error) {
 	rows, err := db.Query(
 		`SELECT alias
-     FROM apps
-     WHERE id = $1::int`,
+		FROM apps
+		WHERE id = $1::int`,
 		appId)
 	if err != nil {
 		return false, err
@@ -105,8 +105,8 @@ func AppExists(appId string) (bool, error) {
 func ChangeName(appId, newName string) error {
 	_, err := db.Query(
 		`UPDATE apps
-     SET display_name = $1::varchar
-     WHERE id = $2::int`,
+		SET display_name = $1::varchar
+		WHERE id = $2::int`,
 		newName, appId)
 	if err != nil {
 		log.Error("Changing app name failed: ", err)
@@ -119,10 +119,10 @@ func GetAllApps() ([]ApplicationParams, error) {
 	var applications []ApplicationParams
 	rows, err := db.Query(
 		`SELECT id, collection_name,
-	alias, display_name,
-	file_path,
-	icon_content
-	FROM apps`)
+		alias, display_name,
+		file_path,
+		icon_content
+		FROM apps`)
 
 	if err != nil {
 		log.Error("Connection to postgres failed: ", err.Error())
@@ -156,10 +156,10 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 	var applications []ApplicationParams
 	rows, err := db.Query(
 		`SELECT id, collection_name,
-	alias, display_name,
-	file_path,
-	icon_content
-	FROM apps`,
+		alias, display_name,
+		file_path,
+		icon_content
+		FROM apps`,
 	)
 
 	if err != nil {
@@ -194,9 +194,9 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 func CheckPublishedApps() {
 	_, err := db.Query(
 		`INSERT INTO apps
-			(collection_name, alias, display_name, file_path, icon_content)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, "", "Desktop", "Desktop", "", "")
+		(collection_name, alias, display_name, file_path, icon_content)
+		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+		`, "", "Desktop", "Desktop", "", "")
 	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
 	}
@@ -241,9 +241,9 @@ func CheckPublishedApps() {
 
 			_, err := db.Query(
 				`INSERT INTO apps
-			(collection_name, alias, display_name, file_path, icon_content)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
+				(collection_name, alias, display_name, file_path, icon_content)
+				VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+				`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
 			if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 				log.Error("Error inserting app into postgres: ", err.Error())
 			}
@@ -264,9 +264,9 @@ func CheckPublishedApps() {
 			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
 				_, err := db.Query(
 					`INSERT INTO apps
-			(collection_name, alias, display_name, file_path, icon_content)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
+					(collection_name, alias, display_name, file_path, icon_content)
+					VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+					`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
 				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 					log.Error("Error inserting app into postgres: ", err.Error())
 				}

@@ -10,7 +10,6 @@ export default Ember.Component.extend({
     actions : {
 
       toggleSingleTab(connectionName) {
-        console.log('single tab with: ' + connectionName);
         this.set('connectionName', connectionName);
         this.toggleProperty('showSingleTab');
       },
@@ -29,6 +28,14 @@ export default Ember.Component.extend({
 
       cancelEditMode() {
         this.set('isEditing', false);
+      },
+
+      unpublish() {
+        this.application.deleteRecord();
+        this.application.save()
+          .then(() => {
+          }, (errorMessage) => {
+          });
       }
     }
 });

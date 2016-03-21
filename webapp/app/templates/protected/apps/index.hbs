@@ -8,24 +8,7 @@
     <table class="table application-table">
       <tbody>
         {{#each model as |application|}}
-            <tr>
-              <td class='icon-col'>
-                {{#if application.iconContent}}
-                  <img class='applications-icon' src="data:image/png;base64, {{ application.iconContent}}">
-                {{else}}
-                  <i class='material-icons'>video_label</i>
-                {{/if}}
-              </td>
-              <td> 
-                {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
-              </td>
-              <td class='link'>
-                <span class="icon">
-                  <i class="material-icons">clear</i>
-                </span>
-                Unpublish
-              </td>
-            </tr>
+          {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
         {{else}}
             No application available.
         {{/each}}

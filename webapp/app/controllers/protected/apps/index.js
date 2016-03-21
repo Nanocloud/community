@@ -6,8 +6,6 @@ export default Ember.Controller.extend({
 
   actions: {
     toggleSingleTab(connectionName) {
-      console.log('single tab with: ' + connectionName);
-      this.set('connectionName', connectionName);
       this.toggleProperty('showSingleTab');
     }
   }
