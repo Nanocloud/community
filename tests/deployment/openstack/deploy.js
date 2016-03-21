@@ -24,11 +24,13 @@
 var PROJECT_ID = process.env.DEPLOYMENT_OS_PROJECT_ID || '';
 var USERNAME = process.env.DEPLOYMENT_OS_USERNAME || "";
 var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
+var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
 var Promise = require('promise');
+var test_port = require('test-port');
 
 var URL = process.env.DEPLOYMENT_OS_URL || "http://openstack.nanocloud.org";
 
@@ -92,6 +94,18 @@ var provisionLinux = function(callback) {
 
         linuxIP = ip;
         next(null);
+      });
+    },
+    function waitForSSHToBeAvailable(next) {
+
+      test_port(SSH_PORT, linuxIP.ip, function(isOpen) {
+        if (isOpen) {
+          return next(null);
+        }
+
+        return setTimeout(function() {
+          waitForSSHToBeAvailable(next);
+        }, 1000);
       });
     },
     function(next) {
