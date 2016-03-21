@@ -26,6 +26,7 @@ var ostack = require('openstack-wrapper');
 var async = require('async');
 var extend = require('extend');
 var fs = require('fs');
+var ssh = require('ssh-exec');
 
 function _getKeystone() {
 
@@ -47,6 +48,7 @@ var nano = {
 
   NanoOSServer: function(server) {
 
+    this.ip = null;
     this.getServer = function() {
       return server;
     };
@@ -158,6 +160,24 @@ nano.NanoOSServer.prototype.assignSecurityGroup = function(groupName, callback) 
 
   this._getNova().assignSecurityGroup(groupName, this.getServer().id, function(error) {
     callback(error);
+  });
+};
+
+nano.NanoOSServer.prototype.execute = function(ip, scriptPath, keyPath, callback) {
+
+  var user = 'debian';
+
+  fs.readFile(scriptPath, function(err, script) {
+
+    if (err) {
+      callback(err);
+    }
+
+    ssh(script, {
+      user: user,
+      host: ip.ip,
+      key: keyPath
+    }).pipe(process.stdout);
   });
 };
 

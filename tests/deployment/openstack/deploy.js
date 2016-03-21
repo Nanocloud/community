@@ -24,8 +24,10 @@
 var PROJECT_ID = process.env.DEPLOYMENT_OS_PROJECT_ID || '';
 var USERNAME = process.env.DEPLOYMENT_OS_USERNAME || "";
 var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
+var INSTALL_SCRIPT_PATH = process.env.DEPLOYMENT_OS_INSTALL_SCRIPT_PATH || './installDocker.sh';
 var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
+var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -110,6 +112,16 @@ var provisionLinux = function(callback) {
     },
     function(next) {
 
+      linuxServer.execute(linuxIP, INSTALL_SCRIPT_PATH, KEY_PATH, function(error, response) {
+
+        if (error) {
+          return next(error);
+        }
+
+        next(null, response);
+      });
+    },
+    function(next) {
       windowsIP.then(function(ip) {
         console.log('Windows IP + ' + ip);
         next(null, ip);
