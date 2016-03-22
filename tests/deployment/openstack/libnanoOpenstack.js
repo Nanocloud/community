@@ -24,7 +24,6 @@ var URL = process.env.DEPLOYMENT_OS_URL || "http://openstack.nanocloud.org";
 
 var ostack = require('openstack-wrapper');
 var async = require('async');
-var extend = require('extend');
 var fs = require('fs');
 var ssh = require('ssh-exec');
 
@@ -46,9 +45,12 @@ var nano = {
     };
   },
 
-  NanoOSServer: function(server) {
+  NanoOSServer: function(project, server) {
 
     this.ip = null;
+    this.getProject = function() {
+      return project;
+    };
     this.getServer = function() {
       return server;
     };
@@ -80,7 +82,7 @@ nano.NanoOSUser.prototype.getProject = function(projectID, callback) {
       return callback(error);
     }
 
-    return callback(null, extend(this, new nano.NanoOSProject(projectToken)));
+    return callback(null, new nano.NanoOSProject(projectToken));
   }.bind(this));
 };
 
@@ -98,7 +100,7 @@ nano.NanoOSProject.prototype.createServer = function(data, callback) {
   this._getNova().createServer({
     server: data
   }, function(error, server) {
-    callback(error, extend(this, new nano.NanoOSServer(server)));
+    callback(error, new nano.NanoOSServer(this, server));
   }.bind(this));
 };
 
@@ -134,7 +136,7 @@ nano.NanoOSProject.prototype.uploadImage = function(path, metadata, callback) {
 
 nano.NanoOSServer.prototype.get = function(callback) {
 
-  this._getNova().getServer(this.getServer().id, function(error, server) {
+  this.getProject()._getNova().getServer(this.getServer().id, function(error, server) {
 
     if (error) {
       callback(error);
@@ -158,7 +160,7 @@ nano.NanoOSServer.prototype.getStatus = function(callback) {
 
 nano.NanoOSServer.prototype.assignSecurityGroup = function(groupName, callback) {
 
-  this._getNova().assignSecurityGroup(groupName, this.getServer().id, function(error) {
+  this.getProject()._getNova().assignSecurityGroup(groupName, this.getServer().id, function(error) {
     callback(error);
   });
 };
@@ -183,7 +185,7 @@ nano.NanoOSServer.prototype.execute = function(ip, scriptPath, keyPath, callback
 
 nano.NanoOSServer.prototype.associateFloatingIP = function(callback) {
 
-  this._getNova().listFloatingIps(function(error, floatingIPs) {
+  this.getProject()._getNova().listFloatingIps(function(error, floatingIPs) {
 
     if (error) {
       return callback(error);
@@ -195,7 +197,7 @@ nano.NanoOSServer.prototype.associateFloatingIP = function(callback) {
 
       var _associateFloatingIP = function(ip, callback) {
 
-        this._getNova().associateFloatingIp(this.getServer().id, ip.ip, function(error) {
+        this.getProject()._getNova().associateFloatingIp(this.getServer().id, ip.ip, function(error) {
 
           if (error) {
             return callback(error);
@@ -207,7 +209,7 @@ nano.NanoOSServer.prototype.associateFloatingIP = function(callback) {
 
       if (availableIPs.length == 0) {
 
-        this._getNova().createFloatingIp({}, function(error, result) {
+        this.getProject()._getNova().createFloatingIp({}, function(error, result) {
 
           if (error) {
             return callback(error);
