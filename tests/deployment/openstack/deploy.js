@@ -28,6 +28,7 @@ var INSTALL_SCRIPT_PATH = process.env.DEPLOYMENT_OS_INSTALL_SCRIPT_PATH || './in
 var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
+var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -168,7 +169,7 @@ var provisionWindows = function(callback) {
 
   async.waterfall([
     function(next) { // Upload qcow2
-      project.uploadImage("./windows.qcow2", {
+      project.uploadImage(WINDOWS_IMAGE_PATH, {
         name: "bamboo",
         visibility: 'private',
         disk_format: 'qcow2',
