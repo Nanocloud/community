@@ -1,14 +1,38 @@
 <div class="section">
-  <h1><div class="machine-status {{model.status}}"></div> {{model.name}}</h1>
-  <div class="btn-group" role="group">
-    <button type="button" class="btn btn-secondary" {{action 'startMachine'}} disabled={{model.isUp}}>
-      Start
-    </button>
-    <button type="button" class="btn btn-secondary" {{action 'stopMachine'}} disabled={{model.isDown}}>
-      Stop
-    </button>
-    <button type="button" class="btn btn-secondary" {{action 'terminateMachine'}} disabled={{model.isUp}}>
-      Terminate
-    </button>
+  <h4> 
+    {{#link-to 'protected.machines' }}
+      Machines
+    {{/link-to}}
+   - {{model.name}}
+  </h4>
+  <div class='content-wrapper'>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th scope="row">Command</th>
+          <td>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-secondary" {{action 'startMachine'}} disabled={{model.isUp}}>
+              Start
+              </button>
+              <button type="button" class="btn btn-secondary" {{action 'stopMachine'}} disabled={{model.isDown}}>
+              Stop
+              </button>
+              <button type="button" class="btn btn-secondary" {{action 'terminateMachine'}} disabled={{model.isUp}}>
+              Terminate
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Machine state</th>
+          <td>{{model.status}}</td>
+        </tr>
+        <tr>
+          <th scope="row">IP</th>
+          <td>{{model.ip}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

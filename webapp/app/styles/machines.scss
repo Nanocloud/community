@@ -1,9 +1,55 @@
+.machines-wrapper {
+}
 
 .machine {
-  width: 254px;
+  position: relative;
   padding: 20px 20px 20px 45px;
-  box-shadow: 0 0 3px #87C1E8;
+  max-width: 300px;
+  margin: 0px 10px 10px 0px;
+  border: 1px solid #DAE6EF;
+  border-radius: 2px;
 
+  &:hover {
+    cursor: pointer;
+
+    > .title {
+      text-decoration: underline;
+    }
+  }
+}
+
+.state-color {
+
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  position: absolute;
+  right: 15px;
+  top: 21px;
+
+  &.unknown {
+    background-color: #F45835;
+  }
+
+  &.down {
+    background-color: #CDCDCD;
+  }
+
+  &.up {
+    background-color: #2CC24E;
+  }
+
+  &.terminated {
+    background-color: #525252;
+  }
+
+  &.booting {
+    background-color: #F4B835;
+  }
+
+  &.downloading {
+    background-color: #8EDAFB;
+  }
 }
 
 .machine-status {
@@ -12,30 +58,15 @@
   height: 20px;
   border-radius: 10px;
   margin-right: 20px;
-  left: 35px;
+  left: 14px;
+  top: 20px;
   position: absolute;
 
-  &.unknown {
-    background-color: #F45835;
+  > .title {
+    padding-left: 30px;
   }
+}
 
-	&.down {
-    background-color: #CDCDCD;
-  }
-
-	&.up {
-    background-color: #2CC24E;
-  }
-
-	&.terminated {
-    background-color: #525252;
-  }
-
-	&.booting {
-    background-color: #F4B835;
-  }
-
-	&.downloading {
-    background-color: #8EDAFB;
-  }
+.content-wrapper.form {
+  max-width: 350px;
 }

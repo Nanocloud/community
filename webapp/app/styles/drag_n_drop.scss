@@ -21,15 +21,16 @@
 .drag-n-drop-container .element-default-state {
   border: 2px dashed $gray-light;
   > .text {
-    color: $blue-default;
+    color: $gray;
   }
 }
 
 .drag-n-drop-container .element-active-state {
+  border: 2px dashed $blue-default;
+  background-color: $white;
   opacity: 0;
-  background-color: $blue-default;
   > .text {
-    color: $white;
+    color: $blue-default;
   }
 }
 
