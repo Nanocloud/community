@@ -122,14 +122,23 @@ var provisionLinux = function(callback) {
           return next(error);
         }
 
-        next(null, response);
+        next(null);
       });
     },
     function(next) {
+
       windowsIP.then(function(ip) {
         console.log('Windows IP + ' + ip);
         next(null, ip);
       });
+    },
+    function(winIP, next) { // Save Windows IP to be read back in the VM
+
+      linuxServer.execute(linuxIP, "echo " + winIP + " > windowsIP", KEY_PATH, function(error) {
+        next(error);
+      });
+
+    },
     }
   ], function(error) {
 
