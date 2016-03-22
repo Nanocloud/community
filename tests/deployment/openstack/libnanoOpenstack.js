@@ -104,6 +104,18 @@ nano.NanoOSProject.prototype.createServer = function(data, callback) {
   }.bind(this));
 };
 
+nano.NanoOSProject.prototype.getServer = function(id, callback) {
+
+  this._getNova().getServer(id, function(error, server) {
+
+    if (error) {
+      callback(error);
+    }
+
+    callback(null, new nano.NanoOSServer(this, server));
+  });
+};
+
 nano.NanoOSProject.prototype._getGlance = function() {
 
   if (this._glance === undefined) {
