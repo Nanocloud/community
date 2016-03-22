@@ -7,6 +7,12 @@ export default Ember.Controller.extend({
   errorMessage: null,
 
   actions: {
+
+    removeDone: function() {
+      this.get('model').destroyRecord();
+      this.transitionToRoute('protected.users');
+    },
+
     toggleEditPassword: function() {
       this.toggleProperty('editingPassword');
       this.set('model.password', "");

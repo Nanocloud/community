@@ -100,9 +100,7 @@ func Delete(c *echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
+		"meta": hash{},
 	})
 }
 
@@ -180,7 +178,7 @@ func Update(c *echo.Context) error {
 		})
 	}
 
-	error := users.UpdateUserPassword(user.Id, password);
+	error := users.UpdateUserPassword(user.Id, password)
 	if error != nil {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{
@@ -399,7 +397,6 @@ func UpdatePassword(c *echo.Context) error {
 		log.Errorf("Unable to update user password: %s", err.Error())
 		return err
 	}
-
 
 	return c.JSON(http.StatusOK, hash{
 		"data": hash{

@@ -12,13 +12,15 @@
       </thead>
       <tbody>
         {{#each model as |user|}}
-        {{#unless user.isNew}}
-        <tr>
-          <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
-          <td>{{user.email}}</td>
-          <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
-        </tr>
-        {{/unless}}
+          {{#unless user.isNew}}
+            {{#unless user.isDeleted}}
+              <tr>
+                <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
+                <td>{{user.email}}</td>
+                <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
+              </tr>
+            {{/unless}}
+          {{/unless}}
         {{/each}}
       </tbody>
     </table>
