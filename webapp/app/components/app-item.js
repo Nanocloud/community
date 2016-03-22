@@ -31,7 +31,7 @@ export default Ember.Component.extend({
       },
 
       unpublish() {
-				this.application.destroyRecord();
+        this.application.destroyRecord();
       }
     }
 });
