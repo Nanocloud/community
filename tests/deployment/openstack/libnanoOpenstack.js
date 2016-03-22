@@ -100,6 +100,11 @@ nano.NanoOSProject.prototype.createServer = function(data, callback) {
   this._getNova().createServer({
     server: data
   }, function(error, server) {
+
+    if (error) {
+      callback(error);
+    }
+
     callback(error, new nano.NanoOSServer(this, server));
   }.bind(this));
 };
