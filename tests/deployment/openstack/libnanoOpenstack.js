@@ -116,6 +116,18 @@ nano.NanoOSProject.prototype.getServer = function(id, callback) {
   });
 };
 
+nano.NanoOSProject.prototype.getIP = function(id, callback) {
+
+  this._getNova().getFloatingIp(id, function(error, ip) {
+
+    if (error) {
+      callback(error);
+    }
+
+    callback(null, ip);
+  });
+};
+
 nano.NanoOSProject.prototype._getGlance = function() {
 
   if (this._glance === undefined) {
