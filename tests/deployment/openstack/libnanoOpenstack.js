@@ -217,6 +217,13 @@ nano.NanoOSServer.prototype.execute = function(ip, scriptPath, keyPath, callback
       host: ip.ip,
       key: keyPath
     }, function (err, stdout, stderr) {
+
+      if (err) {
+        console.log(stderr);
+        return callback(err);
+      }
+
+      console.log(stdout);
       callback(null);
     }).pipe(process.stdout);
   };
