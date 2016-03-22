@@ -20,10 +20,7 @@ export default Ember.Component.extend({
 
       submitEditName() {
         this.toggleProperty('isEditing');
-        this.application.save()
-          .then(() => {
-          }, (errorMessage) => {
-          });
+        this.application.save();
       },
 
       cancelEditMode() {
