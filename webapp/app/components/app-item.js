@@ -31,11 +31,7 @@ export default Ember.Component.extend({
       },
 
       unpublish() {
-        this.application.deleteRecord();
-        this.application.save()
-          .then(() => {
-          }, (errorMessage) => {
-          });
+				this.application.destroyRecord();
       }
     }
 });
