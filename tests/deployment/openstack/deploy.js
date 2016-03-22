@@ -191,6 +191,17 @@ var provisionWindows = function(callback) {
         _resolveWindowsIP(_server.addresses['nano-net'][0].addr);
         return next(null);
       });
+    },
+    function (next) { // Assign right security group to Windows
+
+      windowsServer.assignSecurityGroup([
+        "Plaza",
+        "LDAP and LDAPs",
+        "SSH",
+        "RDP"
+      ], function(error) {
+        next(error);
+      });
     }
   ], function(error) {
 
