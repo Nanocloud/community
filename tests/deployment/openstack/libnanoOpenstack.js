@@ -200,18 +200,31 @@ nano.NanoOSServer.prototype.assignSecurityGroup = function(groupName, callback) 
 nano.NanoOSServer.prototype.execute = function(ip, scriptPath, keyPath, callback) {
 
   var user = 'debian';
-
-  fs.readFile(scriptPath, function(err, script) {
-
-    if (err) {
-      callback(err);
-    }
+  var sshHelper = function(script, user, ip, keyPath) {
 
     ssh(script, {
       user: user,
       host: ip.ip,
       key: keyPath
+    }, function (err, stdout, stderr) {
+      callback(null);
     }).pipe(process.stdout);
+  };
+
+  fs.access(scriptPath, fs.X_OK, function(err) {
+
+    if (err) { // Assume its a command
+      sshHelper(scriptPath, user, ip, keyPath);
+    } else {
+      fs.readFile(scriptPath, function(err, script) {
+
+        if (err) {
+          callback(err);
+        }
+
+        sshHelper(script, user, ip, keyPath);
+      });
+    }
   });
 };
 
