@@ -113,7 +113,7 @@ nano.NanoOSProject.prototype.getServer = function(id, callback) {
     }
 
     callback(null, new nano.NanoOSServer(this, server));
-  });
+  }.bind(this));
 };
 
 nano.NanoOSProject.prototype.getIP = function(id, callback) {
