@@ -8,9 +8,11 @@
     <table class="table application-table">
       <tbody>
         {{#each model as |application|}}
-          {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+          {{#unless application.isDeleted}}
+            {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+          {{/unless}}
         {{else}}
-            No application available.
+          No applications available.
         {{/each}}
       </tbody>
     </table>

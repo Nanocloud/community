@@ -145,9 +145,7 @@ func UnpublishApplication(c *echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
+		"meta": hash{},
 	})
 }
 

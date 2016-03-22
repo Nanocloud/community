@@ -292,7 +292,7 @@ func UnpublishApp(appId string) error {
 	for res.Next() {
 		err := res.Scan(&Alias)
 		if err != nil {
-			continue
+			return err
 		}
 	}
 
