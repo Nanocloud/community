@@ -188,9 +188,14 @@ nano.NanoOSServer.prototype.assignSecurityGroup = function(groupName, callback) 
     groupName = [groupName];
   }
 
-  async.each(groupName, function(group, next) {
+  async.eachSeries(groupName, function(group, next) {
     this.getProject()._getNova().assignSecurityGroup(group, this.getServer().id, function(error) {
-      next(error);
+
+      if (error) {
+        return next(error);
+      }
+
+      next(null);
     });
   }.bind(this), function(err) {
     callback(err);
