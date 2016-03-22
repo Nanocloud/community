@@ -13,11 +13,12 @@
                 </span>
                 Machines
               {{/link-to}}
+
             </li>
           {{/if}}
 
           <li>
-            {{#link-to 'protected.applications'}}
+            {{#link-to 'protected.apps'}}
               <span class="icon">
                 <i class="material-icons">apps</i>
               </span>
@@ -48,11 +49,8 @@
       </div>
       <div class="bottom-nav">
         <ul class="nav">
-          <li>
-            <button {{action "invalidateSession"}} type="button">
-              <i class="material-icons">power_settings_new</i>
-              Logout
-            </button>
+          <li class="version-number p-a-2">
+              Nanocloud version 1.5
           </li>
         </ul>
       </div>
@@ -66,10 +64,19 @@
       </button>
       <ul class="nav navbar-nav pull-xs-right">
         <li class="nav-item">
-        <a class="nav-link">{{session.user.firstName}} {{session.user.lastName}}</a>
+          <div class="dropdown logout-dropdown">
+            <span class="dropdown-toggle" data-toggle="dropdown">{{session.user.firstName}} {{session.user.lastName}}
+              <span class="caret"></span>
+            </span>
+            <ul class="dropdown-menu">
+              <li><a href="#">Logout</a></li>
+            </ul>
+          </div>
         </li>
       </ul>
     </nav>
     {{outlet}}
   </div>
+
 </div>
+

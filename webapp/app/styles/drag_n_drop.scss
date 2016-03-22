@@ -1,8 +1,6 @@
 .drag-n-drop-container {
   height: 150px;
-  background-color: gainsboro;
-  //border: 4px dotted #B7DBFF;
-  background: #E8F2FB;
+  background-color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,17 +19,22 @@
 }
 
 .drag-n-drop-container .element-default-state {
-  border: 3px dotted #C7D8E0;
+  border: 2px dashed $gray-light;
+  > .text {
+    color: $blue-default;
+  }
 }
 
 .drag-n-drop-container .element-active-state {
   opacity: 0;
-  background-color: #f1faff;
-  border: 3px dotted #59AAD0;
+  background-color: $blue-default;
+  > .text {
+    color: $white;
+  }
 }
 
 .drag-n-drop-container .text {
-  font-size: 27px;
+  font-size: 18px;
   pointer-events: none;
 }
 

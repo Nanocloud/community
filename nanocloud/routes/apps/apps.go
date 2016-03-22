@@ -145,9 +145,7 @@ func UnpublishApplication(c *echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
+		"meta": hash{},
 	})
 }
 
@@ -203,7 +201,7 @@ func ChangeAppName(c *echo.Context) error {
 	var Name struct {
 		Data struct {
 			Attributes struct {
-				DisplayName string `json:"display_name"`
+				DisplayName string `json:"display-name"`
 			}
 		}
 	}

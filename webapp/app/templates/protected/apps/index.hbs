@@ -1,0 +1,25 @@
+<div class="section p-a-2">
+  <h4>Applications</h4>
+  <div class='content-wrapper'>
+    <div class='drag-drop-wrapper'>
+      {{drag-n-drop}}
+    </div>
+    <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
+    <table class="table application-table">
+      <tbody>
+        {{#each model as |application|}}
+          {{#unless application.isDeleted}}
+            {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+          {{/unless}}
+        {{else}}
+          No applications available.
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="clearfix"></div>
+  </div>
+</div>
+
+{{#single-tab isVisible=showSingleTab}}
+  {{remote-session connectionName=connectionName}}
+{{/single-tab}}

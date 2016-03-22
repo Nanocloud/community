@@ -1,0 +1,19 @@
+@import "ember-modal-dialog/ember-modal-structure";
+@import "ember-modal-dialog/ember-modal-appearance";
+@import "variables";
+
+.ember-modal-fullscreen {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  padding: 0;
+}
+
+.remote-session-topbar {
+  height: $topbar-height;
+}
+
+.canva-fullscreen {
+  width: 100%;
+  height: calc(100% - #{$topbar-height});
+}

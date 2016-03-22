@@ -49,7 +49,7 @@ type VmInfo struct {
 
 func (m *machine) Status() (vms.MachineStatus, error) {
 	ip, _ := m.IP()
-	resp, err := http.Get("http://" + string(ip) + ":8080/api/iaas")
+	resp, err := http.Get("http://" + string(ip) + ":8080/api/vms")
 	if err != nil {
 		log.Error(err)
 		return vms.StatusUnknown, err
@@ -99,7 +99,7 @@ func (m *machine) Type() (vms.MachineType, error) {
 
 func (m *machine) Start() error {
 	ip, _ := m.IP()
-	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.id+"/start", "", nil)
+	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.id+"/start", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return err
@@ -109,7 +109,7 @@ func (m *machine) Start() error {
 
 func (m *machine) Stop() error {
 	ip, _ := m.IP()
-	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.id+"/stop", "", nil)
+	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.id+"/stop", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return err

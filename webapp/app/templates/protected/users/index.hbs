@@ -1,29 +1,32 @@
 <div class="section">
-  <h1>Users</h1>
+  <h4>Users</h4>
+  <div class='content-wrapper'>
 
-  <table class="table">
-    <thead>
-    <tr>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{#each model as |user|}}
-      {{#unless user.isNew}}
+    <table class="table">
+      <thead>
         <tr>
-         <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
-         <td>{{user.email}}</td>
-         <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
         </tr>
-      {{/unless}}
-    {{/each}}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {{#each model as |user|}}
+        {{#unless user.isNew}}
+        <tr>
+          <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
+          <td>{{user.email}}</td>
+          <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
+        </tr>
+        {{/unless}}
+        {{/each}}
+      </tbody>
+    </table>
 
-
-  {{#link-to 'protected.users.new' class='btn btn-primary pull-xs-right'}}Add user{{/link-to}}
-  <div class="clearfix"></div>
+    {{#link-to 'protected.users.new' class='btn btn-primary pull-xs-right'}}Add user{{/link-to}}
+    <div class="clearfix"></div>
+  </div>
 
 </div>
+
+{{ outlet }}

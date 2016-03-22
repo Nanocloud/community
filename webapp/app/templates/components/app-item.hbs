@@ -1,0 +1,28 @@
+<div class='app-item-block'>
+  <div class='app-item part1'>
+    {{#if application.iconContent}}
+      <img class='applications-icon' src="data:image/png;base64, {{ application.iconContent}}">
+    {{else}}
+      <i class='material-icons'>video_label</i>
+    {{/if}}
+  </div>
+  <div class='app-item part2'>
+    {{#if isEditing }}
+      {{input class='edit-input-text' type="text" value=application.displayName}}
+      <span class="icon icon_link" {{ action "submitEditName" application }}>
+        <i class="material-icons">done</i>
+      </span>
+      <span class="icon icon_link close_icon" {{ action "cancelEditMode" application }}>
+        <i class="material-icons">clear</i>
+      </span>
+    {{else}}
+      <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
+      <span class="icon icon_link" {{ action "toggleEditName" application }}>
+        <i class="material-icons">editmode</i>
+      </span>
+    {{/if}}
+  </div>
+  <div class='app-item part3'>
+    <span class='link' {{ action "unpublish" }}>Unpublish</span>
+  </div>
+</div>

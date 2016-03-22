@@ -157,7 +157,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 
 		String token = this.authenticatedUser.getIdentifier();
 
-		URL myUrl = new URL("http://" + hostname + ":" + port + "/api/apps/connections");
+		URL myUrl = new URL("http://" + hostname + ":" + port + "/api/applications/connections");
 		HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
 
 		urlConn.setInstanceFollowRedirects(false);
