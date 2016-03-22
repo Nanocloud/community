@@ -1,11 +1,20 @@
 <div class="section">
-  <form {{action 'createMachine' on='submit'}}>
-    <fieldset class="form-group">
-      {{input type="text" value=machineName placeholder="Machine Name"}}
-    </fieldset>
-    <fieldset class="form-group">
-      {{input type="password" value=adminPassword placeholder="Administrator Password"}}
-    </fieldset>
-    <button type="submit" class="btn btn-primary">Create</button>
-  </form>
+ <h4> 
+    {{#link-to 'protected.machines' }}
+      Machines
+    {{/link-to}}
+   - New machine</h4>
+  <div class='content-wrapper form'>
+    <form {{action 'createMachine' on='submit'}}>
+      <fieldset class="form-group">
+        <label>Give a name to your machine</label>
+        {{input type="text" class='form-control' value=machineName placeholder="Machine Name"}}
+      </fieldset>
+      <fieldset class="form-group">
+        <label>.. and a password because security is important!</label>
+        {{input type="password" class='form-control' value=adminPassword placeholder="Administrator Password"}}
+      </fieldset>
+      <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+  </div>
 </div>
