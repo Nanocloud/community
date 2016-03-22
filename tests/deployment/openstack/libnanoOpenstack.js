@@ -160,8 +160,16 @@ nano.NanoOSServer.prototype.getStatus = function(callback) {
 
 nano.NanoOSServer.prototype.assignSecurityGroup = function(groupName, callback) {
 
-  this.getProject()._getNova().assignSecurityGroup(groupName, this.getServer().id, function(error) {
-    callback(error);
+  if (typeof groupName === 'string') {
+    groupName = [groupName];
+  }
+
+  async.each(groupName, function(group, next) {
+    this.getProject()._getNova().assignSecurityGroup(group, this.getServer().id, function(error) {
+      next(error);
+    });
+  }.bind(this), function(err) {
+    callback(err);
   });
 };
 

@@ -81,8 +81,12 @@ var provisionLinux = function(callback) {
         return next(null);
       });
     },
-    function(next) { // Open SSH port
-      linuxServer.assignSecurityGroup("SSH", function(error) {
+    function(next) { // Open SSH and HTTPS port
+
+      linuxServer.assignSecurityGroup([
+        "HTTP and HTTPS",
+        "SSH"
+      ], function(error) {
         next(error);
       });
     },
