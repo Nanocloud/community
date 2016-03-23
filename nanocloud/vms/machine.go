@@ -37,6 +37,7 @@ const (
 
 type Machine interface {
 	Id() string
+	Platform() string
 	Name() (string, error)
 	Status() (MachineStatus, error)
 	IP() (net.IP, error)

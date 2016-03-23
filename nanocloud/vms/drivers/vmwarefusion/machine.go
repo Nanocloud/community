@@ -122,6 +122,10 @@ func (m *machine) IP() (net.IP, error) {
 	return nil, nil
 }
 
+func (m *machine) Platform() string {
+	return "vmwarefusion"
+}
+
 func (m *machine) Type() (vms.MachineType, error) {
 	return defaultType, nil
 }
