@@ -89,6 +89,9 @@ func main() {
 		log.Error(err)
 		return
 	}
+	p := echo.New()
+	p.Post("/app", apps.AddApplication)
+	go p.Run(":8181")
 
 	err = initVms()
 	if err != nil {

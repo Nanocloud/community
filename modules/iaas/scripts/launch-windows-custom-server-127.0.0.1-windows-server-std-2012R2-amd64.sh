@@ -30,6 +30,7 @@ VM_HOSTNAME="windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64"
 SSH_PORT=1119
 RDP_PORT=3389
 LDAPS_PORT=6360
+PLAZA_PORT=9090
 
 QEMU=$(which qemu-system-x86_64 || true)
 if [ -z "${QEMU}" ]; then
@@ -50,7 +51,7 @@ $QEMU \
     -vnc :2 \
     -pidfile "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid" \
     -net nic,vlan=0,model=virtio \
-    -net user,vlan=0,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${RDP_PORT}"-:3389,hostfwd=tcp::"${LDAPS_PORT}"-:636,hostname="${VM_HOSTNAME}" \
+    -net user,vlan=0,hostfwd=tcp::"${PLAZA_PORT}"-:9090,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${RDP_PORT}"-:3389,hostfwd=tcp::"${LDAPS_PORT}"-:636,hostname="${VM_HOSTNAME}" \
     -vga qxl \
     -global qxl-vga.vram_size=33554432 \
     "${@}"

@@ -27,6 +27,14 @@ New-RDRemoteApp -CollectionName $collectionName -DisplayName $displayName -FileP
 
 # *** Display a popup ***
 if (-Not $args[0]) {
+$resource = "http://localhost:9090/app"
+$body = @{
+    collection = $collectionName
+		displayname = $displayName
+		path = $filename
+}
+Invoke-RestMethod -Method Post -Uri $resource -Body (ConvertTo-Json $body)
+
 $wshell = New-Object -ComObject Wscript.Shell
 $wshell.Popup($displayName+ " has been published ! You can now close this tab.", 10, "Done", 0x1)
 }

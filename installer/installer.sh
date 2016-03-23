@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Nanocloud Community, a comprehensive platform to turn any application
 # into a cloud solution.
@@ -23,7 +23,7 @@
 SCRIPT_UID=$(id -u)
 
 DATE_FMT="+%Y/%m/%d %H:%M:%S"
-COMMUNITY_TAG="0.4.0"
+COMMUNITY_TAG="0.5.0"
 COMMAND=${1}
 
 if [ -z "$(which docker || true)" ]; then
@@ -31,7 +31,7 @@ if [ -z "$(which docker || true)" ]; then
   exit 2
 fi
 
-function check_docker_compose_file {
+check_docker_compose_file () {
     DOCKERCOMPOSEFILE=${PWD}/nanocloud/docker-compose.yml
 
     if [ -z "$(ls -l $DOCKERCOMPOSEFILE 2> /dev/null || true)" ]; then
@@ -72,6 +72,8 @@ case $COMMAND in
         ;;
 esac
 
-# If no argument is provided then install Nanocloud
-docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud --rm nanocloud/community:${COMMUNITY_TAG}
-docker-compose -f ${PWD}/nanocloud/docker-compose.yml up -d
+if [ -z "${COMMAND}" ]; then
+    # If no argument is provided then install Nanocloud
+    docker run -e HOST_UID=$SCRIPT_UID -v ${PWD}/nanocloud:/var/lib/nanocloud --rm nanocloud/community:${COMMUNITY_TAG}
+    docker-compose -f ${PWD}/nanocloud/docker-compose.yml up -d
+fi

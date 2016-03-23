@@ -23,11 +23,12 @@
 package apps
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"io/ioutil"
 	"math/rand"
-	"os/exec"
+	"net/http"
 	"strings"
 	"time"
 
@@ -150,6 +151,7 @@ func GetAllApps() ([]ApplicationParams, error) {
 		applications = []ApplicationParams{}
 	}
 	return applications, nil
+
 }
 
 func GetUserApps(userId string) ([]ApplicationParams, error) {
@@ -191,12 +193,30 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 	return applications, nil
 }
 
+func AddApp(params ApplicationParams) error {
+	_, err := db.Query(
+		`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, params.CollectionName, params.Alias, params.DisplayName, params.FilePath)
+	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+		log.Error("Error inserting app into postgres: ", err.Error())
+	}
+	return nil
+}
+
 func CheckPublishedApps() {
 	_, err := db.Query(
 		`INSERT INTO apps
+<<<<<<< HEAD
 		(collection_name, alias, display_name, file_path, icon_content)
 		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
 		`, "", "Desktop", "Desktop", "", "")
+=======
+			(collection_name, alias, display_name, file_path, icon_content)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+			`, "", "hapticDesktop", "Desktop", "", "")
+>>>>>>> plaza
 	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
 	}
@@ -205,29 +225,19 @@ func CheckPublishedApps() {
 		var applications []ApplicationParamsWin
 		var winapp ApplicationParamsWin
 		var apps []ApplicationParams
-		cmd := exec.Command(
-			"sshpass", "-p", kPassword,
-			"ssh", "-o", "StrictHostKeyChecking=no",
-			"-o", "UserKnownHostsFile=/dev/null",
-			"-o", "LogLevel=quiet",
-			"-p", kSSHPort,
-			fmt.Sprintf(
-				"%s@%s",
-				kUser,
-				kServer,
-			),
-			"powershell.exe \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
-		)
-		response, err := cmd.CombinedOutput()
-
+		resp, err := http.Get("http://" + kServer + ":9090/apps")
 		if err != nil {
-			log.Error("Failed to execute sshpass command ", err, string(response))
+			log.Error(err)
 			continue
 		}
-		err = json.Unmarshal(response, &applications)
+		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-
-			err = json.Unmarshal(response, &winapp)
+			log.Error(err)
+			continue
+		}
+		err = json.Unmarshal(b, &apps)
+		if err != nil {
+			err = json.Unmarshal(b, &winapp)
 			if err != nil {
 				continue
 			}
@@ -255,12 +265,10 @@ func CheckPublishedApps() {
 				DisplayName:    app.DisplayName,
 				Alias:          app.Alias,
 				FilePath:       app.FilePath,
-				IconContents:   app.IconContents,
 			})
 		}
 
 		for _, application := range apps {
-
 			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
 				_, err := db.Query(
 					`INSERT INTO apps
@@ -281,6 +289,7 @@ func CheckPublishedApps() {
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
+<<<<<<< HEAD
 func UnpublishApp(appId string) error {
 
 	res, err := db.Query("SELECT alias FROM apps WHERE id = $1::int", appId)
@@ -318,25 +327,28 @@ func UnpublishApp(appId string) error {
 		log.Error("delete from postgres failed: ", err)
 		return UnpublishFailed
 	}
+=======
+func UnpublishApp(Alias string) error {
+>>>>>>> plaza
 	return nil
 }
 
 func PublishApp(path string) error {
-	cmd := exec.Command(
-		"sshpass", "-p", kPassword,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", kSSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			kUser,
-			kServer,
-		),
-		"powershell.exe -file C:\\publishApplication.ps1 "+path,
-	)
-	response, err := cmd.CombinedOutput()
+	p, err := json.Marshal(path)
 	if err != nil {
-		log.Error("Failed to execute sshpass command to publish an app", err, string(response))
+		log.Error(err)
+		return PublishFailed
+	}
+	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", bytes.NewBuffer(p))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		return PublishFailed
+	}
+	if resp.Status != "200 OK" {
+		log.Error("Plaza return code: " + resp.Status)
 		return PublishFailed
 	}
 	return nil
@@ -368,7 +380,7 @@ func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, e
 		username := user.Sam + "@" + kWindowsDomain
 		pwd := user.WindowsPassword
 		var conn Connection
-		if appParam.Alias != "Desktop" {
+		if appParam.Alias != "hapticDesktop" {
 			conn = Connection{
 				Hostname:  execServ,
 				Port:      kRDPPort,

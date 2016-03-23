@@ -31,24 +31,21 @@ import (
 )
 
 type Configuration struct {
-	artURL   string
-	instDir  string
-	Server   string
-	User     string
-	SSHPort  string
-	Password string
+	artURL     string
+	instDir    string
+	Server     string
+	User       string
+	SSHPort    string
+	Password   string
+	windowsURL string
 }
 
 type hash map[string]interface{}
 
-type handler struct {
-	iaasCon *iaas.Iaas
-}
-
 var conf Configuration
 
-func (h *handler) ListRunningVM(c *echo.Context) error {
-	response, err := h.iaasCon.GetList()
+func ListRunningVM(c *echo.Context) error {
+	response, err := GetList()
 	if err != nil {
 		log.Error("Unable to retrieve VM states list")
 		return c.JSON(http.StatusInternalServerError, hash{
@@ -60,7 +57,7 @@ func (h *handler) ListRunningVM(c *echo.Context) error {
 		})
 	}
 
-	vmList := h.iaasCon.CheckVMStates(response)
+	vmList := CheckVMStates(response)
 	var res = make([]hash, len(vmList))
 	for i, val := range vmList {
 		r := hash{
@@ -73,7 +70,7 @@ func (h *handler) ListRunningVM(c *echo.Context) error {
 	return c.JSON(http.StatusOK, hash{"data": res})
 }
 
-func (h *handler) DownloadVM(c *echo.Context) error {
+func DownloadVM(c *echo.Context) error {
 	vmname := c.Param("id")
 
 	if vmname == "" {
@@ -86,13 +83,13 @@ func (h *handler) DownloadVM(c *echo.Context) error {
 		})
 	}
 
-	go h.iaasCon.Download(vmname)
+	go Download(vmname)
 	return c.JSON(http.StatusOK, hash{
 		"success": true,
 	})
 }
 
-func (h *handler) StartVM(c *echo.Context) error {
+func StartVM(c *echo.Context) error {
 	name := c.Param("id")
 
 	if name == "" {
@@ -105,7 +102,7 @@ func (h *handler) StartVM(c *echo.Context) error {
 		})
 	}
 
-	err := h.iaasCon.Start(name)
+	err := Start(name)
 	if err != nil {
 		log.Error("Error while starting VM")
 		return c.JSON(http.StatusInternalServerError, hash{
@@ -122,7 +119,7 @@ func (h *handler) StartVM(c *echo.Context) error {
 	})
 }
 
-func (h *handler) StopVM(c *echo.Context) error {
+func StopVM(c *echo.Context) error {
 	name := c.Param("id")
 
 	if name == "" {
@@ -135,12 +132,30 @@ func (h *handler) StopVM(c *echo.Context) error {
 		})
 	}
 
-	err := h.iaasCon.Stop(name)
+	err := Stop(name)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{
 				hash{
 					"detail": "Unable to stop the specified VM",
+				},
+			},
+		})
+	}
+
+	return c.JSON(http.StatusOK, hash{
+		"success": true,
+	})
+}
+
+func CreateVM(c *echo.Context) error {
+
+	err := Create()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Unable to create the specified VM",
 				},
 			},
 		})
@@ -173,6 +188,11 @@ func main() {
 	conf.artURL = os.Getenv("ARTIFACT_URL")
 	if len(conf.artURL) == 0 {
 		conf.artURL = "http://releases.nanocloud.org:8080/releases/latest/"
+	}
+
+	conf.windowsURL = os.Getenv("WINDOWS_URL")
+	if len(conf.windowsURL) == 0 {
+		conf.windowsURL = "http://care.dlservice.microsoft.com/dl/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO"
 	}
 
 	// Echo instance

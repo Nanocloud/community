@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package iaas
+package main
 
 import (
 	"encoding/json"
@@ -44,15 +44,6 @@ var (
 	VMNotFound       = errors.New("Specified VM does not exists")
 )
 
-type Iaas struct {
-	Server   string
-	Password string
-	User     string
-	SSHPort  string
-	InstDir  string
-	ArtURL   string
-}
-
 type DownloadingVm struct {
 	Name        string `json:"name"`
 	CurrentSize string `json:"current_size"`
@@ -76,18 +67,7 @@ type VmInfo struct {
 	TotalSize   string `json:"total_size"`
 }
 
-func New(Server, Password, User, SSHPort, InstDir, ArtURL string) *Iaas {
-	return &Iaas{
-		Server:   Server,
-		Password: Password,
-		User:     User,
-		SSHPort:  SSHPort,
-		InstDir:  InstDir,
-		ArtURL:   ArtURL,
-	}
-}
-
-func (i *Iaas) stringInSlice(a string, list []string) bool {
+func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
 			return true
@@ -123,7 +103,7 @@ func getTotalSize(vmName string, tab []DownloadingVm) string {
 	return ""
 }
 
-func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
+func CheckVMStates(response VMstatus) []VmInfo {
 	var (
 		locked      bool
 		icon        string
@@ -157,13 +137,13 @@ func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
 			}
 		}
 
-		if i.stringInSlice(vmName, response.RunningVmNames) {
+		if stringInSlice(vmName, response.RunningVmNames) {
 			Status = "running"
-		} else if i.stringInSlice(vmName, response.BootingVmNames) {
+		} else if stringInSlice(vmName, response.BootingVmNames) {
 			Status = "booting"
 		} else if vmIsDownloading(vmName, response.DownloadingVmNames) {
 			Status = "download"
-		} else if i.stringInSlice(vmName, response.AvailableVMNames) {
+		} else if stringInSlice(vmName, response.AvailableVMNames) {
 			Status = "available"
 		}
 		vmList = append(vmList, VmInfo{
@@ -179,8 +159,8 @@ func (i *Iaas) CheckVMStates(response VMstatus) []VmInfo {
 	return vmList
 }
 
-func (i *Iaas) CheckRDS() bool {
-	resp, err := http.Get("http://" + i.Server + ":9090/checkrds")
+func CheckRDS() bool {
+	resp, err := http.Get("http://" + conf.Server + ":9090/checkrds")
 	if err != nil {
 		log.Error(err)
 		return false
@@ -206,21 +186,21 @@ func generateDownloadURL(url string, vm string) string {
 	return url + vm
 }
 
-func (i *Iaas) GetList() (VMstatus, error) {
+func GetList() (VMstatus, error) {
 	var status VMstatus
-	running := i.CheckRDS()
+	running := CheckRDS()
 	if running {
 		status.AvailableVMNames = append(status.AvailableVMNames, "windows")
 		status.RunningVmNames = append(status.RunningVmNames, "windows")
 		return status, nil
 	}
-	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", i.InstDir))
+	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", conf.instDir))
 	for _, file := range files {
 		fileName := file.Name()
 		if !strings.Contains(fileName, ".pid") {
 			continue
 		}
-		running := i.CheckRDS()
+		running := CheckRDS()
 		if running {
 			status.RunningVmNames = append(status.RunningVmNames, file.Name()[0:len(file.Name())-4])
 		} else {
@@ -228,7 +208,7 @@ func (i *Iaas) GetList() (VMstatus, error) {
 		}
 	}
 
-	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/images/", i.InstDir))
+	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/images/", conf.instDir))
 	for _, file := range files {
 		fileName := file.Name()
 		if !strings.Contains(fileName, ".qcow2") {
@@ -237,13 +217,13 @@ func (i *Iaas) GetList() (VMstatus, error) {
 		status.AvailableVMNames = append(status.AvailableVMNames, file.Name()[0:len(file.Name())-6])
 	}
 
-	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", i.InstDir))
+	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", conf.instDir))
 	for _, file := range files {
 		fileName := file.Name()
-		if !strings.Contains(fileName, ".qcow2") {
+		if !strings.Contains(fileName, ".qcow245") /*&& !strings.Contains(fileName, ".iso")*/ {
 			continue
 		}
-		fi, err := os.Open(filepath.Join(i.InstDir, "downloads", fileName))
+		fi, err := os.Open(filepath.Join(conf.instDir, "downloads", fileName))
 		if err != nil {
 			log.Error("Couldn't open downloading file: ", err)
 			continue
@@ -253,7 +233,7 @@ func (i *Iaas) GetList() (VMstatus, error) {
 			log.Error("Couldn't stat downloading file: ", err)
 			continue
 		}
-		response, err := http.Head(generateDownloadURL(i.ArtURL, fileName))
+		response, err := http.Head(generateDownloadURL(conf.artURL, fileName))
 		if err != nil {
 			log.Error("Error while checking file size ", err)
 			continue
@@ -269,9 +249,9 @@ func (i *Iaas) GetList() (VMstatus, error) {
 	return status, nil
 }
 
-func (i *Iaas) Stop(name string) error {
+func Stop(name string) error {
 	log.Info("stopping : ", name)
-	resp, err := http.Get("http://" + i.Server + ":9090/shutdown")
+	resp, err := http.Get("http://" + conf.Server + ":9090/shutdown")
 	if err != nil {
 		log.Error(err)
 		return VMShutdownFailed
@@ -295,14 +275,110 @@ func (i *Iaas) Stop(name string) error {
 	return nil
 }
 
-func (i *Iaas) Start(name string) error {
+func createQcow() error {
+	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", "-o", "preallocation=metadata", conf.instDir+"/downloads/win.qcow2", "30G")
+	resp, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Error(string(resp))
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
+func createIso() error {
+	cmd := exec.Command("genisoimage", "-o", conf.instDir+"/downloads/autoplaza.iso", "-J", "-r", "disk")
+	resp, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Error(string(resp))
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
+func downloadIso() error {
+	tab := strings.Split(conf.windowsURL, "/")
+	out, err := os.Create(conf.instDir + "/downloads/" + tab[len(tab)-1])
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer out.Close()
+	resp, err := http.Get(conf.windowsURL)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	return nil
+}
+
+func bootWindows() error {
+	tab := strings.Split(conf.windowsURL, "/")
+	cmd := exec.Command(
+		"qemu-system-x86_64",
+		"-m", "4096",
+		"-cpu", "host",
+		"-machine", "accel=kvm",
+		"-smp", "4",
+		"-vnc", ":2",
+		"-device", "virtio-net,netdev=user.0",
+		"-boot", "once=d",
+		"-machine", "type=pc,accel=kvm",
+		"-drive", "file="+conf.instDir+"/downloads/autoplaza.iso"+",index=0,media=cdrom",
+		"-drive", "file="+conf.instDir+"/downloads/"+tab[len(tab)-1]+",index=1,media=cdrom",
+		"-drive", "file="+conf.instDir+"/downloads/win.qcow2"+",index=2,if=virtio,cache=writeback,discard=ignore",
+		"-netdev", "user,id=user.0",
+		"-vga", "qxl",
+		"-global", "qxl-vga.vram_size=33554432",
+	)
+	resp, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Error(err)
+		log.Error(string(resp))
+		return err
+	}
+	err = os.Rename(conf.instDir+"/downloads/win.qcow2", conf.instDir+"/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2")
+	return nil
+}
+
+func Create() error {
+	/*	err := downloadIso()
+		if err != nil {
+			return err
+		}*/
+	log.Error("CREATING QCOW2")
+	err := createQcow()
+	if err != nil {
+		return err
+	}
+	log.Error("CREATING ISO")
+	err = createIso()
+	if err != nil {
+		return err
+	}
+	log.Error("BOOTING WINDOWS")
+	err = bootWindows()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Start(name string) error {
 	log.Info("Starting : ", name)
-	_, err := os.Stat(fmt.Sprintf("%s/images/%s.qcow2", i.InstDir, name))
+	_, err := os.Stat(fmt.Sprintf("%s/images/%s.qcow2", conf.instDir, name))
 	if os.IsNotExist(err) {
 		log.Error("Can't find ", name)
 		return VMNotFound
 	}
-	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", i.InstDir, name))
+	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", conf.instDir, name))
 	err = cmd.Start()
 	if err != nil {
 		log.Error("Failed to start vm: ", err)
@@ -311,7 +387,7 @@ func (i *Iaas) Start(name string) error {
 	return nil
 }
 
-func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) error {
+func downloadFromUrl(downloadUrl string, dst string) error {
 	log.Info("Downloading ", downloadUrl, "to ", dst)
 
 	u, err := url.Parse(downloadUrl)
@@ -321,7 +397,7 @@ func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) error {
 	}
 
 	splitedPath := strings.Split(u.Path, "/")
-	tempDst := filepath.Join(i.InstDir, "downloads", splitedPath[len(splitedPath)-1])
+	tempDst := filepath.Join(conf.instDir, "downloads", splitedPath[len(splitedPath)-1])
 	tmpOutput, err := os.Create(tempDst)
 	if err != nil {
 		log.Error("Error while creating", tempDst, "-", err)
@@ -352,8 +428,8 @@ func (i *Iaas) downloadFromUrl(downloadUrl string, dst string) error {
 	return nil
 }
 
-func (i *Iaas) Download(VMName string) {
-	i.downloadFromUrl(
-		generateDownloadURL(i.ArtURL, VMName)+".qcow2",
-		i.InstDir+"/images/"+VMName+".qcow2")
+func Download(VMName string) {
+	downloadFromUrl(
+		generateDownloadURL(conf.artURL, VMName)+".qcow2",
+		conf.instDir+"/images/"+VMName+".qcow2")
 }
