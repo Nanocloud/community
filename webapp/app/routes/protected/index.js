@@ -6,7 +6,7 @@ export default Ember.Route.extend({
     if (this.get('session.user.isAdmin')) {
       this.transitionTo('protected.machines');
     } else {
-      this.transitionTo('protected.applications');
+      this.transitionTo('protected.apps');
     }
   }
 });
