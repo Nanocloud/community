@@ -66,8 +66,8 @@ func Migrate() error {
 	admin, err := users.CreateUser(
 		true,
 		"admin@nanocloud.com",
-		"John",
-		"Doe",
+		"Admin",
+		"Nanocloud",
 		"admin",
 		true,
 	)
