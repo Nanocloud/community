@@ -52,3 +52,6 @@ clone github.com/labstack/echo b676ad11cf0d2c928012c0438df67a04b7c2c37f
 clone github.com/Sirupsen/logrus 219c8cb75c258c552e999735be6df753ffc7afdc
 clone github.com/labstack/gommon c7a42f4800da9d39225ce15411f48288d622e517
 clone github.com/mattn/go-colorable 9cbef7c35391cca05f15f8181dc0b18bc9736dbb
+clone github.com/mattn/go-isatty 56b76bdf51f7708750eac80fa38b952bb9f32639
+clone golang.org/x/net e7da8edaa52631091740908acaf2c2d4c9b3ce90 https://go.googlesource.com/net
+clone golang.org/x/sys afce3de5756ca82699128ebae46ac95ad59d6297 https://go.googlesource.com/sys
