@@ -27,5 +27,11 @@ import "github.com/Nanocloud/community/nanocloud/vms"
 type driver struct{}
 
 func (d *driver) Open(options map[string]string) (vms.VM, error) {
-	return &vm{ad: options["ad"], servers: options["servers"], sshport: options["sshport"], password: options["password"], user: options["user"]}, nil
+	return &vm{
+		ad:       options["ad"],
+		servers:  options["servers"],
+		sshport:  options["sshport"],
+		password: options["password"],
+		user:     options["user"],
+	}, nil
 }

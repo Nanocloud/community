@@ -42,6 +42,7 @@ type sMachine struct {
 		Ip            string `json:"ip"`
 		Status        string `json:"status"`
 		AdminPassword string `json:"admin-password,omitempty"`
+		Platform      string `json:"platform"`
 	} `json:"attributes"`
 }
 
@@ -54,6 +55,7 @@ func serializableMachine(m vm.Machine) *sMachine {
 	rt.Attributes.Status = vm.StatusToString(status)
 	ip, _ := m.IP()
 	rt.Attributes.Ip = string(ip)
+	rt.Attributes.Platform = m.Platform()
 	return &rt
 }
 
@@ -161,6 +163,7 @@ func GetMachine(c *echo.Context) error {
 func Machines(c *echo.Context) error {
 	machines, err := vms.Machines()
 	if err != nil {
+		log.Error(err)
 		return c.JSON(
 			http.StatusInternalServerError, hash{
 				"errors": [1]hash{

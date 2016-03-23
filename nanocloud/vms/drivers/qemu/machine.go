@@ -97,6 +97,10 @@ func (m *machine) Type() (vms.MachineType, error) {
 	return defaultType, nil
 }
 
+func (m *machine) Platform() string {
+	return "qemu"
+}
+
 func (m *machine) Start() error {
 	ip, _ := m.IP()
 	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.id+"/start", "", nil)
