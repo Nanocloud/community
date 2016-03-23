@@ -49,6 +49,8 @@ services:
    - 80:80
    - 443:443
   image: nanocloud/proxy:0.5.0
+  depends_on:
+   - nanocloud-backend
 
  postgres:
   extends:
