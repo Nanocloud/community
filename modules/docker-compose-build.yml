@@ -54,6 +54,8 @@ services:
    - 80:80
    - 443:443
   image: nanocloud/proxy
+  depends_on:
+   - nanocloud-backend
 
  iaas-module:
   extends:

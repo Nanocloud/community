@@ -46,6 +46,8 @@ services:
    file: ./docker-compose.yml
    service: proxy
   image: nanocloud/proxy
+  depends_on:
+   - nanocloud-backend
 
  postgres:
   extends:
