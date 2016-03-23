@@ -6,6 +6,7 @@ export default DS.Model.extend({
   status: DS.attr('string'),
   ip: DS.attr('string'),
   adminPassword: DS.attr('string'),
+  platform: DS.attr('string'),
 
   isUp: Ember.computed('status', function() {
     return this.get('status') === 'up';
