@@ -14,4 +14,17 @@ export default DS.Model.extend({
   isDown: Ember.computed('status', function() {
     return this.get('status') === 'down';
   }),
+
+  getPlatform: Ember.computed('platform', function() {
+    switch (this.get('platform')) {
+      case "vmwarefusion":
+          return "VMware Fusion";
+      case "qemu":
+          return "Qemu";
+      case "manual":
+          return "Manual";
+      default:
+          return "No drivers detected";
+    }
+  }),
 });
