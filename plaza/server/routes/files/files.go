@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
@@ -55,9 +57,31 @@ func Post(c *echo.Context) error {
 
 var kUploadDir string
 
+// Get checks a chunk.
+// If it doesn't exist then flowjs tries to upload it via Post.
+func GetUpload(w http.ResponseWriter, r *http.Request) {
+	user, oauthErr := oauth2.GetUser(w, r)
+	if user == nil || oauthErr != nil {
+		http.Error(w, "", http.StatusUnauthorized)
+		return
+	}
+	kUploadDir = "C:/Users/"
+	chunkPath := filepath.Join(
+		kUploadDir,
+		user.(*users.User).Id,
+		"incomplete",
+		r.FormValue("flowFilename"),
+		r.FormValue("flowChunkNumber"),
+	)
+	if _, err := os.Stat(chunkPath); err != nil {
+		http.Error(w, "chunk not found", http.StatusSeeOther)
+		return
+	}
+}
+
 // Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
-	kUploadDir = "C:/Users/Administrator/Desktop/"
+	kUploadDir = "C:/Users/"
 
 	// get the multipart data
 	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
