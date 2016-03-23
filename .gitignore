@@ -28,3 +28,6 @@ windows/output-windows-2012R2-qemu/
 
 # vendors
 vendor
+
+# Binary files
+*.exe
