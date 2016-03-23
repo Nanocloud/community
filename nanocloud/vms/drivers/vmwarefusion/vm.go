@@ -163,6 +163,10 @@ func (v *vm) Create(name string, password string, rawType vms.MachineType) (vms.
 		return nil, errors.New("Unable to check machine id uniqueness")
 	}
 
+	if rawType == nil {
+		rawType = defaultType
+	}
+
 	t, ok := rawType.(*machineType)
 	if !ok {
 		return nil, errors.New("VM Type not supported")

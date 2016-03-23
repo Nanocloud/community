@@ -161,6 +161,7 @@ func GetMachine(c *echo.Context) error {
 func Machines(c *echo.Context) error {
 	machines, err := vms.Machines()
 	if err != nil {
+		log.Error(err)
 		return c.JSON(
 			http.StatusInternalServerError, hash{
 				"errors": [1]hash{
