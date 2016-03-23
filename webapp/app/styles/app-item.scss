@@ -1,0 +1,28 @@
+
+.app-item-block {
+
+  display: flex;
+  padding: 8px 10px 4px 0px;
+  border-bottom: 1px solid $gray-lighter;
+
+  > .app-item {
+  }
+
+  > .app-item.part1 {
+    width: 50px;
+    vertical-align: middle;
+  }
+
+  > .app-item.part2 {
+    flex-grow: 1;
+    > .icon {
+      vertical-align: -webkit-baseline-middle;
+    }
+  }
+
+  > .app-item.part3 {
+    > .icon {
+      vertical-align: -webkit-baseline-middle;
+    }
+  }
+}

@@ -1,6 +1,13 @@
 <div class="section">
-  <h1>{{model.fullName}} {{#if model.isAdmin}}<i class="material-icons">verified_user</i>{{/if}}</h1>
-
+  <h4>
+    {{#link-to 'protected.users' }}
+      Users 
+    {{/link-to}} - {{model.fullName}} 
+    {{#if model.isAdmin}}
+      <i class="material-icons va-top">verified_user</i>
+    {{/if}}
+  </h4>
+  <div class='content-wrapper'>
     <table class="table">
       <tbody>
         <tr>
@@ -36,5 +43,5 @@
 
       </tbody>
     </table>
-
+  </div>
 </div>

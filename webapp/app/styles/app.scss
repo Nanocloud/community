@@ -75,6 +75,20 @@ a, a:hover, a:active {
   transition: all 0.5s ease-in-out;
 }
 
+.transition-enabled-1{
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+
+.transition-enabled-2 {
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
 .opacity-0 {
   opacity: 0;
 }
@@ -100,4 +114,8 @@ a, a:hover, a:active {
 .edit-input-text {
   border: 0;
   outline: 0;
+}
+
+.va-top {
+  vertical-align: top;
 }

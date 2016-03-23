@@ -1,13 +1,22 @@
 <div class="section">
-  <h4>Machines</h4>
-  <div class='content-wrapper'>
-    {{#each machines as |machine|}}
-    {{#link-to 'protected.machines.machine' machine}}
-    <div class="machine">
-      <div class="machine-status {{machine.status}}"></div>
-      {{machine.name}}
-    </div>
+  <h4>
+    {{#link-to 'protected.machines' }}
+      Machines
     {{/link-to}}
+  </h4>
+  <div class='content-wrapper machines-wrapper'>
+    {{#each machines as |machine|}}
+      {{#link-to 'protected.machines.machine' machine}}
+        <div class="machine">
+            <div class='state-color {{machine.status}}'></div>
+            <div class="machine-status">
+              <i class='material-icons'>computer</i>
+            </div>
+            <span class='title'>
+              {{machine.name}}
+            </span>
+        </div>
+      {{/link-to}}
     {{else}}
     There is no machine.
     {{/each}}
