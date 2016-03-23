@@ -208,15 +208,9 @@ func AddApp(params ApplicationParams) error {
 func CheckPublishedApps() {
 	_, err := db.Query(
 		`INSERT INTO apps
-<<<<<<< HEAD
-		(collection_name, alias, display_name, file_path, icon_content)
-		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-		`, "", "Desktop", "Desktop", "", "")
-=======
 			(collection_name, alias, display_name, file_path, icon_content)
 			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
 			`, "", "hapticDesktop", "Desktop", "", "")
->>>>>>> plaza
 	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
 	}
@@ -289,47 +283,7 @@ func CheckPublishedApps() {
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
-<<<<<<< HEAD
-func UnpublishApp(appId string) error {
-
-	res, err := db.Query("SELECT alias FROM apps WHERE id = $1::int", appId)
-	if err != nil {
-		return err
-	}
-	defer res.Close()
-	var Alias string
-	for res.Next() {
-		err := res.Scan(&Alias)
-		if err != nil {
-			return err
-		}
-	}
-
-	cmd := exec.Command(
-		"sshpass", "-p", kPassword,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", kSSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			kUser,
-			kServer,
-		),
-		"powershell.exe \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
-	)
-	response, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Error("Failed to execute sshpass command to unpublish an app", err, string(response))
-		return UnpublishFailed
-	}
-	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
-	if err != nil {
-		log.Error("delete from postgres failed: ", err)
-		return UnpublishFailed
-	}
-=======
 func UnpublishApp(Alias string) error {
->>>>>>> plaza
 	return nil
 }
 
