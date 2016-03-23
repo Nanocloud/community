@@ -80,6 +80,10 @@ func (m *machine) Type() (vms.MachineType, error) {
 	return defaultType, nil
 }
 
+func (m *machine) Platform() string {
+	return "unknown"
+}
+
 func (m *machine) Start() error {
 	return nil
 }
