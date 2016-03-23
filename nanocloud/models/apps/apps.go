@@ -221,7 +221,6 @@ func CheckPublishedApps() {
 		var apps []ApplicationParams
 		resp, err := http.Get("http://" + kServer + ":9090/apps")
 		if err != nil {
-			log.Error(err)
 			continue
 		}
 		b, err := ioutil.ReadAll(resp.Body)
