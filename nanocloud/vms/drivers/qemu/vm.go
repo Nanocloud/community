@@ -65,7 +65,7 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 	type Status struct {
 		Id         string `json:"id"`
 		Type       string `json:"type"`
-		Attributes VmInfo
+		Attributes vmInfo
 	}
 	var State struct {
 		Data []Status `json:"data"`

@@ -174,9 +174,10 @@ func Machines(c *echo.Context) error {
 			})
 	}
 	type attr struct {
-		Name   string `json:"name"`
-		Ip     string `json:"ip"`
-		Status string `json:"status"`
+		Name     string `json:"name"`
+		Ip       string `json:"ip"`
+		Status   string `json:"status"`
+		Progress uint8  `json:"progress"`
 	}
 	type virtmachine struct {
 		Id   string `json:"id"`
@@ -198,6 +199,13 @@ func Machines(c *echo.Context) error {
 		}
 		res[i].Type = "machine"
 		res[i].Att.Status = vm.StatusToString(status)
+
+		progress, err := val.Progress()
+		if err != nil {
+			log.Errorf("Unable to get machine progress: %s", err)
+		}
+		res[i].Att.Progress = progress
+
 		ip, _ := val.IP()
 		if ip != nil {
 			res[i].Att.Ip = ip.String()

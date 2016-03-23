@@ -71,6 +71,10 @@ func (m *machine) Name() (string, error) {
 	return m.vmx("displayName")
 }
 
+func (m *machine) Progress() (uint8, error) {
+	return 100, nil
+}
+
 func (m *machine) Status() (vms.MachineStatus, error) {
 	cmd := exec.Command(vmrun, "list")
 	stdout, err := cmd.Output()

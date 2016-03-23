@@ -27,12 +27,12 @@ import (
 )
 
 const (
-	StatusUnknown     = vms.StatusUnknown
-	StatusDown        = vms.StatusDown
-	StatusUp          = vms.StatusUp
-	StatusTerminated  = vms.StatusTerminated
-	StatusBooting     = vms.StatusBooting
-	StatusDownloading = vms.StatusDownloading
+	StatusUnknown    = vms.StatusUnknown
+	StatusDown       = vms.StatusDown
+	StatusUp         = vms.StatusUp
+	StatusTerminated = vms.StatusTerminated
+	StatusBooting    = vms.StatusBooting
+	StatusCreating   = vms.StatusCreating
 )
 
 var vm *vms.VM

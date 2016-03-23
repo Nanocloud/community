@@ -24,19 +24,15 @@ package vms
 
 import "net"
 
-type MachineStatus struct {
-	Status      int    `json:"status"`
-	CurrentSize string `json:"current-size"`
-	TotalSize   string `json:"total-size"`
-}
+type MachineStatus int
 
-var (
-	StatusUnknown     MachineStatus = MachineStatus{Status: 0}
-	StatusDown        MachineStatus = MachineStatus{Status: 1}
-	StatusUp          MachineStatus = MachineStatus{Status: 2}
-	StatusTerminated  MachineStatus = MachineStatus{Status: 3}
-	StatusBooting     MachineStatus = MachineStatus{Status: 4}
-	StatusDownloading MachineStatus = MachineStatus{Status: 5}
+const (
+	StatusUnknown    MachineStatus = 0
+	StatusDown       MachineStatus = 1
+	StatusUp         MachineStatus = 2
+	StatusTerminated MachineStatus = 3
+	StatusBooting    MachineStatus = 4
+	StatusCreating   MachineStatus = 5
 )
 
 type Machine interface {
@@ -46,6 +42,7 @@ type Machine interface {
 	Status() (MachineStatus, error)
 	IP() (net.IP, error)
 	Type() (MachineType, error)
+	Progress() (uint8, error)
 
 	Start() error
 	Stop() error
@@ -53,17 +50,17 @@ type Machine interface {
 }
 
 func StatusToString(status MachineStatus) string {
-	switch status.Status {
-	case 1:
-		return "available"
-	case 2:
-		return "running"
-	case 3:
+	switch status {
+	case StatusDown:
+		return "down"
+	case StatusUp:
+		return "up"
+	case StatusTerminated:
 		return "terminated"
-	case 4:
+	case StatusBooting:
 		return "booting"
-	case 5:
-		return "download"
+	case StatusCreating:
+		return "creating"
 	}
 	return "unknown"
 }

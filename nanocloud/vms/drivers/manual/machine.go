@@ -84,6 +84,10 @@ func (m *machine) Platform() string {
 	return "unknown"
 }
 
+func (m *machine) Progress() (uint8, error) {
+	return 100, nil
+}
+
 func (m *machine) Start() error {
 	return nil
 }
