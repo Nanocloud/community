@@ -7,8 +7,11 @@ export default Ember.Controller.extend({
         name: this.get('machineName'),
         adminPassword: this.get('adminPassword'),
       });
-      m.save();
-      this.transitionToRoute('protected.machines.machine', m);
+
+      m.save()
+      .then((machine) => {
+        this.transitionToRoute('protected.machines.machine', machine);
+      });
     }
   }
 });
