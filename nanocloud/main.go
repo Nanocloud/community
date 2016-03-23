@@ -64,9 +64,12 @@ func initVms() error {
 		m["PLAZA_LOCATION"] = os.Getenv("PLAZA_LOCATION")
 		m["STORAGE_DIR"] = os.Getenv("STORAGE_DIR")
 
-	default:
-		m["servers"] = os.Getenv("EXECUTION_SERVERS")
+	case "qemu":
 		m["ad"] = os.Getenv("WIN_SERVER")
+
+	case "manual":
+		m["ad"] = os.Getenv("WIN_SERVER")
+		m["servers"] = os.Getenv("EXECUTION_SERVERS")
 		m["sshport"] = os.Getenv("SSH_PORT")
 		m["password"] = os.Getenv("WIN_PASSWORD")
 		m["user"] = os.Getenv("WIN_USER")
