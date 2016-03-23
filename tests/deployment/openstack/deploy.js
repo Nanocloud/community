@@ -139,6 +139,17 @@ var provisionLinux = function(callback) {
       });
 
     },
+    function(next) { // Install community
+
+      linuxServer.execute(linuxIP, "./installCommunity.sh", KEY_PATH, function(error, response) {
+
+        if (error) {
+          return next(error);
+        }
+
+        next(null, response);
+      });
+
     }
   ], function(error) {
 
