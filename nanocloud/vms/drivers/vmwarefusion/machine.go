@@ -119,10 +119,6 @@ func (m *machine) IP() (net.IP, error) {
 		}
 	}
 
-	log.WithFields(log.Fields{
-		"VM": m.id,
-	}).Error("couldn't find MAC address in VMX file")
-
 	return nil, nil
 }
 
