@@ -1,3 +1,5 @@
+// +build windows,amd64
+
 package provisioning
 
 import (
@@ -6,7 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
+	"unsafe"
 
 	"github.com/Nanocloud/community/plaza/server/router"
 	log "github.com/Sirupsen/logrus"
@@ -41,20 +45,29 @@ var commands = [][]string{
 		"set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -name 'UserAuthentication' -Value 1",
 	},
 	{
-		"import-module RemoteDesktop; Import-module ServerManager; Add-WindowsFeature -Name RDS-RD-Server -IncludeAllSubFeature; Add-WindowsFeature -Name RDS-Web-Access -IncludeAllSubFeature; Add-WindowsFeature -Name RDS-Connection-Broker -IncludeAllSubFeature; Install-windowsfeature RSAT-AD-AdminCenter",
+		"import-module RemoteDesktop; Import-module ServerManager; Add-WindowsFeature -Name RDS-RD-Server -IncludeAllSubFeature; Add-WindowsFeature -Name RDS-Web-Access -IncludeAllSubFeature; Add-WindowsFeature -Name RDS-Connection-Broker -IncludeAllSubFeature",
 	},
 	{
+		"import-module RemoteDesktop; Import-module ServerManager; Install-windowsfeature RSAT-AD-AdminCenter",
+	},
+	{
+		"sc.exe config RDMS start= auto",
 		"NEW-ADOrganizationalUnit 'NanocloudUsers' -path 'DC=intra,DC=localdomain,DC=com'",
+		"(Get-WmiObject -class \"Win32_TSGeneralSetting\" -Namespace root\\cimv2\\terminalservices -ComputerName adapps -Filter \"TerminalName='RDP-tcp'\").SetUserAuthenticationRequired(0)",
 	},
 	{
 		"Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority",
 		"$secpasswd = ConvertTo-SecureString 'Nanocloud123+' -AsPlainText -Force;$mycreds = New-Object System.Management.Automation.PSCredential ('Administrator', $secpasswd); Install-AdcsCertificationAuthority -CAType 'EnterpriseRootCa' -Credential:$mycreds -force:$true ",
+		"New-NetFirewallRule -Protocol TCP -LocalPort 9090 -Direction Inbound -Action Allow -DisplayName PLAZA",
 	},
 	{
-		"sc.exe config RDMS start= auto",
-		"New-NetFirewallRule -Protocol TCP -LocalPort 9090 -Direction Inbound -Action Allow -DisplayName PLAZA",
-		"import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker adapps.intra.localdomain.com -WebAccessServer adapps.intra.localdomain.com -SessionHost adapps.intra.localdomain.com; New-RDSessionCollection -CollectionName collection -SessionHost adapps.intra.localdomain.com -CollectionDescription 'Nanocloud collection' -ConnectionBroker adapps.intra.localdomain.com",
-		//		"import-module remotedesktop ;New-RDRemoteApp -CollectionName collection -DisplayName hapticPowershell -FilePath 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe' -Alias hapticPowershell -CommandLineSetting Require -RequiredCommandLine '-ExecutionPolicy Bypass c:\\publishApplication.ps1'",
+		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"Start-Service RDMS; import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker adapps.intra.localdomain.com -WebAccessServer adapps.intra.localdomain.com -SessionHost adapps.intra.localdomain.com\"",
+	},
+	{
+		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"import-module remotedesktop ; New-RDSessionCollection -CollectionName collection -SessionHost adapps.intra.localdomain.com -CollectionDescription 'Nanocloud collection' -ConnectionBroker adapps.intra.localdomain.com\"",
+	},
+	{
+		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"import-module remotedesktop ; New-RDRemoteApp -CollectionName collection -DisplayName hapticPowershell -FilePath 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe' -Alias hapticPowershell -CommandLineSetting Require -RequiredCommandLine '-ExecutionPolicy Bypass c:\\publishApplication.ps1'\"",
 	},
 }
 
@@ -89,31 +102,167 @@ func LaunchAll() {
 	ProvisionAll()
 }
 
-func waitForADWS() {
+func AddOu(tab []string) {
+	var err error
 	for {
-		resp, err := executeCommand("Write-Host (Get-Service -Name ADWS).status")
-		log.Error(string(resp))
-		if err != nil {
-			log.Error(err)
-		}
-		if strings.Contains(string(resp), "Running") {
+		err = executeCommands(tab)
+		if err == nil {
 			break
 		}
-		log.Error("Waiting for ADWS to be running")
-		time.Sleep(time.Second * 5)
+		log.Error("Trying again to create OU...")
+		time.Sleep(time.Second * 15)
+	}
+}
+
+type startupinfo struct {
+	/* DWORD */ cb uint32
+	/* LPSTR */ lpReserved uintptr
+	/* LPSTR */ lpDesktop uintptr
+	/* LPSTR */ lpTitle uintptr
+	/* DWORD */ dwX uint32
+	/* DWORD */ dwY uint32
+	/* DWORD */ dwXSize uint32
+	/* DWORD */ dwYSize uint32
+	/* DWORD */ dwXCountChars uint32
+	/* DWORD */ dwYCountChars uint32
+	/* DWORD */ dwFillAttribute uint32
+	/* DWORD */ dwFlags uint32
+	/* WORD */ wShowWindow uint16
+	/* WORD */ cbReserved2 uint16
+	/* LPBYTE */ lpReserved2 uintptr
+	/* HANDLE */ hStdInput uintptr
+	/* HANDLE */ hStdOutput uintptr
+	/* HANDLE */ hStdError uintptr
+}
+
+type processinfo struct {
+	/* HANDLE */ hProcess uintptr
+	/* HANDLE */ hThread uintptr
+	/* DWORD */ dwProcessId uint32
+	/* DWORD */ dwThreadId uint32
+}
+
+type HANDLE uintptr
+type PHANDLE *HANDLE
+
+const (
+	LOGON_WITH_PROFILE        = 0x1
+	LOGON32_LOGON_BATCH       = 4
+	LOGON32_PROVIDER_DEFAULT  = 0
+	LOGON32_LOGON_INTERACTIVE = 2
+)
+
+func executeCommandAsAdmin(cmd string) {
+
+	var si startupinfo
+	var handle HANDLE
+	var pi processinfo
+
+	si.cb = uint32(unsafe.Sizeof(si))
+
+	a := syscall.MustLoadDLL("advapi32.dll")
+	LogonUserW := a.MustFindProc("LogonUserW")
+	r1, r2, lastError := LogonUserW.Call(
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Administrator"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("intra.localdomain.com"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Nanocloud123+"))),
+		LOGON32_LOGON_INTERACTIVE,
+		LOGON32_PROVIDER_DEFAULT,
+		uintptr(unsafe.Pointer(&handle)),
+	)
+	log.Error(r1)
+	log.Error(r2)
+	log.Error(lastError)
+
+	CreateProcessAsUser := a.MustFindProc("CreateProcessAsUserW")
+	r1, r2, lastError = CreateProcessAsUser.Call(
+		uintptr(unsafe.Pointer(handle)),
+		uintptr(unsafe.Pointer(nil)),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(cmd))),
+		uintptr(unsafe.Pointer(nil)),
+		uintptr(unsafe.Pointer(nil)),
+		uintptr(0),
+		uintptr(unsafe.Pointer(nil)),
+		uintptr(unsafe.Pointer(nil)),
+		uintptr(unsafe.Pointer(nil)),
+		uintptr(unsafe.Pointer(&si)),
+		uintptr(unsafe.Pointer(&pi)),
+	)
+	log.Error(r1)
+	log.Error(r2)
+	log.Error(lastError)
+
+	b := syscall.MustLoadDLL("Kernel32.dll")
+	CloseHandle := b.MustFindProc("CloseHandle")
+	r1, r2, lastError = CloseHandle.Call(
+		uintptr(unsafe.Pointer(handle)),
+	)
+	log.Error(r1)
+	log.Error(r2)
+	log.Error(lastError)
+}
+
+func waitDeploy(cmd string) {
+	for {
+		time.Sleep(time.Second * 45)
+		resp, _ := executeCommand("import-module remotedesktop; Get-RDSessionCollection -CollectionName 'collection'")
+		if !strings.Contains(string(resp), "does not exist") {
+			log.Error("|||||||||||", string(resp), "|||||||||||||||||")
+			log.Error("Session successfuly deployed...")
+			break
+		} else {
+			log.Error("Trying de deploy a session...")
+			executeCommandAsAdmin(cmd)
+		}
+	}
+}
+
+func waitCollection(cmd string) {
+	for {
+		resp, _ := executeCommand("import-module remotedesktop; Get-RDSessionCollection -CollectionName 'collection'")
+		if strings.Contains(string(resp), "Nanocloud") {
+			log.Error("Collection successfully created")
+			break
+		} else {
+			log.Error("Trying to create a collection...")
+			executeCommandAsAdmin(cmd)
+			time.Sleep(time.Second * 45)
+		}
+	}
+}
+
+func waitApp(cmd string) {
+	for {
+		resp, _ := executeCommand("import-module remotedesktop; Get-RDRemoteApp")
+		if strings.Contains(string(resp), "haptic") {
+			log.Error("App published successfully")
+			break
+		} else {
+			log.Error("Trying to publish hapticpowershit...")
+			executeCommandAsAdmin(cmd)
+			time.Sleep(time.Second * 45)
+		}
+	}
+}
+
+func movePublishAppScript() {
+	err := os.Rename("D:\\publishApplication.ps1", "C:\\publishApplication.ps1")
+	if err != nil {
+		log.Error(err)
 	}
 }
 
 func ProvisionAll() {
 	if _, err := os.Stat(confPath); os.IsNotExist(err) {
 		os.Create(confPath)
-		var p = make([]bool, 7)
+		var p = make([]bool, 10)
 		b, err := json.Marshal(p)
 		if err != nil {
 			log.Error(err)
 		}
 		err = ioutil.WriteFile(confPath, b, 0644)
 	}
+	movePublishAppScript()
 
 	file, err := ioutil.ReadFile(confPath)
 	if err != nil {
@@ -122,27 +271,40 @@ func ProvisionAll() {
 	}
 	var conf []bool
 	err = json.Unmarshal(file, &conf)
+	if conf[9] == true {
+		return
+	}
 	for index, done := range conf {
 		if !done {
 			for i, val := range commands[index:] {
 				log.Error("NEW PACK")
-				if i+index == 4 {
-					waitForADWS()
+				if i+index == 5 {
+					AddOu(val)
+				} else if i+index == 7 {
+					waitDeploy(val[0])
+				} else if i+index == 8 {
+					waitCollection(val[0])
+				} else if i+index == 9 {
+					waitApp(val[0])
+				} else {
+					err = executeCommands(val)
 				}
-				err = executeCommands(val)
 				if err == nil {
 					markAsDone(conf, i+index)
 				} else {
 					log.Error("THERE WAS AN ERROR")
+					return
 				}
-				if i+index == 3 {
+				if i+index == 4 {
 					executeCommand("Restart-Computer -Force")
-					os.Exit(0)
+					return
 				}
 			}
 			break
 		}
 	}
+	//	executeCommand("Stop-Computer -Force")
+	return
 }
 
 /*

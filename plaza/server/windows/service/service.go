@@ -27,7 +27,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -159,6 +161,25 @@ func installService(name, exepath string) error {
 	return nil
 }
 
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	cerr := out.Close()
+	if err != nil {
+		return err
+	}
+	return cerr
+}
+
 func InstallItSelf() error {
 	if runtime.GOOS != "windows" {
 		return errors.New("System Not Supported")
@@ -176,7 +197,28 @@ func InstallItSelf() error {
 		}
 	}
 
-	err = installService(serviceName, exepath)
+	installDir := os.Getenv("ProgramFiles")
+	if len(installDir) < 1 {
+		return errors.New("Cannot get installation dir")
+	}
+
+	installDir = path.Join(installDir, "Nanocloud")
+
+	dst := path.Join(installDir, "plaza.exe")
+
+	if exepath != dst {
+		err = os.Mkdir(installDir, 0755)
+		if err != nil && !os.IsExist(err) {
+			return err
+		}
+
+		err = copyFile(exepath, dst)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = installService(serviceName, dst)
 	if err != nil {
 		return err
 	}

@@ -276,7 +276,7 @@ func Stop(name string) error {
 }
 
 func createQcow() error {
-	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", "-o", "preallocation=metadata", conf.instDir+"/downloads/win.qcow2", "10G")
+	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", "-o", "preallocation=metadata", conf.instDir+"/downloads/win.qcow2", "30G")
 	resp, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(string(resp))
@@ -320,6 +320,7 @@ func downloadIso() error {
 }
 
 func bootWindows() error {
+	tab := strings.Split(conf.windowsURL, "/")
 	cmd := exec.Command(
 		"qemu-system-x86_64",
 		"-m", "4096",
@@ -331,7 +332,7 @@ func bootWindows() error {
 		"-boot", "once=d",
 		"-machine", "type=pc,accel=kvm",
 		"-drive", "file="+conf.instDir+"/downloads/autoplaza.iso"+",index=0,media=cdrom",
-		"-drive", "file="+conf.instDir+"/downloads/windows.iso"+",index=1,media=cdrom",
+		"-drive", "file="+conf.instDir+"/downloads/"+tab[len(tab)-1]+",index=1,media=cdrom",
 		"-drive", "file="+conf.instDir+"/downloads/win.qcow2"+",index=2,if=virtio,cache=writeback,discard=ignore",
 		"-netdev", "user,id=user.0",
 		"-vga", "qxl",
@@ -343,7 +344,7 @@ func bootWindows() error {
 		log.Error(string(resp))
 		return err
 	}
-	err = os.Rename(conf.instDir+"/downloads/win.qcow2", conf.instDir+"/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64")
+	err = os.Rename(conf.instDir+"/downloads/win.qcow2", conf.instDir+"/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2")
 	return nil
 }
 
