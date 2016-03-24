@@ -1,5 +1,5 @@
 <div class="section">
-  <h4> 
+  <h4>
     {{#link-to 'protected.machines' }}
       Machines
     {{/link-to}}
@@ -30,7 +30,19 @@
         </tr>
         <tr>
           <th scope="row">IP</th>
-          <td>{{model.ip}}</td>
+          <td>
+            {{#if model.ip}}
+              {{model.ip}}
+            {{else}}
+              No Ip detected
+            {{/if}}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Driver</th>
+          <td>
+            {{ model.getPlatform }}
+          </td>
         </tr>
       </tbody>
     </table>
