@@ -310,7 +310,7 @@ func ProvisionAll() {
 			break
 		}
 	}
-	//	executeCommand("Stop-Computer -Force")
+	executeCommand("Stop-Computer -Force")
 	return
 }
 
