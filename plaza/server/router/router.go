@@ -19,6 +19,7 @@ func Start() {
 	e.Get("/", about.Get)
 	e.Get("/files", files.Get)
 	e.Post("/upload", files.Post)
+	e.Get("/upload", files.GetUpload)
 
 	e.Get("/shutdown", power.ShutDown)
 	e.Get("/restart", power.Restart)
@@ -30,25 +31,6 @@ func Start() {
 
 	e.Post("/publishapp", apps.PublishApp)
 	e.Get("/apps", apps.GetApps)
-
-	/***
-	PROVISIONING
-	***/
-	/*
-		e.Post("/disablewu", prov.DisableWU)
-		e.Get("/disablewu", prov.CheckWU)
-		e.Post("/installad", prov.InstallAD)
-		e.Get("/installad", prov.CheckAD)
-		e.Post("/enablerdp", prov.EnableRDP)
-		e.Get("/enablerdp", prov.CheckRDP)
-		e.Post("/installrds", prov.InstallRDS)
-		e.Get("/installrds", prov.CheckRDS)
-		e.Post("/createou", prov.CreateOU)
-		e.Get("/createou", prov.CheckOU)
-		e.Post("/installadcs", prov.InstallADCS)
-		e.Get("/installadcs", prov.CheckADCS)
-		e.Post("/sessiondeploy", prov.SessionDeploy)
-		e.Get("/sessiondeploy", prov.CheckCollection)*/
 
 	e.SetHTTPErrorHandler(func(err error, c *echo.Context) {
 		c.JSON(
