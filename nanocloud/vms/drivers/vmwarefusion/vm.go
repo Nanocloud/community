@@ -276,7 +276,7 @@ func (v *vm) createInstallDisk(vmId string, password string) (string, error) {
 		Password string
 	}
 
-	conf.Hostname = vmId
+	conf.Hostname = "adapps"
 	conf.TimeZone = "Central Europe Standard Time"
 	conf.Password = password
 

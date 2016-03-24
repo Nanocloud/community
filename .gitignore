@@ -2,6 +2,7 @@
 packer_cache/
 
 # Ignore build outputs
+modules/iaas/iaas
 nanocloud/nanocloud
 nanocloud/tmp
 

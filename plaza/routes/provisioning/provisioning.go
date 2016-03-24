@@ -14,8 +14,6 @@ import (
 
 	"github.com/Nanocloud/community/plaza/router"
 	log "github.com/Sirupsen/logrus"
-
-	//"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -53,7 +51,7 @@ var commands = [][]string{
 	{
 		"sc.exe config RDMS start= auto",
 		"NEW-ADOrganizationalUnit 'NanocloudUsers' -path 'DC=intra,DC=localdomain,DC=com'",
-		//		"(Get-WmiObject -class \"Win32_TSGeneralSetting\" -Namespace root\\cimv2\\terminalservices -ComputerName adapps -Filter \"TerminalName='RDP-tcp'\").SetUserAuthenticationRequired(0)",
+		"(Get-WmiObject -class \"Win32_TSGeneralSetting\" -Namespace root\\cimv2\\terminalservices -ComputerName adapps -Filter \"TerminalName='RDP-tcp'\").SetUserAuthenticationRequired(0)",
 	},
 	{
 		"Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority",
