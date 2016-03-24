@@ -9,5 +9,4 @@ RUN npm install -g bower ember-cli && npm install
 RUN bower install --allow-root
 RUN ember build --environment="production"
 
-EXPOSE 8080
 VOLUME ["/opt/canva"]
