@@ -36,7 +36,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	"github.com/Nanocloud/community/plaza/server/routes/provisioning"
+	"github.com/Nanocloud/community/plaza/routes/provisioning"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.org/x/sys/windows/svc/mgr"

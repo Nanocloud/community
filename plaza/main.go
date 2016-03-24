@@ -25,7 +25,7 @@ package main
 import (
 	"os"
 
-	"github.com/Nanocloud/community/plaza/server/windows/service"
+	"github.com/Nanocloud/community/plaza/windows/service"
 	log "github.com/Sirupsen/logrus"
 )
 
