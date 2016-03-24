@@ -23,9 +23,9 @@
 package manual
 
 import (
-	"fmt"
+	"io/ioutil"
 	"net"
-	"os/exec"
+	"net/http"
 	"strings"
 
 	"github.com/Nanocloud/community/nanocloud/vms"
@@ -42,34 +42,23 @@ type machine struct {
 }
 
 func (m *machine) Status() (vms.MachineStatus, error) {
-	var service string
-	if m.role == "ad" {
-		service = "ADWS"
-	} else if m.role == "exec" {
-		service = "RDMS"
-	}
-	cmd := exec.Command(
-		"sshpass", "-p", m.password,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "ConnectTimeout=1",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", m.sshport,
-		fmt.Sprintf(
-			"%s@%s",
-			m.user,
-			m.server,
-		),
-		"powershell.exe \"Write-Host (Get-Service -Name "+service+").status\"",
-	)
-	response, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Error("Failed to check windows' state", err, string(response))
+	resp, err := http.Get("http://" + m.server + ":9090/checkrds")
+	if err != nil || resp.StatusCode != http.StatusOK {
+		log.Error(err)
 		return vms.StatusUnknown, err
 	}
-	if strings.Contains(string(response), "Running") {
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return vms.StatusUnknown, err
+	}
+
+	if strings.Contains(string(b), "Running") {
 		return vms.StatusUp, nil
 	}
 	return vms.StatusDown, nil
+
 }
 
 func (m *machine) IP() (net.IP, error) {

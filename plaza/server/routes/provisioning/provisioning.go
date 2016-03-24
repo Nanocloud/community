@@ -53,7 +53,7 @@ var commands = [][]string{
 	{
 		"sc.exe config RDMS start= auto",
 		"NEW-ADOrganizationalUnit 'NanocloudUsers' -path 'DC=intra,DC=localdomain,DC=com'",
-		"(Get-WmiObject -class \"Win32_TSGeneralSetting\" -Namespace root\\cimv2\\terminalservices -ComputerName adapps -Filter \"TerminalName='RDP-tcp'\").SetUserAuthenticationRequired(0)",
+		//		"(Get-WmiObject -class \"Win32_TSGeneralSetting\" -Namespace root\\cimv2\\terminalservices -ComputerName adapps -Filter \"TerminalName='RDP-tcp'\").SetUserAuthenticationRequired(0)",
 	},
 	{
 		"Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority",
@@ -252,6 +252,15 @@ func movePublishAppScript() {
 	}
 }
 
+func vmReady() bool {
+
+	resp, _ := executeCommand("import-module remotedesktop; Get-RDRemoteApp")
+	if strings.Contains(string(resp), "haptic") {
+		return true
+	}
+	return false
+}
+
 func ProvisionAll() {
 	if _, err := os.Stat(confPath); os.IsNotExist(err) {
 		os.Create(confPath)
@@ -262,7 +271,6 @@ func ProvisionAll() {
 		}
 		err = ioutil.WriteFile(confPath, b, 0644)
 	}
-	movePublishAppScript()
 
 	file, err := ioutil.ReadFile(confPath)
 	if err != nil {
@@ -271,9 +279,10 @@ func ProvisionAll() {
 	}
 	var conf []bool
 	err = json.Unmarshal(file, &conf)
-	if conf[9] == true {
+	if conf[9] == true || vmReady() {
 		return
 	}
+	movePublishAppScript()
 	for index, done := range conf {
 		if !done {
 			for i, val := range commands[index:] {

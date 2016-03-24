@@ -9,11 +9,11 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+
+	log "github.com/Sirupsen/logrus"
+
 	"strconv"
 
-	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/Nanocloud/community/nanocloud/oauth2"
-	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
 
@@ -60,29 +60,48 @@ var kUploadDir string
 // Get checks a chunk.
 // If it doesn't exist then flowjs tries to upload it via Post.
 func GetUpload(w http.ResponseWriter, r *http.Request) {
-	user, oauthErr := oauth2.GetUser(w, r)
-	if user == nil || oauthErr != nil {
-		http.Error(w, "", http.StatusUnauthorized)
-		return
+	sam := r.URL.Query()["sam"][0]
+
+	log.Error(sam)
+	kUploadDir = filepath.Join("C:/Users", sam, "Desktop/Nanocloud")
+	if _, err := os.Stat(kUploadDir); err != nil {
+		if os.IsNotExist(err) {
+			err := os.MkdirAll(kUploadDir, 0711)
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "Unable to create upload directory", http.StatusInternalServerError)
+			}
+		}
 	}
-	kUploadDir = "C:/Users/"
 	chunkPath := filepath.Join(
 		kUploadDir,
-		user.(*users.User).Id,
+		sam,
 		"incomplete",
 		r.FormValue("flowFilename"),
 		r.FormValue("flowChunkNumber"),
 	)
 	if _, err := os.Stat(chunkPath); err != nil {
-		http.Error(w, "chunk not found", http.StatusSeeOther)
+		w.WriteHeader(http.StatusTeapot)
+		w.Write([]byte("chunk not found"))
 		return
 	}
 }
 
 // Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
-	kUploadDir = "C:/Users/"
+	sam := r.URL.Query()["sam"][0]
 
+	log.Error(sam)
+	kUploadDir = filepath.Join("C:/Users", sam, "Desktop/Nanocloud")
+	if _, err := os.Stat(kUploadDir); err != nil {
+		if os.IsNotExist(err) {
+			err := os.MkdirAll(kUploadDir, 0711)
+			if err != nil {
+				log.Error(err)
+				http.Error(w, "Unable to create upload directory", http.StatusInternalServerError)
+			}
+		}
+	}
 	// get the multipart data
 	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
 	if err != nil {
@@ -130,7 +149,6 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(log.Fields{
 		"path": upPath,
 	}).Info("file uploaded")
-
 }
 
 func writeChunk(path, chunkNum string, r *http.Request) error {
@@ -273,7 +291,6 @@ func Get(c *echo.Context) error {
 			}
 			rt = append(rt, f)
 		}
-
 		/*
 		 * The Content-Length is not set is the buffer length is more than 2048
 		 */

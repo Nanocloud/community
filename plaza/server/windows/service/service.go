@@ -34,9 +34,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/Nanocloud/community/plaza/server/routes/provisioning"
 	log "github.com/Sirupsen/logrus"
 
+	"github.com/Nanocloud/community/plaza/server/routes/provisioning"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.org/x/sys/windows/svc/mgr"

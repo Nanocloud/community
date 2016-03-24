@@ -24,25 +24,33 @@ package upload
 
 import (
 	"net/http"
+	"net/url"
 
 	log "github.com/Sirupsen/logrus"
 
+	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/community/nanocloud/utils"
 )
 
 func Post(w http.ResponseWriter, r *http.Request) {
-
+	rawuser, oauthErr := oauth2.GetUser(w, r)
+	if rawuser == nil || oauthErr != nil {
+		http.Error(w, "", http.StatusUnauthorized)
+		return
+	}
+	sam := rawuser.(*users.User).Sam
 	winServer := utils.Env("WIN_SERVER", "")
 	var err error
-	request, err := http.NewRequest("POST", "http://"+winServer+":9090/upload", r.Body)
+	request, err := http.NewRequest("POST", "http://"+winServer+":9090/upload?sam="+url.QueryEscape(sam), r.Body)
 	if err != nil {
-		log.Println(err)
+		log.Println("Unable de create request ", err)
 	}
 	request.Header = r.Header
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		log.Println(err)
+		log.Println("Unable to send request ", err)
 	}
 
 	log.Error(resp)
@@ -51,21 +59,28 @@ func Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func Get(w http.ResponseWriter, r *http.Request) {
+	rawuser, oauthErr := oauth2.GetUser(w, r)
+	if rawuser == nil || oauthErr != nil {
+		http.Error(w, "", http.StatusUnauthorized)
+		return
+	}
+	sam := rawuser.(*users.User).Sam
 
 	winServer := utils.Env("WIN_SERVER", "")
 	var err error
-	request, err := http.NewRequest("GET", "http://"+winServer+":9090/upload", nil)
+	request, err := http.NewRequest("GET", "http://"+winServer+":9090/upload?sam="+url.QueryEscape(sam), nil)
 	if err != nil {
-		log.Println(err)
+		log.Println("Unable de create request ", err)
 	}
+
 	request.Header = r.Header
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		log.Println(err)
+		log.Println("request error", err)
 	}
-	log.Error(resp)
-	http.Error(w, "", resp.StatusCode)
+	if resp.StatusCode == http.StatusTeapot {
+		http.Error(w, "", http.StatusSeeOther)
+	}
 	return
-
 }
