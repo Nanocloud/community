@@ -14,8 +14,6 @@ import (
 
 	"github.com/Nanocloud/community/plaza/server/router"
 	log "github.com/Sirupsen/logrus"
-
-	//"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
