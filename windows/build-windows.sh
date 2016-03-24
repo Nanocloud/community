@@ -40,10 +40,6 @@ if [ -z "${QEMU}" ]; then
   echo "$(date "${DATE_FMT}") Qemu is missing, please install *qemu*"
   exit 2
 fi
-if [ -z "$(which sshpass || true)" ]; then
-  echo "$(date "${DATE_FMT}") sshpass is missing, please install *sshpass*"
-  exit 2
-fi
 if [ -z "$(which netcat || true)" ]; then
   echo "$(date "${DATE_FMT}") netcat is missing, please install *netcat*"
   exit 2

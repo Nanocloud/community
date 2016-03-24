@@ -5,7 +5,7 @@ MAINTAINER \
 
 
 RUN apt-get update && \
-    apt-get -y install git qemu-system-x86 sshpass genisoimage
+    apt-get -y install git qemu-system-x86 genisoimage
 
 RUN mkdir -p /go/build/iaas
 
