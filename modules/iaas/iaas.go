@@ -348,6 +348,9 @@ func bootWindows() error {
 		return err
 	}
 	err = os.Rename(conf.instDir+"/downloads/win.qcow2", conf.instDir+"/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2")
+	if err != nil {
+		log.Error(err)
+	}
 	return nil
 }
 
