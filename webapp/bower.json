@@ -6,7 +6,7 @@
     "ember-cli-test-loader": "0.2.2",
     "ember-qunit-notifications": "0.1.0",
     "bootstrap": "v4.0.0-alpha.2",
-    "material-design-icons": "^2.2.1",
+    "material-design-icons": "2.2.1",
     "flow.js": "^2.10.1"
   }
 }
