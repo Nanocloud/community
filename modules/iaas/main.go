@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Nanocloud/community/modules/iaas/lib/iaas"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
@@ -202,14 +201,10 @@ func main() {
 	e.Use(mw.Logger())
 	e.Use(mw.Recover())
 
-	h := handler{
-		iaasCon: iaas.New(conf.Server, conf.Password, conf.User, conf.SSHPort, conf.instDir, conf.artURL),
-	}
-
-	e.Get("/api/vms", h.ListRunningVM)
-	e.Post("/api/vms/:id/stop", h.StopVM)
-	e.Post("/api/vms/:id/start", h.StartVM)
-	e.Post("/api/vms/:id/download", h.DownloadVM)
+	e.Get("/api/vms", ListRunningVM)
+	e.Post("/api/vms/:id/stop", StopVM)
+	e.Post("/api/vms/:id/start", StartVM)
+	e.Post("/api/vms/:id/download", DownloadVM)
 
 	e.Run(":8080")
 }
