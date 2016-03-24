@@ -4,9 +4,6 @@ MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com> \
   William Riancho <william.riancho@nanocloud.com>
 
-RUN apt-get update && \
-    apt-get -y install sshpass
-
 COPY ./ /go/src/github.com/Nanocloud/community/nanocloud
 WORKDIR /go/src/github.com/Nanocloud/community/nanocloud
 
