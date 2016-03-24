@@ -12,7 +12,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/Nanocloud/community/plaza/server/router"
+	"github.com/Nanocloud/community/plaza/router"
 	log "github.com/Sirupsen/logrus"
 )
 
