@@ -6,4 +6,4 @@ RUN npm install -g ember-cli
 ENV EMBER_CLI_INJECT_LIVE_RELOAD_BASEURL=https://localhost:4200/canva/
 ENV EMBER_CLI_INJECT_LIVE_RELOAD_PORT=49152
 
-CMD ember build --environment="development" && ember serve --live-reload-port 49152 --ssl true --ssl-key /opt/ssl/nginx.key --ssl-cert /opt/ssl/nginx.crt
+CMD npm install && bower install --allow-root && ember build --environment="development" && ember serve --live-reload-port 49152 --ssl true --ssl-key /opt/ssl/nginx.key --ssl-cert /opt/ssl/nginx.crt
