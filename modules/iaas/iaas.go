@@ -299,6 +299,9 @@ func createIso() error {
 
 func downloadIso() error {
 	tab := strings.Split(conf.windowsURL, "/")
+	if _, err := os.Stat(conf.instDir + "/downloads/" + tab[len(tab)-1]); err == nil {
+		return nil
+	}
 	out, err := os.Create(conf.instDir + "/downloads/" + tab[len(tab)-1])
 	if err != nil {
 		log.Error(err)
@@ -349,12 +352,12 @@ func bootWindows() error {
 }
 
 func Create() error {
-	/*	err := downloadIso()
-		if err != nil {
-			return err
-		}*/
+	err := downloadIso()
+	if err != nil {
+		return err
+	}
 	log.Error("CREATING QCOW2")
-	err := createQcow()
+	err = createQcow()
 	if err != nil {
 		return err
 	}

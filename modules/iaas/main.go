@@ -204,7 +204,7 @@ func main() {
 	e.Get("/api/vms", ListRunningVM)
 	e.Post("/api/vms/:id/stop", StopVM)
 	e.Post("/api/vms/:id/start", StartVM)
-	e.Post("/api/vms/:id/download", DownloadVM)
+	e.Post("/api/vms/:id/download", CreateVM)
 
 	e.Run(":8080")
 }
