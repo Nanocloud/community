@@ -216,8 +216,7 @@ func CheckPublishedApps() {
 	}
 	for {
 		time.Sleep(5 * time.Second)
-		var applications []ApplicationParamsWin
-		var winapp ApplicationParamsWin
+		var winapp ApplicationParams
 		var apps []ApplicationParams
 		resp, err := http.Get("http://" + kServer + ":9090/apps")
 		if err != nil {
@@ -234,33 +233,16 @@ func CheckPublishedApps() {
 			if err != nil {
 				continue
 			}
-			application := ApplicationParams{
-				CollectionName: winapp.CollectionName,
-				DisplayName:    winapp.DisplayName,
-				Alias:          winapp.Alias,
-				FilePath:       winapp.FilePath,
-				IconContents:   winapp.IconContents,
-			}
-
 			_, err := db.Query(
 				`INSERT INTO apps
 				(collection_name, alias, display_name, file_path, icon_content)
 				VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-				`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
+				`, winapp.CollectionName, winapp.Alias, winapp.DisplayName, winapp.FilePath, winapp.IconContents)
 			if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 				log.Error("Error inserting app into postgres: ", err.Error())
 			}
 			continue
 		}
-		for _, app := range applications {
-			apps = append(apps, ApplicationParams{
-				CollectionName: app.CollectionName,
-				DisplayName:    app.DisplayName,
-				Alias:          app.Alias,
-				FilePath:       app.FilePath,
-			})
-		}
-
 		for _, application := range apps {
 			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
 				_, err := db.Query(

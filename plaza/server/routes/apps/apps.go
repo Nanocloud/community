@@ -3,10 +3,10 @@ package apps
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os/exec"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
 
@@ -14,10 +14,11 @@ type hash map[string]interface{}
 
 type ApplicationParams struct {
 	Id             int    `json:"-"`
-	CollectionName string `json:"collection_name"`
+	CollectionName string `json:"collection-name"`
 	Alias          string `json:"alias"`
-	DisplayName    string `json:"display_name"`
-	FilePath       string `json:"file_path"`
+	DisplayName    string `json:"display-name"`
+	FilePath       string `json:"file-path"`
+	IconContents   []byte `json:"icon-content"`
 }
 
 type ApplicationParamsWin struct {
@@ -26,6 +27,7 @@ type ApplicationParamsWin struct {
 	Alias          string
 	DisplayName    string
 	FilePath       string
+	IconContents   []byte
 }
 
 func reterr(e error, resp string, c *echo.Context) error {
@@ -89,7 +91,13 @@ func GetApps(c *echo.Context) error {
 		}
 		return c.JSON(
 			http.StatusOK,
-			winapp,
+			ApplicationParams{
+				CollectionName: winapp.CollectionName,
+				DisplayName:    winapp.DisplayName,
+				Alias:          winapp.Alias,
+				FilePath:       winapp.FilePath,
+				IconContents:   winapp.IconContents,
+			},
 		)
 	}
 	for _, app := range applications {
@@ -98,6 +106,7 @@ func GetApps(c *echo.Context) error {
 			DisplayName:    app.DisplayName,
 			Alias:          app.Alias,
 			FilePath:       app.FilePath,
+			IconContents:   app.IconContents,
 		})
 	}
 	return c.JSON(
