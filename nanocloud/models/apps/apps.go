@@ -29,6 +29,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -265,6 +266,45 @@ func CheckPublishedApps() {
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
 func UnpublishApp(Alias string) error {
+	id, err := strconv.Atoi(Alias)
+	if err != nil {
+		return UnpublishFailed
+	}
+	rows, err := db.Query(
+		`SELECT alias FROM apps WHERE id = $1::int`,
+		id,
+	)
+	if err != nil {
+		log.Error("Connection to postgres failed: ", err.Error())
+		return UnpublishFailed
+	}
+
+	defer rows.Close()
+
+	var alias string
+	for rows.Next() {
+		rows.Scan(
+			&alias,
+		)
+	}
+	log.Error(alias)
+
+	req, err := http.NewRequest("DELETE", "http://"+kServer+":9090/apps/"+alias, nil)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		return UnpublishFailed
+	}
+	if resp.Status != "200 OK" {
+		log.Error("Plaza return code: " + resp.Status)
+		return UnpublishFailed
+	}
+	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", alias)
+	if err != nil {
+		log.Error("delete from postgres failed: ", err)
+		return UnpublishFailed
+	}
 	return nil
 }
 

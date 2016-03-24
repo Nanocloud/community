@@ -3,10 +3,10 @@ package router
 import (
 	"net/http"
 
-	"github.com/Nanocloud/community/plaza/server/routes/about"
-	"github.com/Nanocloud/community/plaza/server/routes/apps"
-	"github.com/Nanocloud/community/plaza/server/routes/files"
-	"github.com/Nanocloud/community/plaza/server/routes/power"
+	"github.com/Nanocloud/community/plaza/routes/about"
+	"github.com/Nanocloud/community/plaza/routes/apps"
+	"github.com/Nanocloud/community/plaza/routes/files"
+	"github.com/Nanocloud/community/plaza/routes/power"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
@@ -31,6 +31,7 @@ func Start() {
 
 	e.Post("/publishapp", apps.PublishApp)
 	e.Get("/apps", apps.GetApps)
+	e.Delete("/apps/:id", apps.UnpublishApp)
 
 	e.SetHTTPErrorHandler(func(err error, c *echo.Context) {
 		c.JSON(

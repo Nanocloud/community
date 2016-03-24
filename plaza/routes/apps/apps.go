@@ -74,6 +74,16 @@ func PublishApp(c *echo.Context) error {
 	return retok(c)
 }
 
+func UnpublishApp(c *echo.Context) error {
+	id := c.Param("id")
+	cmd := exec.Command("powershell.exe", "Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+id+"' -CollectionName collection -Force")
+	resp, err := cmd.CombinedOutput()
+	if err != nil {
+		return reterr(err, string(resp), c)
+	}
+	return retok(c)
+}
+
 func GetApps(c *echo.Context) error {
 	var applications []ApplicationParamsWin
 	var winapp ApplicationParamsWin
