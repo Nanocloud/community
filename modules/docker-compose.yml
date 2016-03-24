@@ -13,7 +13,6 @@ services:
    - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
    - PORT=8080
    - FRONT_DIR=/opt/front/dist
-   - CANVA_FRONT_DIR=/opt/canva/dist
    - WIN_PASSWORD=Nanocloud123+
    - IAAS=qemu
    - WIN_PORT=1119
@@ -39,13 +38,6 @@ services:
  guacamole-server:
   restart: always
   container_name: "guacamole-server"
-  networks:
-   - nanocloud
-
- nanocloud-canva:
-  container_name: "nanocloud-canva"
-  volumes:
-   - /opt/canva
   networks:
    - nanocloud
 
