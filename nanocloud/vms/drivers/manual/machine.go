@@ -63,8 +63,8 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 	)
 	response, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Error("Failed to check windows' state", err, string(response))
-		return vms.StatusUnknown, err
+		log.Info("Failed to check windows' state", err, string(response))
+		return vms.StatusDown, nil
 	}
 	if strings.Contains(string(response), "Running") {
 		return vms.StatusUp, nil
