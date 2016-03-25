@@ -234,13 +234,15 @@ func CheckPublishedApps() {
 			if err != nil {
 				continue
 			}
-			_, err := db.Query(
-				`INSERT INTO apps
+			if winapp.CollectionName != "" && winapp.Alias != "" && winapp.DisplayName != "" && winapp.FilePath != "" {
+				_, err := db.Query(
+					`INSERT INTO apps
 				(collection_name, alias, display_name, file_path, icon_content)
 				VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
 				`, winapp.CollectionName, winapp.Alias, winapp.DisplayName, winapp.FilePath, winapp.IconContents)
-			if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-				log.Error("Error inserting app into postgres: ", err.Error())
+				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+					log.Error("Error inserting app into postgres: ", err.Error())
+				}
 			}
 			continue
 		}
