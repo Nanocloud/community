@@ -81,7 +81,7 @@ services:
    - PASSWORD=Nanocloud123+
    - SERVER=localhost
    - USER=Administrator
-   - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.5.0/
+   - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.5.1/
   devices:
    - /dev/kvm
   restart: always
