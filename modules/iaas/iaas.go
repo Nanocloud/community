@@ -191,8 +191,8 @@ func GetList() (VMstatus, error) {
 	var status VMstatus
 	running := CheckRDS()
 	if running {
-		status.AvailableVMNames = append(status.AvailableVMNames, "windows")
-		status.RunningVmNames = append(status.RunningVmNames, "windows")
+		status.AvailableVMNames = append(status.AvailableVMNames, "windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64")
+		status.RunningVmNames = append(status.RunningVmNames, "windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64")
 		return status, nil
 	}
 	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/pid/", conf.instDir))
