@@ -23,6 +23,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"path"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
@@ -31,10 +32,10 @@ import (
 
 type Configuration struct {
 	artURL     string
+	root       string
 	instDir    string
 	Server     string
 	User       string
-	SSHPort    string
 	Password   string
 	windowsURL string
 }
@@ -165,6 +166,24 @@ func CreateVM(c *echo.Context) error {
 	})
 }
 
+func initDirectories(root string) error {
+	err := os.MkdirAll(path.Join(root, "pid"), 0755)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(path.Join(root, "downloads"), 0755)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(path.Join(root, "images"), 0755)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func env(key, def string) string {
 	v := os.Getenv(key)
 	if v == "" {
@@ -174,14 +193,20 @@ func env(key, def string) string {
 }
 
 func main() {
+	port := env("PORT", "8080")
 	conf.Server = env("SERVER", "127.0.0.1")
 	conf.Password = env("PASSWORD", "ItsPass1942+")
 	conf.User = env("USER", "Administrator")
-	conf.SSHPort = env("SSH_PORT", "22")
 	conf.instDir = os.Getenv("INSTALLATION_DIR")
+	conf.root = path.Dir(os.Args[0])
 
 	if len(conf.instDir) == 0 {
 		conf.instDir = "/var/lib/nanocloud"
+	}
+
+	err := initDirectories(conf.instDir)
+	if err != nil {
+		panic(err)
 	}
 
 	conf.artURL = os.Getenv("ARTIFACT_URL")
@@ -206,5 +231,6 @@ func main() {
 	e.Post("/api/vms/:id/start", StartVM)
 	e.Post("/api/vms/:id/download", CreateVM)
 
-	e.Run(":8080")
+	log.Infof("Server listenning on port: %s", port)
+	e.Run(":" + port)
 }

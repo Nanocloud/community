@@ -30,6 +30,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -287,7 +288,7 @@ func createQcow() error {
 }
 
 func createIso() error {
-	cmd := exec.Command("genisoimage", "-o", conf.instDir+"/downloads/autoplaza.iso", "-J", "-r", "disk")
+	cmd := exec.Command("genisoimage", "-o", conf.instDir+"/downloads/autoplaza.iso", "-J", "-r", path.Join(conf.root, "disk"))
 	resp, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(string(resp))
@@ -384,7 +385,7 @@ func Start(name string) error {
 		log.Error("Can't find ", name)
 		return VMNotFound
 	}
-	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", conf.instDir, name))
+	cmd := exec.Command(fmt.Sprintf("%s/scripts/launch-%s.sh", conf.root, name))
 	err = cmd.Start()
 	if err != nil {
 		log.Error("Failed to start vm: ", err)

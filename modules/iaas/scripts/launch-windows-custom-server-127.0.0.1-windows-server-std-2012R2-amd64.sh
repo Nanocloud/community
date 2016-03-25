@@ -21,23 +21,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-NANOCLOUD_DIR="${NANOCLOUD_DIR:-"/var/lib/nanocloud"}"
+INSTALLATION_DIR="${INSTALLATION_DIR:-"/var/lib/nanocloud"}"
 
 VM_NAME="windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64"
 VM_HOSTNAME="windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64"
 
 # Port map
-SSH_PORT=1119
-RDP_PORT=3389
-LDAPS_PORT=6360
-PLAZA_PORT=9090
+RDP_PORT="${RDP_PORT:-"3389"}"
+LDAPS_PORT="${LDAPS_PORT:-"6360"}"
+PLAZA_PORT="${PLAZA_PORT:-"9090"}"
 
 QEMU=$(which qemu-system-x86_64 || true)
 if [ -z "${QEMU}" ]; then
     echo "You need *QEMU* to run this script, exiting"
     exit 1
 fi
-SYSTEM_VHD="${NANOCLOUD_DIR}/images/${VM_NAME}.qcow2"
+SYSTEM_VHD="${INSTALLATION_DIR}/images/${VM_NAME}.qcow2"
 VM_NCPUS="$(grep -c ^processor /proc/cpuinfo)"
 
 $QEMU \
@@ -49,11 +48,11 @@ $QEMU \
     -machine accel=kvm \
     -drive if=virtio,file="${SYSTEM_VHD}" \
     -vnc :2 \
-    -pidfile "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid" \
+    -pidfile "${INSTALLATION_DIR}/pid/${VM_NAME}.pid" \
     -net nic,vlan=0,model=virtio \
-    -net user,vlan=0,hostfwd=tcp::"${PLAZA_PORT}"-:9090,hostfwd=tcp::"${SSH_PORT}"-:22,hostfwd=tcp::"${RDP_PORT}"-:3389,hostfwd=tcp::"${LDAPS_PORT}"-:636,hostname="${VM_HOSTNAME}" \
+    -net user,vlan=0,hostfwd=tcp::"${PLAZA_PORT}"-:9090,hostfwd=tcp::"${RDP_PORT}"-:3389,hostfwd=tcp::"${LDAPS_PORT}"-:636,hostname="${VM_HOSTNAME}" \
     -vga qxl \
     -global qxl-vga.vram_size=33554432 \
     "${@}"
 
-/bin/rm "${NANOCLOUD_DIR}/pid/${VM_NAME}.pid"
+/bin/rm "${INSTALLATION_DIR}/pid/${VM_NAME}.pid"

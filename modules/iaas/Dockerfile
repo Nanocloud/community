@@ -15,10 +15,6 @@ WORKDIR /go/src/github.com/Nanocloud/community/modules/iaas
 
 RUN ./install.sh && go build
 
-RUN mkdir -p /var/lib/nanocloud/downloads && mkdir -p /var/lib/nanocloud/images && mkdir -p /var/lib/nanocloud/pid && mkdir -p /var/lib/nanocloud/disk
-COPY ./scripts/ /var/lib/nanocloud/scripts/
-COPY ./disk/ /var/lib/nanocloud/disk/
-
 EXPOSE 8080
 EXPOSE 9090
 CMD ["./iaas"]
