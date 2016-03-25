@@ -72,11 +72,11 @@ export class UsersCtrl {
 				}
 			});
 	}
-	
+
 	addUser(user: IUser): void {
 		this.users.push(user);
 	}
-	
+
 	startEditUser(e: MouseEvent, user: IUser) {
 		let o = this.getDefaultUserDlgOpt(e);
 		o.locals = { user: user };
@@ -84,15 +84,17 @@ export class UsersCtrl {
 			.show(o)
 			.then(this.editUser.bind(this));
 	}
-	
+
 	editUser(user: IUser) {
+		this.usersSvc.updatePassword(user);
+
 		// here, call the server to edit
 		let i = _.findIndex(this.users, (x: IUser) => x.email === user.email);
 		if (i >= 0) {
 			this.users[i] = user;
 		}
 	}
-	
+
 	startDeleteUser(e: MouseEvent, user: IUser) {
 		let o = this.$mdDialog.confirm()
 			.parent(angular.element(document.body))
@@ -105,7 +107,7 @@ export class UsersCtrl {
 			.show(o)
 			.then(this.deleteUser.bind(this, user));
 	}
-	
+
 	deleteUser(user: IUser) {
 		this.usersSvc.delete(user);
 
