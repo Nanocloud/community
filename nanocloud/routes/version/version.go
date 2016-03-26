@@ -28,7 +28,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-const appversion = "0.5.0"
+const appversion = "0.5.1"
 
 // get the version of the nanocloud application
 func Get(c *echo.Context) error {
