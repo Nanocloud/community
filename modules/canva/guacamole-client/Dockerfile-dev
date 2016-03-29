@@ -5,4 +5,4 @@ MAINTAINER \
 RUN apt-get -y install inotify-tools
 ENV JPDA_ADDRESS=8000
 
-CMD ["sh", "-c", "(catalina.sh jpda run &) ; while inotifywait -r -e modify -e moved_to ./src ; do mvn package && touch /usr/local/tomcat/webapps/guacamole.war ; done"]
+CMD ["sh", "-c", "mvn package && (catalina.sh jpda run &) ; while inotifywait -r -e modify -e moved_to ./src ; do mvn package && touch /usr/local/tomcat/webapps/guacamole.war ; done"]

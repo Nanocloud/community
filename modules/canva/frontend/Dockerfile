@@ -5,9 +5,8 @@ RUN mkdir -p /opt/canva
 WORKDIR /opt/canva
 COPY ./ /opt/canva/
 
-RUN npm install && npm install -g bower
+RUN npm install -g bower ember-cli && npm install
 RUN bower install --allow-root
-RUN npm run build
+RUN ember build --environment="production"
 
-EXPOSE 8080
 VOLUME ["/opt/canva"]
