@@ -29,6 +29,10 @@ services:
    - WINDOWS_DOMAIN=intra.localdomain.com
    - EXECUTION_SERVERS=127.0.0.1
    - TRUST_PROXY=true
+   - ADMIN_FIRSTNAME=Admin
+   - ADMIN_LASTNAME=Nanocloud
+   - ADMIN_MAIL=admin@nanocloud.com
+   - ADMIN_PASSWORD=admin
   restart: always
   container_name: "nanocloud-api"
   networks:
