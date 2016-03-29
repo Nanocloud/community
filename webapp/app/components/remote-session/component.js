@@ -7,11 +7,11 @@ export default Ember.Component.extend({
   connectionName: null,
 
   getWidth: function() {
-    return $(this.element).parent().width();
+    return Ember.$(this.element).parent().width();
   },
 
   getHeight: function() {
-    return $(this.element).parent().height();
+    return Ember.$(this.element).parent().height();
   },
 
   connect: function() {
@@ -27,8 +27,8 @@ export default Ember.Component.extend({
     this.get('guacamole').then((guac) => {
       this.get('element').appendChild(guac.getDisplay().getElement());
 
-      let mouse = new Guacamole.Mouse(guac.getDisplay().getElement());
-      let keyboard = new Guacamole.Keyboard(document);
+      let mouse = new window.Guacamole.Mouse(guac.getDisplay().getElement());
+      let keyboard = new window.Guacamole.Keyboard(document);
       let display = guac.getDisplay();
 
       window.onresize = function() {
@@ -44,7 +44,7 @@ export default Ember.Component.extend({
 
       display.oncursor = function(canvas, x, y) {
         display.showCursor(!mouse.setCursor(canvas, x, y));
-      }
+      };
 
       keyboard.onkeydown = function (keysym) {
         guac.sendKeyEvent(1, keysym);
