@@ -63,12 +63,17 @@ func Migrate() error {
 
 	rows.Close()
 
+	adminpwd := utils.Env("ADMIN_PASSWORD", "Nanocloud123+")
+	adminfirstname := utils.Env("ADMIN_FIRSTNAME", "John")
+	adminlastname := utils.Env("ADMIN_LASTNAME", "Doe")
+	adminmail := utils.Env("ADMIN_MAIL", "admin@nanocloud.com")
+
 	admin, err := users.CreateUser(
 		true,
-		"admin@nanocloud.com",
-		"John",
-		"Doe",
-		"admin",
+		adminmail,
+		adminfirstname,
+		adminlastname,
+		adminpwd,
 		true,
 	)
 
