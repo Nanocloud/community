@@ -26,20 +26,10 @@ import (
 	"net/http"
 	"net/url"
 
-	log "github.com/Sirupsen/logrus"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"sort"
-	"strconv"
-	"strings"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/community/nanocloud/utils"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Post(w http.ResponseWriter, r *http.Request) {
