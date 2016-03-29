@@ -18,6 +18,9 @@ import (
 
 type hash map[string]interface{}
 
+const domain = "intra.localdomain.com"
+const pcname = "adapps"
+
 func executeCommand(command string) (string, error) {
 	cmd := exec.Command("powershell.exe", command)
 	resp, err := cmd.CombinedOutput()
@@ -35,7 +38,7 @@ var commands = [][]string{
 	},
 	{
 		"Install-windowsfeature AD-domain-services",
-		"Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString 'Nanocloud123+' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName 'intra.localdomain.com' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true",
+		"Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString 'Nanocloud123+' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName '" + domain + "' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true",
 	},
 	{
 		"set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server'-name 'fDenyTSConnections' -Value 0",
@@ -51,7 +54,6 @@ var commands = [][]string{
 	{
 		"sc.exe config RDMS start= auto",
 		"NEW-ADOrganizationalUnit 'NanocloudUsers' -path 'DC=intra,DC=localdomain,DC=com'",
-		"(Get-WmiObject -class \"Win32_TSGeneralSetting\" -Namespace root\\cimv2\\terminalservices -ComputerName adapps -Filter \"TerminalName='RDP-tcp'\").SetUserAuthenticationRequired(0)",
 	},
 	{
 		"Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority",
@@ -59,15 +61,26 @@ var commands = [][]string{
 		"New-NetFirewallRule -Protocol TCP -LocalPort 9090 -Direction Inbound -Action Allow -DisplayName PLAZA",
 	},
 	{
-		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"Start-Service RDMS; import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker adapps.intra.localdomain.com -WebAccessServer adapps.intra.localdomain.com -SessionHost adapps.intra.localdomain.com\"",
+		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"Start-Service RDMS; import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker " + pcname + "." + domain + " -WebAccessServer " + pcname + "." + domain + " -SessionHost " + pcname + "." + domain + "\"",
 	},
 	{
-		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"import-module remotedesktop ; New-RDSessionCollection -CollectionName collection -SessionHost adapps.intra.localdomain.com -CollectionDescription 'Nanocloud collection' -ConnectionBroker adapps.intra.localdomain.com\"",
+		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"import-module remotedesktop ; New-RDSessionCollection -CollectionName collection -SessionHost " + pcname + "." + domain + " -CollectionDescription 'Nanocloud collection' -ConnectionBroker " + pcname + "." + domain + "\"",
 	},
 	{
 		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"import-module remotedesktop ; New-RDRemoteApp -CollectionName collection -DisplayName hapticPowershell -FilePath 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe' -Alias hapticPowershell -CommandLineSetting Require -RequiredCommandLine '-ExecutionPolicy Bypass c:\\publishApplication.ps1'\"",
 	},
+	{
+		"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe \"(Get-WmiObject -class 'Win32_TSGeneralSetting' -Namespace root\\cimv2\\terminalservices -ComputerName " + pcname + ").SetUserAuthenticationRequired(0)",
+	},
 }
+
+const (
+	OUCREATION       = 5
+	SESSIONDEPLOY    = 7
+	CREATECOLLECTION = 8
+	PUBLISHAPP       = 9
+	DISABLENLA       = 10
+)
 
 var confPath = "C:/prov.json"
 
@@ -151,7 +164,6 @@ const (
 )
 
 func executeCommandAsAdmin(cmd string) {
-
 	var si startupinfo
 	var handle HANDLE
 	var pi processinfo
@@ -162,7 +174,7 @@ func executeCommandAsAdmin(cmd string) {
 	LogonUserW := a.MustFindProc("LogonUserW")
 	r1, r2, lastError := LogonUserW.Call(
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Administrator"))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("intra.localdomain.com"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(domain))),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Nanocloud123+"))),
 		LOGON32_LOGON_INTERACTIVE,
 		LOGON32_PROVIDER_DEFAULT,
@@ -262,7 +274,7 @@ func vmReady() bool {
 func ProvisionAll() {
 	if _, err := os.Stat(confPath); os.IsNotExist(err) {
 		os.Create(confPath)
-		var p = make([]bool, 10)
+		var p = make([]bool, 11)
 		b, err := json.Marshal(p)
 		if err != nil {
 			log.Error(err)
@@ -277,29 +289,30 @@ func ProvisionAll() {
 	}
 	var conf []bool
 	err = json.Unmarshal(file, &conf)
-	if conf[9] == true || vmReady() {
+	if conf[10] == true || vmReady() {
 		return
 	}
 	movePublishAppScript()
 	for index, done := range conf {
 		if !done {
 			for i, val := range commands[index:] {
-				log.Error("NEW PACK")
-				if i+index == 5 {
+				switch i + index {
+				case OUCREATION:
 					AddOu(val)
-				} else if i+index == 7 {
+				case SESSIONDEPLOY:
 					waitDeploy(val[0])
-				} else if i+index == 8 {
+				case CREATECOLLECTION:
 					waitCollection(val[0])
-				} else if i+index == 9 {
+				case PUBLISHAPP:
 					waitApp(val[0])
-				} else {
+				case DISABLENLA:
+					executeCommandAsAdmin(val[0])
+				default:
 					err = executeCommands(val)
 				}
 				if err == nil {
 					markAsDone(conf, i+index)
 				} else {
-					log.Error("THERE WAS AN ERROR")
 					return
 				}
 				if i+index == 4 {
