@@ -7,12 +7,6 @@ module.exports = function(defaults) {
     // Add options here
   });
 
-  app.import('vendor/guacamole-common-js.js', {
-    type: 'vendor',
-    prepend: true
-  });
-
-  app.import('bower_components/flow.js/dist/flow.js');
   // Use `app.import` to add additional libraries to the generated
   // output files.
   //
@@ -25,6 +19,13 @@ module.exports = function(defaults) {
   // modules that you would like to import into your application
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
+
+  app.import('vendor/guacamole-common-js.js', {
+    type: 'vendor',
+    prepend: true
+  });
+
+  app.import('bower_components/flow.js/dist/flow.js');
 
   app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.eot', {
     destDir: 'assets/fonts'
