@@ -23,11 +23,13 @@
 package apps
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"io/ioutil"
 	"math/rand"
-	"os/exec"
+	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -59,11 +61,11 @@ var (
 
 type ApplicationParams struct {
 	Id             int    `json:"-"`
-	CollectionName string `json:"collection_name"`
+	CollectionName string `json:"collection-name"`
 	Alias          string `json:"alias"`
-	DisplayName    string `json:"display_name"`
-	FilePath       string `json:"file_path"`
-	IconContents   []byte `json:"icon_content"`
+	DisplayName    string `json:"display-name"`
+	FilePath       string `json:"file-path"`
+	IconContents   []byte `json:"icon-content"`
 }
 
 type ApplicationParamsWin struct {
@@ -85,12 +87,12 @@ type Connection struct {
 	AppName   string `json:"app_name"`
 }
 
-func AppExists(alias string) (bool, error) {
+func AppExists(appId string) (bool, error) {
 	rows, err := db.Query(
 		`SELECT alias
-     FROM apps
-     WHERE alias = $1::varchar`,
-		alias)
+		FROM apps
+		WHERE id = $1::int`,
+		appId)
 	if err != nil {
 		return false, err
 	}
@@ -105,8 +107,8 @@ func AppExists(alias string) (bool, error) {
 func ChangeName(appId, newName string) error {
 	_, err := db.Query(
 		`UPDATE apps
-     SET display_name = $1::varchar
-     WHERE alias = $2::varchar`,
+		SET display_name = $1::varchar
+		WHERE id = $2::int`,
 		newName, appId)
 	if err != nil {
 		log.Error("Changing app name failed: ", err)
@@ -119,10 +121,10 @@ func GetAllApps() ([]ApplicationParams, error) {
 	var applications []ApplicationParams
 	rows, err := db.Query(
 		`SELECT id, collection_name,
-	alias, display_name,
-	file_path,
-	icon_content
-	FROM apps`)
+		alias, display_name,
+		file_path,
+		icon_content
+		FROM apps`)
 
 	if err != nil {
 		log.Error("Connection to postgres failed: ", err.Error())
@@ -150,16 +152,17 @@ func GetAllApps() ([]ApplicationParams, error) {
 		applications = []ApplicationParams{}
 	}
 	return applications, nil
+
 }
 
 func GetUserApps(userId string) ([]ApplicationParams, error) {
 	var applications []ApplicationParams
 	rows, err := db.Query(
 		`SELECT id, collection_name,
-	alias, display_name,
-	file_path,
-	icon_content
-	FROM apps`,
+		alias, display_name,
+		file_path,
+		icon_content
+		FROM apps`,
 	)
 
 	if err != nil {
@@ -191,6 +194,18 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 	return applications, nil
 }
 
+func AddApp(params ApplicationParams) error {
+	_, err := db.Query(
+		`INSERT INTO apps
+			(collection_name, alias, display_name, file_path)
+			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
+			`, params.CollectionName, params.Alias, params.DisplayName, params.FilePath)
+	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+		log.Error("Error inserting app into postgres: ", err.Error())
+	}
+	return nil
+}
+
 func CheckPublishedApps() {
 	_, err := db.Query(
 		`INSERT INTO apps
@@ -202,71 +217,42 @@ func CheckPublishedApps() {
 	}
 	for {
 		time.Sleep(5 * time.Second)
-		var applications []ApplicationParamsWin
-		var winapp ApplicationParamsWin
+		var winapp ApplicationParams
 		var apps []ApplicationParams
-		cmd := exec.Command(
-			"sshpass", "-p", kPassword,
-			"ssh", "-o", "StrictHostKeyChecking=no",
-			"-o", "UserKnownHostsFile=/dev/null",
-			"-o", "LogLevel=quiet",
-			"-p", kSSHPort,
-			fmt.Sprintf(
-				"%s@%s",
-				kUser,
-				kServer,
-			),
-			"powershell.exe \"Import-Module RemoteDesktop; Get-RDRemoteApp | ConvertTo-Json -Compress\"",
-		)
-		response, err := cmd.CombinedOutput()
-
+		resp, err := http.Get("http://" + kServer + ":9090/apps")
 		if err != nil {
-			log.Error("Failed to execute sshpass command ", err, string(response))
 			continue
 		}
-		err = json.Unmarshal(response, &applications)
+		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-
-			err = json.Unmarshal(response, &winapp)
+			log.Error(err)
+			continue
+		}
+		err = json.Unmarshal(b, &apps)
+		if err != nil {
+			err = json.Unmarshal(b, &winapp)
 			if err != nil {
 				continue
 			}
-			application := ApplicationParams{
-				CollectionName: winapp.CollectionName,
-				DisplayName:    winapp.DisplayName,
-				Alias:          winapp.Alias,
-				FilePath:       winapp.FilePath,
-				IconContents:   winapp.IconContents,
-			}
-
-			_, err := db.Query(
-				`INSERT INTO apps
-			(collection_name, alias, display_name, file_path, icon_content)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
-			if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-				log.Error("Error inserting app into postgres: ", err.Error())
+			if winapp.CollectionName != "" && winapp.Alias != "" && winapp.DisplayName != "" && winapp.FilePath != "" {
+				_, err := db.Query(
+					`INSERT INTO apps
+				(collection_name, alias, display_name, file_path, icon_content)
+				VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+				`, winapp.CollectionName, winapp.Alias, winapp.DisplayName, winapp.FilePath, winapp.IconContents)
+				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
+					log.Error("Error inserting app into postgres: ", err.Error())
+				}
 			}
 			continue
 		}
-		for _, app := range applications {
-			apps = append(apps, ApplicationParams{
-				CollectionName: app.CollectionName,
-				DisplayName:    app.DisplayName,
-				Alias:          app.Alias,
-				FilePath:       app.FilePath,
-				IconContents:   app.IconContents,
-			})
-		}
-
 		for _, application := range apps {
-
 			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
 				_, err := db.Query(
 					`INSERT INTO apps
-			(collection_name, alias, display_name, file_path, icon_content)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
+					(collection_name, alias, display_name, file_path, icon_content)
+					VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
+					`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
 				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
 					log.Error("Error inserting app into postgres: ", err.Error())
 				}
@@ -282,24 +268,41 @@ func CheckPublishedApps() {
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
 func UnpublishApp(Alias string) error {
-	cmd := exec.Command(
-		"sshpass", "-p", kPassword,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", kSSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			kUser,
-			kServer,
-		),
-		"powershell.exe \"Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+Alias+"' -CollectionName collection -Force\"",
-	)
-	response, err := cmd.CombinedOutput()
+	id, err := strconv.Atoi(Alias)
 	if err != nil {
-		log.Error("Failed to execute sshpass command to unpublish an app", err, string(response))
 		return UnpublishFailed
 	}
-	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", Alias)
+	rows, err := db.Query(
+		`SELECT alias FROM apps WHERE id = $1::int`,
+		id,
+	)
+	if err != nil {
+		log.Error("Connection to postgres failed: ", err.Error())
+		return UnpublishFailed
+	}
+
+	defer rows.Close()
+
+	var alias string
+	for rows.Next() {
+		rows.Scan(
+			&alias,
+		)
+	}
+	log.Error(alias)
+
+	req, err := http.NewRequest("DELETE", "http://"+kServer+":9090/apps/"+alias, nil)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		return UnpublishFailed
+	}
+	if resp.Status != "200 OK" {
+		log.Error("Plaza return code: " + resp.Status)
+		return UnpublishFailed
+	}
+	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", alias)
 	if err != nil {
 		log.Error("delete from postgres failed: ", err)
 		return UnpublishFailed
@@ -308,21 +311,21 @@ func UnpublishApp(Alias string) error {
 }
 
 func PublishApp(path string) error {
-	cmd := exec.Command(
-		"sshpass", "-p", kPassword,
-		"ssh", "-o", "StrictHostKeyChecking=no",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-p", kSSHPort,
-		fmt.Sprintf(
-			"%s@%s",
-			kUser,
-			kServer,
-		),
-		"powershell.exe -file C:\\publishApplication.ps1 "+path,
-	)
-	response, err := cmd.CombinedOutput()
+	p, err := json.Marshal(path)
 	if err != nil {
-		log.Error("Failed to execute sshpass command to publish an app", err, string(response))
+		log.Error(err)
+		return PublishFailed
+	}
+	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", bytes.NewBuffer(p))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		return PublishFailed
+	}
+	if resp.Status != "200 OK" {
+		log.Error("Plaza return code: " + resp.Status)
 		return PublishFailed
 	}
 	return nil

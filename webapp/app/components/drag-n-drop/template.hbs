@@ -1,0 +1,20 @@
+<div class='drag-n-drop-container'>
+  <div class='element-default-state inner-element animation'>
+    <span class='text'>File Upload</span>
+  </div>
+  <div class='element-active-state inner-element animation'>
+    <span class='text'>Drop your file here</span>
+  </div>
+
+  {{#if loadingFile}}
+  <progress class="progress progress-striped progress-animated progress-info progress" value="{{ loadingFile }}" max="100"></progress>
+  {{/if}}
+  <span class='completed-message animation {{ if onCompleteMessage "opacity-1" "opacity-0"}}'>{{ onCompleteMessage }}</span>
+
+</div>
+
+{{#if loadingFile}}
+  <a href="#"
+     class="btn btn-warning btn-sm btn-cancel-upload animation"
+     {{ action 'cancelDownload' }} role="button">Cancel</a>
+{{/if}}

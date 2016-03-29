@@ -157,7 +157,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 
 		String token = this.authenticatedUser.getIdentifier();
 
-		URL myUrl = new URL("http://" + hostname + ":" + port + "/api/apps/connections");
+		URL myUrl = new URL("http://" + hostname + ":" + port + "/api/applications/connections");
 		HttpURLConnection urlConn = (HttpURLConnection)myUrl.openConnection();
 
 		urlConn.setInstanceFollowRedirects(false);
@@ -189,7 +189,7 @@ public class UserContext implements org.glyptodon.guacamole.net.auth.UserContext
 			config.setParameter("port", connection.getJSONObject("attributes").getString("port"));
 			config.setParameter("username", connection.getJSONObject("attributes").getString("username"));
 			config.setParameter("password", connection.getJSONObject("attributes").getString("password"));
-			config.setParameter("security", "nla");
+			// config.setParameter("security", "nla");
 			config.setParameter("ignore-cert", "true");
 			config.setParameter("enable-printing", "true");
 			if (connection.getJSONObject("attributes").has("remote_app")) {

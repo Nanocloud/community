@@ -2,6 +2,7 @@
 packer_cache/
 
 # Ignore build outputs
+modules/iaas/iaas
 nanocloud/nanocloud
 nanocloud/tmp
 
@@ -26,6 +27,8 @@ modules/canva/frontend/async-disk-cache/
 # Ignore Windows Build artifact
 windows/output-windows-2012R2-qemu/
 
-# Ignore backend vendor
-nanocloud/vendor/*
-modules/iaas/vendor/*
+# vendors
+vendor
+
+# Binary files
+*.exe

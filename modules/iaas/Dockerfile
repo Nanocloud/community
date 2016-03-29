@@ -5,7 +5,7 @@ MAINTAINER \
 
 
 RUN apt-get update && \
-    apt-get -y install git qemu-system-x86 sshpass
+    apt-get -y install git qemu-system-x86 genisoimage
 
 RUN mkdir -p /go/build/iaas
 
@@ -15,8 +15,6 @@ WORKDIR /go/src/github.com/Nanocloud/community/modules/iaas
 
 RUN ./install.sh && go build
 
-RUN mkdir -p /var/lib/nanocloud/downloads && mkdir -p /var/lib/nanocloud/images && mkdir -p /var/lib/nanocloud/pid
-COPY ./scripts/ /var/lib/nanocloud/scripts/
-
 EXPOSE 8080
+EXPOSE 9090
 CMD ["./iaas"]

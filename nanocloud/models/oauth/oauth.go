@@ -86,9 +86,8 @@ func (c oauthConnector) GetClient(key string, secret string) (interface{}, error
 		`SELECT id, name,
 		key
 		FROM oauth_clients
-		WHERE key = $1::varchar
-		AND secret = $2::varchar`,
-		key, secret,
+		WHERE key = $1::varchar`,
+		key,
 	)
 	if err != nil {
 		return nil, err

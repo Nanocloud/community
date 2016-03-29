@@ -43,7 +43,7 @@ func (v *vm) Create(name, password string, t vms.MachineType) (vms.Machine, erro
 
 	m := machine{id: name, server: v.server}
 	ip, _ := m.IP()
-	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.Id()+"/download", "", nil)
+	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.Id()+"/download", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return nil, err
@@ -52,7 +52,7 @@ func (v *vm) Create(name, password string, t vms.MachineType) (vms.Machine, erro
 }
 
 func (v *vm) Machines() ([]vms.Machine, error) {
-	resp, err := http.Get("http://" + v.server + ":8080/api/iaas")
+	resp, err := http.Get("http://" + v.server + ":8080/api/vms")
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -65,7 +65,7 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 	type Status struct {
 		Id         string `json:"id"`
 		Type       string `json:"type"`
-		Attributes VmInfo
+		Attributes vmInfo
 	}
 	var State struct {
 		Data []Status `json:"data"`

@@ -23,16 +23,8 @@
 package upload
 
 import (
-	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"sort"
-	"strconv"
-	"strings"
+	"net/url"
 
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
@@ -40,217 +32,54 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-var kUploadDir string
-
-// documentation for flowjs: https://github.com/flowjs/flow.js
-
-func init() {
-	kUploadDir = utils.Env("UPLOAD_DIR", "uploads/")
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Info("Cannot determine program's absolute path")
-		return
-	}
-	kUploadDir = filepath.Join(dir, kUploadDir)
-}
-
-// Get checks a chunk.
-// If it doesn't exist then flowjs tries to upload it via Post.
-func Get(w http.ResponseWriter, r *http.Request) {
-	user, oauthErr := oauth2.GetUser(w, r)
-	if user == nil || oauthErr != nil {
-		http.Error(w, "", http.StatusUnauthorized)
-		return
-	}
-
-	chunkPath := filepath.Join(
-		kUploadDir,
-		user.(*users.User).Id,
-		"incomplete",
-		r.FormValue("flowFilename"),
-		r.FormValue("flowChunkNumber"),
-	)
-	if _, err := os.Stat(chunkPath); err != nil {
-		http.Error(w, "chunk not found", http.StatusSeeOther)
-		return
-	}
-}
-
-// Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
 	rawuser, oauthErr := oauth2.GetUser(w, r)
 	if rawuser == nil || oauthErr != nil {
 		http.Error(w, "", http.StatusUnauthorized)
 		return
 	}
-	user := rawuser.(*users.User)
-	userPath := filepath.Join(kUploadDir, user.Id)
-
-	// get the multipart data
-	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
+	sam := rawuser.(*users.User).Sam
+	winServer := utils.Env("WIN_SERVER", "")
+	var err error
+	request, err := http.NewRequest("POST", "http://"+winServer+":9090/upload?sam="+url.QueryEscape(sam), r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Println("Unable de create request ", err)
 	}
-
-	chunkNum, err := strconv.Atoi(r.FormValue("flowChunkNumber"))
+	request.Header = r.Header
+	client := &http.Client{}
+	resp, err := client.Do(request)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Println("Unable to send request ", err)
 	}
 
-	totalChunks, err := strconv.Atoi(r.FormValue("flowTotalChunks"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	filename := r.FormValue("flowFilename")
-	// module := r.FormValue("module")
-
-	err = writeChunk(filepath.Join(userPath, "incomplete", filename), strconv.Itoa(chunkNum), r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// it's done if it's not the last chunk
-	if chunkNum < totalChunks {
-		return
-	}
-
-	upPath := filepath.Join(userPath, filename)
-
-	// now finish the job
-	err = assembleUpload(userPath, filename)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("unable to assemble the uploaded chunks")
-		return
-	}
-	log.WithFields(log.Fields{
-		"path": upPath,
-	}).Info("file uploaded")
-
-	syncOut, err := syncUploadedFile(upPath, user.Sam, user.WindowsPassword)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"output": syncOut,
-			"error":  err,
-		}).Error("unable to scp the uploaded file to Windows")
-	}
-	log.WithFields(log.Fields{
-		"path":   upPath,
-		"output": syncOut,
-	}).Info("file synced")
+	log.Error(resp)
+	http.Error(w, "", resp.StatusCode)
+	return
 }
 
-func writeChunk(path, chunkNum string, r *http.Request) error {
-	// prepare the chunk folder
-	err := os.MkdirAll(path, 02750)
+func Get(w http.ResponseWriter, r *http.Request) {
+	rawuser, oauthErr := oauth2.GetUser(w, r)
+	if rawuser == nil || oauthErr != nil {
+		http.Error(w, "", http.StatusUnauthorized)
+		return
+	}
+	sam := rawuser.(*users.User).Sam
+
+	winServer := utils.Env("WIN_SERVER", "")
+	var err error
+	request, err := http.NewRequest("GET", "http://"+winServer+":9090/upload?sam="+url.QueryEscape(sam), nil)
 	if err != nil {
-		return err
+		log.Println("Unable de create request ", err)
 	}
-	// write the chunk
-	fileIn, _, err := r.FormFile("file")
+
+	request.Header = r.Header
+	client := &http.Client{}
+	resp, err := client.Do(request)
 	if err != nil {
-		return err
+		log.Println("request error", err)
 	}
-	defer fileIn.Close()
-	fileOut, err := os.Create(filepath.Join(path, chunkNum))
-	if err != nil {
-		return err
+	if resp.StatusCode == http.StatusTeapot {
+		http.Error(w, "", http.StatusSeeOther)
 	}
-	defer fileOut.Close()
-	_, err = io.Copy(fileOut, fileIn)
-	return err
-}
-
-func assembleUpload(path, filename string) error {
-
-	// create final file to write to
-	dst, err := os.Create(filepath.Join(path, filename))
-	if err != nil {
-		return err
-	}
-	defer dst.Close()
-
-	chunkDirPath := filepath.Join(path, "incomplete", filename)
-	fileInfos, err := ioutil.ReadDir(chunkDirPath)
-	if err != nil {
-		return err
-	}
-	sort.Sort(byChunk(fileInfos))
-	for _, fs := range fileInfos {
-		src, err := os.Open(filepath.Join(chunkDirPath, fs.Name()))
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(dst, src)
-		src.Close()
-		if err != nil {
-			return err
-		}
-	}
-	os.RemoveAll(chunkDirPath)
-
-	return nil
-}
-
-func syncUploadedFile(path, sam, pwd string) (string, error) {
-	winPort := utils.Env("WIN_PORT", "")
-	tab := utils.Env("EXECUTION_SERVERS", "")
-	winServer := strings.Split(tab, ";")[0] // TODO: UPLOAD ON THE CORRECT SERVER
-	winDestination := fmt.Sprintf("C:\\Users\\%s\\Desktop\\Nanocloud", sam)
-
-	cmd := exec.Command(
-		"sshpass",
-		"-p", pwd,
-		"ssh",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-o", "StrictHostKeyChecking=no",
-		"-p", winPort,
-		sam+"@"+winServer,
-		fmt.Sprintf("powershell.exe \"New-Item -ErrorAction Ignore -ItemType directory -Path %s\"", winDestination),
-	)
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return string(output), err
-	}
-
-	cmd = exec.Command(
-		"sshpass",
-		"-p", pwd,
-		"scp",
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-o", "StrictHostKeyChecking=no",
-		"-P", winPort,
-		path,
-		sam+"@"+winServer+":"+winDestination,
-	)
-
-	output, err = cmd.CombinedOutput()
-	if err != nil {
-		return string(output), err
-	}
-
-	err = os.Remove(path)
-	if err != nil {
-		log.Error(err)
-	}
-
-	return string(output), nil
-}
-
-type byChunk []os.FileInfo
-
-func (a byChunk) Len() int      { return len(a) }
-func (a byChunk) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a byChunk) Less(i, j int) bool {
-	ai, _ := strconv.Atoi(a[i].Name())
-	aj, _ := strconv.Atoi(a[j].Name())
-	return ai < aj
+	return
 }

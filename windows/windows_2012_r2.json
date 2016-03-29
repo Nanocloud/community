@@ -63,7 +63,6 @@
 			"winrm_timeout": "120m",
 			"boot_wait": "2s",
 			"floppy_files": [
-				"floppy/drivers/virtio-win-0.1-81/WIN7/AMD64/*",
 				"floppy/windows-2012-standard-amd64/Autounattend.xml",
 				"floppy/windows-2012-standard-amd64/configure-winrm.ps1"
 			]
@@ -73,24 +72,8 @@
 		{
 			"type": "powershell",
 			"scripts": [
-				"floppy/windows-2012-standard-amd64/install-openssh.ps1",
-				"floppy/windows-2012-standard-amd64/Disable-WU.ps1",
-				"floppy/windows-2012-standard-amd64/AD-install.ps1",
-				"floppy/windows-2012-standard-amd64/enable-RDP.ps1",
-				"floppy/windows-2012-standard-amd64/RDS-install.ps1"
-
+				"floppy/windows-2012-standard-amd64/install-openssh.ps1"
 			]
-		},
-		{
-			"type": "windows-restart"
-		},
-		{
-			"type": "powershell",
-			"scripts": [
-				"floppy/windows-2012-standard-amd64/AD-create-OU.ps1",
-				"floppy/windows-2012-standard-amd64/adcs-cert.ps1"
-			],
-			"pause_before": "120s"
 		}
 	]
 }

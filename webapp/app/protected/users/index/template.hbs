@@ -1,0 +1,38 @@
+<div class="section">
+  <h4>
+    {{#link-to 'protected.users' }}
+      Users 
+    {{/link-to}}
+  </h4>
+  <div class='content-wrapper'>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each model as |user|}}
+          {{#unless user.isNew}}
+            {{#unless user.isDeleted}}
+              <tr>
+                <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
+                <td>{{user.email}}</td>
+                <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
+              </tr>
+            {{/unless}}
+          {{/unless}}
+        {{/each}}
+      </tbody>
+    </table>
+
+    {{#link-to 'protected.users.new' class='btn btn-primary pull-xs-right'}}Add user{{/link-to}}
+    <div class="clearfix"></div>
+  </div>
+
+</div>
+
+{{ outlet }}

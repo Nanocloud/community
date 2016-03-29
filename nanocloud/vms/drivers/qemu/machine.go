@@ -27,6 +27,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strconv"
 
 	"github.com/Nanocloud/community/nanocloud/vms"
 	log "github.com/Sirupsen/logrus"
@@ -37,7 +38,7 @@ type machine struct {
 	server string
 }
 
-type VmInfo struct {
+type vmInfo struct {
 	Ico         string `json:"ico"`
 	Name        string `json:"-"`
 	DisplayName string `json:"display_name"`
@@ -49,7 +50,7 @@ type VmInfo struct {
 
 func (m *machine) Status() (vms.MachineStatus, error) {
 	ip, _ := m.IP()
-	resp, err := http.Get("http://" + string(ip) + ":8080/api/iaas")
+	resp, err := http.Get("http://" + string(ip) + ":8080/api/vms")
 	if err != nil {
 		log.Error(err)
 		return vms.StatusUnknown, err
@@ -64,7 +65,7 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 		Data []struct {
 			Id         string `json:"id"`
 			Type       string `json:"type"`
-			Attributes VmInfo
+			Attributes vmInfo
 		} `json:"data"`
 	}
 
@@ -80,12 +81,10 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 		case "booting":
 			return vms.StatusBooting, nil
 		case "download":
-			return vms.MachineStatus{Status: 5, CurrentSize: val.Attributes.CurrentSize, TotalSize: val.Attributes.TotalSize}, nil
-			return vms.StatusDownloading, nil
+			return vms.StatusCreating, nil
 		case "available":
 			return vms.StatusDown, nil
 		}
-		return vms.StatusUnknown, nil
 	}
 	return vms.StatusUnknown, nil
 }
@@ -98,9 +97,13 @@ func (m *machine) Type() (vms.MachineType, error) {
 	return defaultType, nil
 }
 
+func (m *machine) Platform() string {
+	return "qemu"
+}
+
 func (m *machine) Start() error {
 	ip, _ := m.IP()
-	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.id+"/start", "", nil)
+	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.id+"/start", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return err
@@ -110,7 +113,7 @@ func (m *machine) Start() error {
 
 func (m *machine) Stop() error {
 	ip, _ := m.IP()
-	resp, err := http.Post("http://"+string(ip)+":8080/api/iaas/"+m.id+"/stop", "", nil)
+	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.id+"/stop", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return err
@@ -128,4 +131,48 @@ func (m *machine) Id() string {
 
 func (m *machine) Name() (string, error) {
 	return "Windows Active Directory", nil
+}
+
+func (m *machine) Progress() (uint8, error) {
+	ip, _ := m.IP()
+	resp, err := http.Get("http://" + string(ip) + ":8080/api/vms")
+	if err != nil {
+		log.Error(err)
+		return 0, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return 0, err
+	}
+
+	var state struct {
+		Data []struct {
+			Id         string `json:"id"`
+			Type       string `json:"type"`
+			Attributes vmInfo
+		} `json:"data"`
+	}
+
+	err = json.Unmarshal(body, &state)
+	if err != nil {
+		log.Error(err)
+		return 0, err
+	}
+	for _, val := range state.Data {
+		if val.Attributes.Status == "download" {
+			currentSize, err := strconv.ParseUint(val.Attributes.CurrentSize, 10, 64)
+			if err != nil {
+				return 0, err
+			}
+
+			totalSize, err := strconv.ParseUint(val.Attributes.TotalSize, 10, 64)
+			if err != nil {
+				return 0, err
+			}
+
+			return uint8(currentSize * 100 / totalSize), nil
+		}
+	}
+	return 100, nil
 }

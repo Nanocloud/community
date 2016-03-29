@@ -1,0 +1,31 @@
+<div class="section">
+  <h4>
+    {{#link-to 'protected.users' }}
+      Users 
+    {{/link-to}} - Create a new user
+ </h4>
+  <div class="content-wrapper form">
+    <form {{action 'add' on='submit'}}>
+      <fieldset class="form-group">
+        {{input class='form-control' placeholder='Firstname' value=model.firstName}}
+      </fieldset>
+      <fieldset class="form-group">
+        {{input class='form-control' placeholder='Lastname' value=model.lastName}}
+      </fieldset>
+      <fieldset class="form-group">
+        {{input class='form-control' placeholder='Email address' value=model.email}}
+      </fieldset>
+      <fieldset class="form-group">
+        {{input class='form-control' placeholder='Password' type='password' value=model.password}}
+      </fieldset>
+      <fieldset class="form-group">
+        {{input class='form-control' placeholder='Password confirmation' type='password' value=passwordConfirmation}}
+      </fieldset>
+      <button type="submit" class="btn btn-primary btn-block text-uppercase">Create</button>
+    </form>
+
+    {{#if errorMessage}}
+      <p>{{errorMessage}}</p>
+    {{/if}}
+  </div>
+</div>

@@ -81,7 +81,6 @@ If you are ready to wait 30 minutes to build a new image,you will need some pack
 
 * *packer*
 * *qemu*
-* *sshpass*
 * *netcat*
 
 Then run :

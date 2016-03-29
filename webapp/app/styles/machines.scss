@@ -1,0 +1,72 @@
+.machines-wrapper {
+}
+
+.machine {
+  display: inline-block;
+  position: relative;
+  padding: 20px 45px 20px 45px;
+  margin: 0px 10px 10px 0px;
+  border: 1px solid #DAE6EF;
+  border-radius: 2px;
+
+  &:hover {
+    cursor: pointer;
+
+    > .title {
+      text-decoration: underline;
+    }
+  }
+}
+
+.state-color {
+
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  position: absolute;
+  right: 15px;
+  top: 21px;
+
+  &.unknown {
+    background-color: #F45835;
+  }
+
+  &.down {
+    background-color: #CDCDCD;
+  }
+
+  &.up {
+    background-color: #2CC24E;
+  }
+
+  &.terminated {
+    background-color: #525252;
+  }
+
+  &.booting {
+    background-color: #F4B835;
+  }
+
+  &.downloading {
+    background-color: #8EDAFB;
+  }
+}
+
+.machine-status {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  margin-right: 20px;
+  left: 14px;
+  top: 20px;
+  position: absolute;
+
+  > .title {
+    padding-left: 30px;
+  }
+}
+
+.content-wrapper.form {
+  max-width: 350px;
+}

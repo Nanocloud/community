@@ -26,6 +26,15 @@ import (
 	"github.com/Nanocloud/community/nanocloud/vms"
 )
 
+const (
+	StatusUnknown    = vms.StatusUnknown
+	StatusDown       = vms.StatusDown
+	StatusUp         = vms.StatusUp
+	StatusTerminated = vms.StatusTerminated
+	StatusBooting    = vms.StatusBooting
+	StatusCreating   = vms.StatusCreating
+)
+
 var vm *vms.VM
 
 func SetVM(v *vms.VM) {

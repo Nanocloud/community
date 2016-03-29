@@ -100,9 +100,7 @@ func Delete(c *echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
+		"meta": hash{},
 	})
 }
 
@@ -129,14 +127,14 @@ func Disable(userId string) (int, error) {
 }
 
 func Update(c *echo.Context) error {
-	var attr map[string]map[string]interface{}
+	var attr hash
 
 	err := utils.ParseJSONBody(c, &attr)
 	if err != nil {
 		return nil
 	}
 
-	data, ok := attr["data"]
+	data, ok := attr["data"].(map[string]interface{})
 	if ok == false {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
@@ -158,50 +156,40 @@ func Update(c *echo.Context) error {
 		})
 	}
 
-	activated, ok := attributes["activated"]
-	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "activated field is missing",
-				},
-			},
-		})
-	}
-
-	if activated != false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "activated field must be false",
-				},
-			},
-		})
-	}
-
-	code, err := Disable(c.Param("id"))
-	if err != nil {
-		return c.JSON(code, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		})
-	}
-
 	user, err := users.GetUser(c.Param("id"))
-	if user == nil {
-		return c.JSON(http.StatusOK, hash{
-			"data": hash{
-				"success": true,
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Could not find user",
+				},
 			},
 		})
 	}
 
+	password, ok := attributes["password"].(string)
+	if ok == false || password == "" {
+		return c.JSON(http.StatusBadRequest, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "password is missing",
+				},
+			},
+		})
+	}
+
+	error := users.UpdateUserPassword(user.Id, password)
+	if error != nil {
+		return c.JSON(http.StatusInternalServerError, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Cannot set new password",
+				},
+			},
+		})
+	}
 	return c.JSON(http.StatusOK, hash{
 		"data": hash{
-			"success":    true,
 			"id":         user.Id,
 			"type":       "user",
 			"attributes": user,
@@ -210,6 +198,27 @@ func Update(c *echo.Context) error {
 }
 
 func Get(c *echo.Context) error {
+	user := c.Get("user").(*users.User)
+	if c.Query("me") == "true" {
+		return c.JSON(http.StatusOK, hash{
+			"data": hash{
+				"id":         user.Id,
+				"type":       "user",
+				"attributes": user,
+			},
+		})
+	}
+
+	if !user.IsAdmin {
+		return c.JSON(http.StatusUnauthorized, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Unauthorized",
+				},
+			},
+		})
+	}
+
 	users, err := users.FindUsers()
 	if err != nil {
 		return errors.New(
@@ -270,23 +279,23 @@ func Post(c *echo.Context) error {
 		})
 	}
 
-	firstName, ok := attributes["first_name"].(string)
+	firstName, ok := attributes["first-name"].(string)
 	if ok == false || firstName == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "first_name is missing",
+					"detail": "first-name is missing",
 				},
 			},
 		})
 	}
 
-	lastName, ok := attributes["last_name"].(string)
+	lastName, ok := attributes["last-name"].(string)
 	if ok == false || lastName == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "last_name is missing",
+					"detail": "last-name is missing",
 				},
 			},
 		})
@@ -337,7 +346,9 @@ func Post(c *echo.Context) error {
 
 	return c.JSON(http.StatusCreated, hash{
 		"data": hash{
-			"id": newUser.Id,
+			"id":         newUser.Id,
+			"type":       "user",
+			"attributes": newUser,
 		},
 	})
 }

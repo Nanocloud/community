@@ -34,14 +34,12 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
-	"github.com/Nanocloud/community/nanocloud/routes/iaas"
 	"github.com/Nanocloud/community/nanocloud/routes/logout"
-	"github.com/Nanocloud/community/nanocloud/routes/me"
+	"github.com/Nanocloud/community/nanocloud/routes/machines"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/tokens"
 	"github.com/Nanocloud/community/nanocloud/routes/upload"
 	"github.com/Nanocloud/community/nanocloud/routes/users"
-	"github.com/Nanocloud/community/nanocloud/routes/version"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	"github.com/Nanocloud/community/nanocloud/vms"
 	_ "github.com/Nanocloud/community/nanocloud/vms/drivers/manual"
@@ -66,9 +64,12 @@ func initVms() error {
 		m["PLAZA_LOCATION"] = os.Getenv("PLAZA_LOCATION")
 		m["STORAGE_DIR"] = os.Getenv("STORAGE_DIR")
 
-	default:
-		m["servers"] = os.Getenv("EXECUTION_SERVERS")
+	case "qemu":
 		m["ad"] = os.Getenv("WIN_SERVER")
+
+	case "manual":
+		m["ad"] = os.Getenv("WIN_SERVER")
+		m["servers"] = os.Getenv("EXECUTION_SERVERS")
 		m["sshport"] = os.Getenv("SSH_PORT")
 		m["password"] = os.Getenv("WIN_PASSWORD")
 		m["user"] = os.Getenv("WIN_USER")
@@ -88,6 +89,9 @@ func main() {
 		log.Error(err)
 		return
 	}
+	p := echo.New()
+	p.Post("/app", apps.AddApplication)
+	go p.Run(":8181")
 
 	err = initVms()
 	if err != nil {
@@ -108,12 +112,11 @@ func main() {
 	/**
 	 * APPS
 	 */
-	e.Get("/api/apps", m.OAuth2(m.Admin(apps.ListApplications)))
-	e.Delete("/api/apps/:app_id", m.OAuth2(m.Admin(apps.UnpublishApplication)))
-	e.Get("/api/apps/me", m.OAuth2(apps.ListUserApps))
-	e.Post("/api/apps", m.OAuth2(m.Admin(apps.PublishApplication)))
-	e.Get("/api/apps/connections", m.OAuth2(apps.GetConnections))
-	e.Patch("/api/apps/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
+	e.Get("/api/applications", m.OAuth2(apps.ListApplications))
+	e.Delete("/api/applications/:app_id", m.OAuth2(m.Admin(apps.UnpublishApplication)))
+	e.Post("/api/applications", m.OAuth2(m.Admin(apps.PublishApplication)))
+	e.Get("/api/applications/connections", m.OAuth2(apps.GetConnections))
+	e.Patch("/api/applications/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
 
 	go appsModel.CheckPublishedApps()
 
@@ -127,35 +130,26 @@ func main() {
 	 * USERS
 	 */
 	e.Patch("/api/users/:id", m.OAuth2(m.Admin(users.Update)))
-	e.Get("/api/users", m.OAuth2(m.Admin(users.Get)))
+	e.Get("/api/users", m.OAuth2(users.Get))
 	e.Post("/api/users", m.OAuth2(m.Admin(users.Post)))
 	e.Delete("/api/users/:id", m.OAuth2(m.Admin(users.Delete)))
 	e.Put("/api/users/:id", m.OAuth2(m.Admin(users.UpdatePassword)))
-	e.Get("/api/users/:id", m.OAuth2(m.Admin(users.GetUser)))
+	e.Get("/api/users/:id", m.OAuth2(users.GetUser))
 
 	/**
-	 * IAAS
+	 * MACHINES
 	 */
-	e.Get("/api/iaas", m.OAuth2(m.Admin(iaas.ListRunningVM)))
-	e.Post("/api/iaas/:id/stop", m.OAuth2(m.Admin(iaas.StopVM)))
-	e.Post("/api/iaas/:id/start", m.OAuth2(m.Admin(iaas.StartVM)))
-	e.Post("/api/iaas/:id/download", m.OAuth2(m.Admin(iaas.CreateVM)))
+	e.Get("/api/machines", m.OAuth2(m.Admin(machines.Machines)))
+	e.Get("/api/machines/:id", m.OAuth2(m.Admin(machines.GetMachine)))
+	e.Patch("/api/machines/:id", m.OAuth2(m.Admin(machines.PatchMachine)))
+	e.Post("/api/machines", m.OAuth2(m.Admin(machines.CreateMachine)))
+	e.Delete("/api/machines/:id", m.OAuth2(m.Admin(machines.DeleteMachine)))
 
 	/**
 	 * FRONT
 	 */
 	e.Static("/canva/", front.StaticCanvaDirectory)
 	e.Static("/", front.StaticDirectory)
-
-	/**
-	 * ME
-	 */
-	e.Get("/api/me", m.OAuth2(me.Get))
-
-	/**
-	 * VERSION
-	 */
-	e.Get("/api/version", version.Get)
 
 	/**
 	 * OAUTH

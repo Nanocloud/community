@@ -1,0 +1,28 @@
+
+.icon-col,
+.applications-icon {
+  width: 30px;
+}
+
+.application-table {
+  cursor: pointer;
+  color: $blue-default;
+
+  & .link:hover{
+    text-decoration: underline;
+  }
+
+  & td .icon i {
+    position: relative;
+    top: 6px;
+  }
+}
+
+.drag-drop-wrapper {
+  margin-bottom: 20px;
+}
+
+.application-table {
+  margin-top: 20px;
+}
+
