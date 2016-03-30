@@ -1,0 +1,105 @@
+html, body {
+	width: 100%;
+	height: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: lighter;
+}
+
+h1 {
+  margin-bottom: 40px;
+}
+
+a, a:hover, a:active {
+  text-decoration: none;
+}
+
+.ember-application > .ember-view {
+  width: 100%;
+  height: 100%;
+}
+
+.main-navbar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: calc(100% - 250px);
+  z-index: 1;
+}
+
+@media (max-width: 991px) {
+  .main-navbar {
+    width: 100%;
+  }
+}
+
+.section {
+  position: relative;
+	background: $gray-lightest;
+  padding: 20px 20px 20px 20px;
+}
+
+.content-wrapper {
+  margin: 20px 0px 20px 0px;
+}
+
+.loading-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transition-enabled {
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+
+.transition-enabled-1{
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+
+.transition-enabled-2 {
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-1 {
+  opacity: 1;
+}
+
+.icon_link {
+  color: $blue-default;
+  &:hover {
+    color: darken($blue-default, 20%);
+  }
+}
+
+.close_icon {
+  color: $red;
+  &:hover {
+    color: darken($red, 20%);
+  }
+}
+
+.edit-input-text {
+  border: 0;
+  outline: 0;
+}
+
+.va-top {
+  vertical-align: top;
+}
