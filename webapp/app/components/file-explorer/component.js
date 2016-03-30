@@ -4,9 +4,6 @@ export default Ember.Component.extend({
   isVisible: false,
   session: Ember.inject.service('session'),
   store: Ember.inject.service('store'),
-  selectedFile: null,
-  history: [ "C:\\" ],
-  history_offset: 0,
 
   files: Ember.computed(function() {
     return (this.get('model'));
@@ -18,6 +15,7 @@ export default Ember.Component.extend({
 
   initialize: function() {
 
+    this.reset();
     this.loadDirectory();
    
   }.on('becameVisible'),
@@ -82,6 +80,12 @@ export default Ember.Component.extend({
       path += data[i] + "\\";
     }
     return (path);
+  },
+
+  reset: function() {
+    this.set('history', [ "C:\\" ]);
+    this.set('history_offset', 0);
+    this.set('selectedFile', null);
   },
 
   actions: {
