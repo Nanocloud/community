@@ -37,6 +37,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/logout"
 	"github.com/Nanocloud/community/nanocloud/routes/machines"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
+	"github.com/Nanocloud/community/nanocloud/routes/sessions"
 	"github.com/Nanocloud/community/nanocloud/routes/tokens"
 	"github.com/Nanocloud/community/nanocloud/routes/upload"
 	"github.com/Nanocloud/community/nanocloud/routes/users"
@@ -119,6 +120,13 @@ func main() {
 	e.Patch("/api/applications/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
 
 	go appsModel.CheckPublishedApps()
+
+	/**
+	 * SESSIONS
+	 */
+
+	e.Get("/api/sessions", m.OAuth2(sessions.List))
+	e.Delete("/api/sessions", m.OAuth2(sessions.Logoff))
 
 	/**
 	 * HISTORY
