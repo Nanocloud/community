@@ -51,7 +51,7 @@ export default Ember.Component.extend({
   },
 
   goNext: function() {
-    if (this.get('history').offset > this.get('history').data.length) return;
+    if ((this.get('history').offset+1) >= this.get('history').data.length) return;
     this.get('history').offset = this.get('history').offset + 1;
     this.loadDirectory();
   },

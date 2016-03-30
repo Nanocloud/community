@@ -6,8 +6,6 @@
     </div>
     <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
     <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
-    {{#file-explorer isVisible=showFileExplorer }}
-    {{/file-explorer}}
     <table class="table application-table">
       <tbody>
         {{#each model as |application|}}
@@ -27,3 +25,5 @@
   {{remote-session connectionName=connectionName}}
 {{/single-tab}}
 
+{{#file-explorer isVisible=showFileExplorer }}
+{{/file-explorer}}
