@@ -37,10 +37,17 @@
     }
   }
 
-  .publish-btn {
+  .file-explorer-footer {
+    bottom: 0px;
     position: absolute;
-    bottom: 6px;
-    left: 20px;
+    width: 100%;
+    padding: 10px 0px 10px 0px;
+
+    .info {
+      position: relative;
+      top: 2px;
+      left: 10px;
+    }
   }
 
   .file-list-wrapper {
