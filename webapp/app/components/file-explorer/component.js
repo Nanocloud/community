@@ -32,7 +32,7 @@ export default Ember.Component.extend({
     this.goToDirectory(dir);
   },
 
-  loadDirectory: function() {
+  loadDirectory() {
     var path = this.pathToString();
     this.get('store').query('file', { filename: path }) 
       .then(function(response) {
@@ -40,7 +40,7 @@ export default Ember.Component.extend({
       }.bind(this));
   },
 
-  goToDirectory: function(folder) {
+  goToDirectory(folder) {
 
     // removing from current
     var offset = this.get('history_offset');
@@ -50,19 +50,19 @@ export default Ember.Component.extend({
     this.loadDirectory();
   },
 
-  goBack: function() {
+  goBack() {
     if (this.get('history_offset') <= 0) return;
     this.decrementProperty('history_offset');
     this.loadDirectory();
   },
 
-  goNext: function() {
+  goNext() {
     if ((this.get('history_offset')+1) >= this.get('history').length) return;
     this.incrementProperty('history_offset');
     this.loadDirectory();
   },
 
-  pathToArray: function() {
+  pathToArray() {
     var data = this.get('history');
     var offset = this.get('history_offset');
     var path = [];
@@ -72,7 +72,7 @@ export default Ember.Component.extend({
     return (path);
   },
     
-  pathToString: function() {
+  pathToString() {
     var data = this.get('history');
     var offset = this.get('history_offset');
     var path = "";
@@ -82,7 +82,25 @@ export default Ember.Component.extend({
     return (path);
   },
 
-  reset: function() {
+  publishSelectedFile() {
+
+    let m = this.get('store').createRecord('application', {
+      path: this.fullPath()
+    });
+
+    m.save()
+      .then((app) => {
+        console.log('done mofo');
+        console.log(app);
+        //this.transitionToRoute('protected.machines.machine', machine);
+      });
+  },
+
+  fullPath() {
+    return (this.pathToString() + this.get('selectedFile').id);
+  },
+
+  reset() {
     this.set('history', [ "C:\\" ]);
     this.set('history_offset', 0);
     this.set('selectedFile', null);
@@ -106,6 +124,10 @@ export default Ember.Component.extend({
       }
 
       this.selectFile(item);
+    },
+
+    clickPublish() {
+      this.publishSelectedFile();
     },
 
     clickNextBtn() {

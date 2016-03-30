@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"strings"
 
+	"fmt"
 	"github.com/Nanocloud/community/nanocloud/models/apps"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -193,6 +194,7 @@ func PublishApplication(c *echo.Context) error {
 		return nil
 	}
 
+	fmt.Printf("%+v\n", params)
 	trimmedpath := strings.TrimSpace(params.Data.Attributes.Path)
 	if trimmedpath == "" {
 		return c.JSON(http.StatusBadRequest, hash{

@@ -18,7 +18,7 @@
         {{/each}}
       </div>
       <div class='file-explorer-footer'>
-        <button type="button" class="publish-btn btn {{ if selectedFile 'btn-primary' 'btn-secondary-outline disabled' }}">Publish it!</button>
+        <button {{ action "clickPublish" }} type="button" class="publish-btn btn {{ if selectedFile 'btn-primary' 'btn-secondary-outline disabled' }}">Publish it!</button>
         <span class='info'>
         {{#if selectedFile}}
           Selected file : {{ selectedFile.id }}
