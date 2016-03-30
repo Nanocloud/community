@@ -202,8 +202,6 @@ func Get(c *echo.Context) error {
 	path := c.Query("path")
 
 	filename := c.Query("filename")
-	log.Info("tut")
-	log.Info(filename)
 	if len(filename) == 0 {
 		return c.JSON(
 			http.StatusBadRequest,
@@ -252,7 +250,6 @@ func Get(c *echo.Context) error {
 		)
 	*/
 
-	log.Info(path)
 	resp, err := http.Get("http://" + kExecutionServer + ":9090/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {
 		log.Error(err)
