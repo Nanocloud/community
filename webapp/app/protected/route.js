@@ -15,7 +15,8 @@ export default Ember.Route.extend({
     this.set('session.access_token', this.get('session.data.authenticated.access_token'));
 
     return this.store.queryRecord('user', { me: true })
-    .catch(() => {
+    .catch((err) => {
+      Ember.Logger.error(err);
       this._invalidateSession();
     });
   },
