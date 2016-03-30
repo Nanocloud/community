@@ -13,7 +13,6 @@ export default Ember.Component.extend({
   }),
 
   historyData: Ember.computed('history_offset', function() {
-    console.log('recalculate');
     return (this.pathToArray());
   }),
 
@@ -24,7 +23,10 @@ export default Ember.Component.extend({
   }.on('becameVisible'),
 
   selectFile(file) {
-    this.set('selectedFile', file);
+    if (this.get('selectedFile') != file)
+      this.set('selectedFile', file);
+    else
+      this.set('selectedFile', null);
   },
 
   selectDir(dir) {
@@ -85,7 +87,6 @@ export default Ember.Component.extend({
   actions: {
 
     moveOffset(offset) {
-      console.log('moving offset');
       this.set('history_offset', offset);
       this.loadDirectory();
     },
