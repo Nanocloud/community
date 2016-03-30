@@ -261,6 +261,27 @@ func CheckPublishedApps() {
 	}
 }
 
+func getCredentials() (string, string) {
+	rows, err := db.Query(
+		`SELECT sam, windows_password
+		FROM users
+		WHERE is_admin = $1::boolean`,
+		true)
+	if err != nil {
+		return "", ""
+	}
+	var name string
+	var pwd string
+	defer rows.Close()
+	if rows.Next() {
+		err = rows.Scan(&name, &pwd)
+		if err != nil {
+			return "", ""
+		}
+	}
+	return name, pwd
+}
+
 // ========================================================================================================================
 // Procedure: unpublishApplication
 //
@@ -292,6 +313,12 @@ func UnpublishApp(Alias string) error {
 	log.Error(alias)
 
 	req, err := http.NewRequest("DELETE", "http://"+kServer+":9090/apps/"+alias, nil)
+	username, pwd := getCredentials()
+	if username == "" || pwd == "" {
+		log.Error("Unable to retrieve admin credentials")
+		return UnpublishFailed
+	}
+	req.SetBasicAuth(username, pwd)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
