@@ -331,7 +331,7 @@ func PublishApp(path string) error {
 	return nil
 }
 
-func RetrieveConnections(user *users.User, users *[]users.User) ([]Connection, error) {
+func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, error) {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 	var connections []Connection

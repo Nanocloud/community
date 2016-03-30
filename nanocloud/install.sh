@@ -55,6 +55,8 @@ clone github.com/satori/go.uuid e673fdd4dea8a7334adbbe7f57b7e4b00bdc5502
 clone github.com/labstack/gommon c7a42f4800da9d39225ce15411f48288d622e517
 clone github.com/mattn/go-colorable 9cbef7c35391cca05f15f8181dc0b18bc9736dbb
 clone github.com/mattn/go-isatty 56b76bdf51f7708750eac80fa38b952bb9f32639
+clone github.com/gedex/inflector 8c0e57904488c554ab26caec525db5c92b23f051
+clone github.com/manyminds/api2go 0f0aba686fffe91897ee4b7e1d682efbfcbac7fd
 clone golang.org/x/crypto de93d05161db39bcbd84d3da2e54c4a18f37f0b1 https://go.googlesource.com/crypto
 clone golang.org/x/net e7da8edaa52631091740908acaf2c2d4c9b3ce90 https://go.googlesource.com/net
 clone gopkg.in/asn1-ber.v1 4e86f4367175e39f69d9358a5f17b4dda270378d https://gopkg.in/asn1-ber.v1
