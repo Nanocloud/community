@@ -6,11 +6,14 @@ import (
 	"net/http"
 	"os/exec"
 
+	"github.com/Nanocloud/community/plaza/utils"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
+
+const domain = "intra.localdomain.com"
 
 type ApplicationParams struct {
 	Id             int    `json:"-"`
@@ -76,11 +79,8 @@ func PublishApp(c *echo.Context) error {
 
 func UnpublishApp(c *echo.Context) error {
 	id := c.Param("id")
-	cmd := exec.Command("powershell.exe", "Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+id+"' -CollectionName collection -Force")
-	resp, err := cmd.CombinedOutput()
-	if err != nil {
-		return reterr(err, string(resp), c)
-	}
+	username, pwd, _ := c.Request().BasicAuth()
+	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+id+"' -CollectionName collection -Force", username, pwd, domain)
 	return retok(c)
 }
 
