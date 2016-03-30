@@ -5,10 +5,16 @@ export default Ember.Component.extend({
   session: Ember.inject.service('session'),
   store: Ember.inject.service('store'),
   selectedFile: null,
-  history: { data: [ "C:\\" ], offset:0 },
+  history: [ "C:\\" ],
+  history_offset: 0,
 
   files: Ember.computed(function() {
     return (this.get('model'));
+  }),
+
+  historyData: Ember.computed('history_offset', function() {
+    console.log('recalculate');
+    return (this.pathToArray());
   }),
 
   initialize: function() {
@@ -22,7 +28,7 @@ export default Ember.Component.extend({
   },
 
   selectDir(dir) {
-    this.get('history').offset = this.get('history').offset + 1;
+    this.incrementProperty('history_offset');
     this.goToDirectory(dir);
   },
 
@@ -37,36 +43,53 @@ export default Ember.Component.extend({
   goToDirectory: function(folder) {
 
     // removing from current
-    var offset = this.get('history').offset;
-    this.get('history').data.splice(offset, this.get('history').data.length - offset);
+    var offset = this.get('history_offset');
+    this.get('history').splice(offset, this.get('history').length - offset);
 
-    this.get('history').data.pushObject(folder);
+    this.get('history').pushObject(folder);
     this.loadDirectory();
   },
 
   goBack: function() {
-    if (this.get('history').offset <= 0) return;
-    this.get('history').offset = this.get('history').offset - 1;
+    if (this.get('history_offset') <= 0) return;
+    this.decrementProperty('history_offset');
     this.loadDirectory();
   },
 
   goNext: function() {
-    if ((this.get('history').offset+1) >= this.get('history').data.length) return;
-    this.get('history').offset = this.get('history').offset + 1;
+    if ((this.get('history_offset')+1) >= this.get('history').length) return;
+    this.incrementProperty('history_offset');
     this.loadDirectory();
+  },
+
+  pathToArray: function() {
+    var data = this.get('history');
+    var offset = this.get('history_offset');
+    var path = [];
+    for (var i = 0; i <= offset; i++) {
+      path.pushObject(data[i]);
+    }
+    return (path);
   },
     
   pathToString: function() {
-    var history = this.get('history');
-    var data = history.data;
+    var data = this.get('history');
+    var offset = this.get('history_offset');
     var path = "";
-    for (var i = 0; i <= history.offset; i++) {
+    for (var i = 0; i <= offset; i++) {
       path += data[i] + "\\";
     }
     return (path);
   },
 
   actions: {
+
+    moveOffset(offset) {
+      console.log('moving offset');
+      this.set('history_offset', offset);
+      this.loadDirectory();
+    },
+
     toggleFileExplorer() {
       this.toggleProperty('isVisible');
     },
