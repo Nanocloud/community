@@ -19,6 +19,7 @@ export default Ember.Controller.extend({
       this.set('passwordConfirmation', "");
       this.set('errorMessage', null);
     },
+
     changePassword: function() {
       if (this.get('model.password') !== this.get('passwordConfirmation')) {
         this.set('errorMessage', "Password must match");

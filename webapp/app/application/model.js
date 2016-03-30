@@ -6,4 +6,5 @@ export default DS.Model.extend({
   displayName: DS.attr('string'),
   filePath: DS.attr('string'),
   iconContent: DS.attr('string'),
+  path: DS.attr('string')
 });

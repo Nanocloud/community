@@ -33,6 +33,7 @@ import (
 	"strings"
 	"time"
 
+	"fmt"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -343,6 +344,9 @@ func PublishApp(path string) error {
 		log.Error(err)
 		return PublishFailed
 	}
+	log.Info("here")
+	log.Info(path)
+	fmt.Printf("%+v\n", bytes.NewBuffer(p))
 	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", bytes.NewBuffer(p))
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
