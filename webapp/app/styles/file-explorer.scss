@@ -22,6 +22,10 @@
 
   .filePath {
     display: inline-block; 
+
+    a {
+      cursor: pointer;
+    }
   }
 
   .navigation-btn {
