@@ -1,0 +1,62 @@
+
+.file-explorer-wrapper {
+  position: fixed;
+  width: 60%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.file-explorer {
+  width: 100%;
+  height: inherit;
+  position: relative;
+  margin: auto;
+  z-index: 1;
+
+  .section {
+    height: 100%;
+    margin-top: 0;
+  }
+
+  .filePath {
+    display: inline-block; 
+  }
+
+  .navigation-btn {
+    cursor: pointer;
+    color: $blue-default;
+
+    &:hover {
+      color: darken($blue-default, 20%);
+    }
+  }
+
+  .file-list-wrapper {
+    overflow: auto;
+    height: 100%;
+    cursor: pointer;
+
+    > .item {
+      padding: 4px 10px 4px 5px;
+
+      &:hover {
+        color: $blue-default;
+        background-color: $gray-lighter;
+        text-decoration: underline;
+      }
+
+      &.selected {
+        background-color: $blue-default;
+        color: $white;
+      }
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .file-explorer-wrapper {
+    width: 100%;
+  }
+}
