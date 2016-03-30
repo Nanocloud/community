@@ -3,8 +3,10 @@
   <div class='file-explorer'>
     <div class='section content-wrapper'>
       <h4>{{ file-path data=historyData class="filePath" clickOnPath=(action 'moveOffset') }}</h4>
-        <i {{ action "clickPrevBtn" }} class="navigation-btn material-icons">navigate_before</i>
-        <i {{ action "clickNextBtn" }} class="navigation-btn material-icons">navigate_next</i>
+        <div class='navigation'>
+          <i {{ action "clickPrevBtn" }} class="navigation-btn material-icons">navigate_before</i>
+          <i {{ action "clickNextBtn" }} class="navigation-btn material-icons">navigate_next</i>
+        </div>
         <div class='file-list-wrapper'>
         {{#each items as |item|}}
           <div {{ action "clickItem" item }} class="item {{ if (is-equal selectedFile item) 'selected' }}">
@@ -15,6 +17,7 @@
           No files.
         {{/each}}
       </div>
+      <button type="button" class="publish-btn btn {{ if selectedFile 'btn-primary-outline' 'btn-secondary-outline disabled' }}">Publish it!</button>
     </div>
   </div>
 </div>
