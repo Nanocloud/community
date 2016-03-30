@@ -10,3 +10,7 @@ type User struct {
 	Sam             string `json:"sam"`
 	WindowsPassword string `json:"windows_password"`
 }
+
+func (u *User) GetID() string {
+	return u.Id
+}

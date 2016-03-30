@@ -188,25 +188,14 @@ func Update(c *echo.Context) error {
 			},
 		})
 	}
-	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"id":         user.Id,
-			"type":       "user",
-			"attributes": user,
-		},
-	})
+
+	return utils.JSON(c, http.StatusOK, user)
 }
 
 func Get(c *echo.Context) error {
 	user := c.Get("user").(*users.User)
 	if c.Query("me") == "true" {
-		return c.JSON(http.StatusOK, hash{
-			"data": hash{
-				"id":         user.Id,
-				"type":       "user",
-				"attributes": user,
-			},
-		})
+		return utils.JSON(c, http.StatusOK, user)
 	}
 
 	if !user.IsAdmin {
@@ -226,16 +215,7 @@ func Get(c *echo.Context) error {
 		)
 	}
 
-	var response = make([]hash, len(*users))
-	for i, val := range *users {
-		res := hash{
-			"id":         val.Id,
-			"type":       "user",
-			"attributes": val,
-		}
-		response[i] = res
-	}
-	return c.JSON(http.StatusOK, hash{"data": response})
+	return utils.JSON(c, http.StatusOK, users)
 }
 
 func Post(c *echo.Context) error {
@@ -432,11 +412,5 @@ func GetUser(c *echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"id":         user.Id,
-			"type":       "user",
-			"attributes": user,
-		},
-	})
+	return utils.JSON(c, http.StatusOK, user)
 }

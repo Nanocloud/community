@@ -27,7 +27,7 @@ import (
 
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -84,7 +84,7 @@ func GetUserFromEmailPassword(email, password string) (*User, error) {
 	return &user, nil
 }
 
-func FindUsers() (*[]User, error) {
+func FindUsers() ([]*User, error) {
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
@@ -96,7 +96,7 @@ func FindUsers() (*[]User, error) {
 		return nil, err
 	}
 
-	var users []User
+	var users []*User
 
 	defer rows.Close()
 	for rows.Next() {
@@ -111,7 +111,7 @@ func FindUsers() (*[]User, error) {
 			&user.Sam,
 			&user.WindowsPassword,
 		)
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
 	err = rows.Err()
@@ -119,7 +119,7 @@ func FindUsers() (*[]User, error) {
 		return nil, err
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 func UserExists(id string) (bool, error) {
