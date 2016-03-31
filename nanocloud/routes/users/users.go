@@ -24,9 +24,9 @@ package users
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
+	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	"github.com/Nanocloud/community/nanocloud/models/ldap"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -147,46 +147,23 @@ func Update(c *echo.Context) error {
 
 	attributes, ok := data["attributes"].(map[string]interface{})
 	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "attributes is missing",
-				},
-			},
-		})
+		return apiErrors.InvalidRequest.Detail("The attribute field is missing.")
 	}
 
 	user, err := users.GetUser(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "Could not find user",
-				},
-			},
-		})
+		return apiErrors.UserNotFound
 	}
 
 	password, ok := attributes["password"].(string)
 	if ok == false || password == "" {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "password is missing",
-				},
-			},
-		})
+		return apiErrors.InvalidRequest.Detail("The password field is missing.")
 	}
 
-	error := users.UpdateUserPassword(user.Id, password)
-	if error != nil {
-		return c.JSON(http.StatusInternalServerError, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "Cannot set new password",
-				},
-			},
-		})
+	err = users.UpdateUserPassword(user.Id, password)
+	if err != nil {
+		log.Error(err)
+		return apiErrors.InternalError.Detail("Unable to update the password.")
 	}
 
 	return utils.JSON(c, http.StatusOK, user)
@@ -199,20 +176,13 @@ func Get(c *echo.Context) error {
 	}
 
 	if !user.IsAdmin {
-		return c.JSON(http.StatusUnauthorized, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "Unauthorized",
-				},
-			},
-		})
+		return apiErrors.AdminLevelRequired
 	}
 
 	users, err := users.FindUsers()
 	if err != nil {
-		return errors.New(
-			fmt.Sprintf("unable to get user lists: %s", err.Error()),
-		)
+		log.Error(err)
+		return apiErrors.InternalError.Detail("Unable to retreive the user list.")
 	}
 
 	return utils.JSON(c, http.StatusOK, users)
@@ -228,13 +198,7 @@ func Post(c *echo.Context) error {
 
 	data, ok := attr["data"].(map[string]interface{})
 	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "data is missing",
-				},
-			},
-		})
+		return apiErrors.InvalidRequest.Detail("The data field is missing")
 	}
 
 	attributes, ok := data["attributes"].(map[string]interface{})
