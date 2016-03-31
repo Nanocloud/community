@@ -34,7 +34,7 @@ export default Ember.Component.extend({
 
   loadDirectory() {
     var path = this.pathToString();
-    this.get('store').query('file', { filename: path }) 
+    this.get('store').query('file', { filename: path })
       .then(function(response) {
         this.set('items', response);
       }.bind(this));
@@ -85,14 +85,15 @@ export default Ember.Component.extend({
   publishSelectedFile() {
 
     let m = this.get('store').createRecord('application', {
+      alias: null,
+      displayName: this.get('selectedFile').id, 
+      collectionName: "collection",
       path: this.fullPath()
     });
 
     m.save()
       .then((app) => {
-        console.log('done mofo');
-        console.log(app);
-        //this.transitionToRoute('protected.machines.machine', machine);
+        this.toggleFileExplorer();
       });
   },
 
@@ -101,7 +102,7 @@ export default Ember.Component.extend({
   },
 
   reset() {
-    this.set('history', [ "C:\\" ]);
+    this.set('history', [ "C:" ]);
     this.set('history_offset', 0);
     this.set('selectedFile', null);
   },

@@ -26,9 +26,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
-	"fmt"
 	"github.com/Nanocloud/community/nanocloud/models/apps"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -181,31 +179,7 @@ func AddApplication(c *echo.Context) error {
 }
 
 func PublishApplication(c *echo.Context) error {
-	var params struct {
-		Data struct {
-			Attributes struct {
-				Path string `json:"path"`
-			}
-		}
-	}
-
-	err := utils.ParseJSONBody(c, &params)
-	if err != nil {
-		return nil
-	}
-
-	fmt.Printf("%+v\n", params)
-	trimmedpath := strings.TrimSpace(params.Data.Attributes.Path)
-	if trimmedpath == "" {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "App path is empty",
-				},
-			},
-		})
-	}
-	err = apps.PublishApp(trimmedpath)
+	err := apps.PublishApp(c.Request().Body)
 	if err == apps.PublishFailed {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{
@@ -217,9 +191,7 @@ func PublishApplication(c *echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
+		"meta": hash{},
 	})
 }
 

@@ -23,9 +23,9 @@
 package apps
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -33,7 +33,6 @@ import (
 	"strings"
 	"time"
 
-	"fmt"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -338,16 +337,14 @@ func UnpublishApp(Alias string) error {
 	return nil
 }
 
-func PublishApp(path string) error {
-	p, err := json.Marshal(path)
-	if err != nil {
-		log.Error(err)
+func PublishApp(body io.Reader) error {
+	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", body)
+	username, pwd := getCredentials()
+	if username == "" || pwd == "" {
+		log.Error("Unable to retrieve admin credentials")
 		return PublishFailed
 	}
-	log.Info("here")
-	log.Info(path)
-	fmt.Printf("%+v\n", bytes.NewBuffer(p))
-	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", bytes.NewBuffer(p))
+	req.SetBasicAuth(username, pwd)
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err := client.Do(req)
