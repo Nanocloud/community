@@ -4,7 +4,7 @@ export default Ember.Controller.extend({
   session: Ember.inject.service('session'),
 
   actions: {
-    authenticate: function() {
+    authenticate() {
       let { identification, password } = this.getProperties('identification', 'password');
 
       this.get('session')
@@ -12,13 +12,7 @@ export default Ember.Controller.extend({
         'authenticator:oauth2',
         identification,
         password
-      )
-      .then(() => {
-        this.transitionToRoute('protected.index');
-      })
-      .catch((reason) => {
-        this.set('errorMessage', reason.error || reason);
-      });
+      );
     }
   }
 });

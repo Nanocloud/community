@@ -1,9 +1,9 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  beforeModel() {
+  redirect() {
     if (this.get('session.isAuthenticated')) {
-      this.transitionTo('/');
+      this.transitionTo('protected.index');
     }
   }
 });
