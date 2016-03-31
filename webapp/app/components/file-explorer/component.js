@@ -84,16 +84,17 @@ export default Ember.Component.extend({
 
   publishSelectedFile() {
 
+    let name = this.get('selectedFile').id.replace(/\.[^/.]+$/, "");
     let m = this.get('store').createRecord('application', {
-      alias: null,
-      displayName: this.get('selectedFile').id, 
+      alias: name,
+      displayName: name, 
       collectionName: "collection",
       path: this.fullPath()
     });
 
     m.save()
       .then((app) => {
-        this.toggleFileExplorer();
+        this.toggleProperty('isVisible');
       });
   },
 
