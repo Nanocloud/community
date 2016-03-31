@@ -103,22 +103,22 @@ func GetUser(res http.ResponseWriter, req *http.Request) (interface{}, *OAuthErr
 		return user, nil
 	}
 
-	return nil, &OAuthError{403, ACCESS_DENIED, "Invalid access token"}
+	return nil, &OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Invalid access token"}
 }
 
 func GetAuthorizationHeaderValue(req *http.Request, authType string) (string, *OAuthError) {
 	rawHeader := req.Header.Get("Authorization")
 	if len(rawHeader) < 1 {
-		return "", &OAuthError{403, INVALID_REQUEST, "Authorization header is missing"}
+		return "", &OAuthError{http.StatusUnauthorized, INVALID_REQUEST, "Authorization header is missing"}
 	}
 
 	splt := strings.SplitN(rawHeader, " ", 2)
 	if len(splt) != 2 {
-		return "", &OAuthError{403, INVALID_REQUEST, "Invalid Authorization header"}
+		return "", &OAuthError{http.StatusUnauthorized, INVALID_REQUEST, "Invalid Authorization header"}
 	}
 
 	if splt[0] != authType {
-		return "", &OAuthError{403, INVALID_REQUEST, "Invalid authorization type"}
+		return "", &OAuthError{http.StatusUnauthorized, INVALID_REQUEST, "Invalid authorization type"}
 	}
 
 	token := splt[1]
@@ -136,13 +136,13 @@ func clientBasicAuth(req *http.Request) (interface{}, *OAuthError) {
 	bToken, fail := base64.StdEncoding.DecodeString(rawAuthToken)
 	if fail != nil {
 		log.Warn("[Oauth] Unable to parse base64 auth basic string: " + rawAuthToken)
-		return nil, &OAuthError{403, INVALID_REQUEST, "Invalid Authorization header"}
+		return nil, &OAuthError{http.StatusUnauthorized, INVALID_REQUEST, "Invalid Authorization header"}
 	}
 
 	token := string(bToken)
 	splt := strings.SplitN(token, ":", 2)
 	if len(splt) != 2 {
-		return nil, &OAuthError{403, INVALID_REQUEST, "Invalid Authorization header"}
+		return nil, &OAuthError{http.StatusUnauthorized, INVALID_REQUEST, "Invalid Authorization header"}
 	}
 
 	clientKey := splt[0]
@@ -183,72 +183,71 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 		}
 
 		if client == nil {
-			oauthErrorReply(res, OAuthError{401, INVALID_CLIENT, "Invalid OAuth Client Credentials"})
+			oauthErrorReply(res, OAuthError{http.StatusUnauthorized, INVALID_CLIENT, "Invalid OAuth Client Credentials"})
 			return
 		}
 
-		error := req.ParseForm();
+		error := req.ParseForm()
 
 		if error != nil {
-			oauthErrorReply(res, OAuthError{401, INVALID_REQUEST, "Unable to parse the request body"})
+			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Unable to parse the request body"})
 			return
 		}
 
 		// grant_type
 		grantType := req.FormValue("grant_type")
 		if grantType == "" {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "grant_type is missing"})
+			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "grant_type is missing"})
 			return
 		}
 
 		if grantType != "password" {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "Invalid grant_type"})
+			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Invalid grant_type"})
 			return
 		}
 
 		// username
 		username := req.FormValue("username")
 		if username == "" {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "username is missing"})
+			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "username is missing"})
 			return
 		}
 
 		// password
 		password := req.FormValue("password")
 		if password == "" {
-			oauthErrorReply(res, OAuthError{400, INVALID_REQUEST, "password is missing"})
+			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "password is missing"})
 			return
 		}
-
 
 		user, fail := kConnector.AuthenticateUser(username, password)
 
 		if fail != nil {
 			if fail.Error() == "invalid credentials" || fail.Error() == "user not found" {
-				oauthErrorReply(res, OAuthError{401, ACCESS_DENIED, "Invalid User Credentials"})
+				oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Invalid User Credentials"})
 				return
 			}
 			log.Error("[OAuth] Cannot Authenticate User: " + fail.Error())
-			oauthErrorReply(res, OAuthError{400, SERVER_ERROR, "Internal Server Error"})
+			oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
 			return
 		}
 
 		accessToken, fail := kConnector.GetAccessToken(user, client, req)
 		if fail != nil {
 			log.Error("[OAuth] Cannot Get Access Token: " + fail.Error())
-			oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
+			oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
 			return
 		}
 
 		if accessToken == nil {
-			oauthErrorReply(res, OAuthError{401, ACCESS_DENIED, "Access token request denied for the given client"})
+			oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Access token request denied for the given client"})
 			return
 		}
 
 		rt, fail := json.Marshal(accessToken)
 		if fail != nil {
 			log.Error("[OAuth] Unable to serialize access token: " + fail.Error())
-			oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
+			oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
 			return
 		}
 
@@ -258,7 +257,7 @@ func HandleRequest(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	oauthErrorReply(res, OAuthError{404, INVALID_REQUEST, "Invalid Endpoint"})
+	oauthErrorReply(res, OAuthError{http.StatusNotFound, INVALID_REQUEST, "Invalid Endpoint"})
 }
 
 type dummyConnector struct{}
