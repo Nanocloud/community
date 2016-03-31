@@ -32,7 +32,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/community/nanocloud/utils"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 type oauthConnector struct{}
@@ -159,6 +159,23 @@ func (c oauthConnector) GetAccessToken(rawUser, rawClient interface{}, req *http
 		ExpiresIn: 60 * 60 * 24,
 	}
 	return accessToken, nil
+}
+
+func (c oauthConnector) RevokeAccessToken(rawClient interface{}, rawUser interface{}, accessToken string) error {
+	user := rawUser.(*users.User)
+	client := rawClient.(*Client)
+
+	_, err := db.Exec(
+		`DELETE FROM oauth_access_tokens
+		WHERE user_id = $1::varchar
+		AND token = $2::varchar
+		AND oauth_client_id = $3::integer`,
+		user.Id, accessToken, client.Id,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func init() {

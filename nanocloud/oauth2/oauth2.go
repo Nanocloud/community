@@ -28,6 +28,7 @@ type Connector interface {
 	GetUserFromAccessToken(accessToken string) (interface{}, error)
 	AuthenticateUser(username, password string) (interface{}, error)
 	GetAccessToken(interface{}, interface{}, *http.Request) (interface{}, error)
+	RevokeAccessToken(interface{}, interface{}, string) error
 }
 
 var kConnector Connector
@@ -170,91 +171,162 @@ func oauthErrorReply(res http.ResponseWriter, oauthErr OAuthError) error {
 	return nil
 }
 
+func revokeToken(res http.ResponseWriter, req *http.Request) {
+	fail := req.ParseForm()
+	if fail != nil {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Unable to parse the request body"})
+		return
+	}
+
+	client, err := clientBasicAuth(req)
+	if err != nil {
+		oauthErrorReply(res, *err)
+		return
+	}
+
+	if client == nil {
+		oauthErrorReply(res, OAuthError{http.StatusUnauthorized, INVALID_CLIENT, "Invalid OAuth Client Credentials"})
+		return
+	}
+
+	// token_type_hint
+	tokenTypeHint := req.FormValue("token_type_hint")
+	if tokenTypeHint == "" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "token_type_hint is missing"})
+		return
+	}
+
+	if tokenTypeHint != "access_token" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "unsupported token type"})
+		return
+	}
+
+	// access_token
+	accessToken := req.FormValue("token")
+	if accessToken == "" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "token is missing"})
+		return
+	}
+
+	user, fail := kConnector.GetUserFromAccessToken(accessToken)
+	if fail != nil {
+		log.Error("[OAuth] Cannot retreive user form access token: " + fail.Error())
+		oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
+		return
+	}
+
+	if user != nil {
+		fail := kConnector.RevokeAccessToken(client, user, accessToken)
+		if fail != nil {
+			log.Error("[OAuth] Cannot revoke access token: " + fail.Error())
+			oauthErrorReply(res, OAuthError{500, SERVER_ERROR, "Internal Server Error"})
+			return
+		}
+
+		res.WriteHeader(http.StatusOK)
+		return
+	}
+
+	oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Invalid access token"})
+	return
+}
+
+func createToken(res http.ResponseWriter, req *http.Request) {
+	client, err := clientBasicAuth(req)
+	if err != nil {
+		oauthErrorReply(res, *err)
+		return
+	}
+
+	if client == nil {
+		oauthErrorReply(res, OAuthError{http.StatusUnauthorized, INVALID_CLIENT, "Invalid OAuth Client Credentials"})
+		return
+	}
+
+	fail := req.ParseForm()
+
+	if fail != nil {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Unable to parse the request body"})
+		return
+	}
+
+	// grant_type
+	grantType := req.FormValue("grant_type")
+	if grantType == "" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "grant_type is missing"})
+		return
+	}
+
+	if grantType != "password" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Invalid grant_type"})
+		return
+	}
+
+	// username
+	username := req.FormValue("username")
+	if username == "" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "username is missing"})
+		return
+	}
+
+	// password
+	password := req.FormValue("password")
+	if password == "" {
+		oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "password is missing"})
+		return
+	}
+
+	user, fail := kConnector.AuthenticateUser(username, password)
+
+	if fail != nil {
+		if fail.Error() == "invalid credentials" || fail.Error() == "user not found" {
+			oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Invalid User Credentials"})
+			return
+		}
+		log.Error("[OAuth] Cannot Authenticate User: " + fail.Error())
+		oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
+		return
+	}
+
+	accessToken, fail := kConnector.GetAccessToken(user, client, req)
+	if fail != nil {
+		log.Error("[OAuth] Cannot Get Access Token: " + fail.Error())
+		oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
+		return
+	}
+
+	if accessToken == nil {
+		oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Access token request denied for the given client"})
+		return
+	}
+
+	rt, fail := json.Marshal(accessToken)
+	if fail != nil {
+		log.Error("[OAuth] Unable to serialize access token: " + fail.Error())
+		oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
+		return
+	}
+
+	res.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	res.Write(rt)
+
+	return
+}
+
 func HandleRequest(res http.ResponseWriter, req *http.Request) {
 	res.Header().Add("Cache-Control", "no-store")
 	res.Header().Add("Pragma", "no-cache")
 
-	if req.Method == "POST" && req.URL.Path == "/oauth/token" {
-
-		client, err := clientBasicAuth(req)
-		if err != nil {
-			oauthErrorReply(res, *err)
+	if req.Method == "POST" {
+		if req.URL.Path == "/oauth/revoke" {
+			revokeToken(res, req)
 			return
 		}
 
-		if client == nil {
-			oauthErrorReply(res, OAuthError{http.StatusUnauthorized, INVALID_CLIENT, "Invalid OAuth Client Credentials"})
+		if req.URL.Path == "/oauth/token" {
+			createToken(res, req)
 			return
 		}
-
-		error := req.ParseForm()
-
-		if error != nil {
-			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Unable to parse the request body"})
-			return
-		}
-
-		// grant_type
-		grantType := req.FormValue("grant_type")
-		if grantType == "" {
-			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "grant_type is missing"})
-			return
-		}
-
-		if grantType != "password" {
-			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "Invalid grant_type"})
-			return
-		}
-
-		// username
-		username := req.FormValue("username")
-		if username == "" {
-			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "username is missing"})
-			return
-		}
-
-		// password
-		password := req.FormValue("password")
-		if password == "" {
-			oauthErrorReply(res, OAuthError{http.StatusBadRequest, INVALID_REQUEST, "password is missing"})
-			return
-		}
-
-		user, fail := kConnector.AuthenticateUser(username, password)
-
-		if fail != nil {
-			if fail.Error() == "invalid credentials" || fail.Error() == "user not found" {
-				oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Invalid User Credentials"})
-				return
-			}
-			log.Error("[OAuth] Cannot Authenticate User: " + fail.Error())
-			oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
-			return
-		}
-
-		accessToken, fail := kConnector.GetAccessToken(user, client, req)
-		if fail != nil {
-			log.Error("[OAuth] Cannot Get Access Token: " + fail.Error())
-			oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
-			return
-		}
-
-		if accessToken == nil {
-			oauthErrorReply(res, OAuthError{http.StatusUnauthorized, ACCESS_DENIED, "Access token request denied for the given client"})
-			return
-		}
-
-		rt, fail := json.Marshal(accessToken)
-		if fail != nil {
-			log.Error("[OAuth] Unable to serialize access token: " + fail.Error())
-			oauthErrorReply(res, OAuthError{http.StatusInternalServerError, SERVER_ERROR, "Internal Server Error"})
-			return
-		}
-
-		res.Header().Set("Content-Type", "application/json;charset=UTF-8")
-		res.Write(rt)
-
-		return
 	}
 
 	oauthErrorReply(res, OAuthError{http.StatusNotFound, INVALID_REQUEST, "Invalid Endpoint"})
@@ -276,6 +348,10 @@ func (c dummyConnector) AuthenticateUser(username, password string) (interface{}
 
 func (c dummyConnector) GetAccessToken(user, client interface{}, req *http.Request) (interface{}, error) {
 	return nil, errors.New("GetAccessToken is not implemented")
+}
+
+func (c dummyConnector) RevokeAccessToken(client, user interface{}, accessToken string) error {
+	return errors.New("RevokeAccessToken is not implemented")
 }
 
 func init() {
