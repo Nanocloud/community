@@ -61,19 +61,29 @@ func retok(c *echo.Context) error {
 func PublishApp(c *echo.Context) error {
 	body, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return reterr(err, "", c)
 	}
-	var p map[string]string
-	err = json.Unmarshal(body, &p)
+	var all struct {
+		Data struct {
+			Attributes struct {
+				Alias          string `json:"alias"`
+				CollectionName string `json:"collection-name"`
+				DisplayName    string `json:"display-name"`
+				FilePath       string `json:"file-path"`
+				Path           string `json:"path"`
+			}
+			Type string `json:"type"`
+		} `json:"data"`
+	}
+	err = json.Unmarshal(body, &all)
 	if err != nil {
+		log.Error(err)
 		return reterr(err, "", c)
 	}
-	cmd := exec.Command("powershell.exe", "import-module remotedesktop; New-RDRemoteApp -CollectionName "+p["collection"]+" -DisplayName "+p["displayname"]+" -FilePath "+p["path"])
-	resp, err := cmd.CombinedOutput()
-	if err != nil {
-		return reterr(err, string(resp), c)
-	}
+
+	username, pwd, _ := c.Request().BasicAuth()
+	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe  import-module remotedesktop; New-RDRemoteApp -CollectionName "+all.Data.Attributes.CollectionName+" -DisplayName "+all.Data.Attributes.DisplayName+" -FilePath "+all.Data.Attributes.Path, username, pwd, domain)
 	return retok(c)
 }
 
