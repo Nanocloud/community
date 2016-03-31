@@ -33,13 +33,13 @@ module.exports = function(admin) {
       properties: {
         email: {type: 'string'},
         activated: {type: 'boolean'},
-        is_admin: {type: 'boolean'},
-        first_name: {type: 'string'},
-        last_name: {type: 'string'},
+        'is-admin': {type: 'boolean'},
+        'first-name': {type: 'string'},
+        'last-name': {type: 'string'},
         sam: {type: 'string'},
         'windows-password': {type: 'string'},
       },
-      required: ['email', 'first_name', 'activated', 'is_admin', 'first_name', 'last_name', 'sam', 'windows_password'],
+      required: ['email', 'first-name', 'activated', 'is-admin', 'first-name', 'last-name', 'sam', 'windows-password'],
       additionalProperties: false
     };
 
