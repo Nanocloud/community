@@ -35,3 +35,4 @@ var admin = nano.login({
 
 require('./test-login')();
 require('./test-users')(admin);
+require('./test-sessions')(admin);
