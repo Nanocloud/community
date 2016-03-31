@@ -34,6 +34,9 @@ func Get(c *echo.Context) error {
 		log.Error("Error while unmarshaling query response: ", err)
 	}
 	response := formatResponse(tab, c.Param("id"))
+	if len(response) == 0 {
+		response = make([][]string, 0)
+	}
 	return c.JSON(
 		http.StatusOK,
 		hash{
