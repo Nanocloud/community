@@ -44,13 +44,6 @@ services:
   networks:
    - nanocloud
 
- nanocloud-canva:
-  container_name: "nanocloud-canva"
-  volumes:
-   - /opt/canva
-  networks:
-   - nanocloud
-
  nanocloud-frontend:
   container_name: "nanocloud-webapp"
   volumes:
