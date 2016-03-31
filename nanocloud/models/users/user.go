@@ -8,7 +8,7 @@ type User struct {
 	FirstName       string `json:"first-name"`
 	LastName        string `json:"last-name"`
 	Sam             string `json:"sam"`
-	WindowsPassword string `json:"windows_password"`
+	WindowsPassword string `json:"windows-password"`
 }
 
 func (u *User) GetID() string {

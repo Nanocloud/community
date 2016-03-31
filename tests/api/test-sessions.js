@@ -24,15 +24,18 @@
 var nano = require('./nanotest');
 var expect = nano.expect;
 
-describe("nanocloud is Online", function() {
-  var request = nano.get('').shouldReturn(200);
-})
+module.exports = function(admin) {
 
-var admin = nano.login({
-  username: nano.ADMIN_USERNAME,
-  password: nano.ADMIN_PASSWORD
-});
+  describe("List sessions with no sessions", function() {
 
-require('./test-login')();
-require('./test-users')(admin);
-require('./test-sessions')(admin);
+
+    var request = nano.as(admin).get("api/sessions")
+    .shouldReturn(200)
+    .shouldBeJSONAPI();
+
+    it("shoud be an empty array", function() {
+      return expect(request.response.data.data).to.be.empty;
+    });
+
+  });
+};

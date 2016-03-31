@@ -32,9 +32,10 @@ module.exports = function() {
       type: 'object',
       properties: {
         access_token: {type: 'string'},
-        type: {'type': 'string'}
+        token_type: {'type': 'string'},
+				expires_in: {type: 'integer'}
       },
-      required: ['access_token', 'type'],
+      required: ['access_token', 'token_type', 'expires_in'],
       additionalProperties: false
     };
 
@@ -44,15 +45,14 @@ module.exports = function() {
       grant_type: 'password'
     }, {
       headers: {
-        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
       }
     }).shouldReturn(200)
         .shouldBeJSON()
         .shouldComplyToNotJsonAPI(expectedSchema);
 
     it('should issue Bearer tokens', function() {
-      expect(request.response.data.type).to.equal('Bearer')
+      expect(request.response.data.token_type).to.equal('Bearer')
     })
   });
 
@@ -74,8 +74,7 @@ module.exports = function() {
       grant_type: 'password'
     }, {
       headers: {
-        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
       }
     }).shouldReturn(401)
         .shouldBeJSON()
@@ -98,7 +97,6 @@ module.exports = function() {
     }, {
       headers: {
         Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
       }
     }).shouldReturn(400)
         .shouldBeJSON()

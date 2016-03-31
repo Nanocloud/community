@@ -71,7 +71,14 @@ var nano = {
 
       // Get pure javascript object out of response Buffer
       if (request.headers['content-type'].split(';').indexOf('application/json') != -1) {
-        request.data = JSON.parse(request.data.toString());
+        if (typeof request.data === 'string') {
+          request.data = JSON.parse(request.data);
+        } else if (typeof request.data === 'object') {
+          request.data = JSON.parse(request.data.toString());
+          if (typeof request.data !== 'object') {
+          request.data = JSON.parse(request.data);
+          }
+        }
       }
 
       return request;
@@ -106,7 +113,9 @@ var nano = {
           expect(this.response.headers).to.have.property('content-type');
 
           var values = this.response.headers['content-type'].split(';');
-          expect(values).to.include('application/json')
+          expect(values).to.satisfy(function(type) {
+           return (type.indexOf('application/json') != -1 || type.indexOf('application/vnd.api+json') != -1);
+          });
         }.bind(this));
 
         return this;
@@ -122,9 +131,6 @@ var nano = {
             valid = false;
         }
 
-        if (valid && !validator.isValid(this.response.data)) {
-          valid = false;
-        }
 
         it("should comply to JSON API schema", function() {
           expect(valid).to.equal(true);
@@ -180,8 +186,7 @@ var nano = {
         grant_type: "password"
       },
       headers: {
-        Authorization: 'Basic ' + new Buffer(this.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
+        Authorization: 'Basic ' + new Buffer(this.CLIENTID).toString('base64')
       }
     })
 
