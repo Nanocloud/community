@@ -125,16 +125,12 @@ var nano = {
         var validator = new JSONAPIValidator();
         var valid = true;
 
-        var tmp = this.response.data;
         try {
-          validator.validate(tmp);
+          validator.validate(this.response.data);
         } catch (e) {
             valid = false;
         }
 
-/*        if (valid && !validator.isValid(this.response.data)) {
-          valid = false;
-        }*/
 
         it("should comply to JSON API schema", function() {
           expect(valid).to.equal(true);
