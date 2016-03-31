@@ -37,7 +37,7 @@ module.exports = function(admin) {
         first_name: {type: 'string'},
         last_name: {type: 'string'},
         sam: {type: 'string'},
-        windows_password: {type: 'string'},
+        'windows-password': {type: 'string'},
       },
       required: ['email', 'first_name', 'activated', 'is_admin', 'first_name', 'last_name', 'sam', 'windows_password'],
       additionalProperties: false
@@ -52,11 +52,11 @@ module.exports = function(admin) {
       return expect(request).to.comprise.of.json({
         email: 'admin@nanocloud.com',
         activated: true,
-        is_admin: true,
-        first_name: "John",
-        last_name: "Doe",
+        "is-admin": true,
+        "first-name": "Admin",
+        "last-name": "Nanocloud",
         sam: "Administrator",
-        windows_password: "Nanocloud123+"
+        "windows-password": "Nanocloud123+"
       });
     })
   })
@@ -68,8 +68,8 @@ module.exports = function(admin) {
       "data" : {
         "type": "user",
         "attributes": {
-          "first_name": nano.USER_FIRSTNAME,
-          "last_name": nano.USER_LASTNAME,
+          "first-name": nano.USER_FIRSTNAME,
+          "last-name": nano.USER_LASTNAME,
           "email": nano.USER_EMAIL,
           "password": nano.USER_PASSWORD
         }
