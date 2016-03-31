@@ -190,8 +190,7 @@ var nano = {
         grant_type: "password"
       },
       headers: {
-        Authorization: 'Basic ' + new Buffer(this.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
+        Authorization: 'Basic ' + new Buffer(this.CLIENTID).toString('base64')
       }
     })
 

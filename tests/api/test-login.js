@@ -74,8 +74,7 @@ module.exports = function() {
       grant_type: 'password'
     }, {
       headers: {
-        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
       }
     }).shouldReturn(401)
         .shouldBeJSON()
@@ -98,7 +97,6 @@ module.exports = function() {
     }, {
       headers: {
         Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
       }
     }).shouldReturn(400)
         .shouldBeJSON()
