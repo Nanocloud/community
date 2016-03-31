@@ -4,10 +4,6 @@
 }
 
 .logout-dropdown {
-  cursor: pointer;
-  background-color: $white;
-  padding: 5px 10px 5px 10px;
-
   &:hover{
     background-color: $gray-lighter;
   }
@@ -19,14 +15,16 @@
     box-shadow: none;
     right: 0px;
     border: 0;
-    background-color: $blue-default;
+    padding: 0;
 
-    &:hover {
-      background-color: $blue-light;
-    }
-
-    > li a {
+    > li button {
+      padding: 5px 0;
+      background-color: $blue-default;
       color: $white;
+
+      &:hover {
+        background-color: $blue-light;
+      }
     }
   }
 }
