@@ -14,10 +14,17 @@ module.exports = function(environment) {
     },
 
     APP: {
+      name: 'Nanocloud Community'
+
       // Here you can pass flags/options to your application instance
       // when it is created
     },
-    GUACAMOLE_URL: "/guacamole/"
+    GUACAMOLE_URL: "/guacamole/",
+
+
+    'ember-simple-auth': {
+      routeAfterAuthentication: 'protected.index'
+    }
   };
 
   if (environment === 'development') {

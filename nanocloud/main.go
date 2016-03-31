@@ -27,6 +27,7 @@ import (
 	"os"
 
 	vmsConn "github.com/Nanocloud/community/nanocloud/connectors/vms"
+	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	m "github.com/Nanocloud/community/nanocloud/middlewares"
 	"github.com/Nanocloud/community/nanocloud/migration"
 	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
@@ -103,6 +104,8 @@ func main() {
 	e.SetLogLevel(logger.DEBUG)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	e.SetHTTPErrorHandler(apiErrors.Handler)
 
 	/**
 	 * LOGOUT

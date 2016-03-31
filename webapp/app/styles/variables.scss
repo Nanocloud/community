@@ -27,11 +27,11 @@
 // Grayscale and brand colors for use across Bootstrap.
 
 
-$blue-lighter: #f1faff;
-$blue-light: #57A9E0;
-$blue-default: #47A0DD;
-$white: #fff;
-$red: #FF0000;
+$blue-lighter: #f1faff !default;
+$blue-light: #57A9E0 !default;
+$blue-default: #47A0DD !default;
+$white: #fff !default;
+$red: #FF0000 !default;
 
 $gray-dark:                 #9B9B9B !default;
 $gray:                      #55595c !default;
@@ -39,7 +39,7 @@ $gray-light:                #818a91 !default;
 $gray-lighter:              #eef4f9 !default;
 $gray-lightest:             #ffffff !default;
 
-$brand-primary:             #47A0DD !default;
+$brand-primary:             $blue-default !default;
 $brand-success:             #5cb85c !default;
 $brand-info:                #5bc0de !default;
 $brand-warning:             #f0ad4e !default;
