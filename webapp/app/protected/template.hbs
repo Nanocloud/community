@@ -65,11 +65,12 @@
       <ul class="nav navbar-nav pull-xs-right">
         <li class="nav-item">
           <div class="dropdown logout-dropdown">
-            <span class="dropdown-toggle" data-toggle="dropdown">{{session.user.firstName}} {{session.user.lastName}}
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+              {{session.user.firstName}} {{session.user.lastName}}
               <span class="caret"></span>
-            </span>
+            </button>
             <ul class="dropdown-menu">
-              <li><a href="#">Logout</a></li>
+              <li><button class="dropdown-item" type="button" {{ action "logout" }}>Logout</button></li>
             </ul>
           </div>
         </li>

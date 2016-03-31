@@ -7,6 +7,10 @@ export default Ember.Controller.extend({
   actions: {
     toggleSidebar() {
       this.toggleProperty('showSidebar');
+    },
+
+    logout() {
+      this.get('session').invalidate();
     }
   }
 });
