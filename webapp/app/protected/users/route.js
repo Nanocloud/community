@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  model: function() {
-    return this.store.findAll('user');
+  model() {
+    return this.store.findAll('user', { reload: true });
   }
 });
