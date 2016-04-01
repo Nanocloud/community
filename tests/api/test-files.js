@@ -24,28 +24,24 @@
 var nano = require('./nanotest');
 var expect = nano.expect;
 
-describe("nanocloud is Online", function() {
-  var request = nano.get('').shouldReturn(200);
-});
+module.exports = function(admin) {
 
-var admin = nano.login({
-  username: nano.ADMIN_USERNAME,
-  password: nano.ADMIN_PASSWORD
-});
+  describe("List files", function() {
 
-describe("Windows should be up", function() {
-  var request = nano.as(admin).get('api/machines')
-      .shouldReturn(200)
-      .shouldBeJSONAPI();
+    var pathToBeTested = "C:\\";
+    var expectedSchema = {
+      type: 'object',
+      properties: {
+        mod_time: 'number',
+        size: 'number',
+        type: 'string',
+      },
+      required: ['mod_time', 'size', 'type'],
+    };
 
-  it('Should have one Windows up', function() {
-    expect(request.response.data.data).to.exist;
-    expect(request.response.data.data).to.have.lengthOf(1);
-    expect(request.response.data.data[0].attributes.status).to.equal('up');
+    var request = nano.as(admin).get("api/files", { filename : pathToBeTested })
+        .shouldReturn(200)
+        .shouldBeJSONAPI()
+        .shouldComplyTo(expectedSchema);
   });
-});
-
-require('./test-login')();
-require('./test-users')(admin);
-require('./test-sessions')(admin);
-require('./test-files')(admin);
+}
