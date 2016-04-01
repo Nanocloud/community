@@ -16,6 +16,7 @@
         <i class="material-icons">clear</i>
       </span>
     {{else}}
+      <span class='link' >{{application.id}}</span>
       <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
       <span class="icon icon_link" {{ action "toggleEditName" application }}>
         <i class="material-icons">editmode</i>

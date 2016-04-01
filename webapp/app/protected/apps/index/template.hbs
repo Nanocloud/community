@@ -12,7 +12,10 @@
       <tbody>
         {{#each model as |application|}}
           {{#unless application.isDeleted}}
+            {{#unless application.isNew}}
+
             {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+            {{/unless}}
           {{/unless}}
         {{else}}
           No applications available.
@@ -27,5 +30,5 @@
   {{remote-session connectionName=connectionName}}
 {{/single-tab}}
 
-{{#file-explorer isVisible=showFileExplorer}}
+{{#file-explorer isVisible=showFileExplorer publishDone="updateModel"}}
 {{/file-explorer}}

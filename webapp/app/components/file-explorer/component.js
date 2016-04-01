@@ -23,11 +23,12 @@ export default Ember.Component.extend({
   }.on('becameVisible'),
 
   selectFile(file) {
-    if (this.get('selectedFile') != file) {
+    if (this.get('selectedFile') !== file) {
       this.set('selectedFile', file);
     }
-    else
+    else {
       this.set('selectedFile', null);
+    }
   },
 
   selectDir(dir) {
@@ -54,13 +55,17 @@ export default Ember.Component.extend({
   },
 
   goBack() {
-    if (this.get('history_offset') <= 0) return;
+    if (this.get('history_offset') <= 0) {
+      return;
+    }
     this.decrementProperty('history_offset');
     this.loadDirectory();
   },
 
   goNext() {
-    if ((this.get('history_offset')+1) >= this.get('history').length) return;
+    if ((this.get('history_offset')+1) >= this.get('history').length) {
+      return;
+    }
     this.incrementProperty('history_offset');
     this.loadDirectory();
   },
@@ -88,6 +93,39 @@ export default Ember.Component.extend({
   publishSelectedFile() {
 
     let name = this.get('selectedFile').id.replace(/\.[^/.]+$/, "");
+
+    /*
+    Ember.$.ajax({
+      url: "/api/application",
+      type: "POST",
+      data: {
+        dataType: 'json',
+        data: {
+          attributes: {
+            alias: name,
+            'display-name': name, 
+            'collection-name': "collection",
+            'icon-content': null,
+            path: this.fullPath()
+          },
+          type: "applications"
+        }
+      },
+      success: function(data) {
+        this.set('isPublishing', false);
+        this.toggleProperty('isVisible');
+        this.toast.success("Your application has been published successfully");
+        this.sendAction('publishDone');
+      },
+      error: function() {
+        this.set('isPublishing', false);
+        this.set('publishError', true);
+        this.set('selectedFile', null);
+        this.toast.error(error.errors[0].status + " : " + error.errors[0].title);
+      }
+    })
+    */
+
     let m = this.get('store').createRecord('application', {
       alias: name,
       displayName: name, 
@@ -97,10 +135,11 @@ export default Ember.Component.extend({
 
     this.set('isPublishing', true);
     m.save()
-      .then((app) => {
+      .then(() => {
         this.set('isPublishing', false);
         this.toggleProperty('isVisible');
         this.toast.success("Your application has been published successfully");
+        this.sendAction('publishDone');
       }, (error) => {
         this.set('isPublishing', false);
         this.set('publishError', true);
@@ -131,7 +170,7 @@ export default Ember.Component.extend({
     },
 
     clickItem(item) {
-      if (item.get('type') == 'directory') {
+      if (item.get('type') === 'directory') {
         this.selectDir(item.id);
         return;
       }
