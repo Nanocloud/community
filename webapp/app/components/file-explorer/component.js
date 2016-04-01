@@ -4,6 +4,8 @@ export default Ember.Component.extend({
   isVisible: false,
   session: Ember.inject.service('session'),
   store: Ember.inject.service('store'),
+  isPublishing: false,
+  publishError: false,
 
   files: Ember.computed(function() {
     return (this.get('model'));
@@ -21,8 +23,9 @@ export default Ember.Component.extend({
   }.on('becameVisible'),
 
   selectFile(file) {
-    if (this.get('selectedFile') != file)
+    if (this.get('selectedFile') != file) {
       this.set('selectedFile', file);
+    }
     else
       this.set('selectedFile', null);
   },
@@ -92,9 +95,17 @@ export default Ember.Component.extend({
       path: this.fullPath()
     });
 
+    this.set('isPublishing', true);
     m.save()
       .then((app) => {
+        this.set('isPublishing', false);
         this.toggleProperty('isVisible');
+        this.toast.success("Your application has been published successfully");
+      }, (error) => {
+        this.set('isPublishing', false);
+        this.set('publishError', true);
+        this.set('selectedFile', null);
+        this.toast.error(error.errors[0].status + " : " + error.errors[0].title);
       });
   },
 
