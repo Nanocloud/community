@@ -8,6 +8,7 @@
     "bootstrap": "v4.0.0-alpha.2",
     "material-design-icons": "2.2.1",
     "flow.js": "^2.10.1",
-    "toastr": "^2.1.2"
+    "toastr": "^2.1.2",
+    "font-awesome": "~4.5.0"
   }
 }
