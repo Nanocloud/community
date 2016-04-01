@@ -92,8 +92,8 @@ var nano = {
 
         return this;
       },
-      get: function(url) {
-        this.response = makeRequest('GET', url);
+      get: function(url, data) {
+        this.response = makeRequest('GET', url, data || null);
 
         return this;
       },
