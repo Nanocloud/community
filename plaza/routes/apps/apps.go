@@ -2,9 +2,12 @@ package apps
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/Nanocloud/community/plaza/utils"
 	log "github.com/Sirupsen/logrus"
@@ -58,6 +61,30 @@ func retok(c *echo.Context) error {
 	)
 }
 
+func checkIfPublishSucceeded(c *echo.Context, displayname string) error {
+	for i := 0; i < 5; i++ {
+		cmd := exec.Command("powershell.exe", "Import-Module RemoteDesktop; Get-RDRemoteApp -DisplayName "+displayname)
+		resp, _ := cmd.CombinedOutput()
+		if strings.Contains(string(resp), displayname) {
+			return retok(c)
+		}
+		time.Sleep(time.Second * 3)
+	}
+	return reterr(errors.New("Publish app failed"), "Failed to publish "+displayname, c)
+}
+
+func checkIfUnpublishSucceeded(c *echo.Context, alias string) error {
+	for i := 0; i < 5; i++ {
+		cmd := exec.Command("powershell.exe", "Import-Module RemoteDesktop; Get-RDRemoteApp -Alias "+alias)
+		resp, _ := cmd.CombinedOutput()
+		if !strings.Contains(string(resp), alias) {
+			return retok(c)
+		}
+		time.Sleep(time.Second * 3)
+	}
+	return reterr(errors.New("Unpublish app failed"), "Failed to unpublish "+alias, c)
+}
+
 func PublishApp(c *echo.Context) error {
 	body, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -84,14 +111,14 @@ func PublishApp(c *echo.Context) error {
 
 	username, pwd, _ := c.Request().BasicAuth()
 	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe  import-module remotedesktop; New-RDRemoteApp -CollectionName "+all.Data.Attributes.CollectionName+" -DisplayName "+all.Data.Attributes.DisplayName+" -FilePath "+all.Data.Attributes.Path, username, pwd, domain)
-	return retok(c)
+	return checkIfPublishSucceeded(c, all.Data.Attributes.DisplayName)
 }
 
 func UnpublishApp(c *echo.Context) error {
 	id := c.Param("id")
 	username, pwd, _ := c.Request().BasicAuth()
 	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+id+"' -CollectionName collection -Force", username, pwd, domain)
-	return retok(c)
+	return checkIfUnpublishSucceeded(c, id)
 }
 
 func GetApps(c *echo.Context) error {
