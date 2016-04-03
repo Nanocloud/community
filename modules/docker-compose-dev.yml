@@ -86,7 +86,6 @@ services:
   image: nanocloud/iaas-module:dev
   volumes:
    - ./iaas/:/go/src/github.com/Nanocloud/community/modules/iaas/
-   - ./iaas/scripts/:/var/lib/nanocloud/scripts
    - ../installation_dir/images:/var/lib/nanocloud/images
 
 networks:
