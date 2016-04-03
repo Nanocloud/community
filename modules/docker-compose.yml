@@ -15,19 +15,19 @@ services:
    - FRONT_DIR=/opt/front/dist
    - CANVA_FRONT_DIR=/opt/canva/dist
    - WIN_PASSWORD=Nanocloud123+
-   - IAAS=manual
+   - IAAS=qemu
    - WIN_USER=Administrator
-   - WIN_SERVER=127.0.0.1
-   - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@127.0.0.1:636
+   - WIN_SERVER=iaas-module
+   - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:636
    - BASE=DC=intra,DC=localdomain,DC=com
    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
    - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
    - USER=Administrator
    - RDP_PORT=3389
-   - SERVER=127.0.0.1
+   - SERVER=iaas-module
    - PASSWORD=Nanocloud123+
    - WINDOWS_DOMAIN=intra.localdomain.com
-   - EXECUTION_SERVERS=127.0.0.1
+   - EXECUTION_SERVERS=iaas-module
    - TRUST_PROXY=true
    - ADMIN_FIRSTNAME=Admin
    - ADMIN_LASTNAME=Nanocloud
