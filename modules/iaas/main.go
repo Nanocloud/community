@@ -198,7 +198,12 @@ func main() {
 	conf.Password = env("PASSWORD", "ItsPass1942+")
 	conf.User = env("USER", "Administrator")
 	conf.instDir = os.Getenv("INSTALLATION_DIR")
-	conf.root = os.Getenv("PWD")
+
+	if os.Getenv("PWD") != "" {
+		conf.root = os.Getenv("PWD")
+	} else {
+		conf.root = path.Dir(os.Args[0])
+	}
 
 	if len(conf.instDir) == 0 {
 		conf.instDir = "/var/lib/nanocloud"
