@@ -14,7 +14,7 @@
           {{#unless application.isDeleted}}
             {{#unless application.isNew}}
 
-            {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+              {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
             {{/unless}}
           {{/unless}}
         {{else}}
