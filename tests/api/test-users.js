@@ -78,7 +78,9 @@ module.exports = function(admin) {
         .shouldBeJSONAPI()
         .shouldComplyTo(expectedSchema);
 
-    user_id = request.response.data.data.id;
+    if (request.response.data.data) {
+      user_id = request.response.data.data.id;
+    }
   });
 
   describe("Remove user", function() {
