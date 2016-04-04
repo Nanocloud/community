@@ -21,6 +21,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path"
@@ -192,6 +193,13 @@ func env(key, def string) string {
 	return v
 }
 
+func provision() {
+	err := Create()
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func main() {
 	port := env("PORT", "8080")
 	conf.Server = env("SERVER", "127.0.0.1")
@@ -222,6 +230,11 @@ func main() {
 	conf.windowsURL = os.Getenv("WINDOWS_URL")
 	if len(conf.windowsURL) == 0 {
 		conf.windowsURL = "http://care.dlservice.microsoft.com/dl/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO"
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "provision" {
+		provision()
+		return
 	}
 
 	// Echo instance
