@@ -70,7 +70,8 @@ var nano = {
       });
 
       // Get pure javascript object out of response Buffer
-      if (request.headers['content-type'].split(';').indexOf('application/json') != -1) {
+      var contentType = request.headers['content-type'].split(';');
+      if (contentType.indexOf('application/json') != -1 || contentType.indexOf('application/vnd.api+json') != -1) {
         if (typeof request.data === 'string') {
           request.data = JSON.parse(request.data);
         } else if (typeof request.data === 'object') {
