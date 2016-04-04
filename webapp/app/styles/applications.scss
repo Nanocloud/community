@@ -4,6 +4,15 @@
   width: 30px;
 }
 
+.action-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 10px;
+  }
+}
+
 .application-table {
   cursor: pointer;
   color: $blue-default;

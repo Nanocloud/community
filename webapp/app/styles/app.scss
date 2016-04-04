@@ -3,6 +3,7 @@
 @import "ember-modal-dialog/ember-modal-structure";
 @import "ember-modal-dialog/ember-modal-appearance";
 @import "bower_components/bootstrap/scss/bootstrap";
+@import "font-awesome";
 
 @import "icons";
 @import "sidebar";
@@ -14,3 +15,5 @@
 @import "menu-top";
 @import "app-item";
 @import "global";
+@import "dim-background";
+@import "file-explorer";

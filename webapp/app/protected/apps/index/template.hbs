@@ -4,12 +4,18 @@
     <div class='drag-drop-wrapper'>
       {{drag-n-drop}}
     </div>
-    <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
+    <div class='action-btn-wrapper'>
+      <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
+      <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
+    </div>
     <table class="table application-table">
       <tbody>
         {{#each model as |application|}}
           {{#unless application.isDeleted}}
-            {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+            {{#unless application.isNew}}
+
+              {{ app-item application=application connectionName=connectionName showSingleTab=showSingleTab }}
+            {{/unless}}
           {{/unless}}
         {{else}}
           No applications available.
@@ -23,3 +29,6 @@
 {{#single-tab isVisible=showSingleTab}}
   {{remote-session connectionName=connectionName}}
 {{/single-tab}}
+
+{{#file-explorer isVisible=showFileExplorer publishDone="updateModel"}}
+{{/file-explorer}}

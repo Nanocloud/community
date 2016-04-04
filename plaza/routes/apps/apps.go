@@ -2,9 +2,12 @@ package apps
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"strings"
+	"time"
 
 	"github.com/Nanocloud/community/plaza/utils"
 	log "github.com/Sirupsen/logrus"
@@ -58,30 +61,64 @@ func retok(c *echo.Context) error {
 	)
 }
 
+func checkIfPublishSucceeded(c *echo.Context, displayname string) error {
+	for i := 0; i < 5; i++ {
+		cmd := exec.Command("powershell.exe", "Import-Module RemoteDesktop; Get-RDRemoteApp -DisplayName "+displayname)
+		resp, _ := cmd.CombinedOutput()
+		if strings.Contains(string(resp), displayname) {
+			return retok(c)
+		}
+		time.Sleep(time.Second * 3)
+	}
+	return reterr(errors.New("Publish app failed"), "Failed to publish "+displayname, c)
+}
+
+func checkIfUnpublishSucceeded(c *echo.Context, alias string) error {
+	for i := 0; i < 5; i++ {
+		cmd := exec.Command("powershell.exe", "Import-Module RemoteDesktop; Get-RDRemoteApp -Alias "+alias)
+		resp, _ := cmd.CombinedOutput()
+		if !strings.Contains(string(resp), alias) {
+			return retok(c)
+		}
+		time.Sleep(time.Second * 3)
+	}
+	return reterr(errors.New("Unpublish app failed"), "Failed to unpublish "+alias, c)
+}
+
 func PublishApp(c *echo.Context) error {
 	body, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return reterr(err, "", c)
 	}
-	var p map[string]string
-	err = json.Unmarshal(body, &p)
+	var all struct {
+		Data struct {
+			Attributes struct {
+				Alias          string `json:"alias"`
+				CollectionName string `json:"collection-name"`
+				DisplayName    string `json:"display-name"`
+				FilePath       string `json:"file-path"`
+				Path           string `json:"path"`
+			}
+			Type string `json:"type"`
+		} `json:"data"`
+	}
+	err = json.Unmarshal(body, &all)
 	if err != nil {
+		log.Error(err)
 		return reterr(err, "", c)
 	}
-	cmd := exec.Command("powershell.exe", "import-module remotedesktop; New-RDRemoteApp -CollectionName "+p["collection"]+" -DisplayName "+p["displayname"]+" -FilePath "+p["path"])
-	resp, err := cmd.CombinedOutput()
-	if err != nil {
-		return reterr(err, string(resp), c)
-	}
-	return retok(c)
+
+	username, pwd, _ := c.Request().BasicAuth()
+	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe  import-module remotedesktop; New-RDRemoteApp -CollectionName "+all.Data.Attributes.CollectionName+" -DisplayName "+all.Data.Attributes.DisplayName+" -FilePath "+all.Data.Attributes.Path, username, pwd, domain)
+	return checkIfPublishSucceeded(c, all.Data.Attributes.DisplayName)
 }
 
 func UnpublishApp(c *echo.Context) error {
 	id := c.Param("id")
 	username, pwd, _ := c.Request().BasicAuth()
 	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe Import-Module RemoteDesktop; Remove-RDRemoteApp -Alias '"+id+"' -CollectionName collection -Force", username, pwd, domain)
-	return retok(c)
+	return checkIfUnpublishSucceeded(c, id)
 }
 
 func GetApps(c *echo.Context) error {

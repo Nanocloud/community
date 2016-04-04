@@ -33,6 +33,7 @@ import (
 	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
+	"github.com/Nanocloud/community/nanocloud/routes/files"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
 	"github.com/Nanocloud/community/nanocloud/routes/logout"
@@ -155,6 +156,11 @@ func main() {
 	e.Patch("/api/machines/:id", m.OAuth2(m.Admin(machines.PatchMachine)))
 	e.Post("/api/machines", m.OAuth2(m.Admin(machines.CreateMachine)))
 	e.Delete("/api/machines/:id", m.OAuth2(m.Admin(machines.DeleteMachine)))
+
+	/**
+	* Files
+	 */
+	e.Get("/api/files", files.Get)
 
 	/**
 	 * FRONT

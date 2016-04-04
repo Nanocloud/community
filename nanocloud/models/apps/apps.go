@@ -23,9 +23,9 @@
 package apps
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -337,13 +337,14 @@ func UnpublishApp(Alias string) error {
 	return nil
 }
 
-func PublishApp(path string) error {
-	p, err := json.Marshal(path)
-	if err != nil {
-		log.Error(err)
+func PublishApp(body io.Reader) error {
+	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", body)
+	username, pwd := getCredentials()
+	if username == "" || pwd == "" {
+		log.Error("Unable to retrieve admin credentials")
 		return PublishFailed
 	}
-	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", bytes.NewBuffer(p))
+	req.SetBasicAuth(username, pwd)
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err := client.Do(req)
