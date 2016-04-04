@@ -81,6 +81,7 @@ export default Ember.Component.extend({
   },
     
   pathToString() {
+    
     var data = this.get('history');
     var offset = this.get('history_offset');
     var path = "";
@@ -92,39 +93,7 @@ export default Ember.Component.extend({
 
   publishSelectedFile() {
 
-    let name = this.get('selectedFile').id.replace(/\.[^/.]+$/, "");
-
-    /*
-    Ember.$.ajax({
-      url: "/api/application",
-      type: "POST",
-      data: {
-        dataType: 'json',
-        data: {
-          attributes: {
-            alias: name,
-            'display-name': name, 
-            'collection-name': "collection",
-            'icon-content': null,
-            path: this.fullPath()
-          },
-          type: "applications"
-        }
-      },
-      success: function(data) {
-        this.set('isPublishing', false);
-        this.toggleProperty('isVisible');
-        this.toast.success("Your application has been published successfully");
-        this.sendAction('publishDone');
-      },
-      error: function() {
-        this.set('isPublishing', false);
-        this.set('publishError', true);
-        this.set('selectedFile', null);
-        this.toast.error(error.errors[0].status + " : " + error.errors[0].title);
-      }
-    })
-    */
+    let name = this.get('selectedFile').get('name').replace(/\.[^/.]+$/, "");
 
     let m = this.get('store').createRecord('application', {
       alias: name,
@@ -135,7 +104,7 @@ export default Ember.Component.extend({
 
     this.set('isPublishing', true);
     m.save()
-      .then(() => {
+      .then((app) => {
         this.set('isPublishing', false);
         this.toggleProperty('isVisible');
         this.toast.success("Your application has been published successfully");
@@ -149,7 +118,7 @@ export default Ember.Component.extend({
   },
 
   fullPath() {
-    return (this.pathToString() + this.get('selectedFile').id);
+    return (this.pathToString() + this.get('selectedFile').get('name'));
   },
 
   reset() {
@@ -171,7 +140,7 @@ export default Ember.Component.extend({
 
     clickItem(item) {
       if (item.get('type') === 'directory') {
-        this.selectDir(item.id);
+        this.selectDir(item.get('name'));
         return;
       }
 

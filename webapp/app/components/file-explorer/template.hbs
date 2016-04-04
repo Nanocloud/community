@@ -11,7 +11,7 @@
         {{#each items as |item|}}
           <div {{ action "clickItem" item }} class="item {{ if (is-equal selectedFile item) 'selected' }}">
             <i class='va-top material-icons'>{{ item.icon }}</i>
-            {{ item.id }} 
+            {{ item.name }} 
           </div>
         {{else}}
           No files.
@@ -25,7 +25,7 @@
         {{/if}}
         <span class='info'>
         {{#if selectedFile}}
-          Selected file : {{ selectedFile.id }}
+          Selected file : {{ selectedFile.name }}
         {{/if}}
         </span>
       </div>
