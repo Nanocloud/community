@@ -26,22 +26,22 @@ var expect = nano.expect;
 
 module.exports = function(admin) {
 
-  describe("List users", function() {
+  var expectedSchema = {
+    type: 'object',
+    properties: {
+      email: {type: 'string'},
+      activated: {type: 'boolean'},
+      'is-admin': {type: 'boolean'},
+      'first-name': {type: 'string'},
+      'last-name': {type: 'string'},
+      sam: {type: 'string'},
+      'windows-password': {type: 'string'},
+    },
+    required: ['email', 'first-name', 'activated', 'is-admin', 'first-name', 'last-name', 'sam', 'windows-password'],
+    additionalProperties: false
+  };
 
-    var expectedSchema = {
-      type: 'object',
-      properties: {
-        email: {type: 'string'},
-        activated: {type: 'boolean'},
-        'is-admin': {type: 'boolean'},
-        'first-name': {type: 'string'},
-        'last-name': {type: 'string'},
-        sam: {type: 'string'},
-        'windows-password': {type: 'string'},
-      },
-      required: ['email', 'first-name', 'activated', 'is-admin', 'first-name', 'last-name', 'sam', 'windows-password'],
-      additionalProperties: false
-    };
+  describe("List users", function() {
 
     var request = nano.as(admin).get("api/users")
         .shouldReturn(200)
@@ -58,8 +58,8 @@ module.exports = function(admin) {
         sam: "Administrator",
         "windows-password": "Nanocloud123+"
       });
-    })
-  })
+    });
+  });
 
   var user_id = null;
   describe("Create user", function() {
@@ -75,9 +75,12 @@ module.exports = function(admin) {
         }
       }
     }).shouldReturn(201)
-        .shouldBeJSONAPI();
+        .shouldBeJSONAPI()
+        .shouldComplyTo(expectedSchema);
 
-    user_id = request.response.data.data.id;
+    if (request.response.data.data) {
+      user_id = request.response.data.data.id;
+    }
   });
 
   describe("Remove user", function() {
