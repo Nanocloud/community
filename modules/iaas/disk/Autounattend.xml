@@ -129,7 +129,7 @@
       <FirstLogonCommands>
 
       <SynchronousCommand wcm:action="add">
-         <CommandLine>d:\server.exe</CommandLine>
+         <CommandLine>d:\plaza.exe</CommandLine>
          <Description>Execute Plaza</Description>
          <Order>1</Order>
          <RequiresUserInput>true</RequiresUserInput>

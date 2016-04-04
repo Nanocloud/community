@@ -277,7 +277,16 @@ func Stop(name string) error {
 }
 
 func createQcow() error {
-	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", "-o", "preallocation=metadata", conf.instDir+"/downloads/win.qcow2", "30G")
+	cmd := exec.Command(
+		"qemu-img",
+		"create",
+		"-f",
+		"qcow2",
+		"-o",
+		"preallocation=metadata",
+		conf.instDir+"/downloads/win.qcow2",
+		"30G",
+	)
 	resp, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(string(resp))
@@ -288,7 +297,27 @@ func createQcow() error {
 }
 
 func createIso() error {
-	cmd := exec.Command("genisoimage", "-o", conf.instDir+"/downloads/autoplaza.iso", "-J", "-r", path.Join(conf.root, "disk"))
+	plazaLocation := os.Getenv("PLAZA_LOCATION")
+
+	if len(plazaLocation) == 0 {
+		return errors.New("plaza cannot be found")
+	}
+
+	disk := path.Join(conf.root, "disk")
+
+	err := copyFile(plazaLocation, path.Join(disk, "plaza.exe"))
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(
+		"genisoimage",
+		"-o",
+		conf.instDir+"/downloads/autoplaza.iso",
+		"-J",
+		"-r",
+		disk,
+	)
 	resp, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(string(resp))
