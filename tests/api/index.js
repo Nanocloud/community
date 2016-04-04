@@ -33,6 +33,18 @@ var admin = nano.login({
   password: nano.ADMIN_PASSWORD
 });
 
+describe("Windows should be up", function() {
+  var request = nano.as(admin).get('api/machines')
+      .shouldReturn(200)
+      .shouldBeJSONAPI();
+
+  it('Should have one Windows up', function() {
+    expect(request.response.data.data).to.exist;
+    expect(request.response.data.data).to.have.lengthOf(1);
+    expect(request.response.data.data[0].attributes.status).to.equal('up');
+  });
+});
+
 require('./test-login')();
 require('./test-users')(admin);
 require('./test-sessions')(admin);
