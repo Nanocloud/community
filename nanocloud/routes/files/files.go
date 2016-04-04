@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -102,8 +101,6 @@ func createDownloadToken(user *users.User, accessToken string, filename string) 
 
 	timeStone := time.Now().Unix()
 	timeStone = timeStone + (3600 - timeStone%3600) + 3600
-
-	fmt.Printf("time stone = %d\n", timeStone)
 
 	h := sha1Hash(fmt.Sprintf(
 		"%s:%s:%d",
@@ -242,13 +239,6 @@ func Get(c *echo.Context) error {
 
 	filename = strings.Replace(filename, "/", "\\", -1)
 	path = filename
-	/*
-		path := fmt.Sprintf(
-			"C:\\Users\\%s\\Desktop\\Nanocloud%s",
-			user.Sam,
-			filename,
-		)
-	*/
 
 	resp, err := http.Get("http://" + kExecutionServer + ":9090/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {

@@ -15,15 +15,5 @@ export default Ember.Controller.extend({
     toggleFileExplorer() {
       this.toggleProperty('showFileExplorer');
     },
-
-    updateModel() {
-      console.log('trigger update model');
-      
-      var that = this;
-      //this.get('model').update();
-
-      that.get('model').update();
-      window.titi = this;
-    }
   }
 });
