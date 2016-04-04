@@ -7,8 +7,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
+	"syscall"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -23,6 +25,24 @@ type file_t struct {
 	Id         string                 `json:"id"`
 	Type       string                 `json:"type"`
 	Attributes map[string]interface{} `json:"attributes"`
+}
+
+func loadFileId(filepath string) (string, error) {
+	pathp, err := syscall.UTF16PtrFromString(filepath)
+	if err != nil {
+		return "", err
+	}
+	h, err := syscall.CreateFile(pathp, 0, 0, nil, syscall.OPEN_EXISTING, syscall.FILE_FLAG_BACKUP_SEMANTICS, 0)
+	if err != nil {
+		return "", err
+	}
+	defer syscall.CloseHandle(h)
+	var i syscall.ByHandleFileInformation
+	err = syscall.GetFileInformationByHandle(syscall.Handle(h), &i)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x-%x-%x", i.VolumeSerialNumber, i.FileIndexHigh, i.FileIndexLow), nil
 }
 
 /*
@@ -214,11 +234,11 @@ func (a byChunk) Less(i, j int) bool {
 }
 
 func Get(c *echo.Context) error {
-	path := c.Query("path")
+	filepath := c.Query("path")
 	showHidden := c.Query("show_hidden") == "true"
 	create := c.Query("create") == "true"
 
-	if len(path) < 1 {
+	if len(filepath) < 1 {
 		return c.JSON(
 			http.StatusBadRequest,
 			hash{
@@ -227,17 +247,17 @@ func Get(c *echo.Context) error {
 		)
 	}
 
-	s, err := os.Stat(path)
+	s, err := os.Stat(filepath)
 	if err != nil {
 		fmt.Println(err.(*os.PathError).Err.Error())
 		m := err.(*os.PathError).Err.Error()
 		if m == "no such file or directory" || m == "The system cannot find the file specified." {
 			if create {
-				err := os.MkdirAll(path, 0777)
+				err := os.MkdirAll(filepath, 0777)
 				if err != nil {
 					return err
 				}
-				s, err = os.Stat(path)
+				s, err = os.Stat(filepath)
 				if err != nil {
 					return err
 				}
@@ -255,7 +275,7 @@ func Get(c *echo.Context) error {
 	}
 
 	if s.Mode().IsDir() {
-		f, err := os.Open(path)
+		f, err := os.Open(filepath)
 		if err != nil {
 			return err
 		}
@@ -270,11 +290,24 @@ func Get(c *echo.Context) error {
 
 		for _, file := range files {
 			name := file.Name()
-			if !showHidden && name[0] == '.' {
+			if !showHidden {
+				sys := file.Sys().(*syscall.Win32FileAttributeData)
+
+				if sys.FileAttributes&syscall.FILE_ATTRIBUTE_HIDDEN == syscall.FILE_ATTRIBUTE_HIDDEN {
+					continue
+				}
+
+			}
+
+			fullpath := path.Join(filepath, name)
+			id, err := loadFileId(fullpath)
+			if err != nil {
+				log.Errorf("Cannot retrieve file id for file: %s: %s", fullpath, err.Error())
 				continue
 			}
+
 			f := file_t{
-				Id:   name,
+				Id:   id,
 				Type: "file",
 			}
 
@@ -283,6 +316,7 @@ func Get(c *echo.Context) error {
 
 			attr["mod_time"] = file.ModTime().Unix()
 			attr["size"] = file.Size()
+			attr["name"] = name
 
 			if file.IsDir() {
 				attr["type"] = "directory"
@@ -309,7 +343,7 @@ func Get(c *echo.Context) error {
 	}
 
 	return c.File(
-		path,
+		filepath,
 		s.Name(),
 		true,
 	)
