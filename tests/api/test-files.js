@@ -43,5 +43,13 @@ module.exports = function(admin) {
         .shouldReturn(200)
         .shouldBeJSONAPI()
         .shouldComplyTo(expectedSchema);
+
+    it("should contains Windows directory",  function() {
+      return expect(request).to.comprise.of.json({
+        name: "Windows",
+        size: 0,
+        type: "directory",
+      });
+    });
   });
 }
