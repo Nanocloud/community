@@ -21,6 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// jshint mocha:true
+
 var nano = require('./nanotest');
 var expect = nano.expect;
 
@@ -41,53 +43,53 @@ module.exports = function(admin) {
     additionalProperties: false
   };
 
-  describe("List users", function() {
+  describe('List users', function() {
 
-    var request = nano.as(admin).get("api/users")
+    var request = nano.as(admin).get('api/users')
         .shouldReturn(200)
         .shouldBeJSONAPI()
         .shouldComplyTo(expectedSchema);
 
-    it("should contain the admin",  function() {
+    it('should contain the admin',  function() {
       return expect(request).to.comprise.of.json({
         email: 'admin@nanocloud.com',
         activated: true,
-        "is-admin": true,
-        "first-name": "Admin",
-        "last-name": "Nanocloud",
-        sam: "Administrator",
-        "windows-password": "Nanocloud123+"
+        'is-admin': true,
+        'first-name': 'Admin',
+        'last-name': 'Nanocloud',
+        sam: 'Administrator',
+        'windows-password': 'Nanocloud123+'
       });
     });
   });
 
   var user_id = null;
-  describe("Create user", function() {
+  describe('Create user', function() {
 
-    var request = nano.as(admin).post("api/users", {
-      "data" : {
-        "type": "user",
-        "attributes": {
-          "first-name": nano.USER_FIRSTNAME,
-          "last-name": nano.USER_LASTNAME,
-          "email": nano.USER_EMAIL,
-          "password": nano.USER_PASSWORD
+    var request = nano.as(admin).post('api/users', {
+      'data' : {
+        'type': 'user',
+        'attributes': {
+          'first-name': nano.USER_FIRSTNAME,
+          'last-name': nano.USER_LASTNAME,
+          'email': nano.USER_EMAIL,
+          'password': nano.USER_PASSWORD
         }
       }
     }).shouldReturn(201)
-        .shouldBeJSONAPI()
-        .shouldComplyTo(expectedSchema);
+    .shouldBeJSONAPI()
+    .shouldComplyTo(expectedSchema);
 
     if (request.response.data.data) {
       user_id = request.response.data.data.id;
     }
   });
 
-  describe("Remove user", function() {
+  describe('Remove user', function() {
 
-    var request = nano.as(admin).delete("api/users/" + user_id)
-        .shouldReturn(200)
-        .shouldBeJSONAPI();
+    nano.as(admin).delete('api/users/' + user_id)
+    .shouldReturn(200)
+    .shouldBeJSONAPI();
 
-  })
-}
+  });
+};

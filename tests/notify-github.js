@@ -35,7 +35,7 @@ var proc = require('child_process');
  * }
  */
 var notify = function(params) {
-  
+
   var command = 'curl -H "Authorization: token ' + params.github_password + '" --request POST -k --data \'{\"state\": \"'+ params.state +'\", \"description\": \"'+ params.description +'\", \"context\": \"'+ params.context +'\", \"target_url\": \"' + params.url + '\"}\' https://api.github.com/repos/nanocloud/community/statuses/' + params.pull_sha;
 
     console.log("Notify github with command: " + command)
