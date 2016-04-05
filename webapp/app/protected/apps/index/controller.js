@@ -6,6 +6,12 @@ export default Ember.Controller.extend({
   connectionName: null,
   store: Ember.inject.service('store'),
 
+  applications: Ember.computed(function() {
+    return this.get('model')
+      .rejectBy('alias', 'hapticPowershell')
+      .rejectBy('alias', 'hapticDesktop');
+  }),
+
   actions: {
     publish() {
       this.store.createRecord('application', {});
