@@ -5,6 +5,7 @@ export default Ember.Controller.extend({
   showFileExplorer: false,
   connectionName: null,
   store: Ember.inject.service('store'),
+  remoteSession: Ember.inject.service('remote-session'),
 
   applications: Ember.computed(function() {
     return this.get('model')
@@ -13,6 +14,11 @@ export default Ember.Controller.extend({
   }),
 
   actions: {
+
+    disconnectGuacamole(connectionName) {
+      this.get('remoteSession').disconnectSession(connectionName);
+    },
+
     publish() {
       this.store.createRecord('application', {});
     },
