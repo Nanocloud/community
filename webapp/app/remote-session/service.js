@@ -8,6 +8,8 @@ export default Ember.Service.extend({
 
   guacamole: null,
 
+  openedGuacSession: {},
+
   guacToken: function() {
     return Ember.$.post(config.GUACAMOLE_URL + 'api/tokens', {
       access_token: this.get('session.access_token')
@@ -50,7 +52,15 @@ export default Ember.Service.extend({
         tunnel
       );
 
+      this.get('openedGuacSession')[name] = { guac : guacamole };
+
       return guacamole;
     });
+  },
+
+  disconnectSession(name) {
+      this.get('openedGuacSession')[name].keyboard.onkeydown = null;
+      this.get('openedGuacSession')[name].keyboard.onkeyup = null;
+      this.get('openedGuacSession')[name].guac.disconnect();
   }
 });

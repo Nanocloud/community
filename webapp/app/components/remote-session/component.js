@@ -56,6 +56,9 @@ export default Ember.Component.extend({
 
 
       guac.connect();
+
+      this.get('remoteSession').openedGuacSession[this.get('connectionName')].keyboard = keyboard;
+
     });
   }.observes('connectionName').on('becameVisible'),
 
