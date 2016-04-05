@@ -21,6 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// jshint mocha:true
+
 var chai = require('chai');
 var expect = chai.expect;
 var sync = require('urllib-sync');
@@ -28,7 +30,7 @@ var extend = require('extend-object');
 var plugins = require('./assertions/plugins');
 var JSONAPIValidator = require('jsonapi-validator').Validator;
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 extend(exports, plugins);
 
 var expect = function(value) {
@@ -59,7 +61,7 @@ var nano = {
     var makeRequest = function(verb, url, data, options) {
       var headers = (options && options.headers) ? options.headers : {};
       if (user) {
-        headers['Authorization'] = 'Bearer ' + user.access_token;
+        headers.Authorization = 'Bearer ' + user.access_token;
         headers['Content-Type'] = 'application/json';
       }
 
@@ -71,7 +73,7 @@ var nano = {
 
       // Get pure javascript object out of response Buffer
       var contentType = request.headers['content-type'].split(';');
-      if (contentType.indexOf('application/json') != -1 || contentType.indexOf('application/vnd.api+json') != -1) {
+      if (contentType.indexOf('application/json') !== -1 || contentType.indexOf('application/vnd.api+json') !== -1) {
         if (typeof request.data === 'string') {
           request.data = JSON.parse(request.data);
         } else if (typeof request.data === 'object') {
@@ -103,19 +105,19 @@ var nano = {
         return this;
       },
       shouldReturn: function(code) {
-        it("should return " + code, function() {
-          expect(this).to.have.status(code)
+        it('should return ' + code, function() {
+          expect(this).to.have.status(code);
         }.bind(this));
 
         return this;
       },
       shouldBeJSON: function() {
-        it("should be valid JSON", function() {
+        it('should be valid JSON', function() {
           expect(this.response.headers).to.have.property('content-type');
 
           var values = this.response.headers['content-type'].split(';');
           expect(values).to.satisfy(function(type) {
-           return (type.indexOf('application/json') != -1 || type.indexOf('application/vnd.api+json') != -1);
+           return (type.indexOf('application/json') !== -1 || type.indexOf('application/vnd.api+json') !== -1);
           });
         }.bind(this));
 
@@ -133,7 +135,7 @@ var nano = {
         }
 
 
-        it("should comply to JSON API schema", function() {
+        it('should comply to JSON API schema', function() {
           expect(valid).to.equal(true);
         });
 
@@ -143,7 +145,7 @@ var nano = {
 
         this.shouldBeJSONAPI();
 
-        it("should return expected json-api error schema", function() {
+        it('should return expected json-api error schema', function() {
           var assert = new chai.Assertion(this.response.data.errors);
 
           assert.to.containSubset([error]);
@@ -153,8 +155,8 @@ var nano = {
       },
       shouldComplyToNotJsonAPI: function(schema) {
 
-        it("should return expected schema", function() {
-          expect(this).to.have.schema(schema)
+        it('should return expected schema', function() {
+          expect(this).to.have.schema(schema);
         }.bind(this));
 
         return this;
@@ -166,7 +168,7 @@ var nano = {
 
         return this.shouldComplyToNotJsonAPI(JSONAPIschema);
       }
-    }
+    };
   },
   as: function(user) {
     return this._request(user);
@@ -184,16 +186,16 @@ var nano = {
       data: {
         username: credentials.username,
         password: credentials.password,
-        grant_type: "password"
+        grant_type: 'password'
       },
       headers: {
         Authorization: 'Basic ' + new Buffer(this.CLIENTID).toString('base64')
       }
-    })
+    });
 
     return user.data;
   }
-}
+};
 
-module.exports = nano
+module.exports = nano;
 module.exports.expect = expect;

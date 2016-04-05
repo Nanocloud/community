@@ -7,6 +7,11 @@ export default Ember.Controller.extend({
   store: Ember.inject.service('store'),
 
   actions: {
+    publish() {
+      this.store.createRecord('application', {})
+
+    },
+
     toggleSingleTab(connectionName) {
       this.set('connectionName', connectionName);
       this.toggleProperty('showSingleTab');

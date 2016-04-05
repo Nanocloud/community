@@ -1,4 +1,3 @@
-#!/usr/bin/nodejs
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
@@ -21,11 +20,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var nano = require('./nanotest');
-var expect = nano.expect;
+// jshint mocha:true
 
-describe("nanocloud is Online", function() {
-  var request = nano.get('').shouldReturn(200);
+var nano = require('./nanotest');
+
+describe('nanocloud is Online', function() {
+  nano.get('').shouldReturn(200);
 });
 
 var admin = nano.login({
@@ -33,7 +33,7 @@ var admin = nano.login({
   password: nano.ADMIN_PASSWORD
 });
 
-describe("Windows should be up", function() {
+describe('Windows should be up', function() {
   var request = nano.as(admin).get('api/machines')
       .shouldReturn(200)
       .shouldBeJSONAPI();
