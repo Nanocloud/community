@@ -33,12 +33,14 @@
           <th scope="row">UUID</th>
           <td>{{model.id}}</td>
         </tr>
-        <tr>
-          <th scope="row">Delete Account</th>
-          <td>
-            {{ remove-user action="removeDone" }}
-          </td>
-        </tr>
+        {{#unless model.isAdmin }}
+          <tr>
+            <th scope="row">Delete Account</th>
+            <td>
+              {{ remove-user action="removeDone" }}
+            </td>
+          </tr>
+        {{/unless}}
 
       </tbody>
     </table>
