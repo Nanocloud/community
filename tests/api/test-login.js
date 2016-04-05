@@ -1,4 +1,3 @@
-#!/usr/bin/nodejs
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
@@ -20,6 +19,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+// jshint mocha:true
 
 var nano = require('./nanotest');
 var expect = nano.expect;
@@ -52,8 +53,8 @@ module.exports = function() {
         .shouldComplyToNotJsonAPI(expectedSchema);
 
     it('should issue Bearer tokens', function() {
-      expect(request.response.data.token_type).to.equal('Bearer')
-    })
+      expect(request.response.data.token_type).to.equal('Bearer');
+    });
   });
 
   var expectedErrorSchema = {
@@ -81,11 +82,11 @@ module.exports = function() {
         .shouldComplyToNotJsonAPI(expectedErrorSchema);
 
     it('should return access_denied', function() {
-      expect(request.response.data.error).to.equal("access_denied");
+      expect(request.response.data.error).to.equal('access_denied');
     });
 
     it('should return "Invalid User Credentials" as an error description', function() {
-      expect(request.response.data.error_description).to.equal("Invalid User Credentials");
+      expect(request.response.data.error_description).to.equal('Invalid User Credentials');
     });
   });
 
@@ -103,11 +104,11 @@ module.exports = function() {
         .shouldComplyToNotJsonAPI(expectedErrorSchema);
 
     it('should return access_denied', function() {
-      expect(request.response.data.error).to.equal("invalid_request");
+      expect(request.response.data.error).to.equal('invalid_request');
     });
 
     it('should return "Invalid User Credentials" as an error description', function() {
-      expect(request.response.data.error_description).to.equal("grant_type is missing");
+      expect(request.response.data.error_description).to.equal('grant_type is missing');
     });
-  })
-}
+  });
+};

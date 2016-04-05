@@ -23,24 +23,24 @@
 
 var http = require('https');
 var proc = require('child_process');
-var async = require("async");
+var async = require('async');
 var HOST = process.argv[2];
 var TOKEN = null;
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 function request(options, callback) {
-  var message = "";
+  var message = '';
   var status = null;
 
   var headers = options.headers || {};
-  var param = JSON.stringify(options.param) || "";
+  var param = JSON.stringify(options.param) || '';
 
   if (TOKEN) {
-    headers.Authorization = "Bearer " + TOKEN
+    headers.Authorization = 'Bearer ' + TOKEN;
   }
 
-  var options = {
+  options = {
     host: HOST,
     path: options.path,
     method: options.verb,
@@ -56,12 +56,14 @@ function request(options, callback) {
       message += chunk;
     });
     res.on('end', function() {
-      console.log("Call to " + options.path + " returned " + status)
-      if (callback && status == 200)
+      console.log('Call to ' + options.path + ' returned ' + status);
+      if (callback && status === 200) {
         callback(JSON.parse(message));
-      if (status != 200)
+      }
+      if (status !== 200) {
         console.log(message);
-    })
+      }
+    });
   });
 
   req.on('error', function(e) {
@@ -75,13 +77,13 @@ function request(options, callback) {
 function waitForNanocloudToBeOnline(next) {
   var command = 'curl --output /dev/null --insecure --silent --write-out \'%{http_code}\n\' "https://'+ HOST +'"';
 
-  console.log("Try to connect")
-  proc.exec(command, function (err, stdout, stderr) {
+  console.log('Try to connect');
+  proc.exec(command, function (err, stdout) {
 
     console.log(stdout);
     if (!err) {
-      if (stdout == "200\n") {
-        console.log("Nanocloud available");
+      if (stdout === '200\n') {
+        console.log('Nanocloud available');
 
         return next();
       }
@@ -95,27 +97,29 @@ function waitForNanocloudToBeOnline(next) {
 }
 
 function bootWindows(next) {
-  console.log("Booting Windows");
+  console.log('Booting Windows');
   request({
     path: '/api/iaas/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64/start',
     verb: 'POST'
   }, function() {
-    if (next)
-      next()
+    if (next) {
+      next();
+    }
   });
 }
 
 function waitForWindowsToBeRunning(next) {
-  console.log("Waiting for Windows to be running....");
+  console.log('Waiting for Windows to be running....');
   request({
     path: '/api/iaas',
     verb: 'GET',
   }, function(res) {
-    if (res.data[0].attributes.status != "running") {
+    if (res.data[0].attributes.status !== 'running') {
       waitForWindowsToBeRunning(next);
     }
-    else
+    else {
       next();
+    }
   });
 }
 
@@ -124,31 +128,31 @@ function login(next) {
     path: '/oauth/token',
     verb: 'POST',
     param: {
-      username: "admin@nanocloud.com",
-      password: "admin",
-      grant_type: "password"
+      username: 'admin@nanocloud.com',
+      password: 'admin',
+      grant_type: 'password'
     },
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': "Basic OTQwNWZiNmIwZTU5ZDI5OTdlM2M3NzdhMjJkOGYwZTYxN2E5ZjViMzZiNjU2NWM3NTc5ZTViZTZkZWI4ZjdhZTo5MDUwZDY3YzJiZTA5NDNmMmM2MzUwNzA1MmRkZWRiM2FlMzRhMzBlMzliYmJiZGFiMjQxYzkzZjhiNWNmMzQx"
+      'Authorization': 'Basic OTQwNWZiNmIwZTU5ZDI5OTdlM2M3NzdhMjJkOGYwZTYxN2E5ZjViMzZiNjU2NWM3NTc5ZTViZTZkZWI4ZjdhZTo5MDUwZDY3YzJiZTA5NDNmMmM2MzUwNzA1MmRkZWRiM2FlMzRhMzBlMzliYmJiZGFiMjQxYzkzZjhiNWNmMzQx'
     }
   }, function(res) {
     TOKEN = res.access_token;
-    console.log("Got token : " + TOKEN);
+    console.log('Got token : ' + TOKEN);
     next();
   });
 }
 
 function setHostInEnv(next) {
-  var command = 'sed -i "s/value\\": \\"127.0.0.1\\"/value\\": \\"'+ HOST +'\\"/g" api/NanoEnv.postman_environment'
+  var command = 'sed -i "s/value\\": \\"127.0.0.1\\"/value\\": \\"'+ HOST +'\\"/g" api/NanoEnv.postman_environment';
 
-  console.log("Setting host in api file")
+  console.log('Setting host in api file');
   proc.exec(command, function (err, stdout, stderr) {
 
     if (err) {
       console.log(stdout);
       console.log(stderr);
-      throw "Cannot set host in environment file"
+      throw 'Cannot set host in environment file';
     }
     return next();
 
@@ -156,7 +160,7 @@ function setHostInEnv(next) {
 }
 
 function done() {
-  console.log('Ready to perform tests')
+  console.log('Ready to perform tests');
 }
 
 async.waterfall([
@@ -166,4 +170,4 @@ async.waterfall([
   bootWindows,
   waitForWindowsToBeRunning,
   done
-])
+]);
