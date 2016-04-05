@@ -29,6 +29,7 @@ var sync = require('urllib-sync');
 var extend = require('extend-object');
 var plugins = require('./assertions/plugins');
 var JSONAPIValidator = require('jsonapi-validator').Validator;
+var clone = require('clone');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 extend(exports, plugins);
@@ -163,10 +164,10 @@ var nano = {
       },
       shouldComplyTo: function(schema) {
         var JSONAPIschema = require('./JSONAPIschema.json');
+        var clonedJSONAPIschema = clone(JSONAPIschema);
+        clonedJSONAPIschema.definitions.attributes = schema;
 
-        JSONAPIschema.definitions.attributes = schema;
-
-        return this.shouldComplyToNotJsonAPI(JSONAPIschema);
+        return this.shouldComplyToNotJsonAPI(clonedJSONAPIschema);
       }
     };
   },
