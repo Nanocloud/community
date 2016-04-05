@@ -8,7 +8,7 @@
     {{/if}}
   </h4>
   <div class='content-wrapper'>
-    <table class="table">
+    <table class="table user-table">
       <tbody>
         <tr>
           <th scope="row">Email address</th>
@@ -17,17 +17,16 @@
         <tr>
           <th scope="row">Password</th>
           <td>
-            {{#if editingPassword}}
-              {{input placeholder='Password' type='password' value=model.password}}
-              {{input placeholder='Password Confirmation' type='password' value=passwordConfirmation}}
-              <button {{action 'changePassword'}}type="button" class="btn btn-primary">Change password</button>
-              <button {{action 'toggleEditPassword'}}type="button" class="btn btn-danger-outline">Cancel</button>
-              {{#if errorMessage}}
-                <p>{{errorMessage}}</p>
-              {{/if}}
-            {{else}}
-              ****** <button {{action 'toggleEditPassword'}}type="button" class="btn btn-link"><i {{action 'toggleEditPassword'}} class="material-icons">mode_edit</i></button>
-            {{/if}}
+            {{#edit-text
+                hideInput=true
+                confirmation=true
+                textInput=model.password
+                textInputPlaceholder="Password"
+                confirmInput=passwordConfirmation
+                confirmInputPlaceholder="Confirmation"
+                action="changePassword" }}
+              ******
+            {{/edit-text}}
           </td>
         </tr>
         <tr>

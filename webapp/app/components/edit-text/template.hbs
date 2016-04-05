@@ -1,0 +1,23 @@
+<div class='editText'>
+  {{#if isEditing }}
+      {{input class='edit-input-text' type=getInputType value=textInput placeholder=textInputPlaceholder}}
+      {{#if confirmation}}
+        {{input class='edit-input-text' type=getInputType value=confirmInput placeholder=confirmInputPlaceholder}}
+      {{/if}}
+      <div class='controls-wrapper'>
+        <span class="icon icon_link" {{ action "submit" }}>
+          <i class="material-icons">done</i>
+        </span>
+        <span class="icon icon_link close_icon" {{ action "cancel" }}>
+          <i class="material-icons">clear</i>
+        </span>
+      </div>
+  {{else}}
+    <span class="content">
+    {{ yield }}
+    </span>
+    <span class="edit-mode-icon icon icon_link" {{ action "toggle" }}>
+      <i class="material-icons">editmode</i>
+    </span>
+  {{/if}}
+</div>
