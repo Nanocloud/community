@@ -7,13 +7,19 @@
     {{/if}}
   </div>
   <div class='app-item part2'>
-    {{#edit-text
-      textInput=application.displayName
-      action="submitEditName" }}
-      <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
-    {{/edit-text}}
+    {{#if session.user.isAdmin}}
+      {{#edit-text
+        textInput=application.displayName
+        action="submitEditName" }}
+        <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
+      {{/edit-text}}
+    {{else}}
+        <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
+    {{/if}}
   </div>
   <div class='app-item part3'>
-    <span class='link' {{ action "unpublish" }}>Unpublish</span>
+    {{#if session.user.isAdmin}}
+      <span class='link' {{ action "unpublish" }}>Unpublish</span>
+    {{/if}}
   </div>
 </div>

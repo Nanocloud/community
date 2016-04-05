@@ -6,7 +6,8 @@ export default Ember.Component.extend({
     isEditing: false,
     connectionName: null,
     showSingleTab: false,
-    
+    session: Ember.inject.service('session'),
+ 
     actions : {
 
       toggleSingleTab(connectionName) {
