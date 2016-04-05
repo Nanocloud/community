@@ -83,6 +83,7 @@ a, a:hover, a:active {
 
 .icon_link {
   color: $blue-default;
+  cursor: pointer;
   &:hover {
     color: darken($blue-default, 20%);
   }
@@ -105,11 +106,10 @@ a, a:hover, a:active {
 }
 
 .noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -khtml-user-select: none;    /* Konqueror */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* IE/Edge */
-  user-select: none;           /* non-prefixed version, currently
-                                  not supported by any browser */
+  -webkit-touch-callout: none; 
+  -webkit-user-select: none;   
+  -khtml-user-select: none;    
+  -moz-user-select: none;      
+  -ms-user-select: none;       
+  user-select: none;           
 }

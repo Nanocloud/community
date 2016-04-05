@@ -7,20 +7,11 @@
     {{/if}}
   </div>
   <div class='app-item part2'>
-    {{#if isEditing }}
-      {{input class='edit-input-text' type="text" value=application.displayName}}
-      <span class="icon icon_link" {{ action "submitEditName" application }}>
-        <i class="material-icons">done</i>
-      </span>
-      <span class="icon icon_link close_icon" {{ action "cancelEditMode" application }}>
-        <i class="material-icons">clear</i>
-      </span>
-    {{else}}
+    {{#edit-text
+      textInput=application.displayName
+      action="submitEditName" }}
       <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
-      <span class="icon icon_link" {{ action "toggleEditName" application }}>
-        <i class="material-icons">editmode</i>
-      </span>
-    {{/if}}
+    {{/edit-text}}
   </div>
   <div class='app-item part3'>
     <span class='link' {{ action "unpublish" }}>Unpublish</span>

@@ -20,7 +20,12 @@ export default Ember.Component.extend({
 
       submitEditName() {
         this.toggleProperty('isEditing');
-        this.application.save();
+        this.application.save()
+          .then(() => {
+            this.toast.success("Application has been renamed successfully");
+          }, () => {
+            this.toast.success("Application hasn't been renamed");
+          });
       },
 
       cancelEditMode() {

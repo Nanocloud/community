@@ -8,8 +8,7 @@ export default Ember.Controller.extend({
 
   actions: {
     publish() {
-      this.store.createRecord('application', {})
-
+      this.store.createRecord('application', {});
     },
 
     toggleSingleTab(connectionName) {
