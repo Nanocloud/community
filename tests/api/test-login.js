@@ -61,7 +61,10 @@ module.exports = function() {
       expect(request.response.data.access_token);
     });
 
+    if (request.response.data.access_token) {
       access_token = request.response.data.access_token;
+    }
+
   });
 
   describe("Logout", function() {
