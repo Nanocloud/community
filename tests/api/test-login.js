@@ -75,10 +75,10 @@ module.exports = function() {
       headers: {
         Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
       },
-    }).shouldReturn(200)
+    }).shouldReturn(200);
 
     it('should be empty payload', function() {
-      expect(request.response.data).to.be.empty
+      expect(request.response.data).to.be.empty;
     });
   });
 
