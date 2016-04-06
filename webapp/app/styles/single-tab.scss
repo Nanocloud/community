@@ -27,6 +27,18 @@
     padding-top: 3px;
     margin: 0px 0px 0px 5px;
   }
+  
+  .upload-state-enabled {
+    color: $gray;
+  }
+
+  .upload-state-enabled {
+    color: $blue-default;
+  }
+
+  .go-back {
+    color: $blue-default;
+  }
 }
 
 .canva-fullscreen {

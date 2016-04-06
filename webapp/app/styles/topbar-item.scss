@@ -1,6 +1,12 @@
 .topbar-item {
-  @extend .clickable;
-  color: $blue-default;
+
+  &.active {
+    color: $gray;
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
 }
 
 .topbar-item.hover-enabled:hover {
