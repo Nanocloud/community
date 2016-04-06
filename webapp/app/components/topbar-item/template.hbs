@@ -1,3 +1,9 @@
-<div class='topbar-item'>
-  <i class="material-icons" {{ action "clickAction"}}>{{ materialIcon }}</i>
+<div class='topbar-item {{ if hover-enabled "hover-enabled" }}'>
+  {{#if materialIcon }}
+    <i class="material-icons" {{ action "clickAction"}}>{{ materialIcon }}</i>
+  {{/if}}
+
+  {{#if textContent}}
+    <span class="link clickable" {{ action "clickAction"}}>{{ textContent }}</span>
+  {{/if}}
 </div>

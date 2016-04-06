@@ -7,16 +7,22 @@
         <div class="remote-session-topbar">
           <div class="left">
             {{ topbar-item materialIcon="call_made" }}
-            <span class="state">{{box.getUploadState}}</span>
+            {{#if box.progress}}
+              <span class="state">{{box.progress}}%</span>
+            {{/if}}
+            <span class="state">{{box.state}}</span>
+            {{#if box.progress}}
+              <span class="link icon_link" {{ action box.stopUpload }}>Cancel</span>
+            {{/if}}
           </div>
           <div class="right">
-            {{ topbar-item materialIcon="close" click="toggleSingleTab" }}
+            {{ topbar-item hover-enabled=true materialIcon="home" click="toggleSingleTab" }}
           </div>
         </div>
         <div class="canva-fullscreen">
             {{yield}}
         </div>
       </div>
-    {{/ vdi-drag-n-drop }}  
+    {{/vdi-drag-n-drop }}  
   {{/modal-dialog}}
 {{/if}}
