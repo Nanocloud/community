@@ -53,7 +53,7 @@ module.exports = function() {
         .shouldBeJSON()
         .shouldComplyToNotJsonAPI(expectedSchema);
 
-    it('should issue Bearer tokens', function() {
+    it('should issue Bearer token', function() {
       expect(request.response.data.token_type).to.equal('Bearer');
     });
 
