@@ -32,7 +32,6 @@ export default Ember.Component.extend({
   didInsertElement() {
 
     this.flow = new window.Flow({
-      chunkSize: 100000000,
       target: '/upload',
       headers: { Authorization : "Bearer " + this.get('session.access_token') },
       singleFile: true
