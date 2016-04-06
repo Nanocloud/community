@@ -3,7 +3,11 @@
   attachment="" targetAttachment=""}}
   <div class="ember-modal-fullscreen">
     <div class="remote-session-topbar">
-      <button {{ action "toggleSingleTab" }}>Close</button>
+      <div class="left">
+      </div>
+      <div class="right">
+        {{ topbar-item materialIcon="close" click="toggleSingleTab" }}
+      </div>
     </div>
    <div class="canva-fullscreen">
      {{yield}}

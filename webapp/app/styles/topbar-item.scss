@@ -1,0 +1,9 @@
+
+.topbar-item {
+  @extend .clickable;
+  color: $blue-default;
+
+  &:hover {
+    color: $blue-darken;
+  }
+}

@@ -7,6 +7,19 @@
 
 .remote-session-topbar {
   height: $topbar-height;
+  background-color: $topbar-background-color;
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 5px 0px 5px;
+  overflow: hidden;
+
+  .left {
+    display: flex;
+  }
+
+  .right {
+    display: flex;
+  }
 }
 
 .canva-fullscreen {

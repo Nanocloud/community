@@ -30,8 +30,9 @@
 $blue-lighter: #f1faff !default;
 $blue-light: #57A9E0 !default;
 $blue-default: #47A0DD !default;
+$blue-darken: darken($blue-default, 15%) !default;
 $white: #fff !default;
-$red: #FF0000 !default;
+$red: #FF0000;
 
 $gray-dark:                 #9B9B9B !default;
 $gray:                      #55595c !default;
@@ -674,4 +675,5 @@ $pre-scrollable-max-height:   340px !default;
 
 // VDI top-bar
 
-$topbar-height:               30px;
+$topbar-height:               25px;
+$topbar-background-color:     #1D1D1D;
