@@ -1,0 +1,36 @@
+.vdi-drag-n-drop {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+
+  .drag-n-drop-area {
+    position: absolute;
+    background-color: $drag-drop-color;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+
+    .message {
+      position: absolute;
+      width: auto;
+      height: 0;
+      text-align:center;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      color: $white;
+      font-size: 28px;
+
+      .text {
+        border: 3px dashed white;
+        padding: 28px;
+        border-radius: 8px;
+      }
+    }
+  }
+}

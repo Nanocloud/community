@@ -16,7 +16,6 @@ export default Ember.Component.extend({
     actions: {
 
       toggle() {
-        console.log('toggle');
         this.toggleProperty('isEditing');
       },
 

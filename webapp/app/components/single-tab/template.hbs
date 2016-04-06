@@ -1,17 +1,22 @@
 {{#if isVisible}}
-  {{#modal-dialog renderInPlace=true containerClassNames="ember-modal-fullscreen"
-  attachment="" targetAttachment=""}}
-  <div class="ember-modal-fullscreen">
-    <div class="remote-session-topbar">
-      <div class="left">
+  {{#modal-dialog  containerClassNames="ember-modal-fullscreen"
+    attachment="" targetAttachment=""}}
+
+    {{#vdi-drag-n-drop as |box|}}  
+      <div class="ember-modal-fullscreen">
+        <div class="remote-session-topbar">
+          <div class="left">
+            {{ topbar-item materialIcon="call_made" }}
+            <span class="state">{{box.getUploadState}}</span>
+          </div>
+          <div class="right">
+            {{ topbar-item materialIcon="close" click="toggleSingleTab" }}
+          </div>
+        </div>
+        <div class="canva-fullscreen">
+            {{yield}}
+        </div>
       </div>
-      <div class="right">
-        {{ topbar-item materialIcon="close" click="toggleSingleTab" }}
-      </div>
-    </div>
-   <div class="canva-fullscreen">
-     {{yield}}
-   </div>
-   </div>
+    {{/ vdi-drag-n-drop }}  
   {{/modal-dialog}}
 {{/if}}
