@@ -27,6 +27,7 @@ var expect = nano.expect;
 
 module.exports = function() {
 
+  var access_token = null;
   describe('Login as an admin', function() {
 
     var expectedSchema = {
@@ -61,9 +62,10 @@ module.exports = function() {
       expect(request.response.data.access_token);
     });
 
+      access_token = request.response.data.access_token;
     var request = nano.post('oauth/revoke', {
       token_type_hint: 'access_token',
-      token: request.response.data.access_token
+      token: access_token
     }, {
       headers: {
         Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
