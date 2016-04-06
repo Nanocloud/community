@@ -63,6 +63,9 @@ module.exports = function() {
     });
 
       access_token = request.response.data.access_token;
+  });
+
+  describe("Logout", function() {
     var request = nano.post('oauth/revoke', {
       token_type_hint: 'access_token',
       token: access_token
