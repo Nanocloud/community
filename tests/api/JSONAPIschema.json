@@ -14,11 +14,18 @@
 
   "definitions": {
     "data": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/resource"
-      },
-      "uniqueItems": true
+      "oneOf": [
+        {
+          "$ref": "#/definitions/resource"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/resource"
+          },
+          "uniqueItems": true
+        }
+      ]
     },
     "resource": {
       "description": "\"Resource objects\" appear in a JSON API document to represent resources.",
@@ -44,4 +51,3 @@
     }
   }
 }
-

@@ -23,6 +23,7 @@
 // jshint mocha:true
 
 var nano = require('./nanotest');
+var expect = nano.expect;
 
 describe('nanocloud is Online', function() {
   nano.get('').shouldReturn(200);
