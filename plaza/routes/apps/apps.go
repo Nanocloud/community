@@ -110,7 +110,7 @@ func PublishApp(c *echo.Context) error {
 	}
 
 	username, pwd, _ := c.Request().BasicAuth()
-	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe  import-module remotedesktop; New-RDRemoteApp -CollectionName "+all.Data.Attributes.CollectionName+" -DisplayName "+all.Data.Attributes.DisplayName+" -FilePath "+all.Data.Attributes.Path, username, pwd, domain)
+	utils.ExecuteCommandAsAdmin("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe Import-module RemoteDesktop; New-RDRemoteApp -CollectionName "+all.Data.Attributes.CollectionName+" -DisplayName "+all.Data.Attributes.DisplayName+" -FilePath '"+all.Data.Attributes.Path+"'", username, pwd, domain)
 	return checkIfPublishSucceeded(c, all.Data.Attributes.DisplayName)
 }
 
