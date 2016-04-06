@@ -27,6 +27,7 @@ var expect = nano.expect;
 
 module.exports = function() {
 
+  var access_token = null;
   describe('Login as an admin', function() {
 
     var expectedSchema = {
@@ -46,14 +47,13 @@ module.exports = function() {
       grant_type: 'password'
     }, {
       headers: {
-        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64'),
-        'Content-Type': 'application/json'
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
       }
     }).shouldReturn(200)
         .shouldBeJSON()
         .shouldComplyToNotJsonAPI(expectedSchema);
 
-    it('should issue Bearer tokens', function() {
+    it('should issue Bearer token', function() {
       expect(request.response.data.token_type).to.equal('Bearer');
     });
 
@@ -61,17 +61,24 @@ module.exports = function() {
       expect(request.response.data.access_token);
     });
 
+    if (request.response.data.access_token) {
+      access_token = request.response.data.access_token;
+    }
+
+  });
+
+  describe("Logout", function() {
     var request = nano.post('oauth/revoke', {
       token_type_hint: 'access_token',
-      token: request.response.data.access_token
+      token: access_token
     }, {
       headers: {
         Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
       },
-    }).shouldReturn(200)
+    }).shouldReturn(200);
 
     it('should be empty payload', function() {
-      expect(request.response.data).to.be.empty
+      expect(request.response.data).to.be.empty;
     });
   });
 
