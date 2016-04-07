@@ -32,5 +32,19 @@
         opacity: 0;
       }
     }
+
+    &.state-show {
+      background-color: rgba(0, 144, 255, 0.6);
+      .text {
+        opacity: 1;
+      }
+    }
+
+    &.state-hide {
+      background-color: rgba(0, 144, 255, 0);
+      .text {
+        opacity: 0;
+      }
+    }
   }
 }

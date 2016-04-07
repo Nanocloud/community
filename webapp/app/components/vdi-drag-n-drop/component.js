@@ -6,15 +6,14 @@ export default Ember.Component.extend({
   flow: null,
   state: null,
   progress: null,
-  
+  show: false,
+
   showElement() {
-    Ember.$('.drag-n-drop-area').css("background-color", "rgba(0, 144, 255, 0.6)");
-    Ember.$('.drag-n-drop-area .text').css("opacity", "1");
+    this.set('show', true);
   },
 
   hideElement() {
-    Ember.$('.drag-n-drop-area').css("background-color", "rgba(0, 144, 255, 0)");
-    Ember.$('.drag-n-drop-area .text').css("opacity", "0");
+    this.set('show', false);
   },
 
   dragEnter() {

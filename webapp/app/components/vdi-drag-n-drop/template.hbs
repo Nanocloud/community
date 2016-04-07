@@ -4,7 +4,8 @@
       stopUpload=(action 'cancelUpload')
       progress=progress) 
   }}
-  <div class='drag-n-drop-area transition-enabled-2'>
+  <div class='drag-n-drop-area transition-enabled-2
+    {{ if show "state-show" "state-hide"  }}'>
     <div class='element-active-state message'>
       <span class='text transition-enabled-2'>Drop your file here</span>
     </div>
