@@ -36,7 +36,6 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/files"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/history"
-	"github.com/Nanocloud/community/nanocloud/routes/logout"
 	"github.com/Nanocloud/community/nanocloud/routes/machines"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/sessions"
@@ -108,11 +107,6 @@ func main() {
 	e.Use(middleware.Recover())
 
 	e.SetHTTPErrorHandler(apiErrors.Handler)
-
-	/**
-	 * LOGOUT
-	 */
-	e.Post("/api/logout", m.OAuth2(logout.Post))
 
 	/**
 	 * APPS

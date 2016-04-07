@@ -27,6 +27,7 @@ var expect = nano.expect;
 
 module.exports = function() {
 
+  var access_token = null;
   describe('Login as an admin', function() {
 
     var expectedSchema = {
@@ -34,7 +35,7 @@ module.exports = function() {
       properties: {
         access_token: {type: 'string'},
         token_type: {'type': 'string'},
-				expires_in: {type: 'integer'}
+        expires_in: {type: 'integer'}
       },
       required: ['access_token', 'token_type', 'expires_in'],
       additionalProperties: false
@@ -52,8 +53,32 @@ module.exports = function() {
         .shouldBeJSON()
         .shouldComplyToNotJsonAPI(expectedSchema);
 
-    it('should issue Bearer tokens', function() {
+    it('should issue Bearer token', function() {
       expect(request.response.data.token_type).to.equal('Bearer');
+    });
+
+    it('should return a token', function() {
+      expect(request.response.data.access_token);
+    });
+
+    if (request.response.data.access_token) {
+      access_token = request.response.data.access_token;
+    }
+
+  });
+
+  describe("Logout", function() {
+    var request = nano.post('oauth/revoke', {
+      token_type_hint: 'access_token',
+      token: access_token
+    }, {
+      headers: {
+        Authorization: 'Basic ' + new Buffer(nano.CLIENTID).toString('base64')
+      },
+    }).shouldReturn(200);
+
+    it('should be empty payload', function() {
+      expect(request.response.data).to.be.empty;
     });
   });
 
