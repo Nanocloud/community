@@ -6,7 +6,9 @@
     </div>
     <div class='action-btn-wrapper'>
       <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
-      <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
+      {{#if session.user.isAdmin}}
+        <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
+      {{/if}}
     </div>
     <table class="table application-table">
       <tbody>
