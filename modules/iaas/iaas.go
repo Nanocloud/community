@@ -221,7 +221,7 @@ func GetList() (VMstatus, error) {
 	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", conf.instDir))
 	for _, file := range files {
 		fileName := file.Name()
-		if !strings.Contains(fileName, ".qcow245") /*&& !strings.Contains(fileName, ".iso")*/ {
+		if !strings.Contains(fileName, ".qcow2") {
 			continue
 		}
 		fi, err := os.Open(filepath.Join(conf.instDir, "downloads", fileName))
@@ -456,8 +456,19 @@ func downloadFromUrl(downloadUrl string, dst string) error {
 
 	err = os.Rename(tempDst, dst)
 	if err != nil {
-		log.Error("Error while creating", dst, "-", err)
-		return VMDownloadFailed
+		// If copy fails that's probably because downloads and image are not on the same partition
+		// In this case we should make an hard copy
+		err = copyFile(tempDst, dst)
+		if err != nil {
+			log.Error("Error while creating ", dst, "-", err)
+			return VMDownloadFailed
+		}
+		err = os.Remove(tempDst)
+		if err != nil {
+			log.Error("Error while removing ", tempDst, "-", err)
+			return VMDownloadFailed
+		}
+
 	}
 
 	log.Info(n, "bytes downloaded.")

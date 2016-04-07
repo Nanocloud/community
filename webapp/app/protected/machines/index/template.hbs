@@ -6,24 +6,16 @@
   </h4>
   <div class='content-wrapper machines-wrapper'>
     {{#each machines as |machine|}}
-      {{#link-to 'protected.machines.machine' machine}}
-        <div class="machine">
-            <div class='state-color {{machine.status}}'></div>
-            <div class="machine-status">
-              <i class='material-icons'>computer</i>
-            </div>
-            <span class='title'>
-              {{machine.name}}
-            </span>
-        </div>
-      {{/link-to}}
+      {{machine-item machine=machine}}
     {{else}}
-    There is no machine.
+      <div class="alert alert-info" role="alert">
+        <strong>You are one click way from having your favorite apps accessible from your web browser</strong>
+        <br />
+        Click "Download Windows" to download the Windows Virtual machine that will host your applications
+      </div>
+      <button {{action "downloadWindows"}} class='btn btn-primary btn-block'>
+        Download Windows
+      </button>
     {{/each}}
   </div>
-
-  {{#link-to 'protected.machines.new' class='btn btn-primary pull-xs-right'}}
-    Add machine
-  {{/link-to}}
-  <div class="clearfix"></div>
 </div>

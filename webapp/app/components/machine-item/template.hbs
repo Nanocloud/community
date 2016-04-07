@@ -1,0 +1,14 @@
+{{#link-to 'protected.machines.machine' machine}}
+<div class="machine">
+  <div class='state-color {{machine.status}}'></div>
+  <div class="machine-status">
+    <i class='material-icons'>computer</i>
+  </div>
+  <span class='title'>
+    {{machine.name}}
+  </span>
+  {{#if machine.isDownloading}}
+    <progress class="progress machine-progress" value="{{machine.progress}}" max="{{machine.progress}}">{{machine.progress}}%</progress>
+  {{/if}}
+</div>
+{{/link-to}}
