@@ -9,6 +9,6 @@ export default Ember.Component.extend({
     toggleSingleTab() {
       this.sendAction('onClose', this.get('connectionName'));
       this.toggleProperty('isVisible');
-    }
+    },
   }
 });

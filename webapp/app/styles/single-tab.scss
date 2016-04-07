@@ -7,6 +7,38 @@
 
 .remote-session-topbar {
   height: $topbar-height;
+  background-color: $topbar-background-color;
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 5px 0px 5px;
+  overflow: hidden;
+
+  .left {
+    display: flex;
+  }
+
+  .right {
+    display: flex;
+  }
+
+  .link,
+  .state {
+    font-size: 14px;
+    padding-top: 3px;
+    margin: 0px 0px 0px 5px;
+  }
+  
+  .upload-state-enabled {
+    color: $gray;
+  }
+
+  .upload-state-enabled {
+    color: $blue-default;
+  }
+
+  .go-back {
+    color: $blue-default;
+  }
 }
 
 .canva-fullscreen {

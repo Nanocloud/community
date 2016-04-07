@@ -1,13 +1,38 @@
 {{#if isVisible}}
-  {{#modal-dialog renderInPlace=true containerClassNames="ember-modal-fullscreen"
-  attachment="" targetAttachment=""}}
-  <div class="ember-modal-fullscreen">
-    <div class="remote-session-topbar">
-      <button {{ action "toggleSingleTab" }}>Close</button>
-    </div>
-   <div class="canva-fullscreen">
-     {{yield}}
-   </div>
-   </div>
+  {{#modal-dialog containerClassNames="ember-modal-fullscreen"
+    attachment="" targetAttachment=""}}
+
+    {{#vdi-drag-n-drop as |uploadData|}}  
+      <div class="ember-modal-fullscreen">
+        <div class="remote-session-topbar">
+          <div class="left">
+            {{#if uploadData.progress}}
+              {{ topbar-item materialIcon="call_made" class="upload-state-enabled"}}
+              <span class="state">{{uploadData.progress}}%
+                {{ fa-icon "refresh" spin=true}}
+              </span>
+            {{else}}
+              {{ topbar-item materialIcon="call_made" class="upload-state-disabled" }}
+            {{/if}}
+            <span class="state">{{uploadData.state}}</span>
+            {{#if uploadData.progress}}
+              <span class="link icon_link" {{ action uploadData.stopUpload }}>Cancel</span>
+            {{/if}}
+          </div>
+          <div class="right">
+            {{ topbar-item 
+              clickable=true
+              class="go-back"
+              hover-enabled=true
+              materialIcon="home"
+              click="toggleSingleTab"
+            }}
+          </div>
+        </div>
+        <div class="canva-fullscreen">
+            {{yield}}
+        </div>
+      </div>
+    {{/vdi-drag-n-drop }}  
   {{/modal-dialog}}
 {{/if}}

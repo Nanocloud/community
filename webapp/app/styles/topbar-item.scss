@@ -1,0 +1,14 @@
+.topbar-item {
+
+  &.active {
+    color: $gray;
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
+}
+
+.topbar-item.hover-enabled:hover {
+  color: $blue-darken;
+}
