@@ -59,7 +59,7 @@ var (
 	kProtocol             string
 )
 
-type ApplicationParams struct {
+type Application struct {
 	Id             int    `json:"-"`
 	CollectionName string `json:"collection-name"`
 	Alias          string `json:"alias"`
@@ -68,7 +68,11 @@ type ApplicationParams struct {
 	IconContents   []byte `json:"icon-content"`
 }
 
-type ApplicationParamsWin struct {
+func (a *Application) GetID() string {
+	return strconv.Itoa(a.Id)
+}
+
+type ApplicationWin struct {
 	Id             int
 	CollectionName string
 	Alias          string
@@ -117,8 +121,7 @@ func ChangeName(appId, newName string) error {
 	return nil
 }
 
-func GetAllApps() ([]ApplicationParams, error) {
-	var applications []ApplicationParams
+func GetAllApps() ([]*Application, error) {
 	rows, err := db.Query(
 		`SELECT id, collection_name,
 		alias, display_name,
@@ -133,8 +136,10 @@ func GetAllApps() ([]ApplicationParams, error) {
 
 	defer rows.Close()
 
+	applications := make([]*Application, 0)
+
 	for rows.Next() {
-		appParam := ApplicationParams{}
+		appParam := Application{}
 
 		rows.Scan(
 			&appParam.Id,
@@ -144,19 +149,15 @@ func GetAllApps() ([]ApplicationParams, error) {
 			&appParam.FilePath,
 			&appParam.IconContents,
 		)
-		applications = append(applications, appParam)
+		applications = append(applications, &appParam)
 
 	}
 
-	if len(applications) == 0 {
-		applications = []ApplicationParams{}
-	}
 	return applications, nil
 
 }
 
-func GetUserApps(userId string) ([]ApplicationParams, error) {
-	var applications []ApplicationParams
+func GetUserApps(userId string) ([]*Application, error) {
 	rows, err := db.Query(
 		`SELECT id, collection_name,
 		alias, display_name,
@@ -172,8 +173,10 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 
 	defer rows.Close()
 
+	applications := make([]*Application, 0)
+
 	for rows.Next() {
-		appParam := ApplicationParams{}
+		appParam := Application{}
 
 		rows.Scan(
 			&appParam.Id,
@@ -184,17 +187,14 @@ func GetUserApps(userId string) ([]ApplicationParams, error) {
 			&appParam.IconContents,
 		)
 		if appParam.Alias != "hapticPowershell" && appParam.Alias != "Desktop" {
-			applications = append(applications, appParam)
+			applications = append(applications, &appParam)
 		}
 	}
 
-	if len(applications) == 0 {
-		applications = []ApplicationParams{}
-	}
 	return applications, nil
 }
 
-func AddApp(params ApplicationParams) error {
+func AddApp(params Application) error {
 	_, err := db.Query(
 		`INSERT INTO apps
 			(collection_name, alias, display_name, file_path)
@@ -217,8 +217,10 @@ func CheckPublishedApps() {
 	}
 	for {
 		time.Sleep(5 * time.Second)
-		var winapp ApplicationParams
-		var apps []ApplicationParams
+
+		var winapp Application
+		apps := make([]*Application, 0)
+
 		resp, err := http.Get("http://" + kServer + ":9090/apps")
 		if err != nil {
 			continue
@@ -372,7 +374,7 @@ func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, e
 	defer rows.Close()
 	var execServ string
 	for rows.Next() {
-		appParam := ApplicationParams{}
+		appParam := Application{}
 		rows.Scan(
 			&appParam.Alias,
 		)

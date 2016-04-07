@@ -2,8 +2,9 @@ package db
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 var _db *sql.DB
@@ -37,4 +38,12 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
 		return nil, err
 	}
 	return db.Exec(query, args...)
+}
+
+func Begin() (*sql.Tx, error) {
+	db, err := getInstance()
+	if err != nil {
+		return nil, err
+	}
+	return db.Begin()
 }

@@ -149,7 +149,7 @@ func UnpublishApplication(c *echo.Context) error {
 }
 
 func AddApplication(c *echo.Context) error {
-	var p apps.ApplicationParams
+	var p apps.Application
 
 	err := utils.ParseJSONBody(c, &p)
 	if err != nil {
