@@ -1,6 +1,7 @@
 .machine {
   display: inline-block;
   position: relative;
+
   padding: 20px 45px 20px 45px;
   margin: 0px 10px 10px 0px;
   border: 1px solid #DAE6EF;
@@ -13,6 +14,10 @@
       text-decoration: underline;
     }
   }
+}
+
+.machine-progress {
+  height: 8px;
 }
 
 .state-color {

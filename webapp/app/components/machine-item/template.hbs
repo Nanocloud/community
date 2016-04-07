@@ -7,5 +7,8 @@
   <span class='title'>
     {{machine.name}}
   </span>
+  {{#if machine.isDownloading}}
+    <progress class="progress machine-progress" value="{{machine.progress}}" max="{{machine.progress}}">0%</progress>
+  {{/if}}
 </div>
 {{/link-to}}

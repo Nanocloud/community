@@ -7,12 +7,16 @@ export default DS.Model.extend({
   ip: DS.attr('string'),
   adminPassword: DS.attr('string'),
   platform: DS.attr('string'),
+  progress: DS.attr('number'),
 
   isUp: Ember.computed('status', function() {
     return this.get('status') === 'up';
   }),
   isDown: Ember.computed('status', function() {
     return this.get('status') === 'down';
+  }),
+  isDownloading: Ember.computed('status', function() {
+    return this.get('status') === 'creating';
   }),
 
   getPlatform: Ember.computed('platform', function() {
