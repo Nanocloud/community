@@ -221,7 +221,7 @@ func GetList() (VMstatus, error) {
 	files, _ = ioutil.ReadDir(fmt.Sprintf("%s/downloads/", conf.instDir))
 	for _, file := range files {
 		fileName := file.Name()
-		if !strings.Contains(fileName, ".qcow245") /*&& !strings.Contains(fileName, ".iso")*/ {
+		if !strings.Contains(fileName, ".qcow2") {
 			continue
 		}
 		fi, err := os.Open(filepath.Join(conf.instDir, "downloads", fileName))
