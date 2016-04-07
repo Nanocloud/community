@@ -3,6 +3,7 @@ import ApplicationRouteMixin from 'ember-simple-auth/mixins/application-route-mi
 
 export default Ember.Route.extend(ApplicationRouteMixin, {
   sessionInvalidated() {
+    this.store.unloadAll();
     this.toast.info('Your session has expired.');
     this.transitionTo('login');
   },
