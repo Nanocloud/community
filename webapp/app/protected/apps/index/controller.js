@@ -6,6 +6,7 @@ export default Ember.Controller.extend({
   connectionName: null,
   store: Ember.inject.service('store'),
   remoteSession: Ember.inject.service('remote-session'),
+  session: Ember.inject.service('session'),
 
   applications: Ember.computed(function() {
     return this.get('model')
