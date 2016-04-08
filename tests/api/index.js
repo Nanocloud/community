@@ -50,3 +50,4 @@ require('./test-login')();
 require('./test-users')(admin);
 require('./test-sessions')(admin);
 require('./test-files')(admin);
+require('./test-download')(admin);

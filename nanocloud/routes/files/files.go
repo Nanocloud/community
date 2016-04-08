@@ -239,7 +239,16 @@ func Get(c *echo.Context) error {
 	}
 
 	filename = strings.Replace(filename, "/", "\\", -1)
-	path = filename
+
+	if filename[0] == '.' {
+		path = fmt.Sprintf(
+			"C:\\Users\\%s\\Desktop\\Nanocloud%s",
+			user.Sam,
+			filename,
+		)
+	} else {
+		path = filename
+	}
 
 	resp, err := http.Get("http://" + kExecutionServer + ":9090/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {
@@ -256,7 +265,7 @@ func Get(c *echo.Context) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("Unable to retreive the file")
+		return errors.New("Unable to retrieve the file")
 	}
 
 	var contentType string

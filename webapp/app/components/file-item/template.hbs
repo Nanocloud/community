@@ -1,0 +1,11 @@
+<div class='app-item-block'>
+  <div class='app-item part1'>
+    <i class='va-top material-icons'>{{ file.icon }}</i>
+  </div>
+  <div class='app-item part2'>
+    <span>{{file.name}}</span>
+  </div>
+  <div class='app-item part3'>
+    <i class='va-top material-icons icon_link' {{ action "triggerDownload" file.name }}>file_download</i>
+  </div>
+</div>

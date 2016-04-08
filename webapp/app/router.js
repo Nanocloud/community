@@ -18,6 +18,7 @@ Router.map(function() {
     this.route('apps', function() {
       this.route('app', { path: '/:app_id' });
     });
+    this.route('files', function() {});
   });
 
   this.route('login');
