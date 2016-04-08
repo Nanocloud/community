@@ -7,7 +7,7 @@ export default Ember.Controller.extend({
   actions: {
     add() {
       if (this.get('model.password') !== this.get('passwordConfirmation')) {
-        this.set('errorMessage', "Password must match");
+        this.toast.error('Password must match');
         return ;
       }
       this.model.save()
