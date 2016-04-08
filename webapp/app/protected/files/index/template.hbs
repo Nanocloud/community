@@ -1,0 +1,18 @@
+<div class="section p-a-2">
+  <h4>Files</h4>
+  <div class='content-wrapper'>
+    <table class="table application-table">
+      <tbody>
+        {{#each items as |file|}}
+          {{#unless file.isDir}}
+            {{ file-item file=file download="downloadFile" }}
+          {{/unless}}
+        {{else}}
+          No files available.
+        {{/each}}
+      </tbody>
+    </table>
+    <div class="clearfix"></div>
+  </div>
+</div>
+

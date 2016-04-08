@@ -155,6 +155,7 @@ func main() {
 	* Files
 	 */
 	e.Get("/api/files", files.Get)
+	e.Get("/api/files/token", m.OAuth2(files.GetDownloadToken))
 
 	/**
 	 * FRONT

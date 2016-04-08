@@ -4,10 +4,16 @@ export default DS.Model.extend({
   type: DS.attr('string'),
   name: DS.attr('string'),
   icon: function() {
-    if (this.get('type') === 'directory') {
+    if (this.get('isDir')) {
       return ('folder');
     }
     return ('description');
+  }.property(),
+  isDir: function() {
+    if (this.get('type') === 'directory') {
+      return true;
+    }
+    return false;
   }.property(),
   isSelected: false,
 });

@@ -25,6 +25,15 @@
             {{/link-to}}
           </li>
 
+          <li>
+            {{#link-to 'protected.files'}}
+              <span class="icon">
+                <i class="material-icons">folder</i>
+              </span>
+              Files 
+            {{/link-to}}
+          </li>
+
           {{#if session.user.isAdmin}}
             <li>
               {{#link-to 'protected.users'}}
