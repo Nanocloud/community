@@ -1,8 +1,11 @@
-.ember-modal-fullscreen {
+.single-tab-container {
+  top: 0;
+  left: 0;
+  position: fixed;
   width: 100%;
   height: 100%;
-  border-radius: 0;
-  padding: 0;
+  z-index: 50;
+  background: #fff;
 }
 
 .remote-session-topbar {
@@ -27,7 +30,7 @@
     padding-top: 3px;
     margin: 0px 0px 0px 5px;
   }
-  
+
   .upload-state-enabled {
     color: $gray;
   }
