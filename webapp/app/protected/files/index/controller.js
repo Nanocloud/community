@@ -12,6 +12,9 @@ export default Ember.Controller.extend({
       .then((response) => {
         this.set('items', response);
       })
+      .catch(() => {
+        this.toast.error("Couldn't retrieve files");
+      });
   }.on('init'),
 
   actions : {
@@ -27,7 +30,8 @@ export default Ember.Controller.extend({
      .then((response) => {
         let url = "/api/files?filename=" + encodeURIComponent("./" + filename) + "&token=" + encodeURIComponent(response.token); 
         window.open(url);
-     }, () => {
+     })
+     .catch(() => {
        this.toast.error("Couldn't retrieve a token to download the file");
      });
     },
