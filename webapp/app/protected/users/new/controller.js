@@ -10,6 +10,10 @@ export default Ember.Controller.extend({
         this.toast.error('Password must match');
         return ;
       }
+      if (!this.model.validate()) {
+        return this.toast.error('Cannot create user');
+      }
+
       this.model.save()
         .then(() => {
           this.transitionToRoute('protected.users');
