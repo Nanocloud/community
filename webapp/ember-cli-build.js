@@ -6,8 +6,8 @@ module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
     // Add options here
     emberCliFontAwesome: {
-      useScss: true, // for ember-cli-sass 
-      useLess: true  // for ember-cli-less 
+      useScss: true, // for ember-cli-sass
+      useLess: false // for ember-cli-less
     }
   });
 
