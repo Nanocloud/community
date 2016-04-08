@@ -6,26 +6,13 @@
  </h4>
   <div class="content-wrapper form">
     <form {{action 'add' on='submit'}}>
-      <fieldset class="form-group">
-        {{input class='form-control' placeholder='Firstname' value=model.firstName}}
-      </fieldset>
-      <fieldset class="form-group">
-        {{input class='form-control' placeholder='Lastname' value=model.lastName}}
-      </fieldset>
-      <fieldset class="form-group">
-        {{input class='form-control' placeholder='Email address' value=model.email}}
-      </fieldset>
-      <fieldset class="form-group">
-        {{input class='form-control' placeholder='Password' type='password' value=model.password}}
-      </fieldset>
-      <fieldset class="form-group">
-        {{input class='form-control' placeholder='Password confirmation' type='password' value=passwordConfirmation}}
-      </fieldset>
-      <button type="submit" class="btn btn-primary btn-block text-uppercase">Create</button>
-    </form>
+        {{nano-input placeholder='Firstname' model=model valuePath="firstName"}}
+        {{nano-input placeholder='Lastname' model=model valuePath="lastName"}}
+        {{nano-input placeholder='Email address' model=model valuePath="email"}}
+        {{nano-input placeholder='Password' type="password" model=model valuePath="password"}}
+        {{nano-input placeholder='Password confirmation' type="password" value=passwordConfirmation}}
 
-    {{#if errorMessage}}
-      <p>{{errorMessage}}</p>
-    {{/if}}
+        <button type="submit" class="btn btn-primary btn-block text-uppercase">Create</button>
+    </form>
   </div>
 </div>
