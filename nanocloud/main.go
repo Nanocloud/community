@@ -159,7 +159,6 @@ func main() {
 	/**
 	 * FRONT
 	 */
-	e.Static("/canva/", front.StaticCanvaDirectory)
 	e.Static("/", front.StaticDirectory)
 
 	/**
