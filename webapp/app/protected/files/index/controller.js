@@ -25,9 +25,10 @@ export default Ember.Controller.extend({
         data: { filename: "./" + filename}
       })
      .then((response) => {
-
-      let url = "/api/files?filename=" + encodeURIComponent("./" + filename) + "&token=" + encodeURIComponent(response.token); 
-      window.open(url);
+        let url = "/api/files?filename=" + encodeURIComponent("./" + filename) + "&token=" + encodeURIComponent(response.token); 
+        window.open(url);
+     }, () => {
+       this.toast.error("Couldn't retrieve a token to download the file");
      });
     },
   }

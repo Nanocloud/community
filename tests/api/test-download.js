@@ -31,15 +31,25 @@ module.exports = function(admin) {
 
   describe("Get download token", function() {
 
+    var expectedSchema = {
+      type: 'object',
+      properties: {
+        token: {type: 'string'},
+      },
+      required: ['token'],
+      additionalProperties: false
+    };
+
     var requestToken = nano.as(admin).get("api/files/token", { filename : pathToBeTested + "\\Windows\\system.ini" })
       .shouldReturn(200)
+      .shouldComplyToNotJsonAPI(expectedSchema);
 
     it("should return a token",  function() {
       return expect(requestToken.response.data.token).not.to.be.empty; 
     });
 
     if (requestToken.response.data.token) {
-      downloadToken = requestToken.response.data.token;
+      downloadToken = requestToken.response.token;
     }
   });
 
