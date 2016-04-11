@@ -12,14 +12,12 @@
     </div>
     <table class="table application-table">
       <tbody>
-        {{#each getFileteredApplicationList as |application|}}
-          {{#unless application.isNew}}
-            {{ app-item 
-              application=application
-              connectionName=connectionName
-              showSingleTab=showSingleTab 
-            }}
-          {{/unless}}
+        {{#each applicationList as |application|}}
+          {{ app-item 
+            application=application
+            connectionName=connectionName
+            showSingleTab=showSingleTab 
+          }}
         {{else}}
           No applications available.
         {{/each}}
