@@ -1,6 +1,6 @@
 {
   "name": "nanocloud",
-  "version": "0.4.0",
+  "version": "0.6.0beta1",
   "description": "Nanocloud frontend",
   "private": true,
   "directories": {

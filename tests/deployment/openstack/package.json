@@ -1,6 +1,6 @@
 {
   "name": "nanocloud-deployment-openstack",
-  "version": "0.5.1",
+  "version": "0.6.0beta1",
   "description": "Script to deploy Nanocloud on openstack",
   "main": "deploy.js",
   "scripts": {

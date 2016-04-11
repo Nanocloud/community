@@ -1,6 +1,6 @@
 {
   "name": "nanocloud-tests",
-  "version": "0.5.1",
+  "version": "0.6.0beta1",
   "description": "Tests suits for Nanocloud Community edition",
   "main": "run-tests.js",
   "scripts": {
