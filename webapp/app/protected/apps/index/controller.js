@@ -8,20 +8,29 @@ export default Ember.Controller.extend({
   remoteSession: Ember.inject.service('remote-session'),
   session: Ember.inject.service('session'),
 
-  applications: Ember.computed(function() {
-    return this.get('model')
+  getFileteredApplicationList: function() {
+    return this.get('model').toArray()
       .rejectBy('alias', 'hapticPowershell')
       .rejectBy('alias', 'hapticDesktop');
-  }),
+  }.property('model'),
+
+  applications: function() {
+    return this.getFileteredApplicationList(this.get('model'));
+  }.property(),
+
+
+  updateApplicationList: function() {
+    this.set('applications', this.getFileteredApplicationList());
+  },
 
   actions: {
 
-    disconnectGuacamole(connectionName) {
-      this.get('remoteSession').disconnectSession(connectionName);
+    updateModel() {
+      this.model.update()
     },
 
-    publish() {
-      this.store.createRecord('application', {});
+    disconnectGuacamole(connectionName) {
+      this.get('remoteSession').disconnectSession(connectionName);
     },
 
     toggleSingleTab(connectionName) {
