@@ -257,9 +257,18 @@ func ChangeAppName(c *echo.Context) error {
 			},
 		})
 	}
-	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
-	})
+
+	application, err := apps.GetApp(appId)
+
+	if application == nil {
+		return c.JSON(http.StatusNotFound, hash{
+			"error": [1]hash{
+				hash{
+					"detail": "Application Not Found",
+				},
+			},
+		})
+	}
+
+	return utils.JSON(c, http.StatusOK, application)
 }

@@ -41,6 +41,7 @@ import (
 
 var (
 	GetAppsFailed       = errors.New("Can't get apps list")
+	GetAppFailed        = errors.New("Can't get app")
 	UnpublishFailed     = errors.New("Unpublish application failed")
 	PublishFailed       = errors.New("Publish application failed")
 	AppsListUnavailable = errors.New("Apps list isn't available")
@@ -119,6 +120,39 @@ func ChangeName(appId, newName string) error {
 		return FailedNameChange
 	}
 	return nil
+}
+
+func GetApp(appId string) (*Application, error) {
+	rows, err := db.Query(
+		`SELECT id, collection_name,
+		alias, display_name,
+		file_path,
+		icon_content
+		FROM apps WHERE id = $1::int`, appId)
+
+	if err != nil {
+		return nil, GetAppFailed
+	}
+
+	defer rows.Close()
+	if rows.Next() {
+		var application Application
+
+		err = rows.Scan(
+			&application.Id,
+			&application.CollectionName,
+			&application.Alias,
+			&application.DisplayName,
+			&application.FilePath,
+			&application.IconContents,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		return &application, nil
+	}
+	return nil, nil
 }
 
 func GetAllApps() ([]*Application, error) {

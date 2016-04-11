@@ -26,7 +26,8 @@ export default Ember.Component.extend({
         this.application.save()
           .then(() => {
             this.toast.success("Application has been renamed successfully");
-          }, () => {
+          })
+          .catch(() => {
             this.toast.error("Application hasn't been renamed");
           });
       },
