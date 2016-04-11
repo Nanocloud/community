@@ -44,6 +44,7 @@ export default Ember.Component.extend({
     });
 
     this.flow.assignDrop(this.element);
+    this.flow.assignBrowse(this.element);
 
     this.flow.on('filesSubmitted', () => {
       this.flow.upload();
