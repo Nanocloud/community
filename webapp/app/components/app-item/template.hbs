@@ -1,3 +1,4 @@
+{{#unless isUnpublished}}
 <div class='app-item-block'>
   <div class='app-item part1'>
     {{#if application.iconContent}}
@@ -19,7 +20,12 @@
   </div>
   <div class='app-item part3'>
     {{#if session.user.isAdmin}}
-      <span class='icon_link' {{ action "unpublish" }}>Unpublish</span>
+      {{#if unpublishState}}
+        {{ fa-icon "spinner" spin=true}}
+      {{else}}
+        <span class='icon_link' {{ action "unpublish" }}>Unpublish</span>
+      {{/if}}
     {{/if}}
   </div>
 </div>
+{{/unless}}

@@ -7,6 +7,8 @@ export default Ember.Component.extend({
     connectionName: null,
     showSingleTab: false,
     session: Ember.inject.service('session'),
+    unpublishState: false,
+    isUnpublished: false,
  
     actions : {
 
@@ -25,7 +27,7 @@ export default Ember.Component.extend({
           .then(() => {
             this.toast.success("Application has been renamed successfully");
           }, () => {
-            this.toast.success("Application hasn't been renamed");
+            this.toast.error("Application hasn't been renamed");
           });
       },
 
@@ -34,7 +36,16 @@ export default Ember.Component.extend({
       },
 
       unpublish() {
-        this.application.destroyRecord();
+        this.set('unpublishState', true);
+        this.application.destroyRecord()
+          .then(() => {
+            this.toast.success("Application has been unpublished successfully");
+            this.set('unpublishState', false);
+            this.set('isUnpublished', true);
+          }, () => {
+            this.toast.error("Application hasn't been unpublished");
+            this.set('unpublishState', false);
+          });
       }
     }
 });

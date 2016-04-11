@@ -99,7 +99,7 @@ export default Ember.Component.extend({
       alias: name,
       displayName: name, 
       collectionName: "collection",
-      path: this.fullPath()
+      path: this.fullPath(),
     });
 
     this.set('isPublishing', true);
