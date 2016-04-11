@@ -50,5 +50,7 @@ module.exports = function(defaults) {
     destDir: 'assets/fonts'
   });
 
+  app.import('bower_components/bootstrap/dist/js/bootstrap.js');
+
   return app.toTree();
 };
