@@ -61,16 +61,16 @@ var (
 		"The request is not valid.",
 	}
 
-	InvalidMarchineStatus = &apiError{
+	WindowsNotOnline = &apiError{
 		0x000007,
-		http.StatusBadRequest,
-		"The specified machine status is not valid.",
+		http.StatusServiceUnavailable,
+		"Windows is not available.",
 	}
 
-	UnableToUpdateMachineStatus = &apiError{
+	NeedFirstConnection = &apiError{
 		0x000008,
-		http.StatusInternalServerError,
-		"The machine status cannot be updated.",
+		http.StatusServiceUnavailable,
+		"The features requires a first connection to Windows to be available",
 	}
 
 	UnableToCreateTheMachine = &apiError{
@@ -91,15 +91,15 @@ var (
 		"The machine list cannot be retrieved.",
 	}
 
-	WindowsNotOnline = &apiError{
+	InvalidMarchineStatus = &apiError{
 		0x000011,
-		http.StatusServiceUnavailable,
-		"Windows is not available.",
+		http.StatusBadRequest,
+		"The specified machine status is not valid.",
 	}
 
-	NeedFirstConnection = &apiError{
+	UnableToUpdateMachineStatus = &apiError{
 		0x000012,
-		http.StatusServiceUnavailable,
-		"The features requires a first connection to Windows to be available",
+		http.StatusInternalServerError,
+		"The machine status cannot be updated.",
 	}
 )
