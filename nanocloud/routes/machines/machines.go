@@ -26,6 +26,7 @@ import (
 	"net/http"
 
 	"github.com/Nanocloud/community/nanocloud/connectors/vms"
+	"github.com/Nanocloud/community/nanocloud/errors"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	vm "github.com/Nanocloud/community/nanocloud/vms"
 	log "github.com/Sirupsen/logrus"
@@ -34,218 +35,214 @@ import (
 
 type hash map[string]interface{}
 
-type sMachine struct {
-	Id         string `json:"id"`
-	Type       string `json:"type"`
-	Attributes struct {
-		Name          string `json:"name"`
-		Ip            string `json:"ip"`
-		Status        string `json:"status"`
-		AdminPassword string `json:"admin-password,omitempty"`
-		Platform      string `json:"platform"`
-	} `json:"attributes"`
+type machine struct {
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	Ip            string `json:"ip"`
+	Type          string `json:"type"`
+	Status        string `json:"status"`
+	AdminPassword string `json:"admin-password,omitempty"`
+	Platform      string `json:"platform"`
+	Progress      int    `json:"progress"`
 }
 
-func serializableMachine(m vm.Machine) *sMachine {
-	rt := sMachine{}
-	rt.Id = m.Id()
-	rt.Type = "machine"
-	rt.Attributes.Name, _ = m.Name()
-	status, _ := m.Status()
-	rt.Attributes.Status = vm.StatusToString(status)
-	ip, _ := m.IP()
-	rt.Attributes.Ip = string(ip)
-	rt.Attributes.Platform = m.Platform()
-	return &rt
+func (m *machine) GetID() string {
+	return m.Id
 }
 
-func retJsonError(c *echo.Context, err error) error {
-	return c.JSON(
-		http.StatusInternalServerError, hash{
-			"errors": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		})
+func (m *machine) SetID(id string) error {
+	m.Id = id
+	return nil
 }
 
 func PatchMachine(c *echo.Context) error {
-	body := struct {
-		Data sMachine `json:"data"`
-	}{}
+	b := &machine{}
 
-	err := utils.ParseJSONBody(c, &body)
+	err := utils.ParseJSONBody(c, b)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.UnableToUpdateMachineStatus
 	}
 
-	m, err := vms.Machine(body.Data.Id)
+	m, err := vms.Machine(b.Id)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.UnableToUpdateMachineStatus
 	}
 
-	s, err := m.Status()
+	status, err := m.Status()
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.UnableToUpdateMachineStatus
 	}
 
-	if body.Data.Attributes.Status == "up" {
-		if s == vms.StatusDown {
-			err = m.Start()
-			if err != nil {
-				return err
-			}
+	switch b.Status {
+	case "up":
+		if status != vms.StatusDown {
+			return errors.UnableToUpdateMachineStatus
 		}
-	} else if body.Data.Attributes.Status == "down" {
-		if s == vms.StatusUp {
-			err = m.Stop()
-			if err != nil {
-				return err
-			}
+
+		err = m.Start()
+		if err != nil {
+			log.Error(err)
+			return errors.UnableToUpdateMachineStatus
 		}
+
+	case "down":
+		if status != vms.StatusUp {
+			return errors.UnableToUpdateMachineStatus
+		}
+		err = m.Stop()
+		if err != nil {
+			log.Error(err)
+			return errors.UnableToUpdateMachineStatus
+		}
+
+	default:
+		log.Error(err)
+		return errors.UnableToUpdateMachineStatus
 	}
 
 	m, err = vms.Machine(m.Id())
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.UnableToUpdateMachineStatus
 	}
-	return c.JSON(http.StatusOK, hash{"data": serializableMachine(m)})
+
+	rt, err := getSerializableMachine(m.Id())
+	if err != nil {
+		log.Error(err)
+		return errors.UnableToUpdateMachineStatus
+	}
+
+	return utils.JSON(c, http.StatusOK, rt)
+}
+
+func getSerializableMachine(id string) (*machine, error) {
+	m, err := vms.Machine(id)
+	if err != nil {
+		return nil, err
+	}
+
+	rt := machine{}
+
+	rt.Id = m.Id()
+	rt.Platform = m.Platform()
+
+	rt.Name, err = m.Name()
+	if err != nil {
+		return nil, err
+	}
+
+	status, err := m.Status()
+	if err != nil {
+		return nil, err
+	}
+	rt.Status = vm.StatusToString(status)
+
+	ip, err := m.IP()
+	if err != nil {
+		return nil, err
+	}
+
+	if ip != nil {
+		rt.Ip = ip.String()
+	}
+
+	return &rt, nil
 }
 
 func GetMachine(c *echo.Context) error {
-	m, err := vms.Machine(c.Param("id"))
+	m, err := getSerializableMachine(c.Param("id"))
 	if err != nil {
-		return c.JSON(
-			http.StatusInternalServerError, hash{
-				"errors": [1]hash{
-					hash{
-						"detail": err.Error(),
-					},
-				},
-			})
+		return err
 	}
 
-	var machine struct {
-		Id   string `json:"id"`
-		Type string `json:"type"`
-		Attr struct {
-			Name   string `json:"name"`
-			Ip     string `json:"ip"`
-			Status string `json:"status"`
-		} `json:"attributes"`
-	}
-
-	machine.Id = m.Id()
-	machine.Type = "machine"
-	machine.Attr.Name, err = m.Name()
-	if err != nil {
-		log.Error(err)
-		return retJsonError(c, err)
-	}
-	status, err := m.Status()
-	if err != nil {
-		log.Error(err)
-		return retJsonError(c, err)
-	}
-	machine.Attr.Status = vm.StatusToString(status)
-
-	ip, err := m.IP()
-	machine.Attr.Ip = ip.String()
-	if err != nil {
-		log.Error(err)
-		return retJsonError(c, err)
-	}
-
-	return c.JSON(http.StatusOK, hash{"data": machine})
+	return utils.JSON(c, http.StatusOK, m)
 }
 
 func Machines(c *echo.Context) error {
 	machines, err := vms.Machines()
 	if err != nil {
 		log.Error(err)
-		return c.JSON(
-			http.StatusInternalServerError, hash{
-				"errors": [1]hash{
-					hash{
-						"detail": err.Error(),
-					},
-				},
-			})
+		return errors.UnableToRetrieveMachineList
 	}
-	type attr struct {
-		Name     string `json:"name"`
-		Ip       string `json:"ip"`
-		Status   string `json:"status"`
-		Progress uint8  `json:"progress"`
-	}
-	type virtmachine struct {
-		Id   string `json:"id"`
-		Type string `json:"type"`
-		Att  attr   `json:"attributes"`
-	}
-	var res = make([]virtmachine, len(machines))
+
+	res := make([]*machine, len(machines))
+
 	for i, val := range machines {
-		res[i].Att.Name, err = val.Name()
+		m := machine{}
+		m.Name, err = val.Name()
 		if err != nil {
 			log.Error(err)
-			return retJsonError(c, err)
+			return errors.UnableToRetrieveMachineList
 		}
-		res[i].Id = val.Id()
+
+		m.Id = val.Id()
 		status, err := val.Status()
 		if err != nil {
 			log.Error(err)
-			return retJsonError(c, err)
+			return errors.UnableToRetrieveMachineList
 		}
-		res[i].Type = "machine"
-		res[i].Att.Status = vm.StatusToString(status)
+
+		m.Platform = val.Platform()
+
+		m.Status = vm.StatusToString(status)
 
 		progress, err := val.Progress()
 		if err != nil {
 			log.Errorf("Unable to get machine progress: %s", err)
+		} else {
+			m.Progress = int(progress)
 		}
-		res[i].Att.Progress = progress
 
 		ip, _ := val.IP()
 		if ip != nil {
-			res[i].Att.Ip = ip.String()
+			m.Ip = ip.String()
 		}
+
+		res[i] = &m
 	}
 
-	return c.JSON(http.StatusOK, hash{"data": res})
+	return utils.JSON(c, http.StatusOK, res)
 }
 
 func CreateMachine(c *echo.Context) error {
-	body := struct {
-		Data sMachine `json:"data"`
-	}{}
+	rt := &machine{}
 
-	err := utils.ParseJSONBody(c, &body)
+	err := utils.ParseJSONBody(c, rt)
 	if err != nil {
-		log.Error(err)
-		return retJsonError(c, err)
+		return err
 	}
 
-	vm, err := vms.Create(body.Data.Attributes.Name, body.Data.Attributes.AdminPassword, nil)
+	m, err := vms.Create(rt.Name, rt.AdminPassword, nil)
 	if err != nil {
 		log.Error(err)
-		return retJsonError(c, err)
+		return errors.UnableToCreateTheMachine
 	}
-	return c.JSON(http.StatusOK, hash{
-		"data": serializableMachine(vm),
-	})
+
+	rt, err = getSerializableMachine(m.Id())
+	if err != nil {
+		log.Error(err)
+		return errors.UnableToCreateTheMachine
+	}
+
+	return utils.JSON(c, http.StatusOK, rt)
 }
 
 func DeleteMachine(c *echo.Context) error {
 	id := c.Param("id")
 
-	machine, err := vms.Machine(id)
+	m, err := vms.Machine(id)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.UnableToTerminateTheMachine
 	}
-	err = machine.Terminate()
+
+	err = m.Terminate()
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.UnableToTerminateTheMachine
 	}
-	return c.JSON(http.StatusOK, hash{})
+	return c.JSON(http.StatusOK, hash{"meta": hash{}})
 }
