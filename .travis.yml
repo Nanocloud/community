@@ -1,0 +1,14 @@
+language: go
+go:
+  - 1.6
+install: make get-deps
+script: make tests
+services:
+  - postgresql
+addons:
+  postgresql: "9.4"
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+env:
+  - DATABASE_URI="postgres://postgres@localhost/travis_ci_test?sslmode=disable"
+go_import_path: github.com/Nanocloud/community
