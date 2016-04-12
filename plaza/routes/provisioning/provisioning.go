@@ -41,8 +41,10 @@ import (
 type hash map[string]interface{}
 
 const (
-	domain = "intra.localdomain.com"
-	pcname = "adapps"
+	domain        = "intra.localdomain.com"
+	pcname        = "adapps"
+	adminUsername = "Administrator"
+	adminPassword = "Nanocloud123+"
 )
 
 func executeCommand(command string) (string, error) {
@@ -62,7 +64,7 @@ var commands = [][]string{
 	},
 	{
 		"Install-windowsfeature AD-domain-services",
-		"Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString 'Nanocloud123+' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName '" + domain + "' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true",
+		"Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString '" + adminPassword + "' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName '" + domain + "' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true",
 	},
 	{
 		"set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server'-name 'fDenyTSConnections' -Value 0",
@@ -81,7 +83,7 @@ var commands = [][]string{
 	},
 	{
 		"Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority",
-		"$secpasswd = ConvertTo-SecureString 'Nanocloud123+' -AsPlainText -Force;$mycreds = New-Object System.Management.Automation.PSCredential ('Administrator', $secpasswd); Install-AdcsCertificationAuthority -CAType 'EnterpriseRootCa' -Credential:$mycreds -force:$true ",
+		"$secpasswd = ConvertTo-SecureString '" + adminPassword + "' -AsPlainText -Force;$mycreds = New-Object System.Management.Automation.PSCredential ('" + adminUsername + "', $secpasswd); Install-AdcsCertificationAuthority -CAType 'EnterpriseRootCa' -Credential:$mycreds -force:$true ",
 		"New-NetFirewallRule -Protocol TCP -LocalPort 9090 -Direction Inbound -Action Allow -DisplayName PLAZA",
 	},
 	{
@@ -197,9 +199,9 @@ func executeCommandAsAdmin(cmd string) {
 	a := syscall.MustLoadDLL("advapi32.dll")
 	LogonUserW := a.MustFindProc("LogonUserW")
 	r1, r2, lastError := LogonUserW.Call(
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Administrator"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(adminUsername))),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(domain))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Nanocloud123+"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(adminPassword))),
 		LOGON32_LOGON_INTERACTIVE,
 		LOGON32_PROVIDER_DEFAULT,
 		uintptr(unsafe.Pointer(&handle)),
