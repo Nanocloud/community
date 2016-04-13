@@ -1,0 +1,15 @@
+<div class='vdi-window noselect section {{ if stateVisible "state-show" "state-hide" }}'>
+
+  <h4>Uploads</h4>
+  <div class='content-wrapper'>
+    {{#each queue as |value|}}
+      <div class='item'>
+        {{vdi-progress-item file=value cancelSingleUpload=cancelSingleUpload}}
+      </div>
+    {{else}}
+      No items
+    {{/each}}
+  </div>
+  <button {{action "clearList"}} type="button" class="btn btn-primary">Clear History</button>
+</div>
+

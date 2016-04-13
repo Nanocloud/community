@@ -7,16 +7,31 @@
         <div class="remote-session-topbar">
           <div class="left">
             {{#if uploadData.progress}}
-              {{ topbar-item materialIcon="call_made" class="upload-state-enabled"}}
-              <span class="state">{{uploadData.progress}}%
-                {{ fa-icon "refresh" spin=true}}
-              </span>
+                {{ topbar-item 
+                  materialIcon="call_made"
+                  clickable=true
+                  hover-enabled=true
+                  class="upload-state-enabled"
+                  click="toggleVdiWindow"
+                }}
+                {{#unless uploadData.state}}
+                  <span class="state">
+                    {{vdi-progress-formater uploadData.progress true }}
+                  </span>
+                {{/unless}}
             {{else}}
-              {{ topbar-item materialIcon="call_made" class="upload-state-disabled" }}
+               {{ topbar-item 
+                  materialIcon="call_made"
+                  clickable=true
+                  hover-enabled=true
+                  class="upload-state-disabled"
+                  click="toggleVdiWindow"
+                }}
             {{/if}}
+            
             <span class="state">{{uploadData.state}}</span>
             {{#if uploadData.progress}}
-              <span class="link icon_link" {{ action uploadData.stopUpload }}>Cancel</span>
+              <span class="link" {{ action uploadData.stopUpload }}>Cancel All</span>
             {{/if}}
           </div>
           <div class="right">
@@ -30,6 +45,14 @@
           </div>
         </div>
         <div class="canva-fullscreen">
+
+            {{#vdi-window
+              queue=uploadData.queue
+              stateVisible=vdiWindowVisible
+              flushHistory=uploadData.flushHistory
+              cancelSingleUpload=uploadData.cancelSingleUpload}}
+            {{/vdi-window}}
+
             {{yield}}
         </div>
       </div>

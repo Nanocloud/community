@@ -6,6 +6,7 @@ export default Ember.Component.extend({
   loadingFile: null,
   flow: null,
   aborted: false,
+  queue: [],
 
   showElement() {
     Ember.$('.element-active-state').css("opacity", "1");
@@ -40,13 +41,13 @@ export default Ember.Component.extend({
     this.flow = new window.Flow({
       target: '/upload',
       headers: { Authorization : "Bearer " + this.get('session.access_token') },
-      singleFile: true
     });
 
     this.flow.assignDrop(this.element);
     this.flow.assignBrowse(this.element);
 
     this.flow.on('filesSubmitted', () => {
+      this.set('queue', this.flow.filesSubmitted());
       this.flow.upload();
     });
 

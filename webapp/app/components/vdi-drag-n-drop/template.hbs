@@ -2,7 +2,10 @@
   {{yield (hash
       state=state
       stopUpload=(action 'cancelUpload')
-      progress=progress) 
+      progress=progress
+      queue=queue
+      flushHistory=(action 'flushHistory')
+      cancelSingleUpload=(action 'cancelSingleUpload'))
   }}
   <div class='drag-n-drop-area transition-enabled-2
     {{ if show "state-show" "state-hide"  }}'>
