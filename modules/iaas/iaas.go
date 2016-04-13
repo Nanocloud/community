@@ -362,6 +362,7 @@ func bootWindows() error {
 		"-smp", "4",
 		"-vnc", ":2",
 		"-device", "virtio-net,netdev=user.0",
+		"-usb", "-device", "usb-tablet",
 		"-boot", "once=d",
 		"-machine", "type=pc,accel=kvm",
 		"-drive", "file="+conf.instDir+"/downloads/autoplaza.iso"+",index=0,media=cdrom",
