@@ -6,21 +6,8 @@ export default Ember.Controller.extend({
   session: Ember.inject.service('session'),
   items: null,
 
-  loadDir: function() {
-    let path = "./";
-    this.get('store').query('file', { filename: path })
-      .then((response) => {
-        this.set('items', response);
-      })
-      .catch(() => {
-        this.toast.error("Couldn't retrieve files");
-      });
-  }.on('init'),
-
   actions : {
-
     downloadFile: function(filename) {
-
      Ember.$.ajax({
         type: "GET",
         headers: { Authorization : "Bearer " + this.get('session.access_token') },
