@@ -74,12 +74,13 @@ export default Ember.Component.extend({
   removeCompleteDownload() {
 
     var flowfiles = this.get('flow.files');
-    for (var i = 0; i < flowfiles.length; i++) {
-      if (flowfiles[i].current_progress === 1) {
-        this.get('flow.files')[i].cancel();
+    var i = flowfiles.length;
+    while (--i >= 0) {
+      if (flowfiles[i].current_progress == 1) {
+        this.get('flow.files').removeAt(i);
+        this.get('queue').removeAt(i);
       }
     }
-    this.updateQueue();
   },
 
   didInsertElement() {
@@ -88,7 +89,6 @@ export default Ember.Component.extend({
       target: '/upload',
       headers: { Authorization : "Bearer " + this.get('session.access_token') },
       singleFile: false,
-      simultaneousUploads: 20,
       allowDuplicateUploads: false 
     }));
 
