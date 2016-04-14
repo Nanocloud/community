@@ -19,8 +19,6 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
               this.toast.error(err.title);
             }
           });
-        } else {
-          Ember.Logger.error(err);
         }
       }
     }
