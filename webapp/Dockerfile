@@ -12,7 +12,7 @@ RUN cd /tmp && npm install
 
 RUN cp -r /tmp/node_modules /opt/front/
 RUN bower install --allow-root
-RUN npm run build
+RUN ./node_modules/ember-cli/bin/ember build --environment=production
 
 EXPOSE 8080
 VOLUME ["/opt/front"]
