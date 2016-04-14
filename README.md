@@ -131,7 +131,6 @@ docker-compose -f modules/docker-compose-dev.yml logs
 
 In future releases, we plan to add :
 
-* Customize applications names and icons.
 * Assign permission per application and per users.
 * Dashboard to get information on the hosting platform.
 * Buttons to log off a user from its windows session.
