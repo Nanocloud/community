@@ -123,7 +123,7 @@ export default Ember.Component.extend({
       this.updateQueue();
 
       if (this.get('state') !== 'Aborted') {
-        this.toast.success("Your file has been uploaded successfully!");
+        this.toast.success("Upload successful");
         this.set('state', "Completed");
       }
       setTimeout(() => {
@@ -132,7 +132,7 @@ export default Ember.Component.extend({
   },
 
   stopUpload() {
-    this.toast.info("Your upload has been aborted successfully!");
+    this.toast.info("Abort successful");
     this.set('state', "Aborted");
     this.get('flow').cancel();
     this.downloadCompleted();
