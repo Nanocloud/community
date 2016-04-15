@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"fmt"
+	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
@@ -253,8 +254,7 @@ func Get(c *echo.Context) error {
 	resp, err := http.Get("http://" + kExecutionServer + ":9090/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {
 		log.Error(err)
-
-		return errors.New("Unable to contact the server")
+		return apiErrors.WindowsNotOnline.Detail(err.Error())
 	}
 
 	if resp.StatusCode == http.StatusNotFound {

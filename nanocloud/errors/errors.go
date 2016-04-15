@@ -60,4 +60,11 @@ var (
 		http.StatusBadRequest,
 		"The request is not valid.",
 	}
+
+	WindowsNotOnline = &apiError{
+		0x000007,
+		http.StatusServiceUnavailable,
+		"Windows is not available.",
+	}
+
 )

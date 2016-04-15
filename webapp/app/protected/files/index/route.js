@@ -6,6 +6,14 @@ export default Ember.Route.extend({
   },
 
   model() {
-    return this.get('store').query('file', { filename: './' });
+    return this.get('store').query('file', { filename: './' })
+      .catch((err) => {
+        if (err.errors.length === 1 && err.errors[0].code === "000007") {
+          this.toast.warning("Cannot list files because Windows is not running");
+          this.transitionTo('protected.files.nowindows');
+        } else {
+          return this.send("error", err);
+        }
+      });
   }
 });
