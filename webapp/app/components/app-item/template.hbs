@@ -11,7 +11,7 @@
     {{#if session.user.isAdmin}}
       {{#edit-text
         textInput=application.displayName
-        action="submitEditName" }}
+        onClose="submitEditName" }}
         <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
       {{/edit-text}}
     {{else}}

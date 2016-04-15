@@ -21,7 +21,7 @@ export default Ember.Component.extend({
 
       submit() {
         this.toggleProperty('isEditing');
-        this.sendAction();
+        this.sendAction('onClose', defer);
       },
 
       cancel() {
