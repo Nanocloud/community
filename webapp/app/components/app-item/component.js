@@ -21,14 +21,29 @@ export default Ember.Component.extend({
         this.toggleProperty('isEditing');
       },
 
-      submitEditName() {
-        this.toggleProperty('isEditing');
-        this.application.save()
-          .then(() => {
-            this.toast.success("Application has been renamed successfully");
+      submitEditName(defer) {
+        this.get('application').validate()
+          .then(({
+            model, validations
+          }) => {
+            if (validations.get('isInvalid')) {
+              return this.toast.error('Cannot change application name');
+            }
+
+            this.application.save()
+              .then(() => {
+                this.toggleProperty('isEditing');
+                this.toast.success("Application has been renamed successfully");
+                defer.resolve();
+              })
+              .catch(() => {
+                this.toast.error("Application hasn't been renamed");
+                defer.reject();
+              });
           })
           .catch(() => {
-            this.toast.error("Application hasn't been renamed");
+            this.toast.error("Unknown error while rename application");
+            defer.reject();
           });
       },
 

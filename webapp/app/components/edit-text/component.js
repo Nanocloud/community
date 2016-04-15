@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 
+    originalValue: "",
     isEditing: false,
 
     getInputType: function() {
@@ -16,16 +17,26 @@ export default Ember.Component.extend({
     actions: {
 
       toggle() {
+        if (this.get('isEditing')) {
+          this.set('textInput', this.get('originalValue'));
+        }
+
         this.toggleProperty('isEditing');
       },
 
       submit() {
-        this.toggleProperty('isEditing');
+        var defer = Ember.RSVP.defer();
+
+        defer.promise.then(() => {
+          this.set('originalValue', this.get('textInput'));
+          this.send('toggle');
+        });
+
         this.sendAction('onClose', defer);
       },
 
       cancel() {
-        this.set('isEditing', false);
+        this.send('toggle');
       },
     }
 });
