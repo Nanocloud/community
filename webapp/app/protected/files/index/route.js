@@ -9,7 +9,7 @@ export default Ember.Route.extend({
     return this.get('store').query('file', { filename: './' })
       .catch((err) => {
         if (err.errors.length === 1 && err.errors[0].code === "000007") {
-          this.toast.info("Cannot list files because Windows is not running");
+          this.toast.warning("Cannot list files because Windows is not running");
         } else {
           return this.send("error", err);
         }
