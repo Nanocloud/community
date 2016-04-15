@@ -9,7 +9,7 @@ export default Ember.Component.extend({
     session: Ember.inject.service('session'),
     unpublishState: false,
     isUnpublished: false,
- 
+
     actions : {
 
       toggleSingleTab(connectionName) {
