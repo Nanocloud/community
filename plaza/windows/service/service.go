@@ -78,7 +78,7 @@ func exePath() (string, error) {
 }
 
 func startService(name string) error {
-	fmt.Println("Statring Service")
+	fmt.Println("Starting Service")
 	m, err := mgr.Connect()
 	if err != nil {
 		return err
