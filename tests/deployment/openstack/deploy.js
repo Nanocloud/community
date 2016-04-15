@@ -28,6 +28,7 @@ var INSTALL_SCRIPT_PATH = process.env.DEPLOYMENT_OS_INSTALL_SCRIPT_PATH || './in
 var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
+var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
 var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
 
 var nanoOS = require('./libnanoOpenstack');
@@ -142,7 +143,7 @@ var provisionLinux = function(callback) {
     },
     function(next) { // Install community
 
-      linuxServer.execute(linuxIP, "./installCommunity.sh", KEY_PATH, function(error, response) {
+      linuxServer.execute(linuxIP, INSTALLATION_SCRIPT, KEY_PATH, function(error, response) {
 
         if (error) {
           return next(error);
