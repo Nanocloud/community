@@ -27,7 +27,8 @@ export default Ember.Component.extend({
     }
   },
 
-  handleToggling(element, state) {
+  handleToggling(element) {
+    var state = this.get('topBarItemToggleWindowCollector.' + element);
     this.closeAll();
     if (!state) {
       this.set('topBarItemToggleWindowCollector.' + element, true);
@@ -41,11 +42,11 @@ export default Ember.Component.extend({
     },
 
     toggleUploadWindow() {
-      this.handleToggling('upload', this.get('topBarItemToggleWindowCollector.upload'));
+      this.handleToggling('upload');
     },
 
     toggleClipboardWindow() {
-      this.handleToggling('clipboard', this.get('topBarItemToggleWindowCollector.clipboard'));
+      this.handleToggling('clipboard');
     },
   }
 });

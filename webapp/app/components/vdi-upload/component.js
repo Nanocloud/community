@@ -1,5 +1,4 @@
-import Ember from 'ember';
-import VdiWindowComponent from 'nanocloud/components/vdi-window/component'
+import VdiWindowComponent from 'nanocloud/components/vdi-window/component';
 
 export default VdiWindowComponent.extend({
 

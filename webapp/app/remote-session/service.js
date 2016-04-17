@@ -44,10 +44,11 @@ export default Ember.Service.extend({
 
     var session = this.get('openedGuacSession')[name];
     var guacamole = session.guac;
-
     var keyboard = session.keyboard;
-    if (!keyboard)
+
+    if (!keyboard) {
       keyboard = this.get('openedGuacSession')[name].keyboard = new window.Guacamole.Keyboard(document);
+    }
 
     keyboard.onkeydown = function (keysym) {
       guacamole.sendKeyEvent(1, keysym);
@@ -78,8 +79,7 @@ export default Ember.Service.extend({
     textArea.value = text;
     document.body.appendChild(textArea);
     textArea.select();
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
+    document.execCommand('copy');
     document.body.removeChild(textArea);
   },
 
@@ -93,8 +93,9 @@ export default Ember.Service.extend({
   },
 
   restoreInputs(name) {
-    if (this.get('openedGuacSession')[name])
+    if (this.get('openedGuacSession')[name]) {
       this.keyboardAttach(name);
+    }
   },
 
   setCloudClipboard(name, content) {
