@@ -1,0 +1,47 @@
+.vdi-clipboard {
+  left: 60px;
+  width: 500px;
+  height: auto;
+
+  .content-wrapper {
+    overflow: hidden;
+    height: auto;
+
+    .icon-wrapper {
+      text-align: center;
+    }
+
+    .input-wrapper {
+      display: flex;
+
+      i {
+        font-size: 60px;
+      }
+
+      .text {
+        margin-top: -10px;
+        font-size: 22px;
+      }
+
+      &.actions {
+        justify-content: space-around;
+        width: 80%;
+        margin: 5% 0 0 18%;
+      }
+    }
+
+    .textarea {
+      flex-grow: 1;
+      padding: 10px 5px 0px 20px;
+
+      textarea {
+        width: 100%;
+        height: 90px;
+        border-radius: 3px;
+        border: 2px dashed #C5C5C5;
+        outline: 0;
+        padding: 10px;
+      }
+    }
+  }
+}

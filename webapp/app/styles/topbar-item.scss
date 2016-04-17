@@ -1,11 +1,18 @@
 .topbar-item {
 
+  margin: 0px 10px 0px 10px;
+
   &.active {
     color: $gray;
   }
 
   &.clickable {
     cursor: pointer;
+  }
+
+  &.adjustIcon .material-icons {
+    font-size: 20px;
+    padding-top: 3px;
   }
 }
 

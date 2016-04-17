@@ -5,11 +5,8 @@ import config from 'nanocloud/config/environment';
 
 export default Ember.Service.extend({
   session: Ember.inject.service('session'),
-
   guacamole: null,
-
-  openedGuacSession: {},
-
+  openedGuacSession: Ember.Object.create({}),
   guacToken: function() {
     return Ember.$.post(config.GUACAMOLE_URL + 'api/tokens', {
       access_token: this.get('session.access_token')
@@ -43,6 +40,25 @@ export default Ember.Service.extend({
     return connectString;
   },
 
+  keyboardAttach(name) {
+
+    var session = this.get('openedGuacSession')[name];
+    var guacamole = session.guac;
+    var keyboard = session.keyboard;
+
+    if (!keyboard) {
+      keyboard = this.get('openedGuacSession')[name].keyboard = new window.Guacamole.Keyboard(document);
+    }
+
+    keyboard.onkeydown = function (keysym) {
+      guacamole.sendKeyEvent(1, keysym);
+    }.bind(this);
+
+    keyboard.onkeyup = function (keysym) {
+      guacamole.sendKeyEvent(0, keysym);
+    }.bind(this);
+  },
+
   getSession: function(name, width, height) {
 
     return this.get('guacToken').then((token) => {
@@ -51,16 +67,69 @@ export default Ember.Service.extend({
       let guacamole = new Guacamole.Client(
         tunnel
       );
-
-      this.get('openedGuacSession')[name] = { guac : guacamole };
+      this.set('openedGuacSession.' + name, Ember.Object.create({ guac : guacamole }));
+      this.keyboardAttach(name);
 
       return guacamole;
     });
   },
 
-  disconnectSession(name) {
-      this.get('openedGuacSession')[name].keyboard.onkeydown = null;
+  copyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+  },
+
+  pauseInputs(name) {
+    if (this.get('openedGuacSession')[name].keyboard) {
+      this.get('openedGuacSession')[name].keyboard.reset();
       this.get('openedGuacSession')[name].keyboard.onkeyup = null;
-      this.get('openedGuacSession')[name].guac.disconnect();
+      this.get('openedGuacSession')[name].keyboard.onkeydown = null;
+      delete this.get('openedGuacSession')[name].keyboard;
+    }
+  },
+
+  restoreInputs(name) {
+    if (this.get('openedGuacSession')[name]) {
+      this.keyboardAttach(name);
+    }
+  },
+
+  setCloudClipboard(name, content) {
+
+    if (this.get('openedGuacSession')[name]) {
+      this.set('openedGuacSession.' + name + '.cloudClipboard', content);
+      this.get('openedGuacSession')[name].guac.setClipboard(content);
+    }
+  },
+
+  setLocalClipboard(name, content) {
+
+    if (this.get('openedGuacSession')[name]) {
+      this.copyTextToClipboard(content);
+      this.set('openedGuacSession.' + name + '.localClipboard', content);
+    }
+  },
+
+  getCloudClipboard(name) {
+    if (this.get('openedGuacSession')[name]) {
+      return this.get('openedGuacSession')[name].cloudClipboard;
+    }
+    return "";
+  },
+
+  getLocalClipboard(name) {
+    if (this.get('openedGuacSession')[name]) {
+      return this.get('openedGuacSession')[name].localClipboard;
+    }
+    return "";
+  },
+
+  disconnectSession(name) {
+    this.pauseInputs(name);
+    this.get('openedGuacSession')[name].guac.disconnect();
   }
 });

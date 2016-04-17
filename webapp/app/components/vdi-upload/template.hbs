@@ -1,0 +1,16 @@
+{{#vdi-window
+  title="Upload"
+  windowClass="vdi-upload"
+  stateVisible=stateVisible }}
+
+  <div class='content-wrapper'>
+    {{#each queue as |value|}}
+      <div class='item'>
+        {{vdi-progress-item file=value cancelSingleUpload=cancelSingleUpload}}
+      </div>
+    {{else}}
+      No items
+    {{/each}}
+  </div>
+  <button {{action "clearList"}} type="button" class="btn btn-primary">Clear History</button>
+{{/vdi-window}}

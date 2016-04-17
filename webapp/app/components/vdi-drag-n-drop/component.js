@@ -76,7 +76,7 @@ export default Ember.Component.extend({
     var flowfiles = this.get('flow.files');
     var i = flowfiles.length;
     while (--i >= 0) {
-      if (flowfiles[i].current_progress == 1) {
+      if (flowfiles[i].current_progress === 1) {
         this.get('flow.files').removeAt(i);
         this.get('queue').removeAt(i);
       }
