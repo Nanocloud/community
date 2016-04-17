@@ -6,9 +6,5 @@ export default Ember.Component.extend({
     toggleVdiWindow() {
       this.toggleProperty('stateVisible');
     },
-
-    clearList() {
-      this.sendAction('flushHistory');
-    }
   }
 });

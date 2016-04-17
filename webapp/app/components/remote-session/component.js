@@ -51,10 +51,27 @@ export default Ember.Component.extend({
         stream.sendAck("Ready", Guacamole.Status.Code.SUCCESS);
       }.bind(this);
 
+      guac.onclipboard = function(stream, mimetype) {
+
+        let blob_reader = new Guacamole.BlobReader(stream, mimetype);
+        blob_reader.onprogress = function() {
+          stream.sendAck("Received", Guacamole.Status.Code.SUCCESS);
+        }.bind(this);
+
+        blob_reader.onend = function() {
+          var arrayBuffer;
+          var fileReader = new FileReader();
+          fileReader.onload = function(e) {
+            arrayBuffer = e.target.result;
+            this.get('remoteSession').setCloudClipboard(this.get('connectionName'), arrayBuffer);
+          }.bind(this);
+          fileReader.readAsText(blob_reader.getBlob());
+        }.bind(this);
+      }.bind(this);
+
       this.get('element').appendChild(guac.getDisplay().getElement());
 
       let mouse = new window.Guacamole.Mouse(guac.getDisplay().getElement());
-      let keyboard = new window.Guacamole.Keyboard(document);
       let display = guac.getDisplay();
 
       window.onresize = function() {
@@ -72,19 +89,7 @@ export default Ember.Component.extend({
         display.showCursor(!mouse.setCursor(canvas, x, y));
       };
 
-      keyboard.onkeydown = function (keysym) {
-        guac.sendKeyEvent(1, keysym);
-      }.bind(this);
-
-      keyboard.onkeyup = function (keysym) {
-        guac.sendKeyEvent(0, keysym);
-      }.bind(this);
-
-
       guac.connect();
-
-      this.get('remoteSession').openedGuacSession[this.get('connectionName')].keyboard = keyboard;
-
     });
   }.observes('connectionName').on('becameVisible'),
 

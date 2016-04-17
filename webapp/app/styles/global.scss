@@ -81,6 +81,18 @@ a, a:hover, a:active {
   opacity: 1;
 }
 
+.color-primary {
+  color: $blue-default;
+}
+
+.color-gray-dark {
+  color: $gray-darker;
+}
+
+.clickable.color-gray-dark:hover {
+  color: darken($gray-darker, 20%);
+}
+
 .link {
   color: $blue-default;
   cursor: pointer;
