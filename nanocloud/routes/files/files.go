@@ -251,7 +251,7 @@ func Get(c *echo.Context) error {
 		path = filename
 	}
 
-	resp, err := http.Get("http://" + kExecutionServer + ":9090/files?create=true&path=" + url.QueryEscape(path))
+	resp, err := http.Get("http://" + kExecutionServer + ":" + utils.Env("PLAZA_PORT", "9090") + "/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {
 		log.Error(err)
 		return apiErrors.WindowsNotOnline.Detail(err.Error())
