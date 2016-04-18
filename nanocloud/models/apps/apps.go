@@ -255,7 +255,7 @@ func CheckPublishedApps() {
 		var winapp Application
 		apps := make([]*Application, 0)
 
-		resp, err := http.Get("http://" + kServer + ":9090/apps")
+		resp, err := http.Get("http://" + kServer + ":" + utils.Env("PLAZA_PORT", "9090") + "/apps")
 		if err != nil {
 			continue
 		}
@@ -348,7 +348,7 @@ func UnpublishApp(Alias string) error {
 	}
 	log.Error(alias)
 
-	req, err := http.NewRequest("DELETE", "http://"+kServer+":9090/apps/"+alias, nil)
+	req, err := http.NewRequest("DELETE", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/apps/"+alias, nil)
 	username, pwd := getCredentials()
 	if username == "" || pwd == "" {
 		log.Error("Unable to retrieve admin credentials")
@@ -374,7 +374,7 @@ func UnpublishApp(Alias string) error {
 }
 
 func PublishApp(body io.Reader) error {
-	req, err := http.NewRequest("POST", "http://"+kServer+":9090/publishapp", body)
+	req, err := http.NewRequest("POST", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/publishapp", body)
 	username, pwd := getCredentials()
 	if username == "" || pwd == "" {
 		log.Error("Unable to retrieve admin credentials")

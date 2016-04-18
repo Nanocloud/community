@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Nanocloud/community/nanocloud/utils"
 	"github.com/Nanocloud/community/nanocloud/vms"
 	"github.com/labstack/gommon/log"
 )
@@ -42,7 +43,7 @@ type machine struct {
 }
 
 func (m *machine) Status() (vms.MachineStatus, error) {
-	resp, err := http.Get("http://" + m.server + ":9090/checkrds")
+	resp, err := http.Get("http://" + m.server + ":" + utils.Env("PLAZA_PORT", "9090") + "/checkrds")
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
 		return vms.StatusUnknown, err
