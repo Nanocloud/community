@@ -9,7 +9,7 @@ export default Ember.Component.extend({
     session: Ember.inject.service('session'),
     unpublishState: false,
     isUnpublished: false,
- 
+
     actions : {
 
       toggleSingleTab(connectionName) {
@@ -21,14 +21,30 @@ export default Ember.Component.extend({
         this.toggleProperty('isEditing');
       },
 
-      submitEditName() {
-        this.toggleProperty('isEditing');
-        this.application.save()
-          .then(() => {
-            this.toast.success("Application has been renamed successfully");
+      submitEditName(defer) {
+        this.get('application').validate()
+          .then(({
+            model, validations
+          }) => {
+            if (validations.get('isInvalid')) {
+              this.toast.error('Cannot change application name');
+              return defer.reject(this.get('application.validations.attrs.displayName.messages'));
+            }
+
+            this.application.save()
+              .then(() => {
+                this.toggleProperty('isEditing');
+                this.toast.success("Application has been renamed successfully");
+                defer.resolve();
+              })
+              .catch(() => {
+                this.toast.error("Application hasn't been renamed");
+                defer.reject();
+              });
           })
           .catch(() => {
-            this.toast.error("Application hasn't been renamed");
+            this.toast.error("Unknown error while rename application");
+            defer.reject();
           });
       },
 
