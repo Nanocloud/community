@@ -41,7 +41,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	sam := rawuser.(*users.User).Sam
 	winServer := utils.Env("WIN_SERVER", "")
 	var err error
-	request, err := http.NewRequest("POST", "http://"+winServer+":9090/upload?sam="+url.QueryEscape(sam), r.Body)
+	request, err := http.NewRequest("POST", "http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam), r.Body)
 	if err != nil {
 		log.Println("Unable de create request ", err)
 	}
@@ -67,7 +67,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 
 	winServer := utils.Env("WIN_SERVER", "")
 	var err error
-	request, err := http.NewRequest("GET", "http://"+winServer+":9090/upload?sam="+url.QueryEscape(sam), nil)
+	request, err := http.NewRequest("GET", "http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam), nil)
 	if err != nil {
 		log.Println("Unable de create request ", err)
 	}
