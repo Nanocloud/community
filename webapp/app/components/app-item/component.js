@@ -27,7 +27,8 @@ export default Ember.Component.extend({
             model, validations
           }) => {
             if (validations.get('isInvalid')) {
-              return this.toast.error('Cannot change application name');
+              this.toast.error('Cannot change application name');
+              return defer.reject(this.get('application.validations.attrs.displayName.messages'));
             }
 
             this.application.save()
