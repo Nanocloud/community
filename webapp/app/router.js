@@ -21,6 +21,7 @@ Router.map(function() {
     this.route('files', function() {
       this.route('nowindows');
     });
+    this.route('histories', function() {});
   });
 
   this.route('login');

@@ -129,8 +129,9 @@ func main() {
 	/**
 	 * HISTORY
 	 */
-	e.Get("/api/history", m.OAuth2(history.List))
-	e.Post("/api/history", m.OAuth2(history.Add))
+	e.Get("/api/histories", m.OAuth2(history.List))
+	e.Post("/api/histories", m.OAuth2(history.Add))
+	//m.OAuth2(
 
 	/**
 	 * USERS

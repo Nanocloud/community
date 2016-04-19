@@ -35,10 +35,10 @@ type hash map[string]interface{}
 
 // Log entries are stored in this structure
 type HistoryInfo struct {
-	UserId       string `json:"user_id"`
-	ConnectionId string `json:"connection_id"`
-	StartDate    string `json:"start_date"`
-	EndDate      string `json:"end_date"`
+	UserId       string `json:"user-id"`
+	ConnectionId string `json:"connection-id"`
+	StartDate    string `json:"start-date"`
+	EndDate      string `json:"end-date"`
 }
 
 // Get a list of all the log entries of the database
