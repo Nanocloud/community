@@ -25,14 +25,17 @@ Some parameters must be passed as environment variables.
 - *DEPLOYMENT_OS_PASSWORD* password to login
 - *DEPLOYMENT_OS_PROJECT_ID* is the Openstack project identifier
 - *DEPLOYMENT_OS_KEY_NAME* key name to start the Linux VM with
+- *DEPLOYMENT_LINUX_IMAGE_ID* ID of Openstack images to be used to instanciate linux
 
 Optionnally these parameters can also be changed:
 
 - *DEPLOYMENT_OS_INSTALL_SCRIPT_PATH* (default to ./installDocker.sh) script to be launch when Linux is available but before Windows is started
 - *DEPLOYMENT_OS_WINDOWS_IMAGE_PATH* (default ./windows.qcow2 mounted by Docker) path to Nanocloud Windows image
+- *DEPLOYMENT_WINDOWS_IMAGE_ID* ID of Openstack images to be used to instanciate windows
 - *DEPLOYMENT_OS_KEY_PATH* (default ./id_rsa mounted by Docker) private key that matched above key name to connect to Linux VM
 - *DEPLOYMENT_OS_SSH_PORT* (default 22) SSH port on Linux Server
 - *DEPLOYMENT_INSTALLATION_SCRIPT* (default ./installCommunity.sh) Script installing community on provisionned VM
+
 
 Then build the container:
 
