@@ -45,11 +45,11 @@ func Migrate() error {
 
 	rows, err = db.Query(
 		`CREATE TABLE histories (
-			id				varchar(36) NOT NULL DEFAULT '',
-			userid				varchar(36) NOT NULL DEFAULT '',
-			connectionid			varchar(36) NOT NULL DEFAULT '',
-			startdate			varchar(36) NOT NULL DEFAULT '',
-			enddate				varchar(36) NOT NULL DEFAULT ''
+			id		varchar(36) NOT NULL DEFAULT '',
+			userid		varchar(36) NOT NULL DEFAULT '',
+			connectionid	varchar(36) NOT NULL DEFAULT '',
+			startdate	varchar(36) NOT NULL DEFAULT '',
+			enddate		varchar(36) NOT NULL DEFAULT ''
 		);`)
 	if err != nil {
 		log.Errorf("Unable to create histories table: %s", err)
