@@ -101,3 +101,7 @@ func (m *machine) Name() (string, error) {
 	}
 	return "Undefined Windows Server", nil
 }
+
+func (m *machine) Credentials() (string, string, error) {
+	return "Administrator", "Nanocloud123+", nil
+}

@@ -43,6 +43,7 @@ type Machine interface {
 	IP() (net.IP, error)
 	Type() (MachineType, error)
 	Progress() (uint8, error)
+	Credentials() (string, string, error)
 
 	Start() error
 	Stop() error

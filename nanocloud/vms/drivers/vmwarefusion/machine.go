@@ -275,3 +275,7 @@ func getIPfromDHCPLeaseFile(dhcpfile, macaddr string) (string, error) {
 
 	return currentip, nil
 }
+
+func (m *machine) Credentials() (string, string, error) {
+	return "Administrator", "Nanocloud123+", nil
+}
