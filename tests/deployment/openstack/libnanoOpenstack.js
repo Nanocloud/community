@@ -245,7 +245,7 @@ nano.NanoOSServer.prototype.execute = function(ip, scriptPath, keyPath, callback
   });
 };
 
-nano.NanoOSServer.prototype.associateFloatingIP = function(callback) {
+nano.NanoOSServer.prototype.associateFloatingIP = function(wantedIp, callback) {
 
   this.getProject()._getNova().listFloatingIps(function(error, floatingIPs) {
 
@@ -281,6 +281,12 @@ nano.NanoOSServer.prototype.associateFloatingIP = function(callback) {
         });
       } else {
         var selectedIP = availableIPs[0];
+        availableIPs.forEach(function (elem) {
+          if (elem.ip === wantedIp) {
+            selectedIP = elem;
+          }
+        });
+
         _associateFloatingIP(selectedIP, callback);
       }
     }.bind(this));
