@@ -33,6 +33,7 @@ const (
 	StatusTerminated MachineStatus = 3
 	StatusBooting    MachineStatus = 4
 	StatusCreating   MachineStatus = 5
+	StatusStopping   MachineStatus = 6
 )
 
 type Machine interface {
@@ -62,6 +63,8 @@ func StatusToString(status MachineStatus) string {
 		return "booting"
 	case StatusCreating:
 		return "creating"
+	case StatusStopping:
+		return "stopping"
 	}
 	return "unknown"
 }
