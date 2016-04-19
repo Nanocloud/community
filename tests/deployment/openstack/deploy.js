@@ -32,6 +32,7 @@ var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './insta
 var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
 var LINUX_IMAGE_ID = process.env.DEPLOYMENT_LINUX_IMAGE_ID || null;
 var WINDOWS_IMAGE_ID = process.env.DEPLOYMENT_WINDOWS_IMAGE_ID || null;
+var PUBLIC_IP = process.env.DEPLOYMENT_PUBLIC_IP || null;
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -96,7 +97,7 @@ var provisionLinux = function(callback) {
     },
     function(next) { // Associate public IP
 
-      linuxServer.associateFloatingIP(function(error, ip) {
+      linuxServer.associateFloatingIP(PUBLIC_IP, function(error, ip) {
 
         if (error) {
           return next(error);

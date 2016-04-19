@@ -35,6 +35,7 @@ Optionnally these parameters can also be changed:
 - *DEPLOYMENT_OS_KEY_PATH* (default ./id_rsa mounted by Docker) private key that matched above key name to connect to Linux VM
 - *DEPLOYMENT_OS_SSH_PORT* (default 22) SSH port on Linux Server
 - *DEPLOYMENT_INSTALLATION_SCRIPT* (default ./installCommunity.sh) Script installing community on provisionned VM
+- *DEPLOYMENT_PUBLIC_IP* Set a particular public IP to your deployment
 
 
 Then build the container:
