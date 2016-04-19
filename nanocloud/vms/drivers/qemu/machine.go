@@ -176,3 +176,7 @@ func (m *machine) Progress() (uint8, error) {
 	}
 	return 100, nil
 }
+
+func (m *machine) Credentials() (string, string, error) {
+	return "Administrator", "Nanocloud123+", nil
+}
