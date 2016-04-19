@@ -36,6 +36,17 @@
 
           {{#if session.user.isAdmin}}
             <li>
+              {{#link-to 'protected.histories'}}
+                <span class="icon">
+                  <i class="material-icons">history</i>
+                </span>
+                History 
+              {{/link-to}}
+            </li>
+          {{/if}}
+
+          {{#if session.user.isAdmin}}
+            <li>
               {{#link-to 'protected.users'}}
                 <span class="icon">
                   <i class="material-icons">group</i>

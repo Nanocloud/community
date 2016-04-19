@@ -1,0 +1,34 @@
+<div class="section">
+  <h4>
+    History 
+  </h4>
+  <div class='content-wrapper'>
+
+    {{#if model}}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Id user</th>
+            <th>Connection</th>
+            <th>Start</th>
+            <th>End</th>
+          </tr>
+        </thead>
+        <tbody>
+            {{#each model as |history|}}
+              <tr>
+                <td>{{history.userId}}</td>
+                <td>{{history.connectionId}}</td>
+                <td>{{history.startDate}}</td>
+                <td>{{history.endDate}}</td>
+              </tr>
+            {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      No histories available
+    {{/if}}
+    <div class="clearfix"></div>
+  </div>
+
+</div>

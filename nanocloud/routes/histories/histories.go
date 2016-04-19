@@ -20,12 +20,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package history
+package histories
 
 import (
 	"net/http"
 
-	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	"github.com/Nanocloud/community/nanocloud/models/histories"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
@@ -33,58 +33,27 @@ import (
 
 type hash map[string]interface{}
 
-// Log entries are stored in this structure
-type HistoryInfo struct {
-	UserId       string `json:"user_id"`
-	ConnectionId string `json:"connection_id"`
-	StartDate    string `json:"start_date"`
-	EndDate      string `json:"end_date"`
-}
-
 // Get a list of all the log entries of the database
 func List(c *echo.Context) error {
-	var histories []HistoryInfo
-	rows, err := db.Query(
-		`SELECT userid, connectionid,
-		startdate, enddate
-		FROM histories`,
-	)
+
+	historyList, err := histories.GetAll()
+
 	if err != nil {
 		return err
 	}
 
-	defer rows.Close()
-	for rows.Next() {
-		history := HistoryInfo{}
-
-		rows.Scan(
-			&history.UserId,
-			&history.ConnectionId,
-			&history.StartDate,
-			&history.EndDate,
-		)
-		histories = append(histories, history)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return err
-	}
-
-	if len(histories) == 0 {
-		histories = []HistoryInfo{}
-	}
-
-	var response = make([]hash, len(histories))
-	for i, val := range histories {
+	var response = make([]hash, len(historyList))
+	for i, val := range historyList {
 		res := hash{
-			"id":         i,
+			"id":         val.Id,
 			"type":       "history",
 			"attributes": val,
 		}
 		response[i] = res
 	}
+
 	return c.JSON(http.StatusOK, hash{"data": response})
+
 }
 
 // Add a new log entry to the database
@@ -118,10 +87,10 @@ func Add(c *echo.Context) error {
 		})
 	}
 
-	user_id, ok := attributes["user_id"].(string)
-	connection_id, ok := attributes["connection_id"].(string)
-	start_date, ok := attributes["start_date"].(string)
-	end_date, ok := attributes["end_date"].(string)
+	user_id, ok := attributes["user-id"].(string)
+	connection_id, ok := attributes["connection-id"].(string)
+	start_date, ok := attributes["start-date"].(string)
+	end_date, ok := attributes["end-date"].(string)
 	if user_id == "" || connection_id == "" || start_date == "" || end_date == "" {
 		log.Error("Missing one or several parameters to create entry")
 		return c.JSON(http.StatusBadRequest, hash{
@@ -133,27 +102,22 @@ func Add(c *echo.Context) error {
 		})
 	}
 
-	rows, err := db.Query(
-		`INSERT INTO histories
-		(userid, connectionid, startdate, enddate)
-		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar)
-		`, user_id, connection_id, start_date, end_date)
+	newHistory, err := histories.CreateHistory(
+		user_id,
+		connection_id,
+		start_date,
+		end_date,
+	)
+
 	if err != nil {
 		return err
 	}
 
-	rows.Close()
-
 	return c.JSON(http.StatusCreated, hash{
 		"data": hash{
-			"attributes": hash{
-				"user_id":       user_id,
-				"connection_id": connection_id,
-				"start_date":    start_date,
-				"end_date":      end_date,
-			},
-			"type": "history",
-			"id":   0,
+			"id":         newHistory.Id,
+			"type":       "history",
+			"attributes": newHistory,
 		},
 	})
 }
