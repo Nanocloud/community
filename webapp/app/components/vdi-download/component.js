@@ -1,0 +1,28 @@
+import Ember from 'ember';
+import VdiWindowComponent from 'nanocloud/components/vdi-window/component';
+
+export default VdiWindowComponent.extend({
+
+  store: Ember.inject.service('store'),
+  session: Ember.inject.service('session'),
+  download: Ember.inject.service('download'),
+
+  loadFiles: function() {
+
+    this.get('store').query('file', { filename: "./" })
+      .then(function(response) {
+        this.set('items', response);
+      }.bind(this))
+      .catch(() => {
+        this.toast.error("Couldn't retrieve files");
+      });
+
+  }.on('becameVisible'),
+
+  actions: {
+    downloadFile: function(filename) {
+      this.get('download').downloadFile(this.get('session.access_token'), filename);
+    },
+  }
+});
+

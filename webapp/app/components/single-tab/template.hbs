@@ -40,6 +40,13 @@
               click="toggleClipboardWindow"
               adjustIcon=true
             }}
+
+           {{ topbar-item 
+              materialIcon="vertical_align_bottom"
+              clickable=true
+              hover-enabled=true
+              click="toggleDownloadWindow"
+            }}
           </div>
           <div class="right">
             {{ topbar-item 
@@ -64,6 +71,10 @@
             connectionName=connectionName
             stateVisible=clipboardIsVisible}}
           {{/vdi-clipboard}}
+
+          {{#vdi-download
+            stateVisible=downloadIsVisible}}
+          {{/vdi-download}}
 
           {{yield}}
         </div>

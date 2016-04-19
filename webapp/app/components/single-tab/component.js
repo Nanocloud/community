@@ -9,6 +9,7 @@ export default Ember.Component.extend({
   topBarItemToggleWindowCollector: {
     upload: false,
     clipboard: false,
+    download: false,
   },
 
   uploadIsVisible: Ember.computed('topBarItemToggleWindowCollector.upload', function() {
@@ -17,6 +18,10 @@ export default Ember.Component.extend({
 
   clipboardIsVisible: Ember.computed('topBarItemToggleWindowCollector.clipboard', function() {
     return this.get('topBarItemToggleWindowCollector.clipboard');
+  }),
+
+  downloadIsVisible: Ember.computed('topBarItemToggleWindowCollector.download', function() {
+    return this.get('topBarItemToggleWindowCollector.download');
   }),
 
   closeAll() {
@@ -47,6 +52,10 @@ export default Ember.Component.extend({
 
     toggleClipboardWindow() {
       this.handleToggling('clipboard');
+    },
+
+    toggleDownloadWindow() {
+      this.handleToggling('download');
     },
   }
 });
