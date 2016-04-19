@@ -1,0 +1,18 @@
+.vdi-download {
+  left: 100px;
+  width: 500px;
+  height: 100%;
+
+  &.state-hide{
+    top: 0; 
+    left: -100%; 
+  }
+
+  &.state-show{
+    left: 0;
+  }
+
+  .content-wrapper {
+    height: 90%;
+  }
+}
