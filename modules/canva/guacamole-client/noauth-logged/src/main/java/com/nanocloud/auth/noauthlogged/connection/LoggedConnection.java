@@ -138,10 +138,10 @@ public class LoggedConnection extends SimpleConnection {
         JsonObject params = Json.createObjectBuilder()
           .add("data", Json.createObjectBuilder()
               .add("attributes", Json.createObjectBuilder()
-                .add("user_id", this.id)
-                .add("connection_id", this.connection.getConnectionName())
-                .add("start_date", this.connection.getStartDate().toString())
-                .add("end_date", new Date().toString())))
+                .add("user-id", this.id)
+                .add("connection-id", this.connection.getConnectionName())
+                .add("start-date", this.connection.getStartDate().toString())
+                .add("end-date", new Date().toString())))
           .build();
 
         urlConn.setUseCaches(false);

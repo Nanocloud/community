@@ -35,7 +35,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/files"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
-	"github.com/Nanocloud/community/nanocloud/routes/history"
+	"github.com/Nanocloud/community/nanocloud/routes/histories"
 	"github.com/Nanocloud/community/nanocloud/routes/machines"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/sessions"
@@ -129,8 +129,8 @@ func main() {
 	/**
 	 * HISTORY
 	 */
-	e.Get("/api/histories", m.OAuth2(history.List))
-	e.Post("/api/histories", m.OAuth2(history.Add))
+	e.Get("/api/histories", m.OAuth2(histories.List))
+	e.Post("/api/histories", m.OAuth2(histories.Add))
 	//m.OAuth2(
 
 	/**
