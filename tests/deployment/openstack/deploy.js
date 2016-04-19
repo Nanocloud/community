@@ -30,6 +30,8 @@ var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
 var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
 var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
+var LINUX_IMAGE_ID = process.env.DEPLOYMENT_LINUX_IMAGE_ID || null;
+var WINDOWS_IMAGE_ID = process.env.DEPLOYMENT_WINDOWS_IMAGE_ID || null;
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -53,7 +55,7 @@ var provisionLinux = function(callback) {
 
       project.createServer({
         "name": "Bamboo Linux",
-        "imageRef": URL + ":9292/v2/images/" + '7d771989-2ccb-47fb-bbb4-75ee6bd00f2f',
+        "imageRef": URL + ":9292/v2/images/" + LINUX_IMAGE_ID,
         "flavorRef": URL + ":8774/v2/flavors/2",
         "key_name": KEY_NAME
       }, function(error, _server) {
@@ -170,21 +172,29 @@ var provisionWindows = function(callback) {
 
   async.waterfall([
     function(next) { // Upload qcow2
-      project.uploadImage(WINDOWS_IMAGE_PATH, {
-        name: "bamboo",
-        visibility: 'private',
-        disk_format: 'qcow2',
-        container_format: 'bare'
-      }, function(error, _image) {
-        next(error, _image);
-      });
+      if (WINDOWS_IMAGE_ID === null) {
+        project.uploadImage(WINDOWS_IMAGE_PATH, {
+          name: "bamboo",
+          visibility: 'private',
+          disk_format: 'qcow2',
+          container_format: 'bare'
+        }, function(error, _image) {
+          next(error, _image);
+        });
+      } else {
+        next(null, null);
+      }
     },
     function(_image, next) { // Boot Windows
-      image = _image;
+      if (_image === null) {
+        imageId = WINDOWS_IMAGE_ID;
+      } else {
+        imageId = _image.id;
+      }
 
       project.createServer({
         "name": "Bamboo Windows",
-        "imageRef": URL + ":9292/v2/images/" + image.id,
+        "imageRef": URL + ":9292/v2/images/" + imageId,
         "flavorRef": URL + ":8774/v2/flavors/3"
       }, function(error, _server) {
 
