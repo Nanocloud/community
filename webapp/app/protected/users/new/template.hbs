@@ -6,7 +6,7 @@
  </h4>
   <div class="content-wrapper form">
     <form {{action 'add' on='submit'}}>
-        {{nano-input placeholder='Firstname' model=model valuePath="firstName"}}
+        {{nano-input placeholder='Firstname' model=model valuePath="firstName" autofocus=true }}
         {{nano-input placeholder='Lastname' model=model valuePath="lastName"}}
         {{nano-input placeholder='Email address' model=model valuePath="email"}}
         {{nano-input placeholder='Password' type="password" model=model valuePath="password"}}
