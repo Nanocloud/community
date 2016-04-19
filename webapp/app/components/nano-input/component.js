@@ -10,6 +10,12 @@ export default Ember.Component.extend({
   isValid: true,
   type: "text",
 
+  didInsertElement() {
+    if (this.get('autofocus') == true) {
+      this.$().find('input').focus();
+    }
+  },
+
   init: function() {
     this._super(...arguments);
     var valuePath = this.get('valuePath');
