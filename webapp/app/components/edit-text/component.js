@@ -27,6 +27,10 @@ export default Ember.Component.extend({
       }
     }.observes('isEditing'),
 
+    setOriginalValue: function() {
+      this.set('originalValue', this.get('textInput'));
+    }.on('init'),
+
     actions: {
 
       toggle() {
