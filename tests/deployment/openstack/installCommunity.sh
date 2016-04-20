@@ -8,7 +8,7 @@ git clone https://github.com/Nanocloud/community.git
 sed -i -e "s/=iaas-module/=$WIN_SERVER/" community/modules/docker-compose.yml
 sed -i -e "s/IAAS=qemu/IAAS=manual/" community/modules/docker-compose.yml
 sed -i -e "s/_PORT=1119/_PORT=22/" community/modules/docker-compose.yml
-sed -i -e "s/iaas-module:6360/=$WIN_SERVER:636/" community/modules/docker-compose.yml
+sed -i -e "s/iaas-module:6360/$WIN_SERVER:636/" community/modules/docker-compose.yml
 
 n=0
 until [ $n -ge 5 ]; do
