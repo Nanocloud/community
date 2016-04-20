@@ -67,4 +67,10 @@ var (
 		"Windows is not available.",
 	}
 
+	NeedFirstConnection = &apiError{
+		0x000008,
+		http.StatusServiceUnavailable,
+		"The features requires a first connection to Windows to be available",
+	}
+
 )
