@@ -19,6 +19,14 @@ export default Ember.Component.extend({
       return this.get('errorMessage');
     },
 
+    autoSelectInput: function() {
+      if (this.get('isEditing')) {
+        Ember.run.scheduleOnce('afterRender', () => {
+          this.$(this.get('element')).find('input').first().select();
+        })
+      }
+    }.observes('isEditing'),
+
     actions: {
 
       toggle() {
