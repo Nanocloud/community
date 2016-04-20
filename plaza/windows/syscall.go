@@ -140,7 +140,6 @@ func createProcessWithLogon(
 	fmt.Println(cmd)
 	dll, err := syscall.LoadDLL("advapi32.dll")
 	if err != nil {
-		fmt.Println("lol")
 		return err
 	}
 	proc, err := dll.FindProc("CreateProcessWithLogonW")

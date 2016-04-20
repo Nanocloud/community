@@ -5,6 +5,7 @@ import (
 
 	"github.com/Nanocloud/community/plaza/routes/about"
 	"github.com/Nanocloud/community/plaza/routes/apps"
+	"github.com/Nanocloud/community/plaza/routes/exec"
 	"github.com/Nanocloud/community/plaza/routes/files"
 	"github.com/Nanocloud/community/plaza/routes/power"
 	"github.com/Nanocloud/community/plaza/routes/sessions"
@@ -17,6 +18,7 @@ type hash map[string]interface{}
 func Start() {
 	e := echo.New()
 
+	e.Post("/exec", exec.Route)
 	e.Get("/", about.Get)
 
 	/***
