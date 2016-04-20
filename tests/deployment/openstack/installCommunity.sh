@@ -1,5 +1,7 @@
+#!/bin/bash
 
-export WIN_SERVER=$(cat windowsIP)
+WIN_SERVER=$(cat windowsIP)
+export WIN_SERVER
 
 git clone https://github.com/Nanocloud/community.git
 
