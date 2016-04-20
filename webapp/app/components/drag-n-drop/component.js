@@ -46,8 +46,8 @@ export default Ember.Component.extend({
     this.flow.assignDrop(this.element);
     this.flow.assignBrowse(this.element);
 
-    this.flow.on('filesSubmitted', () => {
-      this.set('queue', this.flow.filesSubmitted());
+    this.flow.on('filesSubmitted', (array) => {
+      this.set('queue', array);
       this.flow.upload();
     });
 
