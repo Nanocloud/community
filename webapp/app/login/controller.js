@@ -20,7 +20,9 @@ export default Ember.Controller.extend({
         'authenticator:oauth2',
         identification,
         password
-      );
+      ).catch(() => {
+        this.toast.error("Invalid credentials");
+      });
     }
   }
 });
