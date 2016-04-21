@@ -22,22 +22,9 @@
 
 package manual
 
-import (
-	"github.com/Nanocloud/community/nanocloud/connectors/db"
-	"github.com/Nanocloud/community/nanocloud/vms"
-)
+import "github.com/Nanocloud/community/nanocloud/vms"
 
 type driver struct{}
-
-func Find(ip string) bool {
-
-	rows, _ := db.Query(`SELECT ip
-	FROM machines WHERE ip = $1::varchar`, ip)
-	if rows.Next() {
-		return true
-	}
-	return false
-}
 
 func (d *driver) Open(options map[string]string) (vms.VM, error) {
 	return &vm{}, nil
