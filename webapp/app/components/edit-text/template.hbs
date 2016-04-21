@@ -1,9 +1,9 @@
 <div class='editText'>
   {{#if isEditing }}
     <form {{action "submit" on='submit'}}>
-      {{input class='edit-input-text' type=getInputType value=textInput placeholder=textInputPlaceholder}}
+      {{input class='edit-input-text' type=getInputType value=textInput placeholder=textInputPlaceholder enter="submit" }}
       {{#if confirmation}}
-        {{input class='edit-input-text' type=getInputType value=confirmInput placeholder=confirmInputPlaceholder}}
+        {{input class='edit-input-text' type=getInputType value=confirmInput placeholder=confirmInputPlaceholder enter="submit" }}
       {{/if}}
       <div class='controls-wrapper'>
         <span class="icon link" {{ action "submit" }}>
