@@ -25,8 +25,6 @@ package apps
 import (
 	"encoding/json"
 	"errors"
-	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -35,8 +33,10 @@ import (
 
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
+	"github.com/Nanocloud/community/nanocloud/plaza"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -61,16 +61,22 @@ var (
 )
 
 type Application struct {
-	Id             int    `json:"-"`
+	Id             string `json:"-"`
 	CollectionName string `json:"collection-name"`
 	Alias          string `json:"alias"`
 	DisplayName    string `json:"display-name"`
 	FilePath       string `json:"file-path"`
+	Path           string `json:"path"`
 	IconContents   []byte `json:"icon-content"`
 }
 
 func (a *Application) GetID() string {
-	return strconv.Itoa(a.Id)
+	return a.Id
+}
+
+func (a *Application) SetID(id string) error {
+	a.Id = id
+	return nil
 }
 
 type ApplicationWin struct {
@@ -96,7 +102,7 @@ func AppExists(appId string) (bool, error) {
 	rows, err := db.Query(
 		`SELECT alias
 		FROM apps
-		WHERE id = $1::int`,
+		WHERE id = $1::varchar`,
 		appId)
 	if err != nil {
 		return false, err
@@ -113,7 +119,7 @@ func ChangeName(appId, newName string) error {
 	_, err := db.Query(
 		`UPDATE apps
 		SET display_name = $1::varchar
-		WHERE id = $2::int`,
+		WHERE id = $2::varchar`,
 		newName, appId)
 	if err != nil {
 		log.Error("Changing app name failed: ", err)
@@ -128,7 +134,7 @@ func GetApp(appId string) (*Application, error) {
 		alias, display_name,
 		file_path,
 		icon_content
-		FROM apps WHERE id = $1::int`, appId)
+		FROM apps WHERE id = $1::varchar`, appId)
 
 	if err != nil {
 		return nil, GetAppFailed
@@ -228,75 +234,6 @@ func GetUserApps(userId string) ([]*Application, error) {
 	return applications, nil
 }
 
-func AddApp(params Application) error {
-	_, err := db.Query(
-		`INSERT INTO apps
-			(collection_name, alias, display_name, file_path)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar)
-			`, params.CollectionName, params.Alias, params.DisplayName, params.FilePath)
-	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-		log.Error("Error inserting app into postgres: ", err.Error())
-	}
-	return nil
-}
-
-func CheckPublishedApps() {
-	_, err := db.Query(
-		`INSERT INTO apps
-			(collection_name, alias, display_name, file_path, icon_content)
-			VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-			`, "", "hapticDesktop", "Desktop", "", "")
-	if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-		log.Error("Error inserting hapticDesktop into postgres: ", err.Error())
-	}
-	for {
-		time.Sleep(5 * time.Second)
-
-		var winapp Application
-		apps := make([]*Application, 0)
-
-		resp, err := http.Get("http://" + kServer + ":" + utils.Env("PLAZA_PORT", "9090") + "/apps")
-		if err != nil {
-			continue
-		}
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Error(err)
-			continue
-		}
-		err = json.Unmarshal(b, &apps)
-		if err != nil {
-			err = json.Unmarshal(b, &winapp)
-			if err != nil {
-				continue
-			}
-			if winapp.CollectionName != "" && winapp.Alias != "" && winapp.DisplayName != "" && winapp.FilePath != "" {
-				_, err := db.Query(
-					`INSERT INTO apps
-				(collection_name, alias, display_name, file_path, icon_content)
-				VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-				`, winapp.CollectionName, winapp.Alias, winapp.DisplayName, winapp.FilePath, winapp.IconContents)
-				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-					log.Error("Error inserting app into postgres: ", err.Error())
-				}
-			}
-			continue
-		}
-		for _, application := range apps {
-			if application.CollectionName != "" && application.Alias != "" && application.DisplayName != "" && application.FilePath != "" {
-				_, err := db.Query(
-					`INSERT INTO apps
-					(collection_name, alias, display_name, file_path, icon_content)
-					VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::bytea)
-					`, application.CollectionName, application.Alias, application.DisplayName, application.FilePath, application.IconContents)
-				if err != nil && !strings.Contains(err.Error(), "duplicate key") {
-					log.Error("Error inserting app into postgres: ", err.Error())
-				}
-			}
-		}
-	}
-}
-
 func getCredentials() (string, string) {
 	rows, err := db.Query(
 		`SELECT sam, windows_password
@@ -330,7 +267,7 @@ func UnpublishApp(Alias string) error {
 		return UnpublishFailed
 	}
 	rows, err := db.Query(
-		`SELECT alias FROM apps WHERE id = $1::int`,
+		`SELECT alias FROM apps WHERE id = $1::varchar`,
 		id,
 	)
 	if err != nil {
@@ -373,25 +310,63 @@ func UnpublishApp(Alias string) error {
 	return nil
 }
 
-func PublishApp(body io.Reader) error {
-	req, err := http.NewRequest("POST", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/publishapp", body)
-	username, pwd := getCredentials()
-	if username == "" || pwd == "" {
-		log.Error("Unable to retrieve admin credentials")
-		return PublishFailed
+func PublishApp(user *users.User, app *Application) error {
+	plazaAddress := utils.Env("PLAZA_ADDRESS", "")
+	if plazaAddress == "" {
+		return errors.New("plaza address unknown")
 	}
-	req.SetBasicAuth(username, pwd)
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
+	plazaPort, err := strconv.Atoi(utils.Env("PLAZA_PORT", "9090"))
+	if err != nil {
+		return err
+	}
+
+	domain := utils.Env("WINDOWS_DOMAIN", "")
+	if domain == "" {
+		return errors.New("domain unknown")
+	}
+
+	res, err := plaza.PublishApp(
+		plazaAddress, plazaPort,
+		user.Sam,
+		domain,
+		user.WindowsPassword,
+		app.CollectionName,
+		app.DisplayName,
+		app.Path,
+	)
+
 	if err != nil {
 		log.Error(err)
 		return PublishFailed
 	}
-	if resp.Status != "200 OK" {
-		log.Error("Plaza return code: " + resp.Status)
-		return PublishFailed
+
+	a := ApplicationWin{}
+	err = json.Unmarshal(res, &a)
+	if err != nil {
+		return err
 	}
+
+	id := uuid.NewV4().String()
+
+	_, err = db.Query(
+		`INSERT INTO apps
+		(id, collection_name, alias, display_name, file_path, icon_content)
+		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
+		`,
+		id, a.CollectionName, a.Alias, a.DisplayName, a.FilePath, a.IconContents,
+	)
+
+	if err != nil {
+		return err
+	}
+	app.CollectionName = a.CollectionName
+	app.Alias = a.Alias
+	app.DisplayName = a.DisplayName
+	app.FilePath = a.FilePath
+	app.IconContents = a.IconContents
+	app.Id = id
+
 	return nil
 }
 
