@@ -46,10 +46,9 @@ func Migrate() error {
 	rows, err = db.Query(
 		`CREATE TABLE machines (
 			id         varchar(60),
-			role       varchar(36) NOT NULL DEFAULT 'ad',
 			type       varchar(36),
 			ad         varchar(255),
-			execserver varchar(255),
+			ip         varchar(255),
 			plazaport  varchar(4) NOT NULL DEFAULT '9090',
 			username   varchar(36),
 			password   varchar(60)

@@ -48,7 +48,7 @@ func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 	}
 	rows, err := db.Query(
 		`INSERT INTO machines
-		(id, type, ad, execserver, username, password)
+		(id, type, ad, ip, username, password)
 		VALUES( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar)`,
 		machine.id, "manual", machine.server, machine.server, machine.user, machine.password)
 	if err != nil {
@@ -61,7 +61,7 @@ func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 func (v *vm) Machines() ([]vms.Machine, error) {
 
 	rows, err := db.Query(
-		`SELECT role, type, id, execserver,
+		`SELECT type, id, ip,
 		plazaport, username, password
 		FROM machines`,
 	)
@@ -75,7 +75,6 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 		machine := &machine{}
 
 		rows.Scan(
-			&machine.role,
 			&vmType,
 			&machine.id,
 			&machine.server,
@@ -97,7 +96,7 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 
 func (v *vm) Machine(id string) (vms.Machine, error) {
 	rows, err := db.Query(
-		`SELECT role, id, execserver, plazaport, username, password
+		`SELECT id, ip, plazaport, username, password
 		FROM machines WHERE id = $1::varchar`, id)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -106,7 +105,6 @@ func (v *vm) Machine(id string) (vms.Machine, error) {
 	machine := &machine{}
 	for rows.Next() {
 		rows.Scan(
-			&machine.role,
 			&machine.id,
 			&machine.server,
 			&machine.plazaport,

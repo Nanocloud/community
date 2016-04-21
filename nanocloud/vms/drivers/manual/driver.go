@@ -34,8 +34,8 @@ type driver struct{}
 
 func Find(ip string) bool {
 
-	rows, _ := db.Query(`SELECT execserver
-	FROM machines WHERE execserver = $1::varchar`, ip)
+	rows, _ := db.Query(`SELECT ip
+	FROM machines WHERE ip = $1::varchar`, ip)
 	if rows.Next() {
 		return true
 	}

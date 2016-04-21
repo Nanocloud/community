@@ -40,7 +40,6 @@ type machine struct {
 	plazaport string
 	user      string
 	password  string
-	role      string
 }
 
 func (m *machine) Status() (vms.MachineStatus, error) {
@@ -107,12 +106,7 @@ func (m *machine) Id() string {
 }
 
 func (m *machine) Name() (string, error) {
-	if m.role == "ad" {
-		return "Windows Active Directory", nil
-	} else if m.role == "exec" {
-		return "Windows Session Host", nil
-	}
-	return "Undefined Windows Server", nil
+	return "Windows Active Directory", nil
 }
 
 func (m *machine) Credentials() (string, string, error) {
