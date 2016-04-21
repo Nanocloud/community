@@ -44,7 +44,7 @@ export default Ember.Component.extend({
     });
 
     this.flow.assignDrop(this.element);
-    this.flow.assignBrowse(this.element);
+    this.flow.assignBrowse($(this.element).find('.drag-n-drop-container'));
 
     this.flow.on('filesSubmitted', (array) => {
       this.set('queue', array);
