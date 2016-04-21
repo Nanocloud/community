@@ -29,21 +29,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func connectToLogger() {
-	_, err := os.Create("C:\\log.txt")
-	if err != nil {
-		log.Error(err)
-	}
-	f, err := os.OpenFile("C:\\log.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
-	if err != nil {
-		log.Error(err)
-	}
-
-	log.SetOutput(f)
-}
-
 func main() {
-
 	if len(os.Args) < 2 || os.Args[1] != "service" {
 		log.Println("(re)Installing service")
 		err := service.InstallItSelf()
@@ -52,7 +38,6 @@ func main() {
 		}
 		return
 	}
-	connectToLogger()
 	err := service.Run()
 	if err != nil {
 		log.Println(err)
