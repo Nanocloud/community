@@ -30,7 +30,6 @@ import (
 	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	m "github.com/Nanocloud/community/nanocloud/middlewares"
 	"github.com/Nanocloud/community/nanocloud/migration"
-	appsModel "github.com/Nanocloud/community/nanocloud/models/apps"
 	_ "github.com/Nanocloud/community/nanocloud/models/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/apps"
 	"github.com/Nanocloud/community/nanocloud/routes/files"
@@ -92,7 +91,6 @@ func main() {
 		return
 	}
 	p := echo.New()
-	p.Post("/app", apps.AddApplication)
 	go p.Run(":8181")
 
 	err = initVms()
@@ -116,8 +114,6 @@ func main() {
 	e.Post("/api/applications", m.OAuth2(m.Admin(apps.PublishApplication)))
 	e.Get("/api/applications/connections", m.OAuth2(apps.GetConnections))
 	e.Patch("/api/applications/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
-
-	go appsModel.CheckPublishedApps()
 
 	/**
 	 * SESSIONS
