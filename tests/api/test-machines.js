@@ -1,3 +1,4 @@
+#!/usr/bin/nodejs
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
@@ -23,33 +24,28 @@
 // jshint mocha:true
 
 var nano = require('./nanotest');
-var expect = nano.expect;
 
-describe('nanocloud is Online', function() {
-  nano.get('').shouldReturn(200);
-});
+module.exports = function(admin) {
 
-var admin = nano.login({
-  username: nano.ADMIN_USERNAME,
-  password: nano.ADMIN_PASSWORD
-});
+  var expectedSchema = {
+    type: 'object',
+    properties: {
+      name: {type: 'string'},
+      ip: {type: 'string'},
+      type: {type: 'string'},
+      status: {type: 'string'},
+      'admin-password': {type: 'string'},
+      platform: {type: 'string'},
+      progress: {type: 'string'},
+    },
+    required: ['name', 'ip', 'type', 'status', 'platform', 'progress'],
+    additionalProperties: false
+  };
 
-describe('Windows should be up', function() {
-  var request = nano.as(admin).get('api/machines')
-      .shouldReturn(200)
-      .shouldBeJSONAPI();
-
-  it('Should have one Windows up', function() {
-    expect(request.response.data.data).to.exist;
-    expect(request.response.data.data).to.have.lengthOf(1);
-    expect(request.response.data.data[0].attributes.status).to.equal('up');
+  describe('List machines', function() {
+    nano.as(admin).get('api/machines')
+        .shouldReturn(200)
+        .shouldBeJSONAPI()
+        .shouldComplyTo(expectedSchema);
   });
-});
-
-require('./test-login')();
-require('./test-users')(admin);
-require('./test-sessions')(admin);
-require('./test-download')(admin);
-require('./test-files')(admin);
-require('./test-histories')(admin);
-require('./test-machines')(admin);
+};
