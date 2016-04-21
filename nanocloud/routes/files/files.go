@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io/ioutil"
 
 	"fmt"
 	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
@@ -265,7 +266,12 @@ func Get(c *echo.Context) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("Unable to retrieve the file")
+		contents, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return errors.New("Unable to retrieve the file")
+		}
+
+		return apiErrors.NeedFirstConnection.Detail(string(contents))
 	}
 
 	var contentType string

@@ -11,7 +11,11 @@ export default Ember.Route.extend({
         if (err.errors.length === 1 && err.errors[0].code === "000007") {
           this.toast.warning("Cannot list files because Windows is not running");
           this.transitionTo('protected.files.nowindows');
-        } else {
+        } else if (err.errors.length === 1 && err.errors[0].code === "000008") {
+          this.toast.warning("You need to login once to an application to activate this feature");
+          this.transitionTo('protected.files.notactivated');
+        }
+          else {
           return this.send("error", err);
         }
       });
