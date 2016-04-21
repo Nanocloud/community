@@ -30,6 +30,14 @@ func trim(str string) string {
 	return strings.Trim(strings.Trim(str, " "), "\t")
 }
 
+func (m *machine) exists() bool {
+	s, err := os.Stat(m.vmxPath())
+	if err != nil {
+		return false
+	}
+	return !s.IsDir()
+}
+
 func (m *machine) parseVMX() (map[string]string, error) {
 	vmxfh, err := os.Open(m.vmxPath())
 	if err != nil {

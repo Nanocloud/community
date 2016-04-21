@@ -73,4 +73,33 @@ var (
 		"The features requires a first connection to Windows to be available",
 	}
 
+	UnableToCreateTheMachine = &apiError{
+		0x000009,
+		http.StatusInternalServerError,
+		"The machine cannot be created.",
+	}
+
+	UnableToTerminateTheMachine = &apiError{
+		0x00000A,
+		http.StatusInternalServerError,
+		"The machine cannot be terminated.",
+	}
+
+	UnableToRetrieveMachineList = &apiError{
+		0x000010,
+		http.StatusInternalServerError,
+		"The machine list cannot be retrieved.",
+	}
+
+	InvalidMarchineStatus = &apiError{
+		0x000011,
+		http.StatusBadRequest,
+		"The specified machine status is not valid.",
+	}
+
+	UnableToUpdateMachineStatus = &apiError{
+		0x000012,
+		http.StatusInternalServerError,
+		"The machine status cannot be updated.",
+	}
 )

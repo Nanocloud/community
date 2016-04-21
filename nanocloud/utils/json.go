@@ -23,6 +23,9 @@
 package utils
 
 import (
+	"io/ioutil"
+
+	"github.com/Nanocloud/community/nanocloud/errors"
 	"github.com/labstack/echo"
 	"github.com/manyminds/api2go/jsonapi"
 )
@@ -39,5 +42,18 @@ func JSON(c *echo.Context, code int, i interface{}) error {
 	r.Header().Set("Content-Type", "application/vnd.api+json")
 	r.WriteHeader(code)
 	r.Write(b)
+	return nil
+}
+
+func ParseJSONBody(c *echo.Context, dest interface{}) error {
+	body, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return errors.InvalidRequest
+	}
+
+	err = jsonapi.Unmarshal(body, dest)
+	if err != nil {
+		return errors.InvalidRequest
+	}
 	return nil
 }

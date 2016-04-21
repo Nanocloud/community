@@ -1,3 +1,25 @@
+/*
+ * Nanocloud Community, a comprehensive platform to turn any application
+ * into a cloud solution.
+ *
+ * Copyright (C) 2016 Nanocloud Software
+ *
+ * This file is part of Nanocloud community.
+ *
+ * Nanocloud community is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Nanocloud community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 // +build windows,amd64
 
 package provisioning
@@ -18,8 +40,12 @@ import (
 
 type hash map[string]interface{}
 
-const domain = "intra.localdomain.com"
-const pcname = "adapps"
+const (
+	domain        = "intra.localdomain.com"
+	pcname        = "adapps"
+	adminUsername = "Administrator"
+	adminPassword = "Nanocloud123+"
+)
 
 func executeCommand(command string) (string, error) {
 	cmd := exec.Command("powershell.exe", command)
@@ -38,7 +64,7 @@ var commands = [][]string{
 	},
 	{
 		"Install-windowsfeature AD-domain-services",
-		"Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString 'Nanocloud123+' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName '" + domain + "' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true",
+		"Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString '" + adminPassword + "' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName '" + domain + "' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true",
 	},
 	{
 		"set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server'-name 'fDenyTSConnections' -Value 0",
@@ -57,7 +83,7 @@ var commands = [][]string{
 	},
 	{
 		"Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority",
-		"$secpasswd = ConvertTo-SecureString 'Nanocloud123+' -AsPlainText -Force;$mycreds = New-Object System.Management.Automation.PSCredential ('Administrator', $secpasswd); Install-AdcsCertificationAuthority -CAType 'EnterpriseRootCa' -Credential:$mycreds -force:$true ",
+		"$secpasswd = ConvertTo-SecureString '" + adminPassword + "' -AsPlainText -Force;$mycreds = New-Object System.Management.Automation.PSCredential ('" + adminUsername + "', $secpasswd); Install-AdcsCertificationAuthority -CAType 'EnterpriseRootCa' -Credential:$mycreds -force:$true ",
 		"New-NetFirewallRule -Protocol TCP -LocalPort 9090 -Direction Inbound -Action Allow -DisplayName PLAZA",
 	},
 	{
@@ -173,9 +199,9 @@ func executeCommandAsAdmin(cmd string) {
 	a := syscall.MustLoadDLL("advapi32.dll")
 	LogonUserW := a.MustFindProc("LogonUserW")
 	r1, r2, lastError := LogonUserW.Call(
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Administrator"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(adminUsername))),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(domain))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("Nanocloud123+"))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(adminPassword))),
 		LOGON32_LOGON_INTERACTIVE,
 		LOGON32_PROVIDER_DEFAULT,
 		uintptr(unsafe.Pointer(&handle)),

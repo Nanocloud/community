@@ -90,10 +90,13 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 		if string(id[0]) == "." {
 			continue
 		}
-		machines = append(machines, &machine{
+		m := machine{
 			id:         id,
 			storageDir: v.storageDir,
-		})
+		}
+		if m.exists() {
+			machines = append(machines, &m)
+		}
 	}
 
 	return machines, nil
