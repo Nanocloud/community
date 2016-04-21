@@ -41,7 +41,7 @@ type machine struct {
 	Ip            string `json:"ip"`
 	Type          string `json:"type"`
 	Status        string `json:"status"`
-	UserName      string `json:"username"`
+	Username      string `json:"username"`
 	AdminPassword string `json:"admin-password,omitempty"`
 	Platform      string `json:"platform"`
 	Progress      int    `json:"progress"`
@@ -219,7 +219,7 @@ func CreateMachine(c *echo.Context) error {
 	attr := vm.MachineAttributes{
 		Type:     nil,
 		Name:     rt.Name,
-		Username: rt.UserName,
+		Username: rt.Username,
 		Password: rt.AdminPassword,
 		Ip:       rt.Ip,
 	}
