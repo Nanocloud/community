@@ -25,8 +25,8 @@ export default Ember.Controller.extend({
       this.model.update();
     },
 
-    disconnectGuacamole(connectionName) {
-      this.get('remoteSession').disconnectSession(connectionName);
+    disconnectGuacamole() {
+      this.get('remoteSession').disconnectSession(this.get('connectionName'));
     },
 
     toggleSingleTab(connectionName) {
