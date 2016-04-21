@@ -45,7 +45,6 @@ type result_t struct {
 	Stdout string `json:"stdout"`
 	Stderr string `json:"stderr"`
 	Code   uint64 `json:"code"`
-	// Time   uint64 `json:"time"`
 }
 
 func Exec(address string, port int, cmd *cmd_t) (*result_t, error) {
@@ -139,6 +138,37 @@ func PublishApp(
 		fmt.Sprintf(
 			"New-RDRemoteApp -CollectionName '%s' -DisplayName '%s' -FilePath '%s' -ErrorAction Stop | ConvertTo-Json",
 			collectionName, displayName, filePath,
+		),
+		"}",
+		"Catch {",
+		"$ErrorMessage = $_.Exception.Message;",
+		"Write-Output -InputObject $ErrorMessage;",
+		"exit 1;",
+		"}",
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	out := res.Stdout
+
+	return []byte(out), nil
+}
+
+func UnpublishApp(
+	address string, port int,
+	username string, domain string, password string,
+	collectionName string, alias string,
+) ([]byte, error) {
+	res, err := PowershellExec(
+		address, port,
+		username, domain, password,
+		"Try {",
+		"Import-module RemoteDesktop;",
+		fmt.Sprintf(
+			"Remove-RDRemoteApp -CollectionName '%s' -Alias '%s' -Force -ErrorAction Stop | ConvertTo-Json",
+			collectionName, alias,
 		),
 		"}",
 		"Catch {",

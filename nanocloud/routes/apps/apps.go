@@ -121,6 +121,8 @@ func ListApplications(c *echo.Context) error {
 
 // Make an application unusable
 func UnpublishApplication(c *echo.Context) error {
+	user := c.Get("user").(*users.User)
+
 	appId := c.Param("app_id")
 	if len(appId) < 1 {
 		return c.JSON(http.StatusBadRequest, hash{
@@ -132,7 +134,7 @@ func UnpublishApplication(c *echo.Context) error {
 		})
 	}
 
-	err := apps.UnpublishApp(appId)
+	err := apps.UnpublishApp(user, appId)
 	if err == apps.UnpublishFailed {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{

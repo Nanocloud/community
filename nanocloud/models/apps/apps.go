@@ -26,7 +26,6 @@ import (
 	"encoding/json"
 	"errors"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -261,48 +260,56 @@ func getCredentials() (string, string) {
 // Does:
 // - Unpublish specified applications from ActiveDirectory
 // ========================================================================================================================
-func UnpublishApp(Alias string) error {
-	id, err := strconv.Atoi(Alias)
-	if err != nil {
-		return UnpublishFailed
-	}
+func UnpublishApp(user *users.User, id string) error {
 	rows, err := db.Query(
-		`SELECT alias FROM apps WHERE id = $1::varchar`,
+		`SELECT alias, collection_name FROM apps WHERE id = $1::varchar`,
 		id,
 	)
 	if err != nil {
-		log.Error("Connection to postgres failed: ", err.Error())
+		log.Error(err)
 		return UnpublishFailed
 	}
 
 	defer rows.Close()
 
 	var alias string
-	for rows.Next() {
-		rows.Scan(
-			&alias,
-		)
+	var collection string
+	if !rows.Next() {
+		return errors.New("Application not found")
 	}
-	log.Error(alias)
 
-	req, err := http.NewRequest("DELETE", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/apps/"+alias, nil)
-	username, pwd := getCredentials()
-	if username == "" || pwd == "" {
-		log.Error("Unable to retrieve admin credentials")
-		return UnpublishFailed
+	rows.Scan(&alias, &collection)
+
+	plazaAddress := utils.Env("PLAZA_ADDRESS", "")
+	if plazaAddress == "" {
+		return errors.New("plaza address unknown")
 	}
-	req.SetBasicAuth(username, pwd)
-	client := &http.Client{}
-	resp, err := client.Do(req)
+
+	plazaPort, err := strconv.Atoi(utils.Env("PLAZA_PORT", "9090"))
+	if err != nil {
+		return err
+	}
+
+	domain := utils.Env("WINDOWS_DOMAIN", "")
+	if domain == "" {
+		return errors.New("domain unknown")
+	}
+
+	_, err = plaza.UnpublishApp(
+		plazaAddress, plazaPort,
+		user.Sam,
+		domain,
+		user.WindowsPassword,
+		collection,
+		alias,
+	)
+
 	if err != nil {
 		log.Error(err)
 		return UnpublishFailed
 	}
-	if resp.Status != "200 OK" {
-		log.Error("Plaza return code: " + resp.Status)
-		return UnpublishFailed
-	}
-	_, err = db.Query("DELETE FROM apps WHERE alias = $1::varchar", alias)
+
+	_, err = db.Query("DELETE FROM apps WHERE id = $1::varchar", id)
 	if err != nil {
 		log.Error("delete from postgres failed: ", err)
 		return UnpublishFailed
@@ -428,8 +435,16 @@ func init() {
 	kProtocol = utils.Env("PROTOCOL", "rdp")
 	kSSHPort = utils.Env("SSH_PORT", "22")
 	kRDPPort = utils.Env("RDP_PORT", "3389")
-	kServer = utils.Env("SERVER", "62.210.56.76")
+	kServer = utils.Env("PLAZA_ADDRESS", "")
 	kPassword = utils.Env("PASSWORD", "ItsPass1942+")
 	kWindowsDomain = utils.Env("WINDOWS_DOMAIN", "intra.localdomain.com")
-	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", "62.210.56.76"), ",")
+	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", ""), ",")
+
+	if kServer == "" {
+		panic("PLAZA_ADDRESS not set")
+	}
+
+	if len(kExecutionServers) == 0 {
+		panic("EXECUTION_SERVERS not set")
+	}
 }
