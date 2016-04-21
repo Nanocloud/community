@@ -20,41 +20,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration
+package machines
 
 import (
-	"github.com/Nanocloud/community/nanocloud/migration/apps"
-	"github.com/Nanocloud/community/nanocloud/migration/history"
-	"github.com/Nanocloud/community/nanocloud/migration/machines"
-	"github.com/Nanocloud/community/nanocloud/migration/oauth"
-	"github.com/Nanocloud/community/nanocloud/migration/users"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Migrate() error {
-	err := users.Migrate()
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'machines'`)
 	if err != nil {
-		return err
+		log.Error(err.Error())
+		panic(err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Info("Machines table already set up")
+		return nil
 	}
 
-	err = oauth.Migrate()
+	rows, err = db.Query(
+		`CREATE TABLE machines (
+			id         varchar(60),
+			role       varchar(36) NOT NULL DEFAULT 'ad',
+			type       varchar(36),
+			ad         varchar(255),
+			execserver varchar(255),
+			plazaport  varchar(4) NOT NULL DEFAULT '9090',
+			username   varchar(36),
+			password   varchar(60)
+		);`)
 	if err != nil {
+		log.Errorf("Unable to create machines table: %s", err)
 		return err
 	}
-
-	err = apps.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = history.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = machines.Migrate()
-	if err != nil {
-		return err
-	}
-
+	rows.Close()
 	return nil
 }
