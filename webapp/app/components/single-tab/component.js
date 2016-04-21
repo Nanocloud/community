@@ -38,6 +38,7 @@ export default Ember.Component.extend({
       setTimeout(function() {
         this.set('showState', false);
         this.set('isVisible', false);
+        this.sendAction('onClose');
       }.bind(this), 900);
     }
   },
