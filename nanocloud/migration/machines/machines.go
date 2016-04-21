@@ -51,7 +51,6 @@ func Migrate() error {
 		`CREATE TABLE machines (
 			id         varchar(60),
 			type       varchar(36),
-			ad         varchar(255),
 			ip         varchar(255),
 			plazaport  varchar(4) NOT NULL DEFAULT '9090',
 			username   varchar(36),
@@ -69,9 +68,9 @@ func Migrate() error {
 		ips := strings.Split(servers, ";")
 		for _, val := range ips {
 			rows, err := db.Query(`INSERT INTO machines
-			(id, type, ad, ip, username, password)
-			VALUES( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar)`,
-				uuid.NewV4().String(), "manual", val, val, user, password)
+			(id, type, ip, username, password)
+			VALUES( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar)`,
+				uuid.NewV4().String(), "manual", val, user, password)
 
 			if err != nil {
 				return err
