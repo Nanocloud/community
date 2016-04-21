@@ -1,11 +1,12 @@
 .vdi-download {
+  @extend .transition-enabled;
   left: 100px;
-  width: 500px;
+  width: $vdi-download-width;
   height: 100%;
 
   &.state-hide{
-    top: 0; 
-    left: -100%; 
+    top: $topbar-height;
+    left: - ($vdi-download-width + 5);
   }
 
   &.state-show{
