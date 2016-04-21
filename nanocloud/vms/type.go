@@ -29,6 +29,7 @@ type MachineType interface {
 
 type MachineAttributes struct {
 	Type     MachineType
+	Name     string
 	Username string
 	Password string
 	Ip       string

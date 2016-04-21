@@ -190,7 +190,7 @@ func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 		return nil, err
 	}
 
-	_, err = v.createVmxForSetup(id, attr.Username, t, hdd, iso, installISO)
+	_, err = v.createVmxForSetup(id, attr.Name, t, hdd, iso, installISO)
 	if err != nil {
 		return nil, err
 	}

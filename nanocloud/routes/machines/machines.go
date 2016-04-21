@@ -218,6 +218,7 @@ func CreateMachine(c *echo.Context) error {
 
 	attr := vm.MachineAttributes{
 		Type:     nil,
+		Name:     rt.Name,
 		Username: rt.UserName,
 		Password: rt.AdminPassword,
 		Ip:       rt.Ip,
