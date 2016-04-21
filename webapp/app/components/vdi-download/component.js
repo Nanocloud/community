@@ -13,7 +13,12 @@ export default VdiWindowComponent.extend({
       .then(function(response) {
         this.set('items', response);
       }.bind(this))
-      .catch(() => {
+      .catch((err) => {
+        // If windows has to be ran once
+        if (err.errors.length === 1 && err.errors[0].code === "000008") {
+          return ;
+        }
+
         this.toast.error("Couldn't retrieve files");
       });
 
@@ -25,4 +30,3 @@ export default VdiWindowComponent.extend({
     },
   }
 });
-
