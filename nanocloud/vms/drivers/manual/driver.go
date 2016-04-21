@@ -23,11 +23,8 @@
 package manual
 
 import (
-	"strings"
-
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/vms"
-	log "github.com/Sirupsen/logrus"
 )
 
 type driver struct{}
@@ -43,46 +40,5 @@ func Find(ip string) bool {
 }
 
 func (d *driver) Open(options map[string]string) (vms.VM, error) {
-	v := &vm{}
-	ad := options["ad"]
-	servers := options["servers"]
-	password := options["password"]
-	user := options["user"]
-	attr := vms.MachineAttributes{
-		Type:     nil,
-		Username: user,
-		Password: password,
-	}
-
-	if ad == servers {
-
-		if Find(ad) == false {
-			attr.Ip = ad
-			_, err := v.Create(attr)
-			if err != nil {
-				log.Error(err)
-			}
-		}
-	} else {
-
-		ips := strings.Split(servers, ";")
-		if Find(ad) == false {
-			attr.Ip = ad
-			_, err := v.Create(attr)
-			if err != nil {
-				log.Error(err)
-			}
-		}
-
-		for _, val := range ips {
-			if Find(val) == false {
-				attr.Ip = val
-				_, err := v.Create(attr)
-				if err != nil {
-					log.Error(err)
-				}
-			}
-		}
-	}
-	return v, nil
+	return &vm{}, nil
 }

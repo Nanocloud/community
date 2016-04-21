@@ -23,8 +23,12 @@
 package machines
 
 import (
+	"os"
+	"strings"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
+	"github.com/satori/go.uuid"
 )
 
 func Migrate() error {
@@ -56,6 +60,24 @@ func Migrate() error {
 	if err != nil {
 		log.Errorf("Unable to create machines table: %s", err)
 		return err
+	}
+	if os.Getenv("IAAS") == "manual" {
+		servers := os.Getenv("EXECUTION_SERVERS")
+		password := os.Getenv("WIN_PASSWORD")
+		user := os.Getenv("WIN_USER")
+
+		ips := strings.Split(servers, ";")
+		for _, val := range ips {
+			rows, err := db.Query(`INSERT INTO machines
+			(id, type, ad, ip, username, password)
+			VALUES( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar)`,
+				uuid.NewV4().String(), "manual", val, val, user, password)
+
+			if err != nil {
+				return err
+			}
+			rows.Close()
+		}
 	}
 	rows.Close()
 	return nil

@@ -69,11 +69,10 @@ func initVms() error {
 		m["ad"] = os.Getenv("WIN_SERVER")
 
 	case "manual":
-		m["ad"] = os.Getenv("WIN_SERVER")
-		m["servers"] = os.Getenv("EXECUTION_SERVERS")
-		m["sshport"] = os.Getenv("SSH_PORT")
-		m["password"] = os.Getenv("WIN_PASSWORD")
-		m["user"] = os.Getenv("WIN_USER")
+		/* env variables are now used in migration. The following variables must be set:
+		- EXECUTION_SERVERS
+		- WIN_PASSWORD
+		- WIN_USER */
 	}
 
 	vm, err := vms.Open(iaas, m)
