@@ -1,5 +1,5 @@
 {{#unless isUnpublished}}
-<div class='app-item-block'>
+<div class='app-item-block link' {{ action "toggleSingleTab" application.alias }}>
   <div class='app-item part1'>
     {{#if application.iconContent}}
       <img class='applications-icon' src="data:image/png;base64, {{ application.iconContent}}">
@@ -12,10 +12,10 @@
       {{#edit-text
         textInput=application.displayName
         onClose="submitEditName" }}
-        <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
+        <span class='link'>{{application.displayName}}</span>
       {{/edit-text}}
     {{else}}
-        <span class='link' {{ action "toggleSingleTab" application.alias }}>{{application.displayName}}</span>
+        <span class='link'>{{application.displayName}}</span>
     {{/if}}
   </div>
   <div class='app-item part3'>
@@ -23,7 +23,7 @@
       {{#if unpublishState}}
         {{ fa-icon "spinner" spin=true}}
       {{else}}
-        <span class='link' {{ action "unpublish" }}>Unpublish</span>
+        <span class='link' {{ action "unpublish" bubbles=false }}>Unpublish</span>
       {{/if}}
     {{/if}}
   </div>

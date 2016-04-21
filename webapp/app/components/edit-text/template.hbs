@@ -6,10 +6,10 @@
         {{input class='edit-input-text' type=getInputType value=confirmInput placeholder=confirmInputPlaceholder enter="submit" }}
       {{/if}}
       <div class='controls-wrapper'>
-        <span class="icon link" {{ action "submit" }}>
+        <span class="icon link" {{ action "submit" bubbles=false }}>
           <i class="material-icons">done</i>
         </span>
-        <span class="icon link close_icon" {{ action "cancel" }}>
+        <span class="icon link close_icon" {{ action "cancel" bubbles=false }}>
           <i class="material-icons">clear</i>
         </span>
       </div>
@@ -19,7 +19,7 @@
     <span class="content">
     {{ yield }}
     </span>
-    <span class="edit-mode-icon icon link" {{ action "toggle" }}>
+    <span class="edit-mode-icon icon link" {{ action "toggle" bubbles=false }}>
       <i class="material-icons">editmode</i>
     </span>
   {{/if}}
