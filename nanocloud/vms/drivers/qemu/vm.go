@@ -39,9 +39,9 @@ func (v *vm) Types() ([]vms.MachineType, error) {
 	return []vms.MachineType{defaultType}, nil
 }
 
-func (v *vm) Create(name, password string, t vms.MachineType) (vms.Machine, error) {
+func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 
-	m := machine{id: name, server: v.server}
+	m := machine{id: attr.Username, server: v.server}
 	ip, _ := m.IP()
 	resp, err := http.Post("http://"+string(ip)+":8080/api/vms/"+m.Id()+"/download", "", nil)
 	if err != nil || resp.StatusCode != http.StatusOK {

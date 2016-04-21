@@ -49,6 +49,6 @@ func Machine(id string) (vms.Machine, error) {
 	return (*vm).Machine(id)
 }
 
-func Create(name, password string, t vms.MachineType) (vms.Machine, error) {
-	return (*vm).Create(name, password, t)
+func Create(attr vms.MachineAttributes) (vms.Machine, error) {
+	return (*vm).Create(attr)
 }

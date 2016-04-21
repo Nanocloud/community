@@ -41,6 +41,7 @@ type machine struct {
 	Ip            string `json:"ip"`
 	Type          string `json:"type"`
 	Status        string `json:"status"`
+	UserName      string `json:"username"`
 	AdminPassword string `json:"admin-password,omitempty"`
 	Platform      string `json:"platform"`
 	Progress      int    `json:"progress"`
@@ -215,7 +216,13 @@ func CreateMachine(c *echo.Context) error {
 		return err
 	}
 
-	m, err := vms.Create(rt.Name, rt.AdminPassword, nil)
+	attr := vm.MachineAttributes{
+		Type:     nil,
+		Username: rt.UserName,
+		Password: rt.AdminPassword,
+		Ip:       rt.Ip,
+	}
+	m, err := vms.Create(attr)
 	if err != nil {
 		log.Error(err)
 		return errors.UnableToCreateTheMachine
@@ -223,8 +230,7 @@ func CreateMachine(c *echo.Context) error {
 
 	rt, err = getSerializableMachine(m.Id())
 	if err != nil {
-		log.Error(err)
-		return errors.UnableToCreateTheMachine
+		return err
 	}
 
 	return utils.JSON(c, http.StatusOK, rt)
