@@ -44,7 +44,7 @@ func Migrate() error {
 	}
 	rows, err = db.Query(
 		`CREATE TABLE apps (
-			id	SERIAL PRIMARY KEY,
+			id	varchar(36) PRIMARY KEY,
 			collection_name		varchar(36),
 			alias		varchar(36) UNIQUE,
 			display_name		varchar(36),

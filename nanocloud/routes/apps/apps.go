@@ -121,6 +121,8 @@ func ListApplications(c *echo.Context) error {
 
 // Make an application unusable
 func UnpublishApplication(c *echo.Context) error {
+	user := c.Get("user").(*users.User)
+
 	appId := c.Param("app_id")
 	if len(appId) < 1 {
 		return c.JSON(http.StatusBadRequest, hash{
@@ -132,7 +134,7 @@ func UnpublishApplication(c *echo.Context) error {
 		})
 	}
 
-	err := apps.UnpublishApp(appId)
+	err := apps.UnpublishApp(user, appId)
 	if err == apps.UnpublishFailed {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": [1]hash{
@@ -148,51 +150,21 @@ func UnpublishApplication(c *echo.Context) error {
 	})
 }
 
-func AddApplication(c *echo.Context) error {
-	var p apps.Application
-
-	err := utils.ParseJSONBody(c, &p)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "App infos are invalid",
-				},
-			},
-		})
-	}
-	err = apps.AddApp(p)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err,
-				},
-			},
-		})
-	}
-	return c.JSON(http.StatusOK, hash{
-		"data": hash{
-			"success": true,
-		},
-	})
-}
-
 func PublishApplication(c *echo.Context) error {
-	err := apps.PublishApp(c.Request().Body)
-	if err == apps.PublishFailed {
-		return c.JSON(http.StatusInternalServerError, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err,
-				},
-			},
-		})
+	app := &apps.Application{}
+	err := utils.ParseJSONBody(c, app)
+	if err != nil {
+		return err
 	}
 
-	return c.JSON(http.StatusOK, hash{
-		"meta": hash{},
-	})
+	user := c.Get("user").(*users.User)
+
+	err = apps.PublishApp(user, app)
+	if err != nil {
+		return err
+	}
+
+	return utils.JSON(c, http.StatusOK, app)
 }
 
 func ChangeAppName(c *echo.Context) error {
