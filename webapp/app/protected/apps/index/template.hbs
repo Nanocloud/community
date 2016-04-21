@@ -1,15 +1,15 @@
 <div class="section p-a-2">
   <h4>Applications</h4>
   <div class='content-wrapper'>
-    <div class='drag-drop-wrapper'>
-      {{drag-n-drop}}
-    </div>
-    <div class='action-btn-wrapper'>
-      <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
-      {{#if session.user.isAdmin}}
-        <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
-      {{/if}}
-    </div>
+    {{#if session.user.isAdmin}}
+      <div class='drag-drop-wrapper'>
+        {{drag-n-drop}}
+      </div>
+      <div class='action-btn-wrapper'>
+        <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
+          <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
+      </div>
+    {{/if}}
     <table class="table application-table">
       <tbody>
         {{#each applicationList as |application|}}
