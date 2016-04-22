@@ -3,11 +3,11 @@
 
   @extend .transition-enabled-1;
   display: flex;
-  padding: 8px 10px 4px 0px;
+  padding: 10px 15px 7px 10px;
   border-bottom: 1px solid $gray-lighter;
 
-  &:hover {
-    background-color: #E6E6E6;
+  &.hover-enabled:hover {
+    background-color: $blue-lighter;
   }
 
   > .app-item {
@@ -20,14 +20,19 @@
 
   > .app-item.part2 {
     flex-grow: 1;
+    i {
+      width: 30px;
+      overflow: hidden;
+    }
     > .icon {
       vertical-align: -webkit-baseline-middle;
     }
   }
 
   > .app-item.part3 {
-    > .icon {
-      vertical-align: -webkit-baseline-middle;
+
+    > * {
+      vertical-align: sub;
     }
   }
 }

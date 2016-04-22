@@ -13,8 +13,10 @@ export default Ember.Component.extend({
     actions : {
 
       toggleSingleTab(connectionName) {
-        this.set('connectionName', connectionName);
-        this.toggleProperty('showSingleTab');
+        if (this.get('isEditing') === false) {
+          this.set('connectionName', connectionName);
+          this.toggleProperty('showSingleTab');
+        }
       },
 
       toggleEditName() {
