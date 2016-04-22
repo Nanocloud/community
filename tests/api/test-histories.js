@@ -49,7 +49,7 @@ module.exports = function(admin) {
 
     var request = nano.as(admin).post('api/histories', {
       'data' : {
-        'type': 'object',
+        'type': 'histories',
         'attributes': {
           'user-id': fakeConnection["user-id"],
           'connection-id': fakeConnection["connection-id"],

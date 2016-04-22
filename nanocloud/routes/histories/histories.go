@@ -23,12 +23,11 @@
 package histories
 
 import (
-	"net/http"
-
 	"github.com/Nanocloud/community/nanocloud/models/histories"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
+	"net/http"
 )
 
 type hash map[string]interface{}
@@ -76,6 +75,7 @@ func Add(c *echo.Context) error {
 		})
 	}
 
+	err = utils.ParseJSONBody(c, &history)
 	newHistory, err := histories.CreateHistory(
 		history.UserId,
 		history.ConnectionId,
@@ -87,5 +87,5 @@ func Add(c *echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, newHistory)
+	return utils.JSON(c, http.StatusCreated, newHistory)
 }
