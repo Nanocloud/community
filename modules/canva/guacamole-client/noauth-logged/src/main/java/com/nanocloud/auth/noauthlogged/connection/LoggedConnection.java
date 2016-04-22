@@ -137,6 +137,7 @@ public class LoggedConnection extends SimpleConnection {
         urlConn.setRequestProperty("Content-Type", "application/json");
         JsonObject params = Json.createObjectBuilder()
           .add("data", Json.createObjectBuilder()
+              .add("type", "histories")
               .add("attributes", Json.createObjectBuilder()
                 .add("user-id", this.id)
                 .add("connection-id", this.connection.getConnectionName())
