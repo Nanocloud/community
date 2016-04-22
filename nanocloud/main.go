@@ -66,7 +66,7 @@ func initVms() error {
 		m["STORAGE_DIR"] = os.Getenv("STORAGE_DIR")
 
 	case "qemu":
-		m["ad"] = os.Getenv("WIN_SERVER")
+		m["ad"] = os.Getenv("PLAZA_ADDRESS")
 
 	case "manual":
 		/* env variables are now used in migration. The following variables must be set:
