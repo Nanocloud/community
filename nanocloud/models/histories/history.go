@@ -11,3 +11,8 @@ type History struct {
 func (h *History) GetID() string {
 	return h.Id
 }
+
+func (h *History) SetID(id string) error {
+	h.Id = id
+	return nil
+}

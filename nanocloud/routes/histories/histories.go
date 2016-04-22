@@ -58,40 +58,14 @@ func List(c *echo.Context) error {
 
 // Add a new log entry to the database
 func Add(c *echo.Context) error {
-	var attr hash
+	history := histories.History{}
 
-	err := utils.ParseJSONBody(c, &attr)
+	err := utils.ParseJSONBody(c, &history)
 	if err != nil {
 		return err
 	}
 
-	data, ok := attr["data"].(map[string]interface{})
-	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "data is missing",
-				},
-			},
-		})
-	}
-
-	attributes, ok := data["attributes"].(map[string]interface{})
-	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "attributes is missing",
-				},
-			},
-		})
-	}
-
-	user_id, ok := attributes["user-id"].(string)
-	connection_id, ok := attributes["connection-id"].(string)
-	start_date, ok := attributes["start-date"].(string)
-	end_date, ok := attributes["end-date"].(string)
-	if user_id == "" || connection_id == "" || start_date == "" || end_date == "" {
+	if history.UserId == "" || history.ConnectionId == "" || history.StartDate == "" || history.EndDate == "" {
 		log.Error("Missing one or several parameters to create entry")
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
@@ -103,21 +77,15 @@ func Add(c *echo.Context) error {
 	}
 
 	newHistory, err := histories.CreateHistory(
-		user_id,
-		connection_id,
-		start_date,
-		end_date,
+		history.UserId,
+		history.ConnectionId,
+		history.StartDate,
+		history.EndDate,
 	)
 
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, hash{
-		"data": hash{
-			"id":         newHistory.Id,
-			"type":       "history",
-			"attributes": newHistory,
-		},
-	})
+	return c.JSON(http.StatusCreated, newHistory)
 }
