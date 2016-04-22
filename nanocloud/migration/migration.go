@@ -25,6 +25,7 @@ package migration
 import (
 	"github.com/Nanocloud/community/nanocloud/migration/apps"
 	"github.com/Nanocloud/community/nanocloud/migration/history"
+	"github.com/Nanocloud/community/nanocloud/migration/machines"
 	"github.com/Nanocloud/community/nanocloud/migration/oauth"
 	"github.com/Nanocloud/community/nanocloud/migration/users"
 )
@@ -46,6 +47,11 @@ func Migrate() error {
 	}
 
 	err = history.Migrate()
+	if err != nil {
+		return err
+	}
+
+	err = machines.Migrate()
 	if err != nil {
 		return err
 	}

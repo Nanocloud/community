@@ -39,7 +39,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sam := rawuser.(*users.User).Sam
-	winServer := utils.Env("WIN_SERVER", "")
+	winServer := utils.Env("PLAZA_ADDRESS", "")
 	var err error
 	request, err := http.NewRequest("POST", "http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam), r.Body)
 	if err != nil {
@@ -65,7 +65,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	}
 	sam := rawuser.(*users.User).Sam
 
-	winServer := utils.Env("WIN_SERVER", "")
+	winServer := utils.Env("PLAZA_ADDRESS", "")
 	var err error
 	request, err := http.NewRequest("GET", "http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam), nil)
 	if err != nil {

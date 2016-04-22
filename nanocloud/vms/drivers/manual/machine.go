@@ -23,36 +23,36 @@
 package manual
 
 import (
+	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
 
-	"github.com/Nanocloud/community/nanocloud/utils"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/vms"
 	"github.com/labstack/gommon/log"
 )
 
 type machine struct {
-	id       string
-	server   string
-	sshport  string
-	user     string
-	password string
-	role     string
+	id        string
+	server    string
+	plazaport string
+	user      string
+	password  string
 }
 
 func (m *machine) Status() (vms.MachineStatus, error) {
-	resp, err := http.Get("http://" + m.server + ":" + utils.Env("PLAZA_PORT", "9090") + "/checkrds")
+	resp, err := http.Get("http://" + m.server + ":" + m.plazaport + "/checkrds")
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Error(err)
-		return vms.StatusUnknown, err
+		return vms.StatusUnknown, nil
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err)
-		return vms.StatusUnknown, err
+		return vms.StatusUnknown, nil
 	}
 
 	if strings.Contains(string(b), "Running") {
@@ -63,7 +63,7 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 }
 
 func (m *machine) IP() (net.IP, error) {
-	return []byte(m.server), nil
+	return net.ParseIP(m.server), nil
 }
 
 func (m *machine) Type() (vms.MachineType, error) {
@@ -87,6 +87,17 @@ func (m *machine) Stop() error {
 }
 
 func (m *machine) Terminate() error {
+	res, err := db.Exec("DELETE FROM machines WHERE id = $1::varchar", m.id)
+	if err != nil {
+		return err
+	}
+	deleted, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if deleted == 0 {
+		return errors.New("machine entry not found")
+	}
 	return nil
 }
 
@@ -95,14 +106,9 @@ func (m *machine) Id() string {
 }
 
 func (m *machine) Name() (string, error) {
-	if m.role == "ad" {
-		return "Windows Active Directory", nil
-	} else if m.role == "exec" {
-		return "Windows Session Host", nil
-	}
-	return "Undefined Windows Server", nil
+	return "Windows Active Directory", nil
 }
 
 func (m *machine) Credentials() (string, string, error) {
-	return "Administrator", "Nanocloud123+", nil
+	return m.user, m.password, nil
 }

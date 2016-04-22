@@ -149,7 +149,7 @@ func (v *vm) createVmxForSetup(vmId string, name string, t *machineType, hdd str
 	return dst, nil
 }
 
-func (v *vm) Create(name string, password string, rawType vms.MachineType) (vms.Machine, error) {
+func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 	h := sha1.New()
 	h.Write([]byte(uuid.NewV4().String()))
 	id := hex.EncodeToString(h.Sum(nil))[0:14]
@@ -166,11 +166,11 @@ func (v *vm) Create(name string, password string, rawType vms.MachineType) (vms.
 		return nil, errors.New("Unable to check machine id uniqueness")
 	}
 
-	if rawType == nil {
-		rawType = defaultType
+	if attr.Type == nil {
+		attr.Type = defaultType
 	}
 
-	t, ok := rawType.(*machineType)
+	t, ok := attr.Type.(*machineType)
 	if !ok {
 		return nil, errors.New("VM Type not supported")
 	}
@@ -185,12 +185,12 @@ func (v *vm) Create(name string, password string, rawType vms.MachineType) (vms.
 		return nil, err
 	}
 
-	installISO, err := v.createInstallDisk(id, password)
+	installISO, err := v.createInstallDisk(id, attr.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = v.createVmxForSetup(id, name, t, hdd, iso, installISO)
+	_, err = v.createVmxForSetup(id, attr.Name, t, hdd, iso, installISO)
 	if err != nil {
 		return nil, err
 	}

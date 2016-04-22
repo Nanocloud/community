@@ -16,7 +16,7 @@ services:
    - WIN_PASSWORD=Nanocloud123+
    - IAAS=qemu
    - WIN_USER=Administrator
-   - WIN_SERVER=iaas-module
+   - PLAZA_ADDRESS=iaas-module
    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
    - BASE=DC=intra,DC=localdomain,DC=com
    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com

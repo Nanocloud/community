@@ -26,3 +26,11 @@ type MachineType interface {
 	Id() string
 	Label() string
 }
+
+type MachineAttributes struct {
+	Type     MachineType
+	Name     string
+	Username string
+	Password string
+	Ip       string
+}

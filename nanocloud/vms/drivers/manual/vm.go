@@ -23,45 +23,99 @@
 package manual
 
 import (
-	"errors"
-	"strings"
+	"fmt"
 
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/vms"
-	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/gommon/log"
+	uuid "github.com/satori/go.uuid"
 )
 
 type vm struct {
-	servers  string
-	ad       string
-	sshport  string
-	user     string
-	password string
 }
 
 func (v *vm) Types() ([]vms.MachineType, error) {
 	return []vms.MachineType{defaultType}, nil
 }
 
-func (v *vm) Create(name, password string, t vms.MachineType) (vms.Machine, error) {
-	log.Error("Not Implemented")
-	return nil, nil
+func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
+
+	machine := &machine{
+		id:       uuid.NewV4().String(),
+		server:   attr.Ip,
+		user:     attr.Username,
+		password: attr.Password,
+	}
+	rows, err := db.Query(
+		`INSERT INTO machines
+		(id, type, ip, username, password)
+		VALUES( $1::varchar, $2::vmtype, $3::varchar, $4::varchar, $5::varchar)`,
+		machine.id, "manual", machine.server, machine.user, machine.password)
+	if err != nil {
+		return nil, err
+	}
+	rows.Close()
+	return machine, nil
 }
 
 func (v *vm) Machines() ([]vms.Machine, error) {
-	if v.ad == v.servers {
-		machines := make([]vms.Machine, 1)
-		machines[0] = &machine{role: "ad", id: v.ad, server: v.ad, sshport: v.sshport, user: v.user, password: v.password}
-		return machines, nil
+
+	rows, err := db.Query(
+		`SELECT type, id, ip,
+		plazaport, username, password
+		FROM machines`,
+	)
+	if err != nil {
+		return nil, err
 	}
-	ips := strings.Split(v.servers, ";")
-	var machines []vms.Machine
-	machines = append(machines, &machine{role: "ad", id: v.ad, server: v.ad, sshport: v.sshport, user: v.user, password: v.password})
-	for _, val := range ips {
-		machines = append(machines, &machine{role: "exec", id: val, server: val, sshport: v.sshport, user: v.user, password: v.password})
+	defer rows.Close()
+	machines := make([]vms.Machine, 0)
+	vmType := ""
+	for rows.Next() {
+		machine := &machine{}
+
+		rows.Scan(
+			&vmType,
+			&machine.id,
+			&machine.server,
+			&machine.plazaport,
+			&machine.user,
+			&machine.password,
+		)
+		if vmType == "manual" {
+			machines = append(machines, machine)
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 	return machines, nil
 }
 
 func (v *vm) Machine(id string) (vms.Machine, error) {
-	return nil, errors.New("Not implemented")
+	rows, err := db.Query(
+		`SELECT id, ip, plazaport, username, password
+		FROM machines WHERE id = $1::varchar`, id)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	machine := &machine{}
+	for rows.Next() {
+		rows.Scan(
+			&machine.id,
+			&machine.server,
+			&machine.plazaport,
+			&machine.user,
+			&machine.password,
+		)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
+	return machine, nil
 }
