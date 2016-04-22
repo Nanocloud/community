@@ -13,6 +13,13 @@ export default Ember.Component.extend({
   },
 
   showState: false,
+  dragAndDropActive: false,
+
+  manageOpenedWindow: function() {
+    if (this.get('dragAndDropActive') == true) {
+      this.closeAll();
+    }
+  }.observes('dragAndDropActive'),
 
   toggling() {
 

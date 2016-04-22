@@ -3,8 +3,12 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
     originalValue: "",
-    isEditing: false,
     errorMessage: null,
+    isEditing: false,
+
+    updateEditStateWatcher: function() {
+      this.set('editStateWatcher', this.get('isEditing'));
+    }.observes('isEditing'),
 
     getInputType: function() {
       if (this.get('hideInput')) {

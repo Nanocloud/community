@@ -678,7 +678,10 @@ $pre-scrollable-max-height:   340px !default;
 
 $topbar-height:               25px;
 $topbar-background-color:     #1D1D1D;
-$vdi-window-width:            40%;
+$vdi-window-width:            500px;
 $vdi-window-height:           400px;
 $vdi-download-width:          500px;
 $vdi-clipboard-width:         500px;
+
+// File explorer
+$file-explorer-width:         800px;
