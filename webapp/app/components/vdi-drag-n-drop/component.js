@@ -18,15 +18,25 @@ export default Ember.Component.extend({
   },
 
   dragEnter() {
+    this.set('dragAndDropActive', true);
     this.showElement();
   },
 
   dragLeave() {
+    this.set('dragAndDropActive', false);
     this.hideElement();
   },
 
   drop() {
+    this.set('dragAndDropActive', false);
     this.hideElement();
+  },
+
+  dragOver() {
+    if (this.get('dragAndDropActive') == false) {
+      this.set('dragAndDropActive', true);
+      this.showElement();
+    }
   },
 
   fileExistInFlowQueue(file) {

@@ -2,7 +2,7 @@
   {{#modal-dialog containerClassNames="ember-modal-fullscreen"
     attachment="" targetAttachment=""}}
 
-    {{#vdi-drag-n-drop as |uploadData|}}  
+    {{#vdi-drag-n-drop dragAndDropActive=dragAndDropActive as |uploadData|}}  
       <div class="ember-modal-fullscreen">
         <div class="remote-session-topbar">
           <div class="left">
@@ -37,6 +37,7 @@
               materialIcon="content_copy"
               clickable=true
               hover-enabled=true
+              hover-darker=false
               click="toggleClipboardWindow"
               adjustIcon=true
             }}
@@ -45,6 +46,7 @@
               materialIcon="vertical_align_bottom"
               clickable=true
               hover-enabled=true
+              hover-darker=false
               click="toggleDownloadWindow"
             }}
           </div>
@@ -53,6 +55,7 @@
               clickable=true
               class="go-back"
               hover-enabled=true
+              hover-darker=true
               materialIcon="home"
               click="toggleSingleTab"
             }}
