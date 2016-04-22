@@ -189,31 +189,14 @@ func Get(c *echo.Context) error {
 }
 
 func Post(c *echo.Context) error {
-	var attr hash
+	u := users.User{}
 
-	err := utils.ParseJSONBody(c, &attr)
+	err := utils.ParseJSONBody(c, &u)
 	if err != nil {
 		return err
 	}
 
-	data, ok := attr["data"].(map[string]interface{})
-	if ok == false {
-		return apiErrors.InvalidRequest.Detail("The data field is missing")
-	}
-
-	attributes, ok := data["attributes"].(map[string]interface{})
-	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "attributes is missing",
-				},
-			},
-		})
-	}
-
-	email, ok := attributes["email"].(string)
-	if ok == false || email == "" {
+	if u.Email == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
@@ -223,8 +206,7 @@ func Post(c *echo.Context) error {
 		})
 	}
 
-	firstName, ok := attributes["first-name"].(string)
-	if ok == false || firstName == "" {
+	if u.FirstName == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
@@ -234,8 +216,7 @@ func Post(c *echo.Context) error {
 		})
 	}
 
-	lastName, ok := attributes["last-name"].(string)
-	if ok == false || lastName == "" {
+	if u.LastName == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
@@ -245,8 +226,7 @@ func Post(c *echo.Context) error {
 		})
 	}
 
-	password, ok := attributes["password"].(string)
-	if ok == false || password == "" {
+	if u.Password == "" {
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
 				hash{
@@ -258,10 +238,10 @@ func Post(c *echo.Context) error {
 
 	newUser, err := users.CreateUser(
 		true,
-		email,
-		firstName,
-		lastName,
-		password,
+		u.Email,
+		u.FirstName,
+		u.LastName,
+		u.Password,
 		false,
 	)
 	switch err {
@@ -288,13 +268,7 @@ func Post(c *echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, hash{
-		"data": hash{
-			"id":         newUser.Id,
-			"type":       "user",
-			"attributes": newUser,
-		},
-	})
+	return utils.JSON(c, http.StatusCreated, newUser)
 }
 
 func UpdatePassword(c *echo.Context) error {
