@@ -1,6 +1,6 @@
 # Nanocloud community [![Build Status](https://travis-ci.org/Nanocloud/community.svg?branch=master)](https://travis-ci.org/Nanocloud/community)
 
-Current version: **0.6.0beta1**
+Current version: **0.6.0rc1**
 
 Experience the seamless transformation of your application.
 
