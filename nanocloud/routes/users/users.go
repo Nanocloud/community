@@ -127,40 +127,23 @@ func Disable(userId string) (int, error) {
 }
 
 func Update(c *echo.Context) error {
-	var attr hash
+	u := users.User{}
 
-	err := utils.ParseJSONBody(c, &attr)
+	err := utils.ParseJSONBody(c, &u)
 	if err != nil {
 		return nil
 	}
 
-	data, ok := attr["data"].(map[string]interface{})
-	if ok == false {
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "data is missing",
-				},
-			},
-		})
-	}
-
-	attributes, ok := data["attributes"].(map[string]interface{})
-	if ok == false {
-		return apiErrors.InvalidRequest.Detail("The attribute field is missing.")
-	}
-
-	user, err := users.GetUser(c.Param("id"))
+	user, err := users.GetUser(u.GetID())
 	if err != nil {
 		return apiErrors.UserNotFound
 	}
 
-	password, ok := attributes["password"].(string)
-	if ok == false || password == "" {
+	if u.Password == "" {
 		return apiErrors.InvalidRequest.Detail("The password field is missing.")
 	}
 
-	err = users.UpdateUserPassword(user.Id, password)
+	err = users.UpdateUserPassword(user.GetID(), u.Password)
 	if err != nil {
 		log.Error(err)
 		return apiErrors.InternalError.Detail("Unable to update the password.")
