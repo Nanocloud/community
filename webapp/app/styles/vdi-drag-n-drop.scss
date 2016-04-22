@@ -7,10 +7,12 @@
   .drag-n-drop-area {
     position: absolute;
     width: 100%;
-    height: 100%;
-    top: 0;
+    height: calc(100% - #{$topbar-height});
+    top: $topbar-height;
     left: 0;
     pointer-events: none;
+    background-color: rgba(0, 144, 255, 0.8);
+    border: 3px dashed #fff;
 
     .message {
       position: absolute;
@@ -26,24 +28,20 @@
       font-size: 28px;
 
       .text {
-        border: 3px dashed white;
         padding: 28px;
         border-radius: 8px;
-        opacity: 0;
       }
     }
 
     &.state-show {
-      background-color: rgba(0, 144, 255, 0.6);
+      opacity: 1;
       .text {
-        opacity: 1;
       }
     }
 
     &.state-hide {
-      background-color: rgba(0, 144, 255, 0);
+      opacity: 0;
       .text {
-        opacity: 0;
       }
     }
   }
