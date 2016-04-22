@@ -7,7 +7,6 @@ export default Ember.Component.extend({
     isEditing: false,
 
     updateEditStateWatcher: function() {
-      console.log('changing edit state');
       this.set('editStateWatcher', this.get('isEditing'));
     }.observes('isEditing'),
 

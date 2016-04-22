@@ -19,8 +19,8 @@
     <span class="content">
     {{ yield }}
     </span>
-    <span class="edit-mode-icon icon link" {{ action "toggle" bubbles=false }}>
-      <i class="material-icons">editmode</i>
+    <span class="edit-mode-icon link">
+      <i {{ action "toggle" bubbles=false }} class="material-icons">editmode</i>
     </span>
   {{/if}}
 </div>

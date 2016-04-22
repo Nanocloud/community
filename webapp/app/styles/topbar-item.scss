@@ -1,6 +1,8 @@
 .topbar-item {
 
-  margin: 0px 10px 0px 10px;
+  margin: 0px 5px 0px 5px;
+  padding: 0px 3px 0px 3px;
+  background: #2B2B2B;
 
   &.active {
     color: $gray;
@@ -17,5 +19,9 @@
 }
 
 .topbar-item.hover-enabled:hover {
+  color: $blue-default;
+}
+
+.topbar-item.hover-darker:hover {
   color: $blue-darken;
 }
