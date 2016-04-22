@@ -25,6 +25,7 @@ package apps
 import (
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
+	uuid "github.com/satori/go.uuid"
 )
 
 func Migrate() error {
@@ -53,6 +54,19 @@ func Migrate() error {
 		);`)
 	if err != nil {
 		log.Errorf("Unable to create apps table: %s", err)
+		return err
+	}
+
+	id := uuid.NewV4().String()
+	rows, err = db.Query(
+		`INSERT INTO apps
+		(id, collection_name, alias, display_name, file_path, icon_content)
+		VALUES ($1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
+		`,
+		id, "", "hapticDesktop", "Desktop", "", "",
+	)
+	if err != nil {
+		log.Errorf("Unable to insert haptic desktop: %s", err)
 		return err
 	}
 
