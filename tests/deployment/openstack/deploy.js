@@ -21,18 +21,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Required environment variables
+var LINUX_IMAGE_ID = process.env.DEPLOYMENT_LINUX_IMAGE_ID || null;
+var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
 var PROJECT_ID = process.env.DEPLOYMENT_OS_PROJECT_ID || '';
 var USERNAME = process.env.DEPLOYMENT_OS_USERNAME || "";
-var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
+
+// Optional environment variables
+var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
 var INSTALL_SCRIPT_PATH = process.env.DEPLOYMENT_OS_INSTALL_SCRIPT_PATH || './installDocker.sh';
-var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
-var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
-var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
-var LINUX_IMAGE_ID = process.env.DEPLOYMENT_LINUX_IMAGE_ID || null;
-var WINDOWS_IMAGE_ID = process.env.DEPLOYMENT_WINDOWS_IMAGE_ID || null;
+var NETWORK_NAME= process.env.DEPLOYMENT_NETWORK_NAME || 'nano-net';
 var PUBLIC_IP = process.env.DEPLOYMENT_PUBLIC_IP || null;
+var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
+var LINUX_SECURITY_GROUPS = process.env.DEPLOYMENT_LINUX_SECURITY_GROUPS.split(';') || [
+  "HTTP and HTTPS",
+  "SSH"
+];
+var WINDOWS_IMAGE_ID = process.env.DEPLOYMENT_WINDOWS_IMAGE_ID || null;
+var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
+var WINDOWS_SECURITY_GROUPS = process.env.DEPLOYMENT_WINDOWS_SECURITY_GROUPS.split(';') || [
+  "Plaza",
+  "LDAPS",
+  "SSH",
+  "RDP"
+];
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -88,10 +102,7 @@ var provisionLinux = function(callback) {
     },
     function(next) { // Open SSH and HTTPS port
 
-      linuxServer.assignSecurityGroup([
-        "HTTP and HTTPS",
-        "SSH"
-      ], function(error) {
+      linuxServer.assignSecurityGroup(LINUX_SECURITY_GROUPS, function(error) {
         next(error);
       });
     },
@@ -221,18 +232,13 @@ var provisionWindows = function(callback) {
           }, 1000);
         }
 
-        _resolveWindowsIP(_server.addresses['nano-net'][0].addr);
+        _resolveWindowsIP(_server.addresses[NETWORK_NAME][0].addr);
         return next(null);
       });
     },
     function (next) { // Assign right security group to Windows
 
-      windowsServer.assignSecurityGroup([
-        "Plaza",
-        "LDAP and LDAPs",
-        "SSH",
-        "RDP"
-      ], function(error) {
+      windowsServer.assignSecurityGroup(WINDOWS_SECURITY_GROUPS, function(error) {
         next(error);
       });
     }
