@@ -2,9 +2,6 @@
   <h4>Applications</h4>
   <div class='content-wrapper'>
     {{#if session.user.isAdmin}}
-      <div class='drag-drop-wrapper'>
-        {{drag-n-drop}}
-      </div>
       <div class='action-btn-wrapper'>
         <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
           <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
