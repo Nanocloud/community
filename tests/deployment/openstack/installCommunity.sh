@@ -14,12 +14,12 @@ n=0
 until [ $n -ge 5 ]; do
 	docker-compose -f community/modules/docker-compose-build.yml build
 	docker-compose -f community/modules/docker-compose-build.yml up -d
-	NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://$(docker exec proxy hostname -I | awk '{print $1}')")
+	sleep 20
+	CONTAINER_HOSTNAME=$(docker exec proxy hostname -I | awk '{print $1}') || "localhost"
+	NANOCLOUD_STATUS=$(curl --output /dev/null --insecure --silent --write-out '%{http_code}\n' "https://${CONTAINER_HOSTNAME}")
 	if [ "${NANOCLOUD_STATUS}" == "200" ]; then
-		docker-compose -f community/modules/docker-compose-build.yml stop
-		docker-compose -f community/modules/docker-compose-build.yml rm
 		break
 	fi
+	docker-compose -f community/modules/docker-compose-build.yml down
 	n=$((n+1))
-	sleep 5
 done
