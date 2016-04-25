@@ -15,7 +15,7 @@
 
 .application-table {
   color: $blue-default;
-  font-size: 15px;
+  font-size: $font-size-root;
 
   & .link:hover{
     text-decoration: underline;
