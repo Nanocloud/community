@@ -4,7 +4,12 @@ export default Ember.Component.extend({
 
   actions: {
     toggleVdiWindow() {
-      this.toggleProperty('stateVisible');
+      if (this.get('toggleWindow')) {
+        this.toggleWindow();
+      }
+      else {
+        this.toggleProperty('stateVisible');
+      }
     },
   }
 });
