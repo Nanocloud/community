@@ -8,7 +8,7 @@
           <div class="left">
             {{#if uploadData.progress}}
                 {{ topbar-item 
-                  materialIcon="call_made"
+                  materialIcon="cloud_upload"
                   clickable=true
                   hover-enabled=true
                   class="upload-state-enabled"
@@ -21,7 +21,7 @@
                 {{/unless}}
             {{else}}
                {{ topbar-item 
-                  materialIcon="call_made"
+                  materialIcon="cloud_upload"
                   clickable=true
                   hover-enabled=true
                   class="upload-state-disabled"
@@ -33,7 +33,15 @@
             {{#if uploadData.progress}}
               <span class="link" {{ action uploadData.stopUpload }}>Cancel All</span>
             {{/if}}
-           {{ topbar-item 
+            {{ topbar-item 
+              materialIcon="cloud_download"
+              clickable=true
+              hover-enabled=true
+              hover-darker=false
+              click="toggleDownloadWindow"
+            }}
+
+            {{ topbar-item 
               materialIcon="content_copy"
               clickable=true
               hover-enabled=true
@@ -42,13 +50,6 @@
               adjustIcon=true
             }}
 
-           {{ topbar-item 
-              materialIcon="vertical_align_bottom"
-              clickable=true
-              hover-enabled=true
-              hover-darker=false
-              click="toggleDownloadWindow"
-            }}
           </div>
           <div class="right">
             {{ topbar-item 

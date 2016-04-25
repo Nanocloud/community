@@ -9,6 +9,7 @@
 
 .remote-session-topbar {
   height: $topbar-height;
+  line-height: $topbar-height + 10;
   background-color: $topbar-background-color;
   display: flex;
   justify-content: space-between;

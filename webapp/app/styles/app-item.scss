@@ -1,6 +1,7 @@
 
 .app-item-block {
 
+  font-size: $font-size-root;
   @extend .transition-enabled-1;
   display: flex;
   padding: 10px 15px 7px 10px;
@@ -14,7 +15,7 @@
   }
 
   > .app-item.part1 {
-    width: 50px;
+    padding-right: 10px;
     vertical-align: middle;
   }
 
