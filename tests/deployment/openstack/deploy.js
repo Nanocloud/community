@@ -21,23 +21,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Required environment variables
+var LINUX_IMAGE_ID = process.env.DEPLOYMENT_LINUX_IMAGE_ID || null;
+var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
 var PROJECT_ID = process.env.DEPLOYMENT_OS_PROJECT_ID || '';
 var USERNAME = process.env.DEPLOYMENT_OS_USERNAME || "";
-var PASSWORD = process.env.DEPLOYMENT_OS_PASSWORD || "";
+
+// Optional environment variables
+var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
 var INSTALL_SCRIPT_PATH = process.env.DEPLOYMENT_OS_INSTALL_SCRIPT_PATH || './installDocker.sh';
-var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
 var NETWORK_NAME= process.env.DEPLOYMENT_NETWORK_NAME || 'nano-net';
-var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
-var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
-var LINUX_IMAGE_ID = process.env.DEPLOYMENT_LINUX_IMAGE_ID || null;
-var WINDOWS_IMAGE_ID = process.env.DEPLOYMENT_WINDOWS_IMAGE_ID || null;
 var PUBLIC_IP = process.env.DEPLOYMENT_PUBLIC_IP || null;
+var SSH_PORT = process.env.DEPLOYMENT_OS_SSH_PORT || 22;
 var LINUX_SECURITY_GROUPS = process.env.DEPLOYMENT_LINUX_SECURITY_GROUPS.split(';') || [
   "HTTP and HTTPS",
   "SSH"
 ];
+var WINDOWS_IMAGE_ID = process.env.DEPLOYMENT_WINDOWS_IMAGE_ID || null;
+var WINDOWS_IMAGE_PATH = process.env.DEPLOYMENT_OS_WINDOWS_IMAGE_PATH || './windows.qcow2';
 var WINDOWS_SECURITY_GROUPS = process.env.DEPLOYMENT_WINDOWS_SECURITY_GROUPS.split(';') || [
   "Plaza",
   "LDAPS",
