@@ -101,6 +101,10 @@ h1 {
   &:hover {
     color: darken($blue-default, 20%);
   }
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .icon_link {
