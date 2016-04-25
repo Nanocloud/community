@@ -31,7 +31,7 @@
             
             <span class="state">{{uploadData.state}}</span>
             {{#if uploadData.progress}}
-              <span class="link" {{ action uploadData.stopUpload }}>Cancel All</span>
+              <span class="link progress" {{ action uploadData.stopUpload }}> Cancel All</span>
             {{/if}}
             {{ topbar-item 
               materialIcon="cloud_download"

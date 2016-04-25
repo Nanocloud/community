@@ -105,6 +105,7 @@ export default Ember.Component.extend({
     this.get('flow').assignDrop(this.element);
 
     this.get('flow').on('filesSubmitted', () => {
+      this.$().find('.state').show();
       this.updateQueue();
       this.get('flow').upload();
     });
@@ -137,7 +138,9 @@ export default Ember.Component.extend({
         this.set('state', "Completed");
       }
       setTimeout(() => {
-        this.set('state', null);
+        this.$().find('.state').fadeOut(700, function() {
+          this.set('state', null);
+        }.bind(this));
       }, 3000);
   },
 

@@ -9,7 +9,6 @@
 
 .remote-session-topbar {
   height: $topbar-height;
-  line-height: $topbar-height + 10;
   background-color: $topbar-background-color;
   display: flex;
   justify-content: space-between;
@@ -31,6 +30,10 @@
   .state {
     font-size: 14px;
     padding-top: 3px;
+  }
+
+  .progress {
+    padding-left: 10px;
   }
   
   .upload-state-enabled {
