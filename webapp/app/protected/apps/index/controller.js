@@ -8,6 +8,10 @@ export default Ember.Controller.extend({
   remoteSession: Ember.inject.service('remote-session'),
   session: Ember.inject.service('session'),
 
+  refreshApplicationList: function() {
+    this.set('applicationList', this.getFilteredApplicationList());
+  },
+
   applicationList: function() {
     this.set('applicationList', this.getFilteredApplicationList());
     return this.getFilteredApplicationList();
@@ -22,7 +26,7 @@ export default Ember.Controller.extend({
   actions: {
 
     updateModel() {
-      this.model.update();
+      this.refreshApplicationList();
     },
 
     disconnectGuacamole() {
