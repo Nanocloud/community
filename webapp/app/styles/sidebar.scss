@@ -92,12 +92,12 @@
 }
 
 .sidebar-logo {
-	height: 85px;
-	background-color: $brand-primary;
-	background-image: url('/assets/images/logo.png');
-	background-repeat: no-repeat;
-	background-position: center 20px;
-	background-size: 50%;
+  height: 60px;
+  background-color: $brand-primary;
+  background-image: url("/assets/images/logo.png");
+  background-repeat: no-repeat;
+  background-position: 70px 25px;
+  background-size: 34%;
 }
 
 .version-number {
