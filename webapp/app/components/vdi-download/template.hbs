@@ -1,3 +1,6 @@
+{{#if stateVisible}}
+  {{ dim-background preventAction=isPublishing toggleWindow=toggleWindow action="toggleVdiWindow" }}
+{{/if}}
 {{#vdi-window
   title="Download"
   windowClass="vdi-download"

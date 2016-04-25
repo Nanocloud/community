@@ -67,16 +67,20 @@
             queue=uploadData.queue
             stateVisible=uploadIsVisible
             flushHistory=uploadData.flushHistory
-            cancelSingleUpload=uploadData.cancelSingleUpload}}
+            cancelSingleUpload=uploadData.cancelSingleUpload
+            toggleWindow=(action 'toggleUploadWindow')}}
           {{/vdi-upload}}
 
           {{#vdi-clipboard
             connectionName=connectionName
-            stateVisible=clipboardIsVisible}}
+            stateVisible=clipboardIsVisible
+            toggleWindow=(action 'toggleClipboardWindow')}}
           {{/vdi-clipboard}}
 
           {{#vdi-download
-            stateVisible=downloadIsVisible}}
+            stateVisible=downloadIsVisible
+            toggleWindow=(action 'toggleDownloadWindow')
+            }}
           {{/vdi-download}}
 
           {{yield}}
