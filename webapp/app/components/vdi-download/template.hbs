@@ -11,6 +11,8 @@
       {{#unless file.isDir}}
         {{ file-item file=file download="downloadFile" }}
       {{/unless}}
+    {{else}}
+      No data available
     {{/each}}
   </div>
 {{/vdi-window}}

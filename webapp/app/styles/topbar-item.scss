@@ -1,7 +1,7 @@
 .topbar-item {
 
   margin: 0px 5px 0px 5px;
-  padding: 0px 3px 0px 3px;
+  padding: 2px 3px 0px 3px;
 
   &.active {
     color: $gray;
@@ -18,7 +18,7 @@
   &.adjustIcon .material-icons {
     font-size: 16px;
     position: relative;
-    bottom: 1px;
+    bottom: -2px;
   }
 }
 
