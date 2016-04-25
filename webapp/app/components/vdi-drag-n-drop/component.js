@@ -33,7 +33,7 @@ export default Ember.Component.extend({
   },
 
   dragOver() {
-    if (this.get('dragAndDropActive') == false) {
+    if (this.get('dragAndDropActive') === false) {
       this.set('dragAndDropActive', true);
       this.showElement();
     }

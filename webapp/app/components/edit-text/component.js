@@ -27,7 +27,7 @@ export default Ember.Component.extend({
       if (this.get('isEditing')) {
         Ember.run.scheduleOnce('afterRender', () => {
           this.$(this.get('element')).find('input').first().select();
-        })
+        });
       }
     }.observes('isEditing'),
 

@@ -8,7 +8,7 @@ export default VdiWindowComponent.extend({
   download: Ember.inject.service('download'),
 
   stateUpdated: function() {
-    if (this.get('stateVisible') == true) {
+    if (this.get('stateVisible') === true) {
       this.loadFiles();
     } 
   }.observes('stateVisible'),

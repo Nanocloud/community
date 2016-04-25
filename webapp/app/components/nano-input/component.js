@@ -11,7 +11,7 @@ export default Ember.Component.extend({
   type: "text",
 
   didInsertElement() {
-    if (this.get('autofocus') == true) {
+    if (this.get('autofocus') === true) {
       this.$().find('input').focus();
     }
   },

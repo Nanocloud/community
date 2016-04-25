@@ -2,11 +2,10 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 
-
   remoteSession: Ember.inject.service('remote-session'),
 
   inputFocusChanged: function() {
-    if (this.$().find('textarea').length != 0) {
+    if (this.$().find('textarea').length !== 0) {
       this.$().find('textarea')
         .focusin(function() {
           this.get('remoteSession').pauseInputs(this.get('connectionName'));
