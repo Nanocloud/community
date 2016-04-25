@@ -4,7 +4,6 @@ import VdiWindowComponent from 'nanocloud/components/vdi-window/component';
 export default VdiWindowComponent.extend({
 
   remoteSession: Ember.inject.service('remote-session'),
-  hasFocus: false,
   localClipboardContent: null,
 
   updateCloudClipboardOnTyping: function() {
@@ -18,15 +17,6 @@ export default VdiWindowComponent.extend({
     Ember.defineProperty(this, 'cloudClipboardContent', Ember.computed.alias(`remoteSession.openedGuacSession.${connectionName}.cloudClipboard`));
   },
 
-  mouseEnter() {
-      this.set('hasFocus', false);
-      this.get('remoteSession').pauseInputs(this.get('connectionName'));
-  },
-
-  mouseLeave() {
-      this.set('hasFocus', true);
-      this.get('remoteSession').restoreInputs(this.get('connectionName'));
-  },
 
   actions: {
 
