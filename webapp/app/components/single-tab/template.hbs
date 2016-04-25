@@ -11,8 +11,9 @@
                   materialIcon="cloud_upload"
                   clickable=true
                   hover-enabled=true
-                  class="upload-state-enabled"
+                  class="state-enabled"
                   click="toggleUploadWindow"
+                  stateEnabled=uploadIsVisible
                 }}
                 {{#unless uploadData.state}}
                   <span class="state">
@@ -24,14 +25,15 @@
                   materialIcon="cloud_upload"
                   clickable=true
                   hover-enabled=true
-                  class="upload-state-disabled"
+                  class="state-disabled"
                   click="toggleUploadWindow"
+                  stateEnabled=uploadIsVisible
                 }}
             {{/if}}
             
             <span class="state">{{uploadData.state}}</span>
             {{#if uploadData.progress}}
-              <span class="link progress" {{ action uploadData.stopUpload }}> Cancel All</span>
+              <span class="link progress" {{ action uploadData.stopUpload }}>Cancel All</span>
             {{/if}}
             {{ topbar-item 
               materialIcon="cloud_download"
@@ -39,6 +41,7 @@
               hover-enabled=true
               hover-darker=false
               click="toggleDownloadWindow"
+              stateEnabled=downloadIsVisible
             }}
 
             {{ topbar-item 
@@ -48,6 +51,7 @@
               hover-darker=false
               click="toggleClipboardWindow"
               adjustIcon=true
+              stateEnabled=clipboardIsVisible
             }}
 
           </div>
