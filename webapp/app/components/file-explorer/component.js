@@ -108,7 +108,9 @@ export default Ember.Component.extend({
         this.set('isPublishing', false);
         this.toggleProperty('isVisible');
         this.toast.success("Your application has been published successfully");
-        this.sendAction('publishDone');
+        if (this.get('publishDone')) {
+          this.sendAction('publishDone');
+        }
       }, (error) => {
         this.set('isPublishing', false);
         this.set('publishError', true);
