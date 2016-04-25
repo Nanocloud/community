@@ -11,9 +11,14 @@
     cursor: pointer;
   }
 
-  &.adjustIcon .material-icons {
+  & .material-icons {
     font-size: 20px;
-    padding-top: 3px;
+  }
+
+  &.adjustIcon .material-icons {
+    font-size: 16px;
+    position: relative;
+    bottom: 1px;
   }
 }
 
