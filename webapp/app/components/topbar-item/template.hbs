@@ -1,9 +1,9 @@
-<div class='topbar-item {{ if clickable "clickable" }} {{ if hover-enabled "hover-enabled" }} {{ if hover-darker "hover-darker" }} {{ if adjustIcon "adjustIcon" }}'>
+<div {{ action "clickAction"}} class='topbar-item {{ if clickable "clickable" }} {{ if hover-enabled "hover-enabled" }} {{ if hover-darker "hover-darker" }} {{ if adjustIcon "adjustIcon" }}'>
   {{#if materialIcon }}
-    <i class="material-icons" {{ action "clickAction"}}>{{ materialIcon }}</i>
+    <i class="material-icons">{{ materialIcon }}</i>
   {{/if}}
 
   {{#if textContent}}
-    <span class="link clickable" {{ action "clickAction"}}>{{ textContent }}</span>
+    <span class="link clickable">{{ textContent }}</span>
   {{/if}}
 </div>

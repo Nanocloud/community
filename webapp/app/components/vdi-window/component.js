@@ -4,24 +4,23 @@ export default Ember.Component.extend({
 
 
   remoteSession: Ember.inject.service('remote-session'),
-  hasFocus: false,
 
-  mouseEnter() {
-    console.log("ENTER");
-    this.set('hasFocus', false);
-    this.get('remoteSession').pauseInputs(this.get('connectionName'));
-  },
+  inputFocusChanged: function() {
+    if (this.$().find('textarea').length != 0) {
+      this.$().find('textarea')
+        .focusin(function() {
+          this.get('remoteSession').pauseInputs(this.get('connectionName'));
+        }.bind(this))
+        .focusout(function() {
+          this.get('remoteSession').restoreInputs(this.get('connectionName'));
+        }.bind(this));
+    }
+  }.on('didInsertElement'),
 
-  mouseLeave() {
-    console.log("LEAVE");
-    this.set('hasFocus', true);
-    this.get('remoteSession').restoreInputs(this.get('connectionName'));
-  },
 
   actions: {
     toggleVdiWindow() {
       if (this.get('toggleWindow')) {
-
         this.toggleWindow();
       }
       else {
