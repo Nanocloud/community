@@ -4,6 +4,12 @@
 }
 
 .logout-dropdown {
+
+  button {
+    border: 0;
+    box-shadow: none;
+  }
+
   &:hover{
     background-color: $gray-lighter;
   }
