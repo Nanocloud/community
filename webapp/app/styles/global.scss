@@ -11,10 +11,6 @@ h1 {
   margin-bottom: 40px;
 }
 
-a, a:hover, a:active {
-  text-decoration: none;
-}
-
 .ember-application > .ember-view {
   width: 100%;
   height: 100%;
@@ -98,6 +94,14 @@ a, a:hover, a:active {
   cursor: pointer;
   &:hover {
     color: darken($blue-default, 20%);
+  }
+}
+
+.icon_link {
+  color: $blue-lighten;
+
+  &:hover {
+    color: $blue-darken;
   }
 }
 

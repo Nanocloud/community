@@ -30,6 +30,7 @@
 $blue-lighter: #f1faff !default;
 $blue-light: #57A9E0 !default;
 $blue-default: #47A0DD !default;
+$blue-lighten: lighten($blue-default, 30%) !default;
 $blue-darken: darken($blue-default, 15%) !default;
 $white: #fff !default;
 $red: #FF0000;
