@@ -16,7 +16,8 @@ export default Ember.Controller.extend({
   }),
 
   sessions: Ember.computed('model.@each', 'model.@each', function() {
-    return this.get('model.sessions');
+    return this.get('model.sessions')
+      .rejectBy('username', 'Administrator');
   }),
 
   actions : {
