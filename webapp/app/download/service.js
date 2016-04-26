@@ -6,7 +6,7 @@ export default Ember.Service.extend({
 
     Ember.$.ajax({
       type: "GET",
-      headers: { Authorization : "Bearer " + accessToken },
+      headers: { Authorization : "Bearer " + this.get('session.access_token')},
       url: "/api/files/token",
       data: { filename: "./" + filename}
     })

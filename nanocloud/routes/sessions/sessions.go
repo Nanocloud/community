@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/Nanocloud/community/nanocloud/models/sessions"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
@@ -15,12 +16,13 @@ var kServer string
 type hash map[string]interface{}
 
 func List(c *echo.Context) error {
+
 	user := c.Get("user").(*users.User)
+	sessionList, err := sessions.GetAll(user.Sam)
 
-	resp, err := http.Get("http://" + kServer + ":" + utils.Env("PLAZA_PORT", "9090") + "/sessions/" + user.Sam)
 	if err != nil {
 		log.Error(err)
-		return c.JSON(http.StatusInternalServerError, hash{
+		return utils.JSON(c, http.StatusInternalServerError, hash{
 			"error": [1]hash{
 				hash{
 					"detail": err.Error(),
@@ -29,18 +31,17 @@ func List(c *echo.Context) error {
 		})
 	}
 
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Error(err)
-		return c.JSON(http.StatusInternalServerError, hash{
-			"error": [1]hash{
-				hash{
-					"detail": err.Error(),
-				},
-			},
-		})
+	var response = make([]hash, len(sessionList))
+	for i, val := range sessionList {
+		res := hash{
+			"id":         val.Id,
+			"type":       "session",
+			"attributes": val,
+		}
+		response[i] = res
 	}
-	return c.JSON(http.StatusOK, string(b))
+
+	return c.JSON(http.StatusOK, hash{"data": response})
 }
 
 func Logoff(c *echo.Context) error {

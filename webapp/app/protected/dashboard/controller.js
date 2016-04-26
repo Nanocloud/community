@@ -9,22 +9,13 @@ export default Ember.Controller.extend({
     return this.get('model.apps')
   }),
 
-  users: Ember.computed('model', 'model', function() {
+  users: Ember.computed('model.@each', 'model.@each', function() {
     return this.get('model.users')
   }),
 
-  updateSession: function() {
-
-    Ember.$.ajax({
-      type: "GET",
-      headers: { Authorization : "Bearer " + this.get('session.access_token')},
-      url: "api/sessions",
-    })
-    .then((response) => {
-      this.set('sessions', JSON.parse(response).data);
-    });
-
-  }.on('init'),
+  sessions: Ember.computed('model.@each', 'model.@each', function() {
+    return this.get('model.sessions')
+  }),
 
   actions : {
     goToApps() {
