@@ -1,21 +1,22 @@
 <div class="dashboard section">
 
-  <h4>
-    Dashboard 
-  </h4>
-
-  <div class="jumbotron">
-    <p class="lead">Hi {{session.user.firstName}} {{session.user.lastName}} !</p>
-    <p>
-      Here is your Dashboard.
-    </p>
-  </div>
-  <hr/>
   <div class='card-wrapper'>
-  {{ card-component title="Current registered users" content=users.length action="goToUsers" }}
-  {{ card-component title="Current online users" content=sessions.length action="goToConnectedUsers" }}
-  {{ card-component title="Published applications" content=apps.length action="goToApps" }}
-  </div>
+  {{#card-component title="Current registered users" content=users.length }}
+    {{#link-to 'protected.users.new'}}
+      <span class='color-primary'>Add users</span>
+    {{/link-to}}
+  {{/card-component}}
 
+  {{#card-component title="Current online users" content=sessions.length }}
+    {{#link-to 'protected.users'}}
+      <span class='color-primary'>View users</span>
+    {{/link-to}}
+  {{/card-component}}
+  {{#card-component title="Published applications" content=apps.length }}
+    {{#link-to 'protected.apps'}}
+      <span class='color-primary'>View apps</span>
+    {{/link-to}}
+  {{/card-component}}
+  </div>
 
 </div>

@@ -8,9 +8,10 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('protected', {path: '/'}, function() {
     this.route('users', function() {
-      this.route('user', { path: '/:user_id' });
       this.route('new');
+      this.route('user', { path: '/:user_id' });
     });
+    this.route('users.new');
     this.route('machines', function() {
       this.route('new');
       this.route('machine', { path: '/:machine_id' });

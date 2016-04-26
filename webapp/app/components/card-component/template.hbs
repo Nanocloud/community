@@ -1,12 +1,11 @@
 <div class='card'>
-  <div class="card-header">
-    {{ title }}
-  </div>
   <div class="card-block">
     <blockquote class="card-blockquote">
       <h1>
         {{ content }}
       </h1>
+    <footer>{{ title }}</footer>
+    <p>{{ yield }}</p>
     </blockquote>
   </div>
 </div>
