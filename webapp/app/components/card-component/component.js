@@ -7,7 +7,4 @@ export default Ember.Component.extend({
   click() {
     this.sendAction();
   },
-
-  actions: {
-  },
 });

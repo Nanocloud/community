@@ -2,7 +2,6 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
 
-  appData: Ember.inject.service('application-data'),
   session: Ember.inject.service('session'),
 
   apps: Ember.computed('model.@each', 'model.@each', function() {
