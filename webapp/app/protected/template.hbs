@@ -2,7 +2,9 @@
   <div class="sidebar bg-faded">
     <div class="sidebar-content">
       <div class="top-nav">
-        <div class="sidebar-logo"></div>
+        {{#link-to 'protected.dashboard' disabled=isNotAdmin }}
+          <div class="sidebar-logo"></div>
+        {{/link-to}}
         <ul class="nav">
           {{#if session.user.isAdmin}}
             <li>

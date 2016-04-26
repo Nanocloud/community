@@ -7,14 +7,16 @@ export default Ember.Controller.extend({
 
   apps: Ember.computed('model.@each', 'model.@each', function() {
     return this.get('model.apps')
+      .rejectBy('alias', 'hapticDesktop');
   }),
 
   users: Ember.computed('model.@each', 'model.@each', function() {
     return this.get('model.users')
+      .rejectBy('isAdmin', true);
   }),
 
   sessions: Ember.computed('model.@each', 'model.@each', function() {
-    return this.get('model.sessions')
+    return this.get('model.sessions');
   }),
 
   actions : {
