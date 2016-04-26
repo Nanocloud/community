@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 
+  /* global $:false */
   session: Ember.inject.service('session'),
   loadingFile: null,
   flow: null,

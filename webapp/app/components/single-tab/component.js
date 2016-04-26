@@ -2,6 +2,8 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 
+  /* global $:false */
+
   remoteSession: Ember.inject.service('remote-session'),
 
   connectionName: null,
@@ -16,14 +18,14 @@ export default Ember.Component.extend({
   dragAndDropActive: false,
 
   manageOpenedWindow: function() {
-    if (this.get('dragAndDropActive') == true) {
+    if (this.get('dragAndDropActive') === true) {
       this.closeAll();
     }
   }.observes('dragAndDropActive'),
 
   toggling() {
 
-    if (this.get('showState') == false) {
+    if (this.get('showState') === false) {
       $('.canva-fullscreen').hide();
       $('.ember-modal-fullscreen').velocity({ opacity:1, left: 0} , {
         easing: "linear",

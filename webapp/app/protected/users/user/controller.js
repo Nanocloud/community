@@ -22,7 +22,7 @@ export default Ember.Controller.extend({
         .validate({ on: ['password'] })
         .then(({ m, validations }) => {
 
-          if (validations.get('isInvalid') == true) {
+          if (validations.get('isInvalid') === true) {
             this.toast.error(this.get('model.validations.attrs.password.messages'));
             return defer.reject(this.get('model.validations.attrs.password.messages'));
           }
