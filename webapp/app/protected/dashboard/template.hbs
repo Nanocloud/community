@@ -1,0 +1,21 @@
+<div class="dashboard section">
+
+  <h4>
+    Dashboard 
+  </h4>
+
+  <div class="jumbotron">
+    <p class="lead">Hi {{session.user.firstName}} {{session.user.lastName}} !</p>
+    <p>
+      Here is your Dashboard.
+    </p>
+  </div>
+  <hr/>
+  <div class='card-wrapper'>
+  {{ card-component title="Current registered users" content=users.length action="goToUsers" }}
+  {{ card-component title="Current online users" content=sessions.length action="goToConnectedUsers" }}
+  {{ card-component title="Published applications" content=apps.length action="goToApps" }}
+  </div>
+
+
+</div>

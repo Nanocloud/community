@@ -23,6 +23,7 @@ Router.map(function() {
       this.route('notactivated');
     });
     this.route('histories', function() {});
+    this.route('dashboard');
   });
 
   this.route('login');
