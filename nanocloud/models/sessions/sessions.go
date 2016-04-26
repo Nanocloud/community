@@ -41,7 +41,6 @@ func GetAll(userSam string) ([]Session, error) {
 
 		var session Session
 		for t, s := range tab {
-			log.Info(s)
 			if t == 0 {
 				session.SessionName = s
 			}

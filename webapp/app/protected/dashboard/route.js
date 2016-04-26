@@ -7,6 +7,6 @@ export default Ember.Route.extend({
       apps: this.store.findAll('application'),
       users: this.store.findAll('user'),
       sessions: this.store.findAll('session')
-    })
+    });
   },
 });
