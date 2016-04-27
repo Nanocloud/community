@@ -34,7 +34,13 @@ module.exports = function(admin) {
     .shouldBeJSONAPI();
 
     it("shoud be an empty array", function() {
-      return expect(request.response.data.data).to.be.empty;
+      var data = request.response.data.data
+        .filter(function(obj) {
+          if (obj.attributes.username != 'Administrator') {
+            return obj;
+          }
+        });
+      return expect(data).to.be.empty;
     });
 
   });
