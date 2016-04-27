@@ -12,7 +12,7 @@ export default Ember.Service.extend({
     })
     .then((response) => {
       let url = "/api/files?filename=" + encodeURIComponent("./" + filename) + "&token=" + encodeURIComponent(response.token); 
-      window.open(url);
+      window.location.assign(url);
     });
   }
 });
