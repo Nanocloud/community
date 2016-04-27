@@ -2,8 +2,20 @@
   <div class="sidebar bg-faded">
     <div class="sidebar-content">
       <div class="top-nav">
-        <div class="sidebar-logo"></div>
+        {{#link-to 'protected.dashboard' disabled=session.user.isNotAdmin }}
+          <div class="sidebar-logo"></div>
+        {{/link-to}}
         <ul class="nav">
+          {{#if session.user.isAdmin}}
+            <li>
+              {{#link-to 'protected.dashboard'}}
+                <span class="icon">
+                  <i class="material-icons">dashboard</i>
+                </span>
+                Dashboard 
+              {{/link-to}}
+            </li>
+          {{/if}}
           {{#if session.user.isAdmin}}
             <li>
               {{#link-to 'protected.machines'}}

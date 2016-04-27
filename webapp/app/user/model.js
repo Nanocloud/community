@@ -40,4 +40,8 @@ export default DS.Model.extend(Validations, {
   fullName: function() {
     return `${this.get('firstName')}  ${this.get('lastName')}`;
   }.property('firstName', 'lastName'),
+  isNotAdmin: function() {
+    return !this.get('isAdmin');
+  }.property(),
+
 });
