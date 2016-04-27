@@ -7,13 +7,6 @@ export default Ember.Controller.extend({
   name: config.APP.name,
   version: config.APP.version,
 
-  isNotAdmin: Ember.computed('session.user', 'session.user', function() {
-    if (this.get('session.user.isAdmin') === true) {
-      return false;
-    }
-    return true; 
-  }),
-
   showSidebar: false,
   actions: {
     toggleSidebar() {
