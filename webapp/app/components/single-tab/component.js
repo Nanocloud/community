@@ -29,12 +29,12 @@ export default Ember.Component.extend({
       $('.canva-fullscreen').hide();
       $('.ember-modal-fullscreen').velocity({ opacity:1, left: 0} , {
         easing: "linear",
-        duration: 400
+        duration: 300,
+        complete: function() {
+          $('.canva-fullscreen').show();
+        }.bind(this),
       });
 
-      setTimeout(function() {
-          $('.canva-fullscreen').show();
-      }.bind(this), 200);
       this.set('showState', true);
     }
     else {
