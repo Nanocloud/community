@@ -4,12 +4,15 @@
   {{#card-component title="Current registered users" content=users.length }}
     {{#link-to 'protected.users.new'}}
       <span class='color-primary'>Add users</span>
+    {{/link-to}}/
+    {{#link-to 'protected.users'}}
+      <span class='color-primary'>View users</span>
     {{/link-to}}
   {{/card-component}}
 
   {{#card-component title="Current online users" content=sessions.length }}
-    {{#link-to 'protected.users'}}
-      <span class='color-primary'>View users</span>
+    {{#link-to 'protected.histories'}}
+      <span class='color-primary'>View connection history</span>
     {{/link-to}}
   {{/card-component}}
   {{#card-component title="Published applications" content=apps.length }}
