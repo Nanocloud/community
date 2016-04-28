@@ -6,4 +6,6 @@ export default DS.Model.extend({
     connectionId: DS.attr('string'),
     startDate: DS.attr('string'),
     endDate: DS.attr('string'),
+    user: DS.belongsTo('user'),
+    application: DS.belongsTo('application')
 });

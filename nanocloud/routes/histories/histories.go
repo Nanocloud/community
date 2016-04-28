@@ -35,24 +35,11 @@ type hash map[string]interface{}
 // Get a list of all the log entries of the database
 func List(c *echo.Context) error {
 
-	historyList, err := histories.GetAll()
-
+	histories, err := histories.FindAll()
 	if err != nil {
 		return err
 	}
-
-	var response = make([]hash, len(historyList))
-	for i, val := range historyList {
-		res := hash{
-			"id":         val.Id,
-			"type":       "history",
-			"attributes": val,
-		}
-		response[i] = res
-	}
-
-	return c.JSON(http.StatusOK, hash{"data": response})
-
+	return utils.JSON(c, http.StatusOK, histories)
 }
 
 // Add a new log entry to the database
