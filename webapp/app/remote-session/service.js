@@ -7,11 +7,11 @@ export default Ember.Service.extend({
   session: Ember.inject.service('session'),
   guacamole: null,
   openedGuacSession: Ember.Object.create({}),
-  guacToken: function() {
+  guacToken: Ember.computed('session.user', 'guacToken', function() {
     return Ember.$.post(config.GUACAMOLE_URL + 'api/tokens', {
       access_token: this.get('session.access_token')
     });
-  }.property('guacToken'),
+  }),
 
   _forgeConnectionString: function(token, connectionName, width, height) {
 
