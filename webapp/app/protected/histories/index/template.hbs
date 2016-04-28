@@ -9,17 +9,18 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Id user</th>
-            <th>Connection</th>
+            <th>User</th>
+            <th>Application</th>
             <th>Start</th>
             <th>End</th>
           </tr>
         </thead>
         <tbody>
             {{#each model as |history|}}
+              {{log history.user}}
               <tr>
-                <td>{{history.userId}}</td>
-                <td>{{history.connectionId}}</td>
+                <td>{{history.user.firstName}} {{history.user.lastName}}</td>
+                <td>{{history.application.displayName}}</td>
                 <td>{{history.startDate}}</td>
                 <td>{{history.endDate}}</td>
               </tr>
