@@ -56,6 +56,22 @@
 
           </div>
           <div class="right">
+            {{#if logoff}}
+              {{ topbar-item 
+                class="go-back"
+                fontAwesome="spinner"
+                fontAwesomeSpin=true 
+              }}
+            {{else}}
+              {{ topbar-item 
+                clickable=true
+                class="go-back"
+                hover-enabled=true
+                hover-darker=true
+                materialIcon="flash_off"
+                click="disconnectVDI"
+              }}
+            {{/if}}
             {{ topbar-item 
               clickable=true
               class="go-back"

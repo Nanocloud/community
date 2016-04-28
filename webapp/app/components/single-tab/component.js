@@ -5,8 +5,10 @@ export default Ember.Component.extend({
   /* global $:false */
 
   remoteSession: Ember.inject.service('remote-session'),
+  session: Ember.inject.service('session'),
 
   connectionName: null,
+  logoff: false,
 
   topBarItemToggleWindowCollector: {
     upload: false,
@@ -85,6 +87,22 @@ export default Ember.Component.extend({
   },
 
   actions: {
+
+    disconnectVDI() {
+
+      this.set('logoff', true);
+      Ember.$.ajax({
+        type: "DELETE",
+        headers: { Authorization : "Bearer " + this.get('session.access_token')},
+        url: "/api/sessions",
+        data: { user: "./" + this.get('session.user')}
+      })
+      .then((response) => {
+        this.set('logoff', false);
+        this.toast.success("You have been disconnected successfully");
+        this.toggling();
+      });
+    },
 
     toggleSingleTab() {
       this.toggling();
