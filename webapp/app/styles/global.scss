@@ -143,3 +143,11 @@ h1 {
 .clickable {
   cursor: pointer;
 }
+
+.online {
+  color: $blue-default;
+}
+
+.offline {
+  color: $gray-light;
+}
