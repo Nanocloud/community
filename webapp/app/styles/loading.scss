@@ -1,0 +1,22 @@
+@keyframes nanoloading {
+  0% {
+    color: $white;
+  }
+  80% {
+    color: $blue-default;
+  }
+  100% {
+    color: $white;
+  }
+}
+
+.nano-loading {  
+
+  @extend .transition-enabled;
+  color: $white;
+  animation-name: nanoloading;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  margin-right: 10px;
+}
+
