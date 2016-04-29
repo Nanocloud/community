@@ -37,7 +37,6 @@ export default DS.Model.extend(Validations, {
   lastName: DS.attr('string'),
   password: DS.attr('string'),
   sam: DS.attr('string'),
-  histories: DS.hasMany('session'),
 
   fullName: function() {
     return `${this.get('firstName')}  ${this.get('lastName')}`;
