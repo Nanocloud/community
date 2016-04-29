@@ -36,6 +36,8 @@ Optionnally these parameters can also be changed:
 - *DEPLOYMENT_OS_SSH_PORT* (default 22) SSH port on Linux Server
 - *DEPLOYMENT_INSTALLATION_SCRIPT* (default ./installCommunity.sh) Script installing community on provisionned VM
 - *DEPLOYMENT_PUBLIC_IP* Set a particular public IP to your deployment
+- *DEPLOYMENT_LINUX_VM_NAME* Give a name to Linux machine on Openstack
+- *DEPLOYMENT_WINDOWS_VM_NAME* Give a name to Windows machine on Openstack
 
 
 Then build the container:

@@ -47,6 +47,8 @@ var WINDOWS_SECURITY_GROUPS = process.env.DEPLOYMENT_WINDOWS_SECURITY_GROUPS.spl
   "SSH",
   "RDP"
 ];
+var LINUX_VM_NAME = process.env.DEPLOYMENT_LINUX_VM_NAME || 'Bamboo Linux';
+var WINDOWS_VM_NAME = process.env.DEPLOYMENT_WINDOWS_VM_NAME || 'Bamboo Windows';
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
@@ -69,7 +71,7 @@ var provisionLinux = function(callback) {
     function(next) { // Boot Linux server
 
       project.createServer({
-        "name": "Bamboo Linux",
+        "name": LINUX_VM_NAME,
         "imageRef": URL + ":9292/v2/images/" + LINUX_IMAGE_ID,
         "flavorRef": URL + ":8774/v2/flavors/2",
         "key_name": KEY_NAME
@@ -186,7 +188,7 @@ var provisionWindows = function(callback) {
     function(next) { // Upload qcow2
       if (WINDOWS_IMAGE_ID === null) {
         project.uploadImage(WINDOWS_IMAGE_PATH, {
-          name: "bamboo",
+          name: WINDOWS_VM_NAME + " image",
           visibility: 'private',
           disk_format: 'qcow2',
           container_format: 'bare'
@@ -205,7 +207,7 @@ var provisionWindows = function(callback) {
       }
 
       project.createServer({
-        "name": "Bamboo Windows",
+        "name": WINDOWS_VM_NAME,
         "imageRef": URL + ":9292/v2/images/" + imageId,
         "flavorRef": URL + ":8774/v2/flavors/3"
       }, function(error, _server) {
