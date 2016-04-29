@@ -27,10 +27,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Nanocloud/community/nanocloud/provisioner"
+	"github.com/Nanocloud/community/nanocloud/utils"
+	"github.com/Nanocloud/community/nanocloud/vms"
+	log "github.com/Sirupsen/logrus"
 )
 
 type cmd_t struct {
@@ -120,7 +127,7 @@ func PowershellExec(
 	}
 
 	if res.Code != 0 {
-		return nil, errors.New(res.Stdout)
+		return nil, errors.New("STDOUT: " + res.Stdout + "\nSTDERR: " + res.Stderr)
 	}
 	return res, nil
 }
@@ -185,4 +192,227 @@ func UnpublishApp(
 	out := res.Stdout
 
 	return []byte(out), nil
+}
+
+func checkPlaza(ip string, port string) bool {
+	_, err := http.Get("http://" + ip + ":" + port + "/")
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+func provExec(p io.Writer, machine vms.Machine, command string) (string, error) {
+
+	machine.Status()
+	ip, _ := machine.IP()
+	for checkPlaza(ip.String(), utils.Env("PLAZA_PORT", "9090")) != true {
+
+		machine.Status()
+		ip, _ = machine.IP()
+		time.Sleep(time.Millisecond * 500)
+	}
+
+	plazaAddress, err := machine.IP()
+	if err != nil {
+		log.Error(err.Error())
+		return "", err
+	}
+
+	plazaPort, err := strconv.Atoi(utils.Env("PLAZA_PORT", "9090"))
+	if err != nil {
+		log.Error(err.Error())
+		return "", err
+	}
+
+	domain := utils.Env("WINDOWS_DOMAIN", "")
+	if domain == "" {
+		log.Error("domain unknown")
+		return "", errors.New("domain unknown")
+	}
+
+	username, password, err := machine.Credentials()
+	if err != nil {
+		log.Error(err.Error())
+		return "", err
+	}
+
+	res, err := PowershellExec(
+		plazaAddress.String(),
+		plazaPort,
+		username,
+		domain,
+		password,
+		command,
+	)
+
+	p.Write([]byte(command))
+	if err != nil {
+		return "", err
+	}
+
+	return res.Stdout, nil
+}
+
+func isStopped(machine vms.Machine) bool {
+
+	status, err := machine.Status()
+	if err != nil {
+		log.Error(err.Error())
+		return false
+	}
+	if status == vms.StatusDown {
+		return true
+	} else {
+		return false
+	}
+}
+
+func Provision(machine vms.Machine) provisioner.ProvFunc {
+
+	return func(p io.Writer) {
+		resp, err := provExec(p, machine, "New-Item HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows -Name WindowsUpdate")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		username, password, err := machine.Credentials()
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		}
+		pcname, err := provExec(p, machine, "hostname")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		}
+		pcname = strings.TrimSpace(pcname)
+		domain := utils.Env("WINDOWS_DOMAIN", "")
+
+		resp, err = provExec(p, machine, "New-Item HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate -Name AU")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "New-ItemProperty HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU -Name NoAutoUpdate -Value 1")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "Install-windowsfeature AD-domain-services")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "Import-Module ADDSDeployment; $pwd=ConvertTo-SecureString '"+password+"' -asplaintext -force; Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath 'C:\\Windows\\NTDS' -DomainMode 'Win2012R2' -DomainName '"+domain+"' -SafeModeAdministratorPassword:$pwd -DomainNetbiosName 'INTRA' -ForestMode 'Win2012R2' -InstallDns:$true -LogPath 'C:\\Windows\\NTDS' -NoRebootOnCompletion:$true -SysvolPath 'C:\\Windows\\SYSVOL' -Force:$true")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		machine.Stop()
+		for isStopped(machine) != true {
+		}
+		machine.Start()
+
+		resp, err = provExec(p, machine, "set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server'-name 'fDenyTSConnections' -Value 0")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "Enable-NetFirewallRule -DisplayGroup 'Remote Desktop'")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -name 'UserAuthentication' -Value 1")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "import-module RemoteDesktop; Import-module ServerManager; Add-WindowsFeature -Name RDS-RD-Server -IncludeAllSubFeature; Add-WindowsFeature -Name RDS-Web-Access -IncludeAllSubFeature; Add-WindowsFeature -Name RDS-Connection-Broker -IncludeAllSubFeature")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "import-module RemoteDesktop; Import-module ServerManager; Install-windowsfeature RSAT-AD-AdminCenter")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		machine.Stop()
+		for isStopped(machine) != true {
+
+		}
+		machine.Start()
+
+		resp, err = provExec(p, machine, "sc.exe config RDMS start= auto")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "Import-Module ServerManager; Add-WindowsFeature Adcs-Cert-Authority")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "$secpasswd = ConvertTo-SecureString '"+password+"' -AsPlainText -Force;$mycreds = New-Object System.Management.Automation.PSCredential ('"+username+"', $secpasswd); Install-AdcsCertificationAuthority -CAType 'EnterpriseRootCa' -Credential:$mycreds -force:$true ")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "Start-Service RDMS; import-module remotedesktop ; New-RDSessionDeployment -ConnectionBroker "+pcname+"."+domain+" -WebAccessServer "+pcname+"."+domain+" -SessionHost "+pcname+"."+domain)
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		time.Sleep(time.Second * 60)
+
+		resp, err = provExec(p, machine, "import-module remotedesktop ; New-RDSessionCollection -CollectionName collection -SessionHost "+pcname+"."+domain+" -CollectionDescription 'Nanocloud collection' -ConnectionBroker "+pcname+"."+domain)
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "(Get-WmiObject -class 'Win32_TSGeneralSetting' -Namespace root\\cimv2\\terminalservices -ComputerName "+pcname+").SetUserAuthenticationRequired(0)")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+
+		resp, err = provExec(p, machine, "NEW-ADOrganizationalUnit 'NanocloudUsers' -path 'DC=intra,DC=localdomain,DC=com'")
+		if err != nil {
+			p.Write([]byte(err.Error()))
+		} else {
+			p.Write([]byte(resp))
+		}
+	}
 }
