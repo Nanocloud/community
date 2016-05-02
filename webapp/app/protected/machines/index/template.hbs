@@ -13,9 +13,9 @@
         <br />
         Click "Download Windows" to download the Windows Virtual machine that will host your applications
       </div>
-      <button {{action "downloadWindows"}} class='btn btn-primary btn-block'>
-        Download Windows
-      </button>
     {{/each}}
+    {{#link-to 'protected.machines.new' class="btn btn-primary btn-block"}}
+      Create Machine
+    {{/link-to}}
   </div>
 </div>

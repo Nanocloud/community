@@ -14,6 +14,20 @@
         <label>.. and a password because security is important!</label>
         {{input type="password" class='form-control' value=adminPassword placeholder="Administrator Password"}}
       </fieldset>
+
+      <fieldset class="form-group">
+        <label>Type:</label>
+
+        <ul>
+        {{#each types as |type|}}
+          <li>{{type.name}}</li>
+        {{/each}}
+        </ul>
+
+      </fieldset>
+
+
+
       <button type="submit" class="btn btn-primary">Create</button>
     </form>
   </div>

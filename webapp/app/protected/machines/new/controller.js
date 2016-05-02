@@ -10,9 +10,12 @@ export default Ember.Controller.extend({
 
   actions: {
     createMachine() {
+      let type = this.get('types').objectAt(0);
+
       let m = this.store.createRecord('machine', {
         name: this.get('machineName'),
         adminPassword: this.get('adminPassword'),
+        type: type
       });
 
       m.save()
