@@ -52,3 +52,11 @@ func Machine(id string) (vms.Machine, error) {
 func Create(attr vms.MachineAttributes) (vms.Machine, error) {
 	return (*vm).Create(attr)
 }
+
+func Types() ([]vms.MachineType, error) {
+	return (*vm).Types()
+}
+
+func Type(id string) (vms.MachineType, error) {
+	return (*vm).Type(id)
+}
