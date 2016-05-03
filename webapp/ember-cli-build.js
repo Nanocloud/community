@@ -34,26 +34,6 @@ module.exports = function(defaults) {
   });
 
   app.import('bower_components/flow.js/dist/flow.js');
-
-  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.eot', {
-    destDir: 'assets/fonts'
-  });
-  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.ijmap', {
-    destDir: 'assets/fonts'
-  });
-  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.svg', {
-    destDir: 'assets/fonts'
-  });
-  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.ttf', {
-    destDir: 'assets/fonts'
-  });
-  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.woff', {
-    destDir: 'assets/fonts'
-  });
-  app.import('bower_components/material-design-icons/iconfont/MaterialIcons-Regular.woff2', {
-    destDir: 'assets/fonts'
-  });
-
   app.import('bower_components/bootstrap/dist/js/bootstrap.js');
 
   return app.toTree();
