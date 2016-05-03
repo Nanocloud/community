@@ -313,3 +313,7 @@ func (v *vm) createInstallDisk(vmId string, password string) (string, error) {
 func (v *vm) Types() ([]vms.MachineType, error) {
 	return []vms.MachineType{defaultType}, nil
 }
+
+func (v *vm) Type(id string) (vms.MachineType, error) {
+	return defaultType, nil
+}
