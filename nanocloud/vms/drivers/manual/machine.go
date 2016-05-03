@@ -36,6 +36,7 @@ import (
 
 type machine struct {
 	id        string
+	name      string
 	server    string
 	plazaport string
 	user      string
@@ -106,7 +107,7 @@ func (m *machine) Id() string {
 }
 
 func (m *machine) Name() (string, error) {
-	return "Windows Active Directory", nil
+	return m.name, nil
 }
 
 func (m *machine) Credentials() (string, string, error) {

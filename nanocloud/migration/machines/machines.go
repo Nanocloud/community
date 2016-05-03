@@ -23,12 +23,13 @@
 package machines
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 func Migrate() error {
@@ -56,6 +57,7 @@ func Migrate() error {
 	rows, err = db.Query(
 		`CREATE TABLE machines (
 			id         varchar(60),
+			name			 varchar(255),
 			type       vmtype,
 			ip         varchar(255),
 			plazaport  varchar(4) NOT NULL DEFAULT '9090',
@@ -72,11 +74,18 @@ func Migrate() error {
 		user := os.Getenv("WIN_USER")
 
 		ips := strings.Split(servers, ";")
-		for _, val := range ips {
+		for i, val := range ips {
 			rows, err := db.Query(`INSERT INTO machines
-			(id, type, ip, username, password)
-			VALUES( $1::varchar, $2::vmtype, $3::varchar, $4::varchar, $5::varchar)`,
-				uuid.NewV4().String(), "manual", val, user, password)
+			(id, name, type, ip, username, password)
+			VALUES( $1::varchar, $2::varchar, $3::vmtype,
+			$4::varchar, $5::varchar, $6::varchar)`,
+				uuid.NewV4().String(),
+				fmt.Sprintf("Machine #%d", i+1),
+				"manual",
+				val,
+				user,
+				password,
+			)
 
 			if err != nil {
 				return err
