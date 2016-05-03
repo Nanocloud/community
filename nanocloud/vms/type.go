@@ -23,8 +23,7 @@
 package vms
 
 type MachineType interface {
-	Id() string
-	Label() string
+	GetID() string
 }
 
 type MachineAttributes struct {
