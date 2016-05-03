@@ -27,4 +27,5 @@ type VM interface {
 	Machine(id string) (Machine, error)
 	Create(attr MachineAttributes) (Machine, error)
 	Types() ([]MachineType, error)
+	Type(id string) (MachineType, error)
 }

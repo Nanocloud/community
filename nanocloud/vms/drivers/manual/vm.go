@@ -34,10 +34,6 @@ import (
 type vm struct {
 }
 
-func (v *vm) Types() ([]vms.MachineType, error) {
-	return []vms.MachineType{defaultType}, nil
-}
-
 func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 	machine := &machine{
 		id:       uuid.NewV4().String(),
@@ -120,4 +116,12 @@ func (v *vm) Machine(id string) (vms.Machine, error) {
 		return nil, err
 	}
 	return machine, nil
+}
+
+func (v *vm) Types() ([]vms.MachineType, error) {
+	return []vms.MachineType{defaultType}, nil
+}
+
+func (v *vm) Type(id string) (vms.MachineType, error) {
+	return defaultType, nil
 }

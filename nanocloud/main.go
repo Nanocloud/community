@@ -35,6 +35,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/routes/files"
 	"github.com/Nanocloud/community/nanocloud/routes/front"
 	"github.com/Nanocloud/community/nanocloud/routes/histories"
+	"github.com/Nanocloud/community/nanocloud/routes/machine-drivers"
 	"github.com/Nanocloud/community/nanocloud/routes/machines"
 	"github.com/Nanocloud/community/nanocloud/routes/oauth"
 	"github.com/Nanocloud/community/nanocloud/routes/sessions"
@@ -148,7 +149,12 @@ func main() {
 	e.Delete("/api/machines/:id", m.OAuth2(m.Admin(machines.DeleteMachine)))
 
 	/**
-	* Files
+	 * MACHINES DRIVERS
+	 */
+	e.Get("/api/machine-drivers", m.OAuth2(m.Admin(machinedrivers.FindAll)))
+
+	/**
+	 * Files
 	 */
 	e.Get("/api/files", files.Get)
 	e.Get("/api/files/token", m.OAuth2(files.GetDownloadToken))

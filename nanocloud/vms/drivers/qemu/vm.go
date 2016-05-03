@@ -35,10 +35,6 @@ type vm struct {
 	server string
 }
 
-func (v *vm) Types() ([]vms.MachineType, error) {
-	return []vms.MachineType{defaultType}, nil
-}
-
 func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 
 	m := machine{id: attr.Name, server: v.server}
@@ -85,4 +81,12 @@ func (v *vm) Machines() ([]vms.Machine, error) {
 
 func (v *vm) Machine(id string) (vms.Machine, error) {
 	return &machine{id: id, server: v.server}, nil
+}
+
+func (v *vm) Types() ([]vms.MachineType, error) {
+	return []vms.MachineType{defaultType}, nil
+}
+
+func (v *vm) Type(id string) (vms.MachineType, error) {
+	return defaultType, nil
 }

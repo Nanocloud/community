@@ -9,6 +9,9 @@ export default DS.Model.extend({
   platform: DS.attr('string'),
   progress: DS.attr('number'),
 
+  type: DS.belongsTo('machine-type'),
+  driver: DS.belongsTo('machine-driver'),
+
   isUp: Ember.computed('status', function() {
     return this.get('status') === 'up';
   }),
