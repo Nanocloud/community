@@ -39,7 +39,7 @@ type machine struct {
 	Id            string `json:"id"`
 	Name          string `json:"name"`
 	Ip            string `json:"ip"`
-	Type          string `json:"type"`
+	Type          string
 	Status        string `json:"status"`
 	Username      string `json:"username"`
 	AdminPassword string `json:"admin-password,omitempty"`
@@ -53,6 +53,13 @@ func (m *machine) GetID() string {
 
 func (m *machine) SetID(id string) error {
 	m.Id = id
+	return nil
+}
+
+func (m *machine) SetToOneReferenceID(name, ID string) error {
+	if name == "type" {
+		m.Type = ID
+	}
 	return nil
 }
 
@@ -213,16 +220,23 @@ func CreateMachine(c *echo.Context) error {
 
 	err := utils.ParseJSONBody(c, rt)
 	if err != nil {
+		log.Error(err.Error())
 		return err
 	}
 
+	machineType, err := vms.Type(rt.Type)
+	if err != nil {
+		return errors.MachineTypeNotFound
+	}
+
 	attr := vm.MachineAttributes{
-		Type:     nil,
+		Type:     machineType,
 		Name:     rt.Name,
 		Username: rt.Username,
 		Password: rt.AdminPassword,
 		Ip:       rt.Ip,
 	}
+
 	m, err := vms.Create(attr)
 	if err != nil {
 		log.Error(err)

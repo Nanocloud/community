@@ -1,19 +1,12 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  setupController(controller, model) {
-    controller.set('types', model);
+  setupContoller(controller, model) {
+    controller.set('drivers', model);
   },
-
   model() {
-    return this.store.query(
-      'machine-type',
-      {
-        driver: 'aws'
-      }
-    );
+    return this.store.findAll('machine-driver');
   },
-
   actions: {
     willTransition: function() {
       this.controller.reset();

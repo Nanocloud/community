@@ -4,6 +4,7 @@
       Machines
     {{/link-to}}
   </h4>
+
   <div class='content-wrapper machines-wrapper'>
     {{#each machines as |machine|}}
       {{machine-item machine=machine}}
@@ -13,9 +14,16 @@
         <br />
         Click "Download Windows" to download the Windows Virtual machine that will host your applications
       </div>
+
+      {{#if (is-equal driverName "aws")}}
+        {{#link-to 'protected.machines.new' class="btn btn-primary btn-block"}}
+         Create Machine
+        {{/link-to}}
+      {{else}}
+        <button {{action "downloadWindows"}} class='btn btn-primary btn-block'>
+          Create Machine
+        </button>
+      {{/if}}
     {{/each}}
-    {{#link-to 'protected.machines.new' class="btn btn-primary btn-block"}}
-      Create Machine
-    {{/link-to}}
   </div>
 </div>

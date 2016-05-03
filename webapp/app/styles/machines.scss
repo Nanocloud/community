@@ -71,3 +71,9 @@
 .content-wrapper.form {
   max-width: 350px;
 }
+
+.open > .dropdown-menu {
+  height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
