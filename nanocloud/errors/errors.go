@@ -102,4 +102,10 @@ var (
 		http.StatusInternalServerError,
 		"The machine status cannot be updated.",
 	}
+
+	MachineTypeNotFound = &apiError{
+		0x000013,
+		http.StatusInternalServerError,
+		"The specified machine type does not exists",
+	}
 )
