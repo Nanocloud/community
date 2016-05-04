@@ -28,6 +28,7 @@ Router.map(function() {
   });
 
   this.route('login');
+  this.route('direct-link');
 });
 
 export default Router;

@@ -3,7 +3,7 @@
     attachment="" targetAttachment=""}}
 
     {{#vdi-drag-n-drop dragAndDropActive=dragAndDropActive as |uploadData|}}  
-      <div class="ember-modal-fullscreen">
+      <div class="ember-modal-fullscreen {{if togglable 'togglable-state'}}">
         <div class="remote-session-topbar">
           <div class="left">
             {{#if uploadData.progress}}
@@ -56,6 +56,8 @@
 
           </div>
           <div class="right">
+
+          {{#if disconnectBtn}}
             {{#if logoff}}
               {{ topbar-item 
                 class="go-back"
@@ -68,10 +70,13 @@
                 class="go-back"
                 hover-enabled=true
                 hover-darker=true
-                materialIcon="flash_off"
+                materialIcon="power_settings_new"
                 click="disconnectVDI"
               }}
             {{/if}}
+          {{/if}}
+
+          {{#if homeBtn}}
             {{ topbar-item 
               clickable=true
               class="go-back"
@@ -80,6 +85,7 @@
               materialIcon="home"
               click="toggleSingleTab"
             }}
+          {{/if}}
           </div>
         </div>
         <div class="canva-fullscreen">
@@ -104,7 +110,7 @@
             }}
           {{/vdi-download}}
 
-          {{yield}}
+          {{yield (hash disconnectVDI=(action 'disconnectVDI')) }}
         </div>
       </div>
     {{/vdi-drag-n-drop }}  

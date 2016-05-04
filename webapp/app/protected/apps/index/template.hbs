@@ -24,7 +24,14 @@
   </div>
 </div>
 
-{{#single-tab isVisible=showSingleTab onClose="disconnectGuacamole" connectionName=connectionName}}
+{{#single-tab 
+  togglable=true
+  disconnectBtn=true
+  homeBtn=true
+  isVisible=showSingleTab
+  onClose="disconnectGuacamole"
+  connectionName=connectionName
+}}
   {{remote-session connectionName=connectionName}}
 {{/single-tab}}
 

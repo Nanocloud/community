@@ -40,6 +40,7 @@ export default Ember.Component.extend({
       this.set('showState', true);
     }
     else {
+      this.closeAll();
       $('.canva-fullscreen').hide();
       $('.ember-modal-fullscreen').velocity({ opacity:0, left: -(window.innerWidth) }, {
         easing: "linear",
@@ -86,22 +87,35 @@ export default Ember.Component.extend({
     }
   },
 
+  vdiDisconnectHandler(options) {
+    this.set('logoff', true);
+    Ember.$.ajax({
+      type: "DELETE",
+      headers: { Authorization : "Bearer " + this.get('session.access_token')},
+      url: "/api/sessions",
+      data: { user: "./" + this.get('session.user')}
+    })
+    .then(() => {
+      this.set('logoff', false);
+      if (!options) {
+        this.toast.success("You have been disconnected successfully");
+      }
+      else {
+        if (options.error === true) {
+          this.toast.error(options.message);
+        }
+        else {
+          this.toast.success(options.message);
+        }
+      }
+      this.toggling();
+    });
+  },
+
   actions: {
 
-    disconnectVDI() {
-
-      this.set('logoff', true);
-      Ember.$.ajax({
-        type: "DELETE",
-        headers: { Authorization : "Bearer " + this.get('session.access_token')},
-        url: "/api/sessions",
-        data: { user: "./" + this.get('session.user')}
-      })
-      .then((response) => {
-        this.set('logoff', false);
-        this.toast.success("You have been disconnected successfully");
-        this.toggling();
-      });
+    disconnectVDI(message) {
+      this.vdiDisconnectHandler(message);
     },
 
     toggleSingleTab() {

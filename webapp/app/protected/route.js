@@ -1,9 +1,26 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  beforeModel() {
+
+  beforeModel(transition) {
+    if (transition.queryParams.app) {  
+      this.set('directLinkParams', transition.queryParams);
+    }
     if (this.get('session.isAuthenticated') === false) {
       this.transitionTo('login');
+    }
+  },
+
+  redirect() {
+    if (this.get('directLinkParams')) {
+      this.transitionTo('direct-link');
+      return;
+    }
+
+    if (this.get('session.user.isAdmin')) {
+      this.transitionTo('protected.dashboard');
+    } else {
+      this.transitionTo('protected.apps');
     }
   },
 

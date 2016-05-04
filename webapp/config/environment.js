@@ -23,7 +23,7 @@ module.exports = function(environment) {
 
 
     'ember-simple-auth': {
-      routeAfterAuthentication: 'protected.index'
+      routeAfterAuthentication: 'protected'
     }
   };
 

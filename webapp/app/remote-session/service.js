@@ -70,7 +70,10 @@ export default Ember.Service.extend({
       this.set('openedGuacSession.' + name, Ember.Object.create({ guac : guacamole }));
       this.keyboardAttach(name);
 
-      return guacamole;
+      return  {
+        tunnel : tunnel,
+        guacamole: guacamole
+      };
     });
   },
 
@@ -84,6 +87,9 @@ export default Ember.Service.extend({
   },
 
   pauseInputs(name) {
+    if (!this.get('openedGuacSession')[name]) {
+      return;
+    }
     if (this.get('openedGuacSession')[name].keyboard) {
       this.get('openedGuacSession')[name].keyboard.reset();
       this.get('openedGuacSession')[name].keyboard.onkeyup = null;
@@ -130,6 +136,8 @@ export default Ember.Service.extend({
 
   disconnectSession(name) {
     this.pauseInputs(name);
-    this.get('openedGuacSession')[name].guac.disconnect();
+    if (this.get('openedGuacSession')[name]) {
+      this.get('openedGuacSession')[name].guac.disconnect();
+    }
   }
 });
