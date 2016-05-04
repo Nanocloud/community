@@ -4,6 +4,7 @@ import config from 'nanocloud/config/environment';
 export default Ember.Controller.extend({
   connectionName: null,
 
+  session: Ember.inject.service('session'),
   name: config.APP.name,
   version: config.APP.version,
 

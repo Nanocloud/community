@@ -16,6 +16,12 @@ export default Ember.Component.extend({
     return Ember.$(this.element).parent().height();
   },
 
+  initialize: function() {
+    if (this.get('autoload') === true) {
+      this.connect();
+    }
+  }.on('didRender'),
+
   connect: function() {
 
     if (Ember.isEmpty(this.get('connectionName'))) {
@@ -26,7 +32,15 @@ export default Ember.Component.extend({
     let height = this.getHeight();
 
     this.set('guacamole', this.get('remoteSession').getSession(this.get('connectionName'), width, height));
-    this.get('guacamole').then((guac) => {
+    this.get('guacamole').then((guacData) => {
+
+      guacData.tunnel.onerror = function() {
+        this.sendAction('onError', {
+          error : true,
+          message: "You have been disconnected due to some error"
+        });
+      }.bind(this);
+      let guac = guacData.guacamole;
 
       guac.onfile = function(stream, mimetype, filename) {
         let blob_reader = new Guacamole.BlobReader(stream, mimetype);
@@ -73,7 +87,6 @@ export default Ember.Component.extend({
 
       let mouse = new window.Guacamole.Mouse(guac.getDisplay().getElement());
       let display = guac.getDisplay();
-
       window.onresize = function() {
         let width = this.getWidth();
         let height = this.getHeight();
@@ -92,5 +105,4 @@ export default Ember.Component.extend({
       guac.connect();
     });
   }.observes('connectionName').on('becameVisible'),
-
 });
