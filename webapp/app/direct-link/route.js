@@ -12,9 +12,6 @@ export default Ember.Route.extend({
     if (this.get('session.isAuthenticated') === false) {
       this.transitionTo('login');
     }
-    if (!transition.queryParams.app) {
-      this.transitionTo('protected');
-    }
   },
 
   afterModel(user) {

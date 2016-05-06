@@ -9,18 +9,25 @@ export default Ember.Route.extend({
     if (this.get('session.isAuthenticated') === false) {
       this.transitionTo('login');
     }
+    else {
+      if (this.get('directLinkParams')) {
+        this.transitionTo('direct-link', {
+          queryParams: this.get('directLinkParams')
+        });
+      }
+    }
   },
 
   redirect() {
-    if (this.get('directLinkParams')) {
-      this.transitionTo('direct-link');
-      return;
-    }
 
-    if (this.get('session.user.isAdmin')) {
-      this.transitionTo('protected.dashboard');
-    } else {
-      this.transitionTo('protected.apps');
+    if (this.get('session.isAuthenticated') === true) {
+
+      if (this.get('session.user.isAdmin')) {
+        this.transitionTo('protected.dashboard');
+      }
+      else {
+        this.transitionTo('protected.apps');
+      }
     }
   },
 
