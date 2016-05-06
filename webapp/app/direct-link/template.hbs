@@ -11,6 +11,5 @@
   onClose="disconnectGuacamole"
   as |singleTabContext|
 }}
-  {{log singleTabContext}}
   {{remote-session autoload=true connectionName=app onError=singleTabContext.disconnectVDI}}
 {{/single-tab}}
