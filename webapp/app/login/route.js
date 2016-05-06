@@ -8,12 +8,6 @@ export default Ember.Route.extend({
     }
   },
 
-  beforeModel(transition) {
-    if (transition.queryParams.app) {  
-      this.set('directLinkParams', transition.queryParams);
-    }
-  },
-
   setupController(controller) {
     controller.reset();
     this._super(...arguments);
