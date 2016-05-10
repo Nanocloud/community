@@ -10,7 +10,7 @@ export default Ember.Controller.extend({
   sortableTableConfig: {
 
     messageConfig: {
-      searchLabel: "",
+      searchLabel: "Search : ",
     },
 
     customIcons: {
