@@ -1,0 +1,15 @@
+.icon-component {
+  display: inline;
+}
+
+.icon-component.hover-enabled:hover i {
+  color: $blue-default;
+}
+
+.icon-component.hover-darker:hover i {
+  color: $blue-darken;
+}
+
+.icon-component.clickable i {
+  cursor: pointer;
+}
