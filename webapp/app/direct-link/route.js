@@ -8,7 +8,7 @@ export default Ember.Route.extend({
     }
   },
 
-  beforeModel(transition) {
+  beforeModel() {
     if (this.get('session.isAuthenticated') === false) {
       this.transitionTo('login');
     }

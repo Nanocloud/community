@@ -39,7 +39,7 @@ export default Ember.Controller.extend({
         this.set('loadState.' + data, 0);
         this.set('model.' + dest, response);
       })
-      .catch((error) => {
+      .catch(() => {
         this.set('loadState.' + data, 2);
       });
   },
