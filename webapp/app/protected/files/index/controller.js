@@ -49,7 +49,7 @@ export default Ember.Controller.extend({
           "disableFiltering": true,
           "filterWithSelect": false,
           "className": "short",
-          "template": "sortable-table-file-type",
+          "template": "sortable-table/file-type",
           "disableSorting": true,
         },
         {
@@ -67,7 +67,7 @@ export default Ember.Controller.extend({
         {
           "title": "Action",
           "className": "short",
-          "template": "sortable-table-download-button",
+          "template": "sortable-table/download-button",
           "disableSorting": true,
         }
     ];
