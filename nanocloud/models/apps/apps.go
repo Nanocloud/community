@@ -48,13 +48,10 @@ var (
 )
 
 var (
-	kUser                 string
 	kServer               string
 	kExecutionServers     []string
 	kSSHPort              string
 	kRDPPort              string
-	kPassword             string
-	kWindowsDomain        string
 	kXMLConfigurationFile string
 	kProtocol             string
 )
@@ -290,16 +287,16 @@ func UnpublishApp(user *users.User, id string) error {
 		return err
 	}
 
-	domain := utils.Env("WINDOWS_DOMAIN", "")
-	if domain == "" {
-		return errors.New("domain unknown")
+	winUser, err := user.WindowsCredentials()
+	if err != nil {
+		return err
 	}
 
 	_, err = plaza.UnpublishApp(
 		plazaAddress, plazaPort,
-		user.Sam,
-		domain,
-		user.WindowsPassword,
+		winUser.Sam,
+		winUser.Domain,
+		winUser.Password,
 		collection,
 		alias,
 	)
@@ -328,16 +325,16 @@ func PublishApp(user *users.User, app *Application) error {
 		return err
 	}
 
-	domain := utils.Env("WINDOWS_DOMAIN", "")
-	if domain == "" {
-		return errors.New("domain unknown")
+	winUser, err := user.WindowsCredentials()
+	if err != nil {
+		return err
 	}
 
 	res, err := plaza.PublishApp(
 		plazaAddress, plazaPort,
-		user.Sam,
-		domain,
-		user.WindowsPassword,
+		winUser.Sam,
+		winUser.Domain,
+		winUser.Password,
 		app.CollectionName,
 		app.DisplayName,
 		app.Path,
@@ -400,8 +397,15 @@ func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, e
 		} else {
 			execServ = kServer
 		}
-		username := user.Sam + "@" + kWindowsDomain
-		pwd := user.WindowsPassword
+
+		winUser, err := user.WindowsCredentials()
+		if err != nil {
+			return nil, err
+		}
+
+		username := winUser.Sam + "@" + winUser.Domain
+		pwd := winUser.Password
+
 		var conn Connection
 		if appParam.Alias != "hapticDesktop" {
 			conn = Connection{
@@ -431,13 +435,10 @@ func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, e
 }
 
 func init() {
-	kUser = utils.Env("USER", "Administrator")
 	kProtocol = utils.Env("PROTOCOL", "rdp")
 	kSSHPort = utils.Env("SSH_PORT", "22")
 	kRDPPort = utils.Env("RDP_PORT", "3389")
 	kServer = utils.Env("PLAZA_ADDRESS", "")
-	kPassword = utils.Env("PASSWORD", "ItsPass1942+")
-	kWindowsDomain = utils.Env("WINDOWS_DOMAIN", "intra.localdomain.com")
 	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", ""), ",")
 
 	if kServer == "" {

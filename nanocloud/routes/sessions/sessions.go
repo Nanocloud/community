@@ -18,7 +18,13 @@ type hash map[string]interface{}
 func List(c *echo.Context) error {
 
 	user := c.Get("user").(*users.User)
-	sessionList, err := sessions.GetAll(user.Sam)
+
+	winUser, err := user.WindowsCredentials()
+	if err != nil {
+		return err
+	}
+
+	sessionList, err := sessions.GetAll(winUser.Sam)
 
 	if err != nil {
 		log.Error(err)
@@ -47,7 +53,12 @@ func List(c *echo.Context) error {
 func Logoff(c *echo.Context) error {
 	user := c.Get("user").(*users.User)
 
-	req, err := http.NewRequest("DELETE", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/sessions/"+user.Sam, nil)
+	winUser, err := user.WindowsCredentials()
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("DELETE", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/sessions/"+winUser.Sam, nil)
 	if err != nil {
 		log.Error(err)
 		return c.JSON(http.StatusInternalServerError, hash{

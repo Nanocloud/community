@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
-	"io/ioutil"
 
 	"fmt"
-	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/oauth2"
 	"github.com/Nanocloud/community/nanocloud/utils"
@@ -242,10 +242,15 @@ func Get(c *echo.Context) error {
 
 	filename = strings.Replace(filename, "/", "\\", -1)
 
+	winUser, err := user.WindowsCredentials()
+	if err != nil {
+		return err
+	}
+
 	if filename[0] == '.' {
 		path = fmt.Sprintf(
 			"C:\\Users\\%s\\Desktop\\Nanocloud%s",
-			user.Sam,
+			winUser.Sam,
 			filename,
 		)
 	} else {
