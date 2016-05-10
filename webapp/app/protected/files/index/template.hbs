@@ -4,18 +4,22 @@
     <div class='drag-drop-wrapper'>
       {{drag-n-drop}}
     </div>
-    {{models-table
-      class="sortableTable"
-      data=data
-      columns=columns
-      showColumnsDropdown=false
-      delete='downloadFile'
-      customMessages=sortableTableConfig.messageConfig
-      customIcons=sortableTableConfig.customIcons
-      customClasses=sortableTableConfig.customClasses
-      useNumericPagination=true
-      multipleColumnsSorting=false
-    }}
+    {{#if modelIsEmpty}}
+      There is no file 
+    {{else}}
+      {{models-table
+        class="sortableTable"
+        data=data
+        columns=columns
+        showColumnsDropdown=false
+        delete='downloadFile'
+        customMessages=sortableTableConfig.messageConfig
+        customIcons=sortableTableConfig.customIcons
+        customClasses=sortableTableConfig.customClasses
+        useNumericPagination=true
+        multipleColumnsSorting=false
+      }}
+    {{/if}}
     <div class="clearfix"></div>
   </div>
 </div>
