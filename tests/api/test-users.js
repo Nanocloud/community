@@ -36,10 +36,8 @@ module.exports = function(admin) {
       'is-admin': {type: 'boolean'},
       'first-name': {type: 'string'},
       'last-name': {type: 'string'},
-      sam: {type: 'string'},
-      'windows-password': {type: 'string'},
     },
-    required: ['email', 'first-name', 'activated', 'is-admin', 'first-name', 'last-name', 'sam', 'windows-password'],
+    required: ['email', 'first-name', 'activated', 'is-admin', 'first-name', 'last-name'],
     additionalProperties: false
   };
 
@@ -56,9 +54,7 @@ module.exports = function(admin) {
         activated: true,
         'is-admin': true,
         'first-name': 'Admin',
-        'last-name': 'Nanocloud',
-        sam: 'Administrator',
-        'windows-password': 'Nanocloud123+'
+        'last-name': 'Nanocloud'
       });
     });
   });
