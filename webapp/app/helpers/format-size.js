@@ -2,7 +2,6 @@ import Ember from 'ember';
 
 export function formatSize([value]/*, hash*/) {
 
-  var sign;
   if (value < 1024) {
     return Number(value).toFixed(2) + ' bytes';
   }
