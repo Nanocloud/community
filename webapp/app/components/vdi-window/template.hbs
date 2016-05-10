@@ -1,10 +1,23 @@
 <div class='vdi-window noselect section {{ windowClass }} {{ if stateVisible "state-show" "state-hide" }}'>
-  <h4>
-  {{#if materialIcon}}
-    <i class="material-icons">{{ materialIcon }}</i>
-  {{/if}}
-    {{ title }}
-  </h4>
+  <div class='head'>
+    <h4>
+      {{#if materialIcon}}
+        <i class="material-icons">{{ materialIcon }}</i>
+      {{/if}}
+      {{ title }}
+      {{stateVisible}}
+    </h4>
+    <div class='close-btn'>
+       {{ topbar-item 
+          materialIcon="close"
+          clickable=true
+          hover-enabled=true
+          class="state-disabled"
+          click="toggleVdiWindow"
+          content="Close"
+        }}
+    </div>
+  </div>
   {{ yield }}
 </div>
 
