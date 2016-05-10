@@ -1,4 +1,4 @@
-<div class="section">
+<div class="users section">
   <h4>
     {{#link-to 'protected.users' }}
       Users
@@ -19,7 +19,13 @@
           {{#unless user.isNew}}
             {{#unless user.isDeleted}}
               <tr>
-                <th scope="row">{{#link-to "protected.users.user" user}}{{user.fullName}}{{/link-to}}</th>
+                <th scope="row">
+                    {{#nano-tooltip content="Click here to modify this user profile" position="right"}}
+                      {{#link-to "protected.users.user" user}}
+                        {{user.fullName}}
+                      {{/link-to}}
+                    {{/nano-tooltip}}
+                </th>
                 <td>{{user.email}}</td>
                 <td>{{#if user.isAdmin}}Administrator{{else}}Regular user{{/if}}</td>
               </tr>
