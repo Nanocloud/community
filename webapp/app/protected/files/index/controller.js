@@ -10,7 +10,7 @@ export default Ember.Controller.extend({
   sortableTableConfig: {
 
     messageConfig: {
-      searchLabel: "",
+      searchLabel: "Search : ",
     },
 
     customIcons: {
@@ -33,7 +33,7 @@ export default Ember.Controller.extend({
         ret.push(Ember.Object.create({
           type: item.get('icon'),
           name: item.get('name'),
-          size: item.get('size') / (1024 * 1024),
+          size: item.get('size'),
         }));
       }
     });
@@ -60,9 +60,10 @@ export default Ember.Controller.extend({
         },
         {
           "propertyName": "size",
-          "title": "Size (in MB)",
+          "title": "Size",
           "disableFiltering": true,
           "filterWithSelect": false,
+          "template": "sortable-table/size",
         },
         {
           "title": "Action",
