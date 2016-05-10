@@ -7,6 +7,8 @@ export default Ember.Controller.extend({
   download: Ember.inject.service('download'),
   items: null,
 
+  modelIsEmpty: Ember.computed.empty('items', 'items'),
+
   sortableTableConfig: {
 
     messageConfig: {
