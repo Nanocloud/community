@@ -60,7 +60,7 @@ export default Ember.Controller.extend({
         },
         {
           "propertyName": "size",
-          "title": "Size (in MB)",
+          "title": "Size",
           "disableFiltering": true,
           "filterWithSelect": false,
         },
