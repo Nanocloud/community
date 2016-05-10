@@ -33,7 +33,7 @@ export default Ember.Controller.extend({
         ret.push(Ember.Object.create({
           type: item.get('icon'),
           name: item.get('name'),
-          size: item.get('size') / (1024 * 1024),
+          size: item.get('size'),
         }));
       }
     });
@@ -63,6 +63,7 @@ export default Ember.Controller.extend({
           "title": "Size",
           "disableFiltering": true,
           "filterWithSelect": false,
+          "template": "sortable-table/size",
         },
         {
           "title": "Action",
