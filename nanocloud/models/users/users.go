@@ -88,8 +88,7 @@ func FindUsers() ([]*User, error) {
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
-		email, is_admin, activated,
-		sam, windows_password
+		email, is_admin, activated
 		FROM users`,
 	)
 	if err != nil {
@@ -108,8 +107,6 @@ func FindUsers() ([]*User, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
-			&user.Sam,
-			&user.WindowsPassword,
 		)
 		users = append(users, &user)
 	}
@@ -168,14 +165,17 @@ func CreateUser(
 
 	rows, err := db.Query(
 		`INSERT INTO users
-		(id, email, activated,
-		first_name, last_name,
-		password, is_admin)
-		VALUES(
-			$1::varchar, $2::varchar, $3::bool,
-			$4::varchar, $5::varchar,
-			$6::varchar, $7::bool)
-		`, id, email, activated,
+    (id, email, activated,
+    first_name, last_name,
+    password, is_admin)
+    VALUES(
+      $1::varchar, $2::varchar, $3::bool,
+      $4::varchar, $5::varchar,
+      $6::varchar, $7::bool)
+    RETURNING id, email, activated,
+    first_name, last_name,
+    is_admin`,
+		id, email, activated,
 		firstName, lastName,
 		pass, isAdmin)
 
@@ -191,20 +191,7 @@ func CreateUser(
 		return nil, err
 	}
 
-	rows.Close()
-
-	rows, err = db.Query(
-		`SELECT id, activated,
-		email,
-		first_name, last_name,
-		is_admin, sam, windows_password
-		FROM users
-		WHERE id = $1::varchar`,
-		id)
-
-	if err != nil {
-		return nil, err
-	}
+	defer rows.Close()
 
 	if !rows.Next() {
 		return nil, UserNotCreated
@@ -212,33 +199,55 @@ func CreateUser(
 
 	var user User
 	rows.Scan(
-		&user.Id, &user.Activated,
-		&user.Email, &user.FirstName,
+		&user.Id, &user.Email,
+		&user.Activated, &user.FirstName,
 		&user.LastName, &user.IsAdmin,
-		&user.Sam, &user.WindowsPassword,
 	)
-
-	rows.Close()
 
 	return &user, err
 }
 
-func UpdateUserAd(id, sam, password string) error {
-	res, err := db.Exec(
-		`UPDATE users
-		SET sam = $1::varchar,
-		windows_password = $2::varchar
-		WHERE id = $3::varchar`,
-		sam, password, id)
+func UpdateUserAd(userID, sam, password, domain string) error {
+	res, err := db.Query(
+		`INSERT INTO windows_users
+		(sam, password, domain)
+		VALUES ($1::varchar, $2::varchar, $3::varchar)
+		RETURNING id`,
+		sam, password, domain,
+	)
+	if err != nil {
+		log.Error(err)
+		return UserNotCreated
+	}
+
+	defer res.Close()
+
+	if !res.Next() {
+		return UserNotCreated
+	}
+
+	winUserID := 0
+	res.Scan(&winUserID)
+
+	insert, err := db.Exec(
+		`INSERT INTO users_windows_user
+		(user_id, windows_user_id)
+		VALUES ($1::varchar, $2::integer)
+		ON CONFLICT (user_id)
+		DO UPDATE SET windows_user_id = EXCLUDED.windows_user_id`,
+		userID, winUserID,
+	)
+	if err != nil {
+		log.Error(err)
+		return UserNotCreated
+	}
+
+	inserted, err := insert.RowsAffected()
 	if err != nil {
 		return err
 	}
-	updated, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if updated == 0 {
-		return UserNotFound
+	if inserted == 0 {
+		return UserNotCreated
 	}
 	return nil
 }
@@ -287,8 +296,7 @@ func GetUser(id string) (*User, error) {
 	rows, err := db.Query(
 		`SELECT id,
 		first_name, last_name,
-		email, is_admin, activated,
-		sam, windows_password
+		email, is_admin, activated
 		FROM users
 		WHERE id = $1::varchar`,
 		id)
@@ -307,8 +315,6 @@ func GetUser(id string) (*User, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
-			&user.Sam,
-			&user.WindowsPassword,
 		)
 		if err != nil {
 			return nil, err

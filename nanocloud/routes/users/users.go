@@ -246,7 +246,7 @@ func Post(c *echo.Context) error {
 		return err
 	}
 
-	err = users.UpdateUserAd(newUser.Id, sam, winpass)
+	err = users.UpdateUserAd(newUser.Id, sam, winpass, "intra.localdomain.com")
 	if err != nil {
 		return err
 	}
