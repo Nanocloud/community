@@ -1,3 +1,5 @@
+// +build !windows
+
 package exec
 
 import (
@@ -5,9 +7,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os/exec"
 	"strings"
 
-	"github.com/Nanocloud/community/plaza/windows"
 	"github.com/labstack/echo"
 )
 
@@ -31,11 +33,7 @@ func Route(c *echo.Context) error {
 		return err
 	}
 
-	cmd := windows.Command(
-		body.Username, body.Domain, body.Password,
-		body.Command[0], body.Command[1:]...,
-	)
-
+	cmd := exec.Command(body.Command[0], body.Command[1:]...)
 	if body.Stdin != "" {
 		cmd.Stdin = strings.NewReader(body.Stdin)
 	}
@@ -55,7 +53,7 @@ func Route(c *echo.Context) error {
 	res["stdout"] = stdout.String()
 	res["stderr"] = stderr.String()
 	res["time"] = cmd.ProcessState.SysUsage()
-	res["code"] = cmd.ProcessState.Status.ExitCode
+	res["code"] = cmd.ProcessState.String()
 
 	return c.JSON(http.StatusOK, res)
 }
