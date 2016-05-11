@@ -10,7 +10,7 @@ export default Ember.Component.extend({
   connectionName: null,
   logoff: false,
 
-  topBarItemToggleWindowCollector: { 
+  topBarItemToggleWindowCollector: {
     upload: false,
     clipboard: false,
     download: false,
