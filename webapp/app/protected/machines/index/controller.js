@@ -13,6 +13,12 @@ export default Ember.Controller.extend({
     return this.get('drivers').objectAt(0).id;
   }),
 
+  isConfigurable : function() {
+    return(this.get("driverName") !== "qemu" &&
+           this.get("driverName") !== "manual" &&
+           this.get("driverName") !== "vmwarefusion");
+  }.property("driverName"),
+
   _refreshLoop: null,
   activateRefreshLoop() {
     if (!this.get('_refreshLoop')) {
