@@ -13,6 +13,10 @@ export default Ember.Controller.extend({
     return this.get('drivers').objectAt(0).id;
   }),
 
+  isRemoteCloud : function() {
+    return((this.get("driverName") === "aws") || (this.get("driverName") === "openstack"));
+  }.property("driverName"),
+
   _refreshLoop: null,
   activateRefreshLoop() {
     if (!this.get('_refreshLoop')) {

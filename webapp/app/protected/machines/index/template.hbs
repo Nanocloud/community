@@ -15,7 +15,7 @@
         Click "Download Windows" to download the Windows Virtual machine that will host your applications
       </div>
 
-      {{#if (is-equal driverName "aws")}}
+      {{#if isRemoteCloud}}
         {{#link-to 'protected.machines.new' class="btn btn-primary btn-block"}}
          Create Machine
         {{/link-to}}

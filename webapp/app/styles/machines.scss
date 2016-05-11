@@ -73,7 +73,8 @@
 }
 
 .open > .dropdown-menu {
-  height: 300px;
+  height: auto;
+  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
 }
