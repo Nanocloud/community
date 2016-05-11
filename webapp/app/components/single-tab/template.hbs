@@ -97,6 +97,8 @@
         </div>
         <div class="canva-fullscreen">
 
+          {{dim-background show=windowIsSelected click=(action 'closeAll')}}
+
           {{#vdi-upload
             queue=uploadData.queue
             stateVisible=uploadIsVisible

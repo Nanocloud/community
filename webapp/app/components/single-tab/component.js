@@ -10,7 +10,7 @@ export default Ember.Component.extend({
   connectionName: null,
   logoff: false,
 
-  topBarItemToggleWindowCollector: {
+  topBarItemToggleWindowCollector: { 
     upload: false,
     clipboard: false,
     download: false,
@@ -18,6 +18,7 @@ export default Ember.Component.extend({
 
   showState: false,
   dragAndDropActive: false,
+  windowIsSelected: false,
 
   manageOpenedWindow: function() {
     if (this.get('dragAndDropActive') === true) {
@@ -73,6 +74,7 @@ export default Ember.Component.extend({
 
   closeAll() {
     var object = this.get('topBarItemToggleWindowCollector');
+    this.set('windowIsSelected', false);
     for (var prop in object) {
       var objToBeSet = 'topBarItemToggleWindowCollector.' + prop;
       this.set(objToBeSet, false);
@@ -84,6 +86,10 @@ export default Ember.Component.extend({
     this.closeAll();
     if (!state) {
       this.set('topBarItemToggleWindowCollector.' + element, true);
+      this.set('windowIsSelected', true);
+    }
+    else {
+      this.set('topBarItemToggleWindowCollector.' + element, false);
     }
   },
 
@@ -113,6 +119,10 @@ export default Ember.Component.extend({
   },
 
   actions: {
+
+    closeAll() {
+      this.closeAll();
+    },
 
     disconnectVDI(message) {
       this.vdiDisconnectHandler(message);
