@@ -1,9 +1,8 @@
-{{#if stateVisible}}
-  {{ dim-background preventAction=isPublishing toggleWindow=toggleWindow action="toggleVdiWindow" }}
-{{/if}}
+{{ dim-background show=stateVisible toggleWindow=toggleWindow action="toggleVdiWindow" }}
 {{#vdi-window
   title="Download"
   windowClass="vdi-download"
+  toggleWindow=toggleWindow
   stateVisible=stateVisible}}
 
   <div class='content-wrapper'>

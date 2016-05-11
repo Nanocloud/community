@@ -4,7 +4,6 @@ export default Ember.Component.extend({
   isVisible: false,
   session: Ember.inject.service('session'),
   store: Ember.inject.service('store'),
-  isPublishing: false,
   publishError: false,
 
   files: Ember.computed(function() {

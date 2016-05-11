@@ -1,10 +1,9 @@
-{{#if stateVisible}}
-  {{ dim-background preventAction=isPublishing toggleWindow=toggleWindow action="toggleVdiWindow" }}
-{{/if}}
+{{ dim-background show=stateVisible toggleWindow=toggleWindow action="toggleVdiWindow" }}
 {{#vdi-window
   title="Clipboard"
   connectionName=connectionName
   windowClass="vdi-clipboard"
+  toggleWindow=toggleWindow
   stateVisible=stateVisible}}
 
   <div class='content-wrapper'>
