@@ -10,16 +10,21 @@ export default Ember.Controller.extend({
         this.toast.error('Password must match');
         return ;
       }
-      if (!this.model.validate()) {
-        return this.toast.error('Cannot create user');
-      }
+      this.model
+        .validate()
+        .then(({ m, validations }) => {
 
-      this.model.save()
-        .then(() => {
-          this.transitionToRoute('protected.users');
-      }, (errorMessage) => {
-        this.toast.error('Cannot create new user : ' + errorMessage);
-      });
+          if (validations.get('isInvalid') === true) {
+            return this.toast.error('Cannot create user');
+          }
+
+          this.model.save()
+            .then(() => {
+              this.transitionToRoute('protected.users');
+            }, (errorMessage) => {
+              this.toast.error('Cannot create new user : ' + errorMessage);
+            });
+        });
     }
   }
 });
