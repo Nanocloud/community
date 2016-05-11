@@ -35,5 +35,6 @@
   {{remote-session connectionName=connectionName}}
 {{/single-tab}}
 
-{{#file-explorer isVisible=showFileExplorer}}
+{{dim-background show=showFileExplorer preventAction=isPublishing action="toggleFileExplorer"}}
+{{#file-explorer isVisible=showFileExplorer isPublishing=isPublishing}}
 {{/file-explorer}}
