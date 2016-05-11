@@ -6,4 +6,10 @@ export default TooltipsterComponent.extend({
     'hover-enabled:hover-enabled',
     'clickable:clickable'
   ],
+
+  actions: {
+    clickAction() {
+      this.sendAction("click");
+    }
+  }
 });

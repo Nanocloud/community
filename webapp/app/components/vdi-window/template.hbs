@@ -8,16 +8,15 @@
       {{stateVisible}}
     </h4>
     <div class='close-btn'>
-       {{ topbar-item 
+       {{ icon-component
           materialIcon="close"
           clickable=true
           hover-enabled=true
-          class="state-disabled"
-          click="toggleVdiWindow"
+          click=toggleWindow
           content="Close"
+          position="right"
         }}
     </div>
-  </div>
+  </div> 
   {{ yield }}
 </div>
-

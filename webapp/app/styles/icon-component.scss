@@ -1,5 +1,7 @@
 .icon-component {
-  display: inline;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
 }
 
 .icon-component.hover-enabled:hover i {

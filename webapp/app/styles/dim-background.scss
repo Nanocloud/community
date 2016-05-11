@@ -1,4 +1,5 @@
 .dim-background {
+  @extend .transition-enabled-1;
   position: fixed;
   width: 100%;
   left: 0;
@@ -6,4 +7,14 @@
   background-color: rgba(0, 0, 0, 0.59);
   top: 0;
   z-index: 1;
+
+  &.state-show {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  &.state-hide {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
