@@ -19,5 +19,11 @@ export default Ember.Route.extend({
           return this.send("error", err);
         }
       });
+  },
+
+  actions: {
+    refreshModel() {
+      this.refresh();
+    },
   }
 });

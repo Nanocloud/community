@@ -2,7 +2,7 @@
   <h4>Files</h4>
   <div class='content-wrapper'>
     <div class='drag-drop-wrapper'>
-      {{drag-n-drop}}
+      {{drag-n-drop complete="refreshModel"}}
     </div>
     {{#if modelIsEmpty}}
       There is no file 
@@ -20,6 +20,7 @@
         multipleColumnsSorting=false
       }}
     {{/if}}
+
     <div class="clearfix"></div>
   </div>
 </div>
