@@ -67,6 +67,7 @@ Recipies to build them are defined in Dockerfiles and their launch is orchestrat
 Simply run :
 
 ```
+docker-compose -f modules/docker-compose-build.yml build
 docker-compose -f modules/docker-compose-build.yml up -d
 ```
 
