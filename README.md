@@ -93,16 +93,6 @@ Afterwards, You can run the following command to copy your Windows image to your
 docker cp windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2 iaas-module:/var/lib/nanocloud/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 ```
 
-## Known bugs
-
-**Nanocloud** is in active development phase. Some issues are known and
-will be fixed in future releases.
-
-If your issue isn't listed bellow, please report it
-[here](https://github.com/Nanocloud/community/issues/new)
-
-* While downloading **Windows**, information disappears from home page.
-
 ## Developer setup
 
 Nanocloud developer environment is based on Docker containers. Development containers are based on production containers and add some features for developers such as :
