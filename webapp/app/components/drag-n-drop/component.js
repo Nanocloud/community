@@ -55,6 +55,7 @@ export default Ember.Component.extend({
     this.flow.on('complete', () => {
       if (!this.aborted) {
         this.set('onCompleteMessage', "Completed");
+        this.sendAction('complete');
       }
       else {
         this.set('onCompleteMessage', "Aborted");

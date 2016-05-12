@@ -27,7 +27,7 @@ export default Ember.Controller.extend({
     }
   },
 
-  data : Ember.computed('model.@each', 'model.@each', function() {
+  data : Ember.computed('items', 'items', function() {
 
     var ret = Ember.A([]);
     this.get('items').forEach(function(item) {
@@ -77,6 +77,7 @@ export default Ember.Controller.extend({
   }.property(),
 
   actions : {
+
     downloadFile: function(filename) {
       this.get('download').downloadFile(this.get('session.access_token'), filename);
     },
