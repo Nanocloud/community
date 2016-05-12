@@ -122,8 +122,6 @@ docker-compose -f modules/docker-compose-dev.yml logs
 In future releases, we plan to add :
 
 * Assign permission per application and per users.
-* Dashboard to get information on the hosting platform.
-* Buttons to log off a user from its windows session.
 * Display live metrics graphs (RAM/DISK/CPU usage).
 * Change users information (not just password).
 * Show last connection per user.
