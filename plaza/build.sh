@@ -21,6 +21,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 COMMAND=${1}
+GOOS=${GOOS:-windows}
+GOARCH=${GOARCH:-amd64}
 
 if [ "${COMMAND}" = "docker" ]; then
     docker build -t nanocloud/plaza .
@@ -30,8 +32,8 @@ if [ "${COMMAND}" = "docker" ]; then
     docker rm plaza
     docker rmi nanocloud/plaza
 else
-    export GOOS=windows
-    export GOARCH=amd64
+    export GOOS
+    export GOARCH
 
     go build
 fi

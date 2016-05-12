@@ -20,26 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// +build !windows
+
 package main
 
 import (
-	"os"
-
-	"github.com/Nanocloud/community/plaza/windows/service"
-	log "github.com/Sirupsen/logrus"
+	"github.com/Nanocloud/community/plaza/router"
 )
 
 func main() {
-	if len(os.Args) < 2 || os.Args[1] != "service" {
-		log.Println("(re)Installing service")
-		err := service.InstallItSelf()
-		if err != nil {
-			log.Println(err)
-		}
-		return
-	}
-	err := service.Run()
-	if err != nil {
-		log.Println(err)
-	}
+	router.Start()
 }
