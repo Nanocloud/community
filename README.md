@@ -18,19 +18,6 @@ Simply run the following command to install and run **Nanocloud**:
 curl --progress-bar "http://releases.nanocloud.org:8080/releases/latest/installer.sh" | sh
 ```
 
-> Read carefully outputs for this script, it will prodive you usefull
-> information about the installation directory and URL where your installation
-> will be accessible.
-
-### Alternative to curl
-
-If you don't want to or cannot use *curl*, you can launch the **installer** this
-way:
-
-```
-wget "http://releases.nanocloud.org:8080/releases/latest/installer.sh" -q -O - | sh
-```
-
 ## Prerequisites
 
 For your host computer
@@ -50,10 +37,10 @@ You also need to install the following packages on your distribution:
 
 ## Uninstall
 
-To uninstall Nanocloud, run the script nanocloud_uninstall.sh located in the root of the install directory
+To uninstall Nanocloud, run the script uninstall.sh located in the root of the install directory
 
 ````
-./nanocloud_uninstall.sh
+./uninstall.sh
 ````
 
 Then you will need to manually remove your current directory
@@ -70,6 +57,7 @@ Recipies to build them are defined in Dockerfiles and their launch is orchestrat
 Simply run :
 
 ```
+docker-compose -f modules/docker-compose-build.yml build
 docker-compose -f modules/docker-compose-build.yml up -d
 ```
 
@@ -77,33 +65,14 @@ docker-compose -f modules/docker-compose-build.yml up -d
 
 At this point Nanocloud is running and right after login it is possible to download a built Windows image directly from the web interface.
 
-If you are ready to wait 30 minutes to build a new image,you will need some packages :
+To build an image from scratch is not yet documented since the procedure changed. https://github.com/Nanocloud/community/issues/502
 
-* *packer*
-* *qemu*
-* *netcat*
-
-Then run :
+However, you can download a fresh Windows image from Nanocloud's release server.
 
 ```
-env PACKER_LOG=1 ./windows/build-windows.sh
+wget http://releases.nanocloud.org:8080/releases/latest/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+docker cp windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2 iaas-module:/var/lib/nanocloud/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 ```
-
-Afterwards, You can run the following command to copy your Windows image to your running IaaS container.
-
-```
-docker cp windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2 iaas-module:/var/lib/nanocloud/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
-```
-
-## Known bugs
-
-**Nanocloud** is in active development phase. Some issues are known and
-will be fixed in future releases.
-
-If your issue isn't listed bellow, please report it
-[here](https://github.com/Nanocloud/community/issues/new)
-
-* While downloading **Windows**, information disappears from home page.
 
 ## Developer setup
 
@@ -115,6 +84,8 @@ Nanocloud developer environment is based on Docker containers. Development conta
 To run a dev environment, use the following command (after building Nanocloud as described above):
 
 ```
+docker-compose -f modules/docker-compose-build.yml build
+docker-compose -f modules/docker-compose-dev.yml build
 docker-compose -f modules/docker-compose-dev.yml up -d
 ```
 
@@ -132,8 +103,6 @@ docker-compose -f modules/docker-compose-dev.yml logs
 In future releases, we plan to add :
 
 * Assign permission per application and per users.
-* Dashboard to get information on the hosting platform.
-* Buttons to log off a user from its windows session.
 * Display live metrics graphs (RAM/DISK/CPU usage).
 * Change users information (not just password).
 * Show last connection per user.
