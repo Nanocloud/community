@@ -2,7 +2,7 @@
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
  *
- * Copyright (C) 2015 Nanocloud Software
+ * Copyright (C) 2016 Nanocloud Software
  *
  * This file is part of Nanocloud community.
  *
@@ -20,26 +20,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+// +build windows
+
+package exec
 
 import (
-	"os"
-
-	"github.com/Nanocloud/community/plaza/windows/service"
-	log "github.com/Sirupsen/logrus"
+	"github.com/Nanocloud/community/plaza/windows"
 )
 
-func main() {
-	if len(os.Args) < 2 || os.Args[1] != "service" {
-		log.Println("(re)Installing service")
-		err := service.InstallItSelf()
-		if err != nil {
-			log.Println(err)
-		}
-		return
-	}
-	err := service.Run()
-	if err != nil {
-		log.Println(err)
-	}
+func runCommand(username string, domain string, password string, command []string) windows.Cmd {
+	cmd := windows.Command(
+		username, domain, password,
+		command[0], command[1:]...,
+	)
+	return *cmd
 }

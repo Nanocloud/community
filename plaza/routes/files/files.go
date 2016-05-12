@@ -32,7 +32,6 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
-	"syscall"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -49,54 +48,6 @@ type file_t struct {
 	Attributes map[string]interface{} `json:"attributes"`
 }
 
-func loadFileId(filepath string) (string, error) {
-	pathp, err := syscall.UTF16PtrFromString(filepath)
-	if err != nil {
-		return "", err
-	}
-	h, err := syscall.CreateFile(pathp, 0, 0, nil, syscall.OPEN_EXISTING, syscall.FILE_FLAG_BACKUP_SEMANTICS, 0)
-	if err != nil {
-		return "", err
-	}
-	defer syscall.CloseHandle(h)
-	var i syscall.ByHandleFileInformation
-	err = syscall.GetFileInformationByHandle(syscall.Handle(h), &i)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x-%x-%x", i.VolumeSerialNumber, i.FileIndexHigh, i.FileIndexLow), nil
-}
-
-/*
-func Post(c *echo.Context) error {
-	mr, err := c.Request().MultipartReader()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	for {
-		p, err := mr.NextPart()
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-		if err == io.EOF {
-			return err
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		var outfile *os.File
-		if outfile, err = os.Create("C:/Users/Administrator/Desktop/" + p.FileName()); nil != err {
-			return err
-		}
-		if _, err = io.Copy(outfile, p); nil != err {
-			return err
-		}
-	}
-	return nil
-}*/
-
 var kUploadDir string
 
 // Get checks a chunk.
@@ -105,7 +56,7 @@ func GetUpload(w http.ResponseWriter, r *http.Request) {
 	sam := r.URL.Query()["sam"][0]
 
 	log.Error(sam)
-	kUploadDir = filepath.Join("C:/Users", sam, "Desktop/Nanocloud")
+	kUploadDir, _ = getUploadDir(sam)
 	if _, err := os.Stat(kUploadDir); err != nil {
 		if os.IsNotExist(err) {
 			err := os.MkdirAll(kUploadDir, 0711)
@@ -134,7 +85,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	sam := r.URL.Query()["sam"][0]
 
 	log.Error(sam)
-	kUploadDir = filepath.Join("C:/Users", sam, "Desktop/Nanocloud")
+	kUploadDir, _ = getUploadDir(sam)
 	if _, err := os.Stat(kUploadDir); err != nil {
 		if os.IsNotExist(err) {
 			err := os.MkdirAll(kUploadDir, 0711)
@@ -312,13 +263,8 @@ func Get(c *echo.Context) error {
 
 		for _, file := range files {
 			name := file.Name()
-			if !showHidden {
-				sys := file.Sys().(*syscall.Win32FileAttributeData)
-
-				if sys.FileAttributes&syscall.FILE_ATTRIBUTE_HIDDEN == syscall.FILE_ATTRIBUTE_HIDDEN {
-					continue
-				}
-
+			if !showHidden && isFileHidden(file) {
+				continue
 			}
 
 			fullpath := path.Join(filepath, name)

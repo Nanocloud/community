@@ -1,3 +1,25 @@
+/*
+ * Nanocloud Community, a comprehensive platform to turn any application
+ * into a cloud solution.
+ *
+ * Copyright (C) 2016 Nanocloud Software
+ *
+ * This file is part of Nanocloud community.
+ *
+ * Nanocloud community is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Nanocloud community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package exec
 
 import (
@@ -7,7 +29,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Nanocloud/community/plaza/windows"
 	"github.com/labstack/echo"
 )
 
@@ -31,11 +52,7 @@ func Route(c *echo.Context) error {
 		return err
 	}
 
-	cmd := windows.Command(
-		body.Username, body.Domain, body.Password,
-		body.Command[0], body.Command[1:]...,
-	)
-
+	cmd := runCommand(body.Username, body.Domain, body.Password, body.Command)
 	if body.Stdin != "" {
 		cmd.Stdin = strings.NewReader(body.Stdin)
 	}
@@ -55,7 +72,7 @@ func Route(c *echo.Context) error {
 	res["stdout"] = stdout.String()
 	res["stderr"] = stderr.String()
 	res["time"] = cmd.ProcessState.SysUsage()
-	res["code"] = cmd.ProcessState.Status.ExitCode
+	res["code"] = cmd.ProcessState.String()
 
 	return c.JSON(http.StatusOK, res)
 }
