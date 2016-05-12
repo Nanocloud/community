@@ -34,4 +34,12 @@ export default DS.Model.extend({
           return "No drivers detected";
     }
   }),
+
+  driverDetected: Ember.computed('platform', function() {
+    let platform = this.get('getPlatform');
+    if (platform === "No drivers detected") {
+      return false;
+    }
+    return true;
+  }),
 });

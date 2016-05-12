@@ -8,6 +8,7 @@
   <div class='content-wrapper'>
     <table class="table">
       <tbody>
+        {{#if model.driverDetected}}
         <tr>
           <th scope="row">Command</th>
           <td>
@@ -24,6 +25,7 @@
             </div>
           </td>
         </tr>
+        {{/if}}
         <tr>
           <th scope="row">Machine state</th>
           <td>{{model.status}}</td>
