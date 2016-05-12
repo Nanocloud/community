@@ -18,16 +18,6 @@ Simply run the following command to install and run **Nanocloud**:
 curl --progress-bar "http://releases.nanocloud.org:8080/releases/latest/installer.sh" | sh
 ```
 
-
-### Alternative to curl
-
-If you don't want to or cannot use *curl*, you can launch the **installer** this
-way:
-
-```
-wget "http://releases.nanocloud.org:8080/releases/latest/installer.sh" -q -O - | sh
-```
-
 ## Prerequisites
 
 For your host computer
