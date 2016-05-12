@@ -65,22 +65,13 @@ docker-compose -f modules/docker-compose-build.yml up -d
 
 At this point Nanocloud is running and right after login it is possible to download a built Windows image directly from the web interface.
 
-If you are ready to wait 30 minutes to build a new image,you will need some packages :
+To build an image from scratch is not yet documented since the procedure changed. https://github.com/Nanocloud/community/issues/502
 
-* *packer*
-* *qemu*
-* *netcat*
-
-Then run :
+However, you can download a fresh Windows image from Nanocloud's release server.
 
 ```
-env PACKER_LOG=1 ./windows/build-windows.sh
-```
-
-Afterwards, You can run the following command to copy your Windows image to your running IaaS container.
-
-```
-docker cp windows/output-windows-2012R2-qemu/windows-server-2012R2-amd64.qcow2 iaas-module:/var/lib/nanocloud/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+wget http://releases.nanocloud.org:8080/releases/latest/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
+docker cp windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2 iaas-module:/var/lib/nanocloud/images/windows-custom-server-127.0.0.1-windows-server-std-2012R2-amd64.qcow2
 ```
 
 ## Developer setup
