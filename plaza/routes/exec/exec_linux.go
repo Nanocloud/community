@@ -67,10 +67,6 @@ func Route(c *echo.Context) error {
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 
-	// if err != nil {
-	// 	return c.String(http.StatusInternalServerError, err.Error())
-	// }
-
 	res := make(map[string]interface{})
 	res["stdout"] = stdout.String()
 	res["stderr"] = stderr.String()
