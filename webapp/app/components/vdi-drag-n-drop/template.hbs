@@ -1,16 +1,14 @@
-<div class='vdi-drag-n-drop flex-container'>
-  {{yield (hash
-      state=state
-      stopUpload=(action 'cancelUpload')
-      progress=progress
-      queue=queue
-      flushHistory=(action 'flushHistory')
-      cancelSingleUpload=(action 'cancelSingleUpload'))
-  }}
-  <div class='drag-n-drop-area transition-enabled-2
-    {{ if show "state-show" "state-hide"  }}'>
-    <div class='element-active-state message'>
-      <span class='text transition-enabled-2'>Drop your file</span>
-    </div>
+{{yield (hash
+    state=state
+    stopUpload=(action 'cancelUpload')
+    progress=progress
+    queue=queue
+    flushHistory=(action 'flushHistory')
+    cancelSingleUpload=(action 'cancelSingleUpload'))
+}}
+<div class='drag-n-drop-area transition-enabled-2
+  {{ if show "state-show" "state-hide" }}'>
+  <div class='element-active-state message'>
+    <span class='text transition-enabled-2'>Drop your file</span>
   </div>
 </div>

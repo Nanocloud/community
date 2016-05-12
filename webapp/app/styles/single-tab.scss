@@ -1,4 +1,32 @@
 .ember-modal-fullscreen {
+
+  .vdi-drag-n-drop {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 4;
+
+    &.state-show,
+    &.state-hide {
+      pointer-events: auto;
+    }
+  }
+}
+
+.drag-n-drop-area {
+  width: 100%;
+  z-index: 4;
+  background-color: rgba(0, 144, 255, 0.8);
+  border: 3px dashed #fff;
+  top: $topbar-height;
+  left: 0;
+  height: calc(100% - #{$topbar-height});
+  pointer-events: none;
+}
+
+.ember-modal-fullscreen {
   width: 100%;
   height: 100%;
   border-radius: 0;
@@ -38,7 +66,7 @@
   .progress {
     padding-left: 10px;
   }
-  
+
   .state-enabled {
     color: $gray;
   }

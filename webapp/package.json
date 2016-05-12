@@ -45,6 +45,7 @@
     "ember-simple-auth": "1.1.0-beta.3",
     "ember-tether": "0.3.0",
     "ember-toastr": "1.4.0",
+    "ember-wormhole": "0.3.5",
     "loader.js": "^4.0.1",
     "velocity-animate": "^1.2.3"
   }
