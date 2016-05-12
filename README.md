@@ -103,6 +103,8 @@ Nanocloud developer environment is based on Docker containers. Development conta
 To run a dev environment, use the following command (after building Nanocloud as described above):
 
 ```
+docker-compose -f modules/docker-compose-build.yml build
+docker-compose -f modules/docker-compose-dev.yml build
 docker-compose -f modules/docker-compose-dev.yml up -d
 ```
 
