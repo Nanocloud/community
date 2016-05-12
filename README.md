@@ -50,7 +50,7 @@ You also need to install the following packages on your distribution:
 To uninstall Nanocloud, run the script nanocloud_uninstall.sh located in the root of the install directory
 
 ````
-./nanocloud_uninstall.sh
+./uninstall.sh
 ````
 
 Then you will need to manually remove your current directory
