@@ -1,8 +1,11 @@
-<div class="section">
+<div class="connection-histories section">
   <h4>
     History 
   </h4>
-  <p class="color-primary indication">History gives you information regarding your user's sessions</p>
+  <p class="color-primary indication connection-histories-indication">
+    <span class='text'>History gives you information regarding your user's sessions</span>
+    <button {{ action "refreshModel" }} class="btn btn-info">Reload</button> 
+  </p>
   <div class='content-wrapper'>
 
     {{#if model}}
