@@ -40,7 +40,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-type cmd_t struct {
+type Cmd_t struct {
 	Username string   `json:"username"`
 	Password string   `json:"password"`
 	Domain   string   `json:"domain"`
@@ -54,7 +54,7 @@ type result_t struct {
 	Code   uint64 `json:"code"`
 }
 
-func Exec(address string, port int, cmd *cmd_t) (*result_t, error) {
+func Exec(address string, port int, cmd *Cmd_t) (*result_t, error) {
 	var err error
 
 	client := &http.Client{}
@@ -109,7 +109,7 @@ func PowershellExec(
 	username string, domain string, password string,
 	command ...string,
 ) (*result_t, error) {
-	cmd := cmd_t{
+	cmd := Cmd_t{
 		Username: username,
 		Password: password,
 		Domain:   domain,
