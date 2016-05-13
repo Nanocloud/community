@@ -3,7 +3,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
   /* global $:false */
-
+  classNames: ['single-tab'],
   remoteSession: Ember.inject.service('remote-session'),
   session: Ember.inject.service('session'),
 
