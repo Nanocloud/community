@@ -2,7 +2,7 @@
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
  *
- * Copyright (C) 2015 Nanocloud Software
+ * Copyright (C) 2016 Nanocloud Software
  *
  * This file is part of Nanocloud community.
  *
@@ -20,47 +20,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration
+package config
 
 import (
-	"github.com/Nanocloud/community/nanocloud/migration/apps"
-	"github.com/Nanocloud/community/nanocloud/migration/config"
-	"github.com/Nanocloud/community/nanocloud/migration/history"
-	"github.com/Nanocloud/community/nanocloud/migration/machines"
-	"github.com/Nanocloud/community/nanocloud/migration/oauth"
-	"github.com/Nanocloud/community/nanocloud/migration/users"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Migrate() error {
-	err := users.Migrate()
+	rows, err := db.Query(
+		`SELECT table_name
+		FROM information_schema.tables
+		WHERE table_name = 'config'`)
 	if err != nil {
+		log.Error("Select tables names failed: ", err.Error())
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Info("config table already set up")
+		return nil
+	}
+	rows, err = db.Query(
+		`CREATE TABLE config (
+			key	varchar(255) PRIMARY KEY,
+			value varchar(255)
+		);`)
+	if err != nil {
+		log.Errorf("Unable to create config table: %s", err)
 		return err
 	}
 
-	err = oauth.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = apps.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = history.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = machines.Migrate()
-	if err != nil {
-		return err
-	}
-
-	err = config.Migrate()
-	if err != nil {
-		return err
-	}
-
+	rows.Close()
 	return nil
 }
