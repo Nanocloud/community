@@ -159,8 +159,8 @@ func Migrate() error {
 			return err
 		}
 
-		password := utils.Env("WIN_PASSWORD", "")
-		sam := utils.Env("WIN_USER", "")
+		password := utils.Env("WINDOWS_PASSWORD", "")
+		sam := utils.Env("WINDOWS_USER", "")
 
 		err = users.UpdateUserAd(admin.Id, sam, password, "intra.localdomain.com")
 

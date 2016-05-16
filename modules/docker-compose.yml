@@ -11,21 +11,19 @@ services:
   environment:
    - ENV=production
    - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-   - PORT=8080
    - FRONT_DIR=/opt/front/dist
    - WIN_PASSWORD=Nanocloud123+
    - IAAS=qemu
-   - WIN_USER=Administrator
    - PLAZA_ADDRESS=iaas-module
    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
    - BASE=DC=intra,DC=localdomain,DC=com
    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
    - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
-   - USER=Administrator
    - RDP_PORT=3389
    - SERVER=iaas-module
-   - PASSWORD=Nanocloud123+
    - WINDOWS_DOMAIN=intra.localdomain.com
+   - WINDOWS_PASSWORD=Nanocloud123+
+   - WINDOWS_USER=Administrator
    - EXECUTION_SERVERS=iaas-module
    - TRUST_PROXY=true
    - ADMIN_FIRSTNAME=Admin
@@ -72,9 +70,7 @@ services:
    - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
    - INSTALLATION_DIR=/var/lib/nanocloud
    - SSH_PORT=1119
-   - PASSWORD=Nanocloud123+
    - SERVER=localhost
-   - USER=Administrator
    - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.7.0/
   devices:
    - /dev/kvm

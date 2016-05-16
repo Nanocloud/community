@@ -72,8 +72,7 @@ func initVms() error {
 	case "manual":
 		/* env variables are now used in migration. The following variables must be set:
 		- EXECUTION_SERVERS
-		- WIN_PASSWORD
-		- WIN_USER */
+		*/
 	}
 
 	vm, err := vms.Open(iaas, m)

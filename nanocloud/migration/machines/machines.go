@@ -70,8 +70,8 @@ func Migrate() error {
 	}
 	if os.Getenv("IAAS") == "manual" {
 		servers := os.Getenv("EXECUTION_SERVERS")
-		password := os.Getenv("WIN_PASSWORD")
-		user := os.Getenv("WIN_USER")
+		password := os.Getenv("WINDOWS_PASSWORD")
+		user := os.Getenv("WINDOWS_USER")
 
 		ips := strings.Split(servers, ";")
 		for i, val := range ips {
