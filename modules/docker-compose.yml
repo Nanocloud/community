@@ -67,10 +67,7 @@ services:
  iaas-module:
   environment:
    - ENV=production
-   - AMQP_URI=amqp://guest:guest@rabbitmq:5672/
-   - INSTALLATION_DIR=/var/lib/nanocloud
    - SSH_PORT=1119
-   - SERVER=localhost
    - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.7.0/
   devices:
    - /dev/kvm
