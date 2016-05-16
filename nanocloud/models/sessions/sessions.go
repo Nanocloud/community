@@ -9,6 +9,7 @@ import (
 )
 
 var kServer string
+var kPort string
 
 type hash map[string]interface{}
 
@@ -16,7 +17,7 @@ func GetAll(userSam string) ([]Session, error) {
 
 	var sessionList []Session
 
-	resp, err := http.Get("http://" + kServer + ":" + utils.Env("PLAZA_PORT", "9090") + "/sessions/" + userSam)
+	resp, err := http.Get("http://" + kServer + ":" + kPort + "/sessions/" + userSam)
 
 	if err != nil {
 		return nil, err
@@ -60,5 +61,6 @@ func GetAll(userSam string) ([]Session, error) {
 }
 
 func init() {
-	kServer = utils.Env("SERVER", "localhost")
+	kServer = utils.Env("PLAZA_ADDRESS", "localhost")
+	kPort = utils.Env("PLAZA_PORT", "9090")
 }

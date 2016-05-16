@@ -12,6 +12,7 @@ import (
 )
 
 var kServer string
+var kPort string
 
 type hash map[string]interface{}
 
@@ -58,7 +59,7 @@ func Logoff(c *echo.Context) error {
 		return err
 	}
 
-	req, err := http.NewRequest("DELETE", "http://"+kServer+":"+utils.Env("PLAZA_PORT", "9090")+"/sessions/"+winUser.Sam, nil)
+	req, err := http.NewRequest("DELETE", "http://"+kServer+":"+kPort+"/sessions/"+winUser.Sam, nil)
 	if err != nil {
 		log.Error(err)
 		return c.JSON(http.StatusInternalServerError, hash{
@@ -97,5 +98,6 @@ func Logoff(c *echo.Context) error {
 }
 
 func init() {
-	kServer = utils.Env("SERVER", "localhost")
+	kServer = utils.Env("PLAZA_ADDRESS", "localhost")
+	kPort = utils.Env("PLAZA_PORT", "localhost")
 }
