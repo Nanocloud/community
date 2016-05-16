@@ -10,15 +10,17 @@ services:
  nanocloud-backend:
   environment:
    - ADMIN_PASSWORD=admin
+   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
    - ENV=production
    - EXECUTION_SERVERS=iaas-module
+   - FRONT_DIR=/opt/front/dist
    - IAAS=qemu
-   - LDAP_OU=OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
    - LDAP_PASSWORD=Nanocloud123+
    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
    - PLAZA_ADDRESS=iaas-module
    - WINDOWS_DOMAIN=intra.localdomain.com
+   - WINDOWS_SERVER=iaas-module
    - WINDOWS_PASSWORD=Nanocloud123+
    - WINDOWS_USER=Administrator
   restart: always

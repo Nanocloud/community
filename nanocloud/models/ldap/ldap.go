@@ -58,7 +58,7 @@ func init() {
 	kPassword = utils.Env("LDAP_PASSWORD", "Nanocloud123+")
 	kOrganisationUnit = utils.Env("LDAP_OU", "OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com")
 
-	ldapServer, err := url.Parse(utils.Env("LDAP_SERVER_URI", "ldaps://Administrator:Nanocloud123+@172.17.0.1:6003"))
+	ldapServer, err := url.Parse(utils.Env("LDAP_SERVER_URI", "ldaps://Administrator:Nanocloud123+@iaas-module:6360"))
 	if err != nil {
 		panic(err)
 	}

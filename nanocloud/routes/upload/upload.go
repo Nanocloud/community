@@ -48,7 +48,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sam := winUser.Sam
-	winServer := utils.Env("PLAZA_ADDRESS", "")
+	winServer := utils.Env("PLAZA_ADDRESS", "iaas-module")
 
 	request, err := http.NewRequest("POST", "http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam), r.Body)
 	if err != nil {
@@ -82,7 +82,8 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sam := winUser.Sam
-	winServer := utils.Env("PLAZA_ADDRESS", "")
+	winServer := utils.Env("PLAZA_ADDRESS", "iaas-module")
+
 	request, err := http.NewRequest("GET", "http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam), nil)
 	if err != nil {
 		log.Println("Unable de create request ", err)

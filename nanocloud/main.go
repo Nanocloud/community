@@ -67,7 +67,7 @@ func initVms() error {
 		m["STORAGE_DIR"] = os.Getenv("STORAGE_DIR")
 
 	case "qemu":
-		m["ad"] = os.Getenv("PLAZA_ADDRESS")
+		m["ad"] = utils.Env("PLAZA_ADDRESS", "iaas-module")
 
 	case "manual":
 		/* env variables are now used in migration. The following variables must be set:

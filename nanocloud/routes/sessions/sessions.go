@@ -98,6 +98,6 @@ func Logoff(c *echo.Context) error {
 }
 
 func init() {
-	kServer = utils.Env("PLAZA_ADDRESS", "localhost")
-	kPort = utils.Env("PLAZA_PORT", "localhost")
+	kServer = utils.Env("PLAZA_ADDRESS", "iaas-module")
+	kPort = utils.Env("PLAZA_PORT", "9090")
 }

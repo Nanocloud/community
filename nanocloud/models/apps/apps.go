@@ -277,7 +277,7 @@ func UnpublishApp(user *users.User, id string) error {
 
 	rows.Scan(&alias, &collection)
 
-	plazaAddress := utils.Env("PLAZA_ADDRESS", "")
+	plazaAddress := utils.Env("PLAZA_ADDRESS", "iaas-module")
 	if plazaAddress == "" {
 		return errors.New("plaza address unknown")
 	}
@@ -315,7 +315,7 @@ func UnpublishApp(user *users.User, id string) error {
 }
 
 func PublishApp(user *users.User, app *Application) error {
-	plazaAddress := utils.Env("PLAZA_ADDRESS", "")
+	plazaAddress := utils.Env("PLAZA_ADDRESS", "iaas-module")
 	if plazaAddress == "" {
 		return errors.New("plaza address unknown")
 	}
@@ -438,7 +438,7 @@ func init() {
 	kProtocol = utils.Env("PROTOCOL", "rdp")
 	kSSHPort = utils.Env("SSH_PORT", "22")
 	kRDPPort = utils.Env("RDP_PORT", "3389")
-	kServer = utils.Env("PLAZA_ADDRESS", "")
+	kServer = utils.Env("PLAZA_ADDRESS", "iaas-module")
 	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", ""), ",")
 
 	if kServer == "" {
