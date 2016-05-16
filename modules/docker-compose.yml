@@ -9,27 +9,18 @@ services:
 
  nanocloud-backend:
   environment:
+   - ADMIN_PASSWORD=admin
    - ENV=production
-   - DATABASE_URI=postgres://nanocloud@postgres/nanocloud?sslmode=disable
-   - FRONT_DIR=/opt/front/dist
-   - WIN_PASSWORD=Nanocloud123+
+   - EXECUTION_SERVERS=iaas-module
    - IAAS=qemu
-   - PLAZA_ADDRESS=iaas-module
+   - LDAP_OU=OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com"
+   - LDAP_PASSWORD=Nanocloud123+
    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
-   - BASE=DC=intra,DC=localdomain,DC=com
    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
-   - BIND_DN=CN=Administrator,DC=intra,DC=localdomain,DC=com
-   - RDP_PORT=3389
-   - SERVER=iaas-module
+   - PLAZA_ADDRESS=iaas-module
    - WINDOWS_DOMAIN=intra.localdomain.com
    - WINDOWS_PASSWORD=Nanocloud123+
    - WINDOWS_USER=Administrator
-   - EXECUTION_SERVERS=iaas-module
-   - TRUST_PROXY=true
-   - ADMIN_FIRSTNAME=Admin
-   - ADMIN_LASTNAME=Nanocloud
-   - ADMIN_MAIL=admin@nanocloud.com
-   - ADMIN_PASSWORD=admin
   restart: always
   container_name: "nanocloud-api"
   networks:
