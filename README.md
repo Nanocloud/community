@@ -98,6 +98,33 @@ You can access the log file with the following command (from the root directory)
 docker-compose -f modules/docker-compose-dev.yml logs
 ```
 
+## Configuration
+
+You can configure *nanocloud* with the following environement variables in file
+*modules/docker-compose.yml* for nanocloud-backend:
+
+* ADMIN_FIRSTNAME (default: Admin)
+* ADMIN_LASTNAME (default: Nanocloud)
+* ADMIN_MAIL (default: admin@nanocloud.com)
+* ADMIN_PASSWORD (default: admin)
+* BACKEND_PORT (default: 8080)
+* DATABASE_URI (mandatory)
+* EXECUTION_SERVERS (mandatory)
+* FRONT_DIR (mandatory)
+* IAAS (default: qemu)
+* LDAP_OU (default: OU=NanocloudUsers,DC=intra,DC=localdomain,DC=com)
+* LDAP_PASSWORD (default: Nanocloud123+)
+* LDAP_SERVER_URI (default: ldaps://Administrator:Nanocloud123+@iaas-module:6360)
+* LDAP_USERNAME (default: CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com)
+* PLAZA_ADDRESS (default: iaas-module)
+* PLAZA_PORT (default: 9090)
+* RDP_PORT (default: 3389)
+* SSH_PORT (default: 22)
+* TRUST_PROXY (default: true)
+* WINDOWS_DOMAIN (mandatory)
+* WINDOWS_PASSWORD (mandatory)
+* WINDOWS_USER (mandatory)
+
 ## Roadmap
 
 In future releases, we plan to add :
