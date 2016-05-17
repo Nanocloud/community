@@ -29,3 +29,11 @@ export GOOS=linux
 export GOARCH=amd64
 ./build.sh
 ```
+
+You can also use docker to build *linux* version of plaza
+
+```
+export GOOS=linux
+export GOARCH=amd64
+./build.sh docker
+```
