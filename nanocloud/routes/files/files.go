@@ -28,8 +28,6 @@ var (
 	InvalidDownloadToken = errors.New("Invalid Download Token")
 )
 
-var kExecutionServer string
-
 func jsonResponse(w http.ResponseWriter, r *http.Request, statusCode int, body hash) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -257,7 +255,7 @@ func Get(c *echo.Context) error {
 		path = filename
 	}
 
-	resp, err := http.Get("http://" + kExecutionServer + ":" + utils.Env("PLAZA_PORT", "9090") + "/files?create=true&path=" + url.QueryEscape(path))
+	resp, err := http.Get("http://" + utils.Env("PLAZA_ADDRESS", "iaas-module") + ":" + utils.Env("PLAZA_PORT", "9090") + "/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {
 		log.Error(err)
 		return apiErrors.WindowsNotOnline.Detail(err.Error())
@@ -335,12 +333,4 @@ func Get(c *echo.Context) error {
 		}
 	}
 	return nil
-}
-
-func init() {
-	executionServers := strings.Split(utils.Env("EXECUTION_SERVERS", ""), ",")
-	if len(executionServers) < 1 || len(executionServers[0]) < 1 {
-		panic(errors.New("EXECUTION_SERVERS not set"))
-	}
-	kExecutionServer = executionServers[0]
 }
