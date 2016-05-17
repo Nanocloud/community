@@ -19,6 +19,7 @@ services:
    - LDAP_SERVER_URI=ldaps://Administrator:Nanocloud123+@iaas-module:6360
    - LDAP_USERNAME=CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com
    - PLAZA_ADDRESS=iaas-module
+   - PLAZA_USER_DIR=C:\Users\%s\Desktop\Nanocloud
    - WINDOWS_DOMAIN=intra.localdomain.com
    - WINDOWS_SERVER=iaas-module
    - WINDOWS_PASSWORD=Nanocloud123+

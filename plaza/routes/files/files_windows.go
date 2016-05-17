@@ -27,7 +27,6 @@ package files
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"syscall"
 )
 
@@ -47,11 +46,6 @@ func loadFileId(filepath string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("%x-%x-%x", i.VolumeSerialNumber, i.FileIndexHigh, i.FileIndexLow), nil
-}
-
-func getUploadDir(sam string) (string, error) {
-	path := filepath.Join("C:/Users", sam, "Desktop/Nanocloud")
-	return path, nil
 }
 
 func isFileHidden(file os.FileInfo) bool {

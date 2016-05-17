@@ -117,6 +117,7 @@ You can configure *nanocloud* with the following environement variables in *modu
 * LDAP_USERNAME (default: CN=Administrator,CN=Users,DC=intra,DC=localdomain,DC=com)
 * PLAZA_ADDRESS (default: iaas-module)
 * PLAZA_PORT (default: 9090)
+* PLAZA_USER_DIR (default: "C:\Users\%s\Desktop\Nanocloud")
 * RDP_PORT (default: 3389)
 * TRUST_PROXY (default: true)
 * WINDOWS_DOMAIN (mandatory)
