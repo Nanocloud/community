@@ -50,7 +50,6 @@ var (
 var (
 	kServer               string
 	kExecutionServers     []string
-	kSSHPort              string
 	kRDPPort              string
 	kXMLConfigurationFile string
 	kProtocol             string
@@ -436,7 +435,6 @@ func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, e
 
 func init() {
 	kProtocol = utils.Env("PROTOCOL", "rdp")
-	kSSHPort = utils.Env("SSH_PORT", "22")
 	kRDPPort = utils.Env("RDP_PORT", "3389")
 	kServer = utils.Env("PLAZA_ADDRESS", "iaas-module")
 	kExecutionServers = strings.Split(utils.Env("EXECUTION_SERVERS", ""), ",")

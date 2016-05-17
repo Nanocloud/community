@@ -119,7 +119,6 @@ You can configure *nanocloud* with the following environement variables in file
 * PLAZA_ADDRESS (default: iaas-module)
 * PLAZA_PORT (default: 9090)
 * RDP_PORT (default: 3389)
-* SSH_PORT (default: 22)
 * TRUST_PROXY (default: true)
 * WINDOWS_DOMAIN (mandatory)
 * WINDOWS_PASSWORD (mandatory)

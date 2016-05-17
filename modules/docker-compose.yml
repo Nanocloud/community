@@ -60,7 +60,6 @@ services:
  iaas-module:
   environment:
    - ENV=production
-   - SSH_PORT=1119
    - ARTIFACT_URL=http://releases.nanocloud.org:8080/releases/0.7.0/
   devices:
    - /dev/kvm
