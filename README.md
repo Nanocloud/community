@@ -100,8 +100,7 @@ docker-compose -f modules/docker-compose-dev.yml logs
 
 ## Configuration
 
-You can configure *nanocloud* with the following environement variables in file
-*modules/docker-compose.yml* for nanocloud-backend:
+You can configure *nanocloud* with the following environement variables in *modules/docker-compose.yml* for nanocloud-backend:
 
 * ADMIN_FIRSTNAME (default: Admin)
 * ADMIN_LASTNAME (default: Nanocloud)
