@@ -5,5 +5,5 @@ MAINTAINER \
 COPY ./ /go/src/github.com/Nanocloud/community/plaza
 WORKDIR /go/src/github.com/Nanocloud/community/plaza
 
-RUN ./install.sh && ./build.sh
-CMD ["sleep", "30"]
+RUN ./install.sh
+CMD ["./build.sh"]
