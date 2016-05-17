@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -238,20 +239,21 @@ func Get(c *echo.Context) error {
 		user = u.(*users.User)
 	}
 
-	filename = strings.Replace(filename, "/", "\\", -1)
-
 	winUser, err := user.WindowsCredentials()
 	if err != nil {
 		return err
 	}
 
 	if filename[0] == '.' {
-		path = fmt.Sprintf(
-			"C:\\Users\\%s\\Desktop\\Nanocloud%s",
-			winUser.Sam,
+		path = filepath.Join(
+			fmt.Sprintf(
+				utils.Env("PLAZA_USER_DIR", "C:\\Users\\%s\\Desktop\\Nanocloud"),
+				winUser.Sam,
+			),
 			filename,
 		)
 	} else {
+		filename = strings.Replace(filename, "/", "\\", -1)
 		path = filename
 	}
 

@@ -28,8 +28,6 @@ import (
 	"fmt"
 	"hash/fnv"
 	"os"
-	"os/user"
-	"path/filepath"
 )
 
 func loadFileId(filepath string) (string, error) {
@@ -42,14 +40,6 @@ func loadFileId(filepath string) (string, error) {
 	hash.Write([]byte(fileInfo.Name()))
 
 	return fmt.Sprintf("%x-%x-%x", hash.Sum32(), fileInfo.ModTime(), fileInfo.Size()), nil
-}
-
-func getUploadDir(sam string) (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(usr.HomeDir, "Nanocloud"), nil
 }
 
 func isFileHidden(file os.FileInfo) bool {
