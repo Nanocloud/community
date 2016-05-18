@@ -90,7 +90,7 @@ func (m *machine) Status() (vms.MachineStatus, error) {
 }
 
 func (m *machine) IP() (net.IP, error) {
-	return []byte(m.server), nil
+	return net.ParseIP(m.server), nil
 }
 
 func (m *machine) Type() (vms.MachineType, error) {
