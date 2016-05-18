@@ -28,9 +28,9 @@ func TestSingle(t *testing.T) {
 	key := "NANOCLOUD"
 	value := "nanocloud"
 
-	Set(key, value)
+	Set(key, value, false)
 
-	config := Get(key)
+	config := Get(false, key)
 	v, ok := config[key]
 	if !ok || v != value {
 		t.Errorf("Value should be set")
@@ -38,7 +38,7 @@ func TestSingle(t *testing.T) {
 
 	Unset(key)
 
-	config = Get(key)
+	config = Get(false, key)
 	_, ok = config[key]
 	if ok {
 		t.Errorf("Value should have been deleted")
@@ -46,16 +46,16 @@ func TestSingle(t *testing.T) {
 }
 
 func TestMultiple(t *testing.T) {
-	Set("LAST", "last")
+	Set("LAST", "last", false)
 
 	keys := []string{"NANOCLOUD", "FOO", "BAR", "BAZ"}
 	values := []string{"nanocloud", "foo", "bar", "baz"}
 
 	for i, key := range keys {
-		Set(key, values[i])
+		Set(key, values[i], false)
 	}
 
-	config := Get(keys...)
+	config := Get(false, keys...)
 
 	for i, key := range keys {
 		v, ok := config[key]
@@ -67,7 +67,7 @@ func TestMultiple(t *testing.T) {
 
 	Unset(keys...)
 
-	config = Get(keys...)
+	config = Get(false, keys...)
 
 	for _, key := range keys {
 		_, ok := config[key]
@@ -77,14 +77,14 @@ func TestMultiple(t *testing.T) {
 		}
 	}
 
-	last := Get("LAST")["LAST"]
+	last := Get(false, "LAST")["LAST"]
 	if last != "last" {
 		t.Errorf("Last value should be set")
 	}
 
 	Unset("LAST")
 
-	_, ok := Get("LAST")["last"]
+	_, ok := Get(false, "LAST")["last"]
 	if ok {
 		t.Errorf("Last value should have been deleted")
 	}
