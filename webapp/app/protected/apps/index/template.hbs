@@ -27,7 +27,7 @@
 {{#single-tab 
   togglable=true
   disconnectBtn=true
-  homeBtn=true
+  homeBtn=(reverse configuration.autoLogoffChecked)
   isVisible=showSingleTab
   onClose="disconnectGuacamole"
   connectionName=connectionName

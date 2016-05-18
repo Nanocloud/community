@@ -7,6 +7,7 @@ export default Ember.Controller.extend({
   store: Ember.inject.service('store'),
   remoteSession: Ember.inject.service('remote-session'),
   session: Ember.inject.service('session'),
+  configuration: Ember.inject.service('configuration'),
   isPublishing: false,
 
   applicationList: Ember.computed('model.@each', 'model.@each', function() {

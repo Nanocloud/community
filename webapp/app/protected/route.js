@@ -1,7 +1,12 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+  setupController(controller, model) {
+    this.set('model', model);
+    this.get('configuration').loadData();
+  },
 
+  configuration: Ember.inject.service('configuration'),
   beforeModel(transition) {
     if (transition.queryParams.app) {  
       this.set('directLinkParams', transition.queryParams);
