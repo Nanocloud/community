@@ -25,10 +25,20 @@
 package exec
 
 import (
+	"bytes"
 	"os/exec"
 )
 
 func runCommand(username string, domain string, password string, command []string) exec.Cmd {
 	cmd := exec.Command(command[0], command[1:]...)
 	return *cmd
+}
+
+func makeResponse(stdout bytes.Buffer, stderr bytes.Buffer, cmd exec.Cmd) map[string]interface{} {
+	res := make(map[string]interface{})
+	res["stdout"] = stdout.String()
+	res["stderr"] = stderr.String()
+	res["time"] = ""
+	res["code"] = 0
+	return res
 }
