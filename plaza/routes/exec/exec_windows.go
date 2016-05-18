@@ -25,6 +25,8 @@
 package exec
 
 import (
+	"bytes"
+
 	"github.com/Nanocloud/community/plaza/windows"
 )
 
@@ -34,4 +36,14 @@ func runCommand(username string, domain string, password string, command []strin
 		command[0], command[1:]...,
 	)
 	return *cmd
+}
+
+func makeResponse(stdout bytes.Buffer, stderr bytes.Buffer, cmd windows.Cmd) map[string]interface{} {
+	res := make(map[string]interface{})
+	res["stdout"] = stdout.String()
+	res["stderr"] = stderr.String()
+	res["time"] = cmd.ProcessState.SysUsage()
+	res["code"] = cmd.ProcessState.String()
+
+	return res
 }
