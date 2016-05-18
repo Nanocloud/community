@@ -60,6 +60,14 @@ type apiError struct {
 	title  string
 }
 
+func New(code int64, status int, title string) *apiError {
+	return &apiError{
+		code:   code,
+		status: status,
+		title:  title,
+	}
+}
+
 func (e *apiError) Send(w http.ResponseWriter) {
 	b := hash{
 		"errors": [1]hash{
