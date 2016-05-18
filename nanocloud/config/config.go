@@ -32,6 +32,7 @@ import (
 // Return a map with the keys arguments associated with the found value if any.
 // If the key doesn't exist, no field for the actual key will be present in the map.
 func Get(keys ...string) map[string]string {
+
 	rt := make(map[string]string)
 
 	l := len(keys)
@@ -47,7 +48,7 @@ func Get(keys ...string) map[string]string {
 	}
 
 	rows, err := db.Query(
-		fmt.Sprintf("SELECT key, value FROM config WHERE key IN(%s)", strings.Join(queryArgs, ",")),
+		fmt.Sprintf("SELECT key, value FROM config WHERE key IN(%s) AND private = false", strings.Join(queryArgs, ",")),
 		args...,
 	)
 	if err != nil {
@@ -68,13 +69,13 @@ func Get(keys ...string) map[string]string {
 }
 
 // Save the configuration key. If the value exists already, it will be overwritten.
-func Set(key, value string) {
+func Set(key, value string, isPrivate bool) {
 	_, err := db.Exec(
 		`INSERT INTO
-		config (key, value)
-		VALUES($1::varchar, $2::varchar)
+		config (key, value, private)
+		VALUES($1::varchar, $2::varchar, $3::boolean)
 		ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-		key, value,
+		key, value, isPrivate,
 	)
 	if err != nil {
 		log.Error(err)

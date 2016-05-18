@@ -45,7 +45,8 @@ func Migrate() error {
 	rows, err = db.Query(
 		`CREATE TABLE config (
 			key	varchar(255) PRIMARY KEY,
-			value varchar(255)
+			value varchar(255),
+			private boolean
 		);`)
 	if err != nil {
 		log.Errorf("Unable to create config table: %s", err)
