@@ -85,6 +85,16 @@ h1 {
   font-weight: 200;
   padding: 10px;
   background: $blue-lighter;
+  border: 1px solid #E1F3FF;
+  &.selected {
+    border: 1px solid $blue-default;
+    &:hover {
+      border: 1px solid $blue-default !important;
+    }
+  }
+  &.hover:hover{
+    border: 1px solid #C2E4FB;
+  }
 }
 
 .color-gray-dark {
