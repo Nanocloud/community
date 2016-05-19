@@ -1,6 +1,7 @@
 import Ember from 'ember';
+import TooltipsterComponent from 'ember-cli-tooltipster/components/tool-tipster';
 
-export default Ember.Component.extend({
+export default TooltipsterComponent.extend({
 
     originalValue: "",
     errorMessage: null,
@@ -8,16 +9,17 @@ export default Ember.Component.extend({
 
     updateEditStateWatcher: function() {
       this.set('editStateWatcher', this.get('isEditing'));
+      if (this.get('isEditing') === true) {
+        this.set('content', null);
+      }
+      else {
+        this.set('content', this.get('tooltip'));
+      }
     }.observes('isEditing'),
 
     getInputType: function() {
-      if (this.get('hideInput')) {
-        return "password";
-      }
-      else {
-        return "text";
-      }
-    }.property('hideInput'),
+      return this.get('type') || "text";
+    }.property(),
 
     isValid: function() {
       return this.get('errorMessage');
