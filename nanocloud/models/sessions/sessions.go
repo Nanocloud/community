@@ -61,6 +61,6 @@ func GetAll(userSam string) ([]Session, error) {
 }
 
 func init() {
-	kServer = utils.Env("PLAZA_ADDRESS", "iaas-module")
+	kServer = utils.Env("WINDOWS_SERVER", "iaas-module")
 	kPort = utils.Env("PLAZA_PORT", "9090")
 }
