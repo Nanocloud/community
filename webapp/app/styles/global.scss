@@ -37,7 +37,7 @@ h1 {
 }
 
 .content-wrapper {
-  margin: 20px 0px 20px 0px;
+  margin: 0px 0px 20px 0px;
 }
 
 .loading-page {
@@ -129,6 +129,22 @@ h1 {
 
 .va-top {
   vertical-align: top;
+}
+
+.bl {
+  display: block;
+}
+
+.in-bl {
+  display: inline-block;
+}
+
+.fl {
+  display: flex;
+}
+
+.abs {
+  position: absolute;
 }
 
 .noselect {
