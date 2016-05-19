@@ -1,8 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
-  setupController(controller, model) {
-    this.set('model', model);
+  setupController(controller) {
     this.get('configuration').loadData();
   },
 
