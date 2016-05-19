@@ -244,20 +244,46 @@ func Get(c *echo.Context) error {
 		return err
 	}
 
+	var plazaPlatform struct {
+		System       string `json:"System"`
+		Architecture string `json:"Architecture"`
+	}
+	resp, err := http.Get("http://" + utils.Env("PLAZA_ADDRESS", "iaas-module") + ":" + utils.Env("PLAZA_PORT", "9090"))
+	if err != nil {
+		log.Error(err)
+		return apiErrors.WindowsNotOnline.Detail(err.Error())
+	}
+	plazaPlatformJson, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(plazaPlatformJson, &plazaPlatform)
+	if err != nil {
+		log.Error(err)
+		return apiErrors.WindowsNotOnline.Detail(err.Error())
+	}
+
 	if filename[0] == '.' {
-		path = filepath.Join(
-			fmt.Sprintf(
-				utils.Env("PLAZA_USER_DIR", "C:\\Users\\%s\\Desktop\\Nanocloud"),
-				winUser.Sam,
-			),
-			filename,
-		)
+		if plazaPlatform.System == "linux" {
+			path = filepath.Join(
+				fmt.Sprintf(
+					utils.Env("PLAZA_USER_DIR", "/opt/Users/%s"),
+					user.Id,
+				),
+				filename,
+			)
+		} else {
+			path = filepath.Join(
+				fmt.Sprintf(
+					utils.Env("PLAZA_USER_DIR", "C:\\Users\\%s\\Desktop\\Nanocloud"),
+					winUser.Sam,
+				),
+				filename,
+			)
+		}
 	} else {
 		filename = strings.Replace(filename, "/", "\\", -1)
 		path = filename
 	}
 
-	resp, err := http.Get("http://" + utils.Env("PLAZA_ADDRESS", "iaas-module") + ":" + utils.Env("PLAZA_PORT", "9090") + "/files?create=true&path=" + url.QueryEscape(path))
+	resp, err = http.Get("http://" + utils.Env("PLAZA_ADDRESS", "iaas-module") + ":" + utils.Env("PLAZA_PORT", "9090") + "/files?create=true&path=" + url.QueryEscape(path))
 	if err != nil {
 		log.Error(err)
 		return apiErrors.WindowsNotOnline.Detail(err.Error())
