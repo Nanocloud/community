@@ -3,6 +3,7 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
   identification: '',
   password: '',
+  configuration: Ember.inject.service('configuration'),
 
   reset() {
     this.setProperties({

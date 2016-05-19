@@ -9,6 +9,9 @@
         {{input class='form-control' placeholder='Password' type='password' value=password}}
       </fieldset>
       <button type="submit" class="btn btn-primary btn-block text-uppercase">Login</button>
+      {{#if configuration.autoRegisterChecked}}
+        {{#link-to 'sign-up'}}Sign up{{/link-to}}
+      {{/if}}
     </form>
   </div>
 </div>
