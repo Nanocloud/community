@@ -2,6 +2,7 @@ package sessions
 
 import (
 	"encoding/json"
+	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 	"io/ioutil"
@@ -40,22 +41,36 @@ func GetAll(userSam string) ([]Session, error) {
 
 	for _, tab := range body.Data {
 
-		var session Session
-		for t, s := range tab {
-			if t == 0 {
-				session.SessionName = s
-			}
-			if t == 1 {
-				session.Username = s
-			}
-			if t == 2 {
-				session.Id = s
-			}
-			if t == 3 {
-				session.State = s
-			}
+		rows, err := db.Query(
+			`SELECT users.id FROM users
+			left join users_windows_user on users.id = users_windows_user.user_id
+			left join windows_users on users_windows_user.windows_user_id = windows_users.id
+			WHERE windows_users.sam = $1::varchar`,
+			tab[1])
+
+		if err != nil {
+			return nil, err
 		}
-		sessionList = append(sessionList, session)
+
+		defer rows.Close()
+		var user_id string
+		if rows.Next() {
+			err = rows.Scan(
+				&user_id,
+			)
+
+			if err != nil {
+				return nil, err
+			}
+
+			var session Session
+			session.SessionName = tab[0]
+			session.Username = tab[1]
+			session.Id = tab[2]
+			session.State = tab[3]
+			session.UserId = user_id
+			sessionList = append(sessionList, session)
+		}
 	}
 	return sessionList, nil
 }

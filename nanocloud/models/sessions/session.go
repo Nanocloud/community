@@ -5,6 +5,7 @@ type Session struct {
 	SessionName string `json:"session-name"`
 	Username    string `json:"username"`
 	State       string `json:"state"`
+	UserId      string `json:"user-id"`
 }
 
 func (h *Session) GetID() string {

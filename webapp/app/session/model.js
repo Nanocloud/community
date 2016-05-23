@@ -7,4 +7,5 @@ export default Model.extend({
     sessionName: DS.attr('string'),
     username: DS.attr('string'),
     state: DS.attr('string'),
+    userId: DS.attr('string'),
 });
