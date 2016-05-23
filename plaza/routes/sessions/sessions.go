@@ -39,7 +39,7 @@ func formatResponse(tab []string, id string) [][]string {
 	for _, val := range tab {
 		newtab := strings.Fields(val)
 		if len(newtab) == 4 {
-			if newtab[1] == id {
+			if id == "Administrator" || newtab[1] == id {
 				format = append(format, newtab)
 			}
 		}
