@@ -7,31 +7,20 @@
     <button {{ action "refreshModel" }} class="btn btn-info">Reload</button> 
   </p>
   <div class='content-wrapper'>
-
-    {{#if model}}
-      <table class="table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Application</th>
-            <th>Start</th>
-            <th>End</th>
-          </tr>
-        </thead>
-        <tbody>
-            {{#each model as |history|}}
-              {{log history.user}}
-              <tr>
-                <td>{{history.user.firstName}} {{history.user.lastName}}</td>
-                <td>{{history.application.displayName}}</td>
-                <td>{{history.startDate}}</td>
-                <td>{{history.endDate}}</td>
-              </tr>
-            {{/each}}
-        </tbody>
-      </table>
+    {{#if modelIsEmpty}}
+      No entries 
     {{else}}
-      No data available
+      {{models-table
+        class="sortableTable"
+        data=data
+        columns=columns
+        showColumnsDropdown=false
+        customMessages=sortableTableConfig.messageConfig
+        customIcons=sortableTableConfig.customIcons
+        customClasses=sortableTableConfig.customClasses
+        useNumericPagination=true
+        multipleColumnsSorting=false
+      }}
     {{/if}}
     <div class="clearfix"></div>
   </div>
