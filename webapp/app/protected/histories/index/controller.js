@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import formatDuration from 'nanocloud/utils/format-duration';
 
 export default Ember.Controller.extend({
 
@@ -31,8 +32,9 @@ export default Ember.Controller.extend({
       ret.push(Ember.Object.create({
         user: item.get('user.firstName') + " " + item.get('user.lastName'),
         application: item.get('application.displayName'),
-        start: item.get('startDate'),
-        end: item.get('endDate'),
+        start: window.moment(item.get('startDate')).format('MMMM Do YYYY, h:mm:ss A'),
+        end: window.moment(item.get('endDate')).format('MMMM Do YYYY, h:mm:ss A'),
+        duration: item.get('duration') / 1000,
       }));
     });
     this.set('data', ret);
@@ -69,6 +71,13 @@ export default Ember.Controller.extend({
           "title": "End Date",
           "disableFiltering": true,
           "filterWithSelect": false,
+        },
+        {
+          "propertyName": "duration",
+          "title": "Total duration",
+          "disableFiltering": true,
+          "filterWithSelect": false,
+          "template": "sortable-table/duration",
         }
     ];
   }.property(),
