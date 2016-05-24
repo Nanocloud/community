@@ -50,21 +50,14 @@ type file_t struct {
 
 var kUploadDir string
 
-func getUploadDir(sam string) string {
-	plazaDir := os.Getenv("PLAZA_USER_DIR")
-	if plazaDir == "" {
-		plazaDir = "C:\\Users\\%s\\Desktop\\Nanocloud"
-	}
-	return fmt.Sprintf(plazaDir, sam)
-}
-
 // Get checks a chunk.
 // If it doesn't exist then flowjs tries to upload it via Post.
 func GetUpload(w http.ResponseWriter, r *http.Request) {
 	sam := r.URL.Query()["sam"][0]
+	userId := r.URL.Query()["userId"][0]
 
 	log.Error(sam)
-	kUploadDir = getUploadDir(sam)
+	kUploadDir = getUploadDir(sam, userId)
 	if _, err := os.Stat(kUploadDir); err != nil {
 		if os.IsNotExist(err) {
 			err := os.MkdirAll(kUploadDir, 0711)
@@ -91,9 +84,10 @@ func GetUpload(w http.ResponseWriter, r *http.Request) {
 // Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
 	sam := r.URL.Query()["sam"][0]
+	userId := r.URL.Query()["userId"][0]
 
 	log.Error(sam)
-	kUploadDir = getUploadDir(sam)
+	kUploadDir = getUploadDir(sam, userId)
 	if _, err := os.Stat(kUploadDir); err != nil {
 		if os.IsNotExist(err) {
 			err := os.MkdirAll(kUploadDir, 0711)
