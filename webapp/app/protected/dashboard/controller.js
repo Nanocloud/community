@@ -21,7 +21,7 @@ export default Ember.Controller.extend({
       .rejectBy('alias', 'hapticDesktop');
   }),
 
-  sessions: Ember.computed('model.@each', 'model.@each', function() {
+  sessions: Ember.computed('model.sessions', 'model.sessions', function() {
     return this.get('model.sessions')
       .rejectBy('username', 'Administrator');
   }),
@@ -30,7 +30,7 @@ export default Ember.Controller.extend({
     this.loadData('application', 'apps');
     this.loadData('user', 'users');
     this.loadData('session', 'sessions');
-  }.on('init'),
+  },
 
   loadData(data, dest) {
     this.set('loadState.' + data, 1);
