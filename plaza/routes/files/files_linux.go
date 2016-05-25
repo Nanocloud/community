@@ -51,5 +51,5 @@ func getUploadDir(sam string, userId string) string {
 	if plazaDir == "" {
 		plazaDir = "/opt/Users/%s"
 	}
-	return fmt.Sprintf(plazaDir, userId)
+	return fmt.Sprintf(plazaDir, "u"+userId[:20])
 }
