@@ -3,7 +3,6 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
 
   modelIsEmpty: Ember.computed.empty('items', 'items'),
-
   sortableTableConfig: {
 
     messageConfig: {
@@ -22,6 +21,10 @@ export default Ember.Controller.extend({
     }
   },
 
+  data : Ember.computed('model', 'items', function() {
+    return this.setData();
+  }),
+
   setData: function() {
     if (!this.get('items')) {
       return;
@@ -31,45 +34,38 @@ export default Ember.Controller.extend({
       ret.push(Ember.Object.create({
         user: item.get('user.firstName') + " " + item.get('user.lastName'),
         application: item.get('application.displayName'),
-        start: item.get('startDate'),
-        end: item.get('endDate'),
+        start: window.moment(item.get('startDate')).format('MMMM Do YYYY, h:mm:ss A'),
+        end: window.moment(item.get('endDate')).format('MMMM Do YYYY, h:mm:ss A'),
       }));
     });
     this.set('data', ret);
     return ret;
   },
 
-  data : Ember.computed('model', 'items', function() {
-    return this.setData();
-  }),
-
-  columns: function() {
-
-    return [
-        {
-          "propertyName": "user",
-          "title": "User",
-          "disableFiltering": true,
-          "filterWithSelect": false,
-        },
-        {
-          "propertyName": "application",
-          "title": "Application",
-          "disableFiltering": true,
-          "filterWithSelect": false,
-        },
-        {
-          "propertyName": "start",
-          "title": "Start Date",
-          "disableFiltering": true,
-          "filterWithSelect": false,
-        },
-        {
-          "propertyName": "end",
-          "title": "End Date",
-          "disableFiltering": true,
-          "filterWithSelect": false,
-        }
-    ];
-  }.property(),
+  columns: [
+    {
+      "propertyName": "user",
+      "title": "User",
+      "disableFiltering": true,
+      "filterWithSelect": false,
+    },
+    {
+      "propertyName": "application",
+      "title": "Application",
+      "disableFiltering": true,
+      "filterWithSelect": false,
+    },
+    {
+      "propertyName": "start",
+      "title": "Start Date",
+      "disableFiltering": true,
+      "filterWithSelect": false,
+    },
+    {
+      "propertyName": "end",
+      "title": "End Date",
+      "disableFiltering": true,
+      "filterWithSelect": false,
+    },
+  ],
 });
