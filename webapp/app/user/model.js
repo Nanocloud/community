@@ -1,4 +1,5 @@
 import DS from 'ember-data';
+import Ember from 'ember';
 import {validator, buildValidations} from 'ember-cp-validations';
 
 const Validations = buildValidations({
@@ -43,4 +44,7 @@ export default DS.Model.extend(Validations, {
   isNotAdmin: function() {
     return !this.get('isAdmin');
   }.property(),
+  type: Ember.computed('isAdmin', 'isAdmin', function() {
+    return this.get('isAdmin') ? 'Administrator' : 'Regular user';
+  }),
 });
