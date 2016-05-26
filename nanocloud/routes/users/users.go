@@ -139,14 +139,32 @@ func Update(c *echo.Context) error {
 		return apiErrors.UserNotFound
 	}
 
-	if u.Password == "" {
-		return apiErrors.InvalidRequest.Detail("The password field is missing.")
-	}
-
-	err = users.UpdateUserPassword(user.GetID(), u.Password)
-	if err != nil {
-		log.Error(err)
-		return apiErrors.InternalError.Detail("Unable to update the password.")
+	if u.Password != "" {
+		err = users.UpdateUserPassword(user.GetID(), u.Password)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the password.")
+		}
+	} else if u.Email != user.Email {
+		err = users.UpdateUserEmail(user.GetID(), u.Email)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the email.")
+		}
+	} else if u.FirstName != user.FirstName {
+		err = users.UpdateUserFirstName(user.GetID(), u.FirstName)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the first name.")
+		}
+	} else if u.LastName != user.LastName {
+		err = users.UpdateUserLastName(user.GetID(), u.LastName)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the last name.")
+		}
+	} else {
+		return apiErrors.InvalidRequest.Detail("No field send.")
 	}
 
 	return utils.JSON(c, http.StatusOK, user)
