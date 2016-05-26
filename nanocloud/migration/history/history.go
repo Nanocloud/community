@@ -45,7 +45,7 @@ func Migrate() error {
 
 	rows, err = db.Query(
 		`CREATE TABLE histories (
-			id				varchar(36) PRIMARY KEY,
+			id			varchar(36) PRIMARY KEY,
 			userid			varchar(36) NOT NULL DEFAULT '',
 			usermail		varchar(36) NOT NULL DEFAULT '',
 			userfirstname	varchar(36) NOT NULL DEFAULT '',
