@@ -29,36 +29,44 @@ import (
 	"github.com/Nanocloud/community/nanocloud/migration/machines"
 	"github.com/Nanocloud/community/nanocloud/migration/oauth"
 	"github.com/Nanocloud/community/nanocloud/migration/users"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func Migrate() error {
 	err := users.Migrate()
 	if err != nil {
+		log.Error("users migration failed")
 		return err
 	}
 
 	err = oauth.Migrate()
 	if err != nil {
+		log.Error("oauth migration failed")
 		return err
 	}
 
 	err = apps.Migrate()
 	if err != nil {
+		log.Error("apps migration failed")
 		return err
 	}
 
 	err = history.Migrate()
 	if err != nil {
+		log.Error("history migration failed")
 		return err
 	}
 
 	err = machines.Migrate()
 	if err != nil {
+		log.Error("machines migration failed")
 		return err
 	}
 
 	err = config.Migrate()
 	if err != nil {
+		log.Error("config migration failed")
 		return err
 	}
 

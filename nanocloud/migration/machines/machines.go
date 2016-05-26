@@ -88,6 +88,7 @@ func Migrate() error {
 			)
 
 			if err != nil {
+				log.Error("Unable to create machine")
 				return err
 			}
 			rows.Close()
