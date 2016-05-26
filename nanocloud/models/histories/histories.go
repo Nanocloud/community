@@ -2,11 +2,12 @@ package histories
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/apps"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	uuid "github.com/satori/go.uuid"
-	"strings"
 )
 
 var (
@@ -38,8 +39,8 @@ func FindAll() ([]*History, error) {
 	result := make([]*History, 0)
 
 	res, err := db.Query(
-		`SELECT histories.id, histories.userid,
-		apps.id as app_id, histories.startdate, histories.enddate
+		`SELECT histories.id, histories.userid, histories.usermail, histories.userfirstname,
+		histories.userlastname, apps.id as app_id, histories.startdate, histories.enddate
 		FROM histories
 		LEFT JOIN apps ON apps.alias = histories.connectionid`,
 	)
@@ -64,6 +65,9 @@ func FindAll() ([]*History, error) {
 		res.Scan(
 			&h.Id,
 			&userId,
+			&h.UserMail,
+			&h.UserFirstname,
+			&h.UserLastname,
 			&appId,
 			&h.StartDate,
 			&h.EndDate,
@@ -86,7 +90,6 @@ func FindAll() ([]*History, error) {
 			appList[appId] = append(appHistories, &h)
 			appIds = append(appIds, escapeId(appId))
 		}
-
 		result = append(result, &h)
 	}
 
@@ -161,18 +164,20 @@ func FindAll() ([]*History, error) {
 
 func CreateHistory(
 	userId string,
+	userMail string,
+	userFirstname string,
+	userLastname string,
 	connectionId string,
 	startDate string,
 	endDate string,
 ) (*History, error) {
-
 	id := uuid.NewV4().String()
 
 	rows, err := db.Query(
 		`INSERT INTO histories
-		(id, userid, connectionid, startdate, enddate)
-		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar)`,
-		id, userId, connectionId, startDate, endDate)
+		(id, userid, usermail, userfirstname, userlastname, connectionid, startdate, enddate)
+		VALUES(	$1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar, $7::varchar, $8::varchar)`,
+		id, userId, userMail, userFirstname, userLastname, connectionId, startDate, endDate)
 
 	if err != nil {
 		return nil, err
@@ -181,7 +186,7 @@ func CreateHistory(
 	rows.Close()
 
 	rows, err = db.Query(
-		`SELECT id, userid, connectionid, startdate, enddate
+		`SELECT id, userid, usermail, userfirstname, userlastname, connectionid, startdate, enddate
 		FROM histories WHERE id = $1::varchar`, id)
 
 	if err != nil {
@@ -196,6 +201,9 @@ func CreateHistory(
 	rows.Scan(
 		&history.Id,
 		&history.UserId,
+		&history.UserMail,
+		&history.UserFirstname,
+		&history.UserLastname,
 		&history.ConnectionId,
 		&history.StartDate,
 		&history.EndDate,
