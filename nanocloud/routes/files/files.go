@@ -265,7 +265,7 @@ func Get(c *echo.Context) error {
 			path = filepath.Join(
 				fmt.Sprintf(
 					utils.Env("PLAZA_USER_DIR", "/opt/Users/%s"),
-					user.Id,
+					"u"+user.Id[:20],
 				),
 				filename,
 			)
