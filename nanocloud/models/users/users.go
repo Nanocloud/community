@@ -292,6 +292,69 @@ func UpdateUserPassword(id string, password string) error {
 	return nil
 }
 
+func UpdateUserEmail(id string, email string) error {
+
+	res, err := db.Exec(
+		`UPDATE users
+		SET email = $1::varchar
+		WHERE id = $2::varchar`,
+		email, id)
+	if err != nil {
+		return err
+	}
+
+	updated, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if updated == 0 {
+		return UserNotFound
+	}
+	return nil
+}
+
+func UpdateUserFirstName(id string, firstname string) error {
+
+	res, err := db.Exec(
+		`UPDATE users
+		SET first_name = $1::varchar
+		WHERE id = $2::varchar`,
+		firstname, id)
+	if err != nil {
+		return err
+	}
+
+	updated, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if updated == 0 {
+		return UserNotFound
+	}
+	return nil
+}
+
+func UpdateUserLastName(id string, lastname string) error {
+
+	res, err := db.Exec(
+		`UPDATE users
+		SET last_name = $1::varchar
+		WHERE id = $2::varchar`,
+		lastname, id)
+	if err != nil {
+		return err
+	}
+
+	updated, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if updated == 0 {
+		return UserNotFound
+	}
+	return nil
+}
+
 func GetUser(id string) (*User, error) {
 	rows, err := db.Query(
 		`SELECT id,
