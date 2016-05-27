@@ -158,10 +158,13 @@ func GetApp(appId string) (*Application, error) {
 
 func GetAllApps() ([]*Application, error) {
 	rows, err := db.Query(
-		`SELECT id, collection_name,
-		alias, display_name,
-		file_path,
-		icon_content
+		`SELECT
+		id,
+		display_name,
+		collection_name,
+		alias,
+		icon_content,
+		file_path
 		FROM apps`)
 
 	if err != nil {
@@ -178,11 +181,11 @@ func GetAllApps() ([]*Application, error) {
 
 		rows.Scan(
 			&appParam.Id,
+			&appParam.DisplayName,
 			&appParam.CollectionName,
 			&appParam.Alias,
-			&appParam.DisplayName,
-			&appParam.FilePath,
 			&appParam.IconContents,
+			&appParam.FilePath,
 		)
 		applications = append(applications, &appParam)
 
