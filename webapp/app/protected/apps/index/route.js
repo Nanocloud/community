@@ -6,5 +6,11 @@ export default Ember.Route.extend({
   model() {
     this.get('configuration').loadData();
     return this.store.findAll('application', { reload: true });
+  },
+
+  actions: {
+    refreshModel() {
+      this.refresh();
+    }
   }
 });

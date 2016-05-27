@@ -20,7 +20,7 @@ export default Ember.Controller.extend({
 
   actions: {
 
-    disconnectGuacamole() {
+    handleVdiClose() {
       this.get('remoteSession').disconnectSession(this.get('connectionName'));
     },
 

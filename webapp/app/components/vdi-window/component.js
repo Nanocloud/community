@@ -5,14 +5,19 @@ export default Ember.Component.extend({
   remoteSession: Ember.inject.service('remote-session'),
 
   inputFocusChanged: function() {
-    if (this.$().find('textarea').length !== 0) {
-      this.$().find('textarea')
-        .focusin(function() {
-          this.get('remoteSession').pauseInputs(this.get('connectionName'));
-        }.bind(this))
-        .focusout(function() {
-          this.get('remoteSession').restoreInputs(this.get('connectionName'));
-        }.bind(this));
+
+    var inputs = ['textarea', 'input'];
+
+    for (let i = 0; i < inputs.length; i++) {
+      if (this.$().find(inputs[i]).length !== 0) {
+        this.$().find(inputs[i])
+          .focusin(function() {
+            this.get('remoteSession').pauseInputs(this.get('connectionName'));
+          }.bind(this))
+          .focusout(function() {
+            this.get('remoteSession').restoreInputs(this.get('connectionName'));
+          }.bind(this));
+      }
     }
   }.on('didInsertElement'),
 
