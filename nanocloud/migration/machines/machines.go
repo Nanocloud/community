@@ -56,7 +56,7 @@ func Migrate() error {
 
 	rows, err = db.Query(
 		`CREATE TABLE machines (
-			id         varchar(60),
+			id         varchar(60) PRIMARY KEY,
 			name			 varchar(255),
 			type       vmtype,
 			ip         varchar(255),
