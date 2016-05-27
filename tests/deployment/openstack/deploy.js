@@ -30,6 +30,7 @@ var USERNAME = process.env.DEPLOYMENT_OS_USERNAME || "";
 // Optional environment variables
 var INSTALLATION_SCRIPT = process.env.DEPLOYMENT_INSTALLATION_SCRIPT || './installCommunity.sh';
 var INSTALL_SCRIPT_PATH = process.env.DEPLOYMENT_OS_INSTALL_SCRIPT_PATH || './installDocker.sh';
+var AUTHORIZED_KEYS_FILE = process.env.DEPLOYMENT_AUTHORIZED_KEYS_FILE || './authorized_keys';
 var KEY_NAME = process.env.DEPLOYMENT_OS_KEY_NAME || 'Bamboo';
 var KEY_PATH = process.env.DEPLOYMENT_OS_KEY_PATH || './id_rsa';
 var NETWORK_NAME= process.env.DEPLOYMENT_NETWORK_NAME || 'nano-net';
@@ -52,6 +53,7 @@ var WINDOWS_VM_NAME = process.env.DEPLOYMENT_WINDOWS_VM_NAME || 'Bamboo Windows'
 
 var nanoOS = require('./libnanoOpenstack');
 var async = require('async');
+var fs = require('fs');
 var Promise = require('promise');
 var test_port = require('test-port');
 
@@ -155,8 +157,26 @@ var provisionLinux = function(callback) {
       linuxServer.execute(linuxIP, "echo " + winIP + " > windowsIP", KEY_PATH, function(error) {
         next(error);
       });
+    },
+
+    function(next) {
+      fs.access(AUTHORIZED_KEYS_FILE, fs.R_OK, function(err) {
+        if (err) { // Assume this file does not exists, do nothing
+          next()
+        } else {
+          fs.readFile(AUTHORIZED_KEYS_FILE, function(err, script) {
+            if (err) {
+              callback(err);
+            }
+            linuxServer.execute(linuxIP, "echo -e \"" + script + "\" >> .ssh/authorized_keys", KEY_PATH, function(error) {
+              next(error);
+            });
+          });
+        }
+      });
 
     },
+
     function(next) { // Install community
 
       linuxServer.execute(linuxIP, INSTALLATION_SCRIPT, KEY_PATH, function(error, response) {
