@@ -405,7 +405,12 @@ func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, e
 			return nil, err
 		}
 
-		username := winUser.Sam + "@" + winUser.Domain
+		username := winUser.Sam
+
+		if len(winUser.Domain) > 0 {
+			username = username + "@" + winUser.Domain
+		}
+
 		pwd := winUser.Password
 
 		var conn Connection
