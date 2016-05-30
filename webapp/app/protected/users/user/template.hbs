@@ -1,78 +1,77 @@
-<div class="edit m-t-2">
-  <h4>
-    {{#link-to 'protected.users'}}
-    Users {{/link-to}} -
-    {{#edit-text
-      class='in-bl'
-      type="text"
-      confirmation=false
-      textInput=model.firstName
-      textInputPlaceholder="First name"
-      onClose="changeFirstName"
-    }}
-      {{model.firstName}}
-    {{/edit-text}}
-    {{#edit-text
-      class='in-bl'
-      type="text"
-      confirmation=false
-      textInput=model.lastName
-      textInputPlaceholder="Last name"
-      onClose="changeLastName"
-    }}
-      {{model.lastName}}
-    {{/edit-text}}
+<div class="section">
+	<h4>
+		{{#if model.isAdmin }}
+			{{#link-to 'protected.users'}} Users {{/link-to}} -
+		{{/if}}
+		{{#edit-text
+			class='in-bl'
+			type="text"
+			confirmation=false
+			textInput=model.firstName
+			textInputPlaceholder="First name"
+			onClose="changeFirstName"
+		}}
+			{{model.firstName}}
+		{{/edit-text}}
+		{{#edit-text
+			class='in-bl'
+			type="text"
+			confirmation=false
+			textInput=model.lastName
+			textInputPlaceholder="Last name"
+			onClose="changeLastName"
+		}}
+			{{model.lastName}}
+		{{/edit-text}}
 
-    {{#if model.isAdmin}}
-      <i class="material-icons va-top">verified_user</i>
-    {{/if}}
-  </h4>
-  <div class='content-wrapper'>
-    <table class="table user-table">
-      <tbody>
-        <tr>
-          <th scope="row">Email address</th>
-          <td>
-          {{#edit-text
-            type="email"
-            confirmation=false
-            textInput=model.email
-            textInputPlaceholder="Email"
-            onClose="changeEmail"
-          }}
-            {{model.email}}
-          {{/edit-text}}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Password</th>
-          <td>
-          {{#edit-text
-            type="password"
-            confirmation=true
-            textInput=model.password
-            textInputPlaceholder="Password"
-            confirmInput=passwordConfirmation
-            confirmInputPlaceholder="Confirmation"
-            onClose="changePassword"
-          }}
-            ******
-          {{/edit-text}}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">UUID</th>
-          <td>{{model.id}}</td>
-        </tr>
-        {{#unless model.isAdmin }}
-          <tr>
-            <th scope="row">Delete Account</th>
-            <td>
-              {{ remove-user action="removeDone" }}
-            </td>
-          </tr>
-        {{/unless}}
-      </tbody>
-    </table>
-  </div>
+		{{#if model.isAdmin}}
+			<i class="material-icons va-top">verified_user</i>
+		{{/if}}
+	</h4>
+	<div class='content-wrapper'>
+		<table class="table user-table">
+			<tbody>
+				<tr>
+					<th scope="row">Email address</th>
+					<td>
+						{{#edit-text
+							type="email"
+							confirmation=false
+							textInput=model.email
+							textInputPlaceholder="Email"
+							onClose="changeEmail" }}
+							{{model.email}}
+						{{/edit-text}}
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">Password</th>
+					<td>
+						{{#edit-text
+							type="password"
+							confirmation=true
+							textInput=model.password
+							textInputPlaceholder="Password"
+							confirmInput=passwordConfirmation
+							confirmInputPlaceholder="Confirmation"
+							onClose="changePassword" }}
+							******
+						{{/edit-text}}
+					</td>
+				</tr>
+				{{#if session.user.isAdmin }}
+					<tr>
+						<th scope="row">UUID</th>
+						<td>{{model.id}}</td>
+					</tr>
+					<tr>
+						<th scope="row">Delete Account</th>
+						<td>
+							{{ remove-user action="removeDone" }}
+						</td>
+					</tr>
+				{{/if}}
+			</tbody>
+		</table>
+	</div>
 </div>
