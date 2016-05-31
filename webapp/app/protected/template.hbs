@@ -12,7 +12,7 @@
                 <span class="icon">
                   <i class="material-icons">dashboard</i>
                 </span>
-                Dashboard 
+                Dashboard
               {{/link-to}}
             </li>
           {{/if}}
@@ -42,9 +42,20 @@
               <span class="icon">
                 <i class="material-icons">folder</i>
               </span>
-              Files 
+              Files
             {{/link-to}}
           </li>
+
+          {{#unless session.user.isAdmin}}
+            <li>
+              {{#link-to 'protected.users.user' session.user}}
+                <span class="icon">
+                  <i class="material-icons">person</i>
+                </span>
+                Profile
+              {{/link-to}}
+            </li>
+          {{/unless}}
 
           {{#if session.user.isAdmin}}
             <li>
@@ -52,7 +63,7 @@
                 <span class="icon">
                   <i class="material-icons">history</i>
                 </span>
-                History 
+                History
               {{/link-to}}
             </li>
           {{/if}}

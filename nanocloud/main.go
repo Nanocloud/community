@@ -131,7 +131,7 @@ func main() {
 	/**
 	 * USERS
 	 */
-	e.Patch("/api/users/:id", m.OAuth2(m.Admin(users.Update)))
+	e.Patch("/api/users/:id", m.OAuth2(users.Update))
 	e.Get("/api/users", m.OAuth2(users.Get))
 	e.Post("/api/users", m.OAuth2(m.Admin(users.Post)))
 	e.Delete("/api/users/:id", m.OAuth2(m.Admin(users.Delete)))
