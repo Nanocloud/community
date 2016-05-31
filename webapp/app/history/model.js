@@ -15,5 +15,8 @@ export default DS.Model.extend({
       var start = window.moment(this.get('startDate'));
       var end = window.moment(this.get('endDate'));
       return end.diff(start);
+    }),
+    userFullName: Ember.computed('userFirstname', 'userLastname', function() {
+      return this.get('userFirstname') + ' ' + this.get('userLastname');
     })
 });
