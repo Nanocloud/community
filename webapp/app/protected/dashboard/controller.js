@@ -27,7 +27,7 @@ export default Ember.Controller.extend({
   }),
 
   activator: function() {
-    this.loadData('application', 'apps');
+    this.loadData('app', 'apps');
     this.loadData('user', 'users');
     this.loadData('session', 'sessions');
   },
