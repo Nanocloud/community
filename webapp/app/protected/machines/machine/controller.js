@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
 
-  machineName: Ember.computed('model.name', 'model.name', function() {
+  machineName: Ember.computed('model.name', function() {
     return this.get('model.name') ? this.get('model.name') : "Machine";
   }),
 
