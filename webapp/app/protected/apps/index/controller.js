@@ -18,6 +18,15 @@ export default Ember.Controller.extend({
     return array;
   }),
 
+  init() {
+    this._super(...arguments);
+
+    Ember.run.next(() => {
+      this.set('connectionName', "hapticDesktop");
+      this.toggleProperty('showSingleTab');
+    });
+  },
+
   actions: {
 
     handleVdiClose() {

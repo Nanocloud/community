@@ -5,9 +5,23 @@
   stateVisible=stateVisible }}
 
   <div class='content-wrapper'>
-    {{#each queue as |value|}}
+    {{#each queue as |file|}}
       <div class='item'>
-        {{vdi-progress-item file=value cancelSingleUpload=cancelSingleUpload}}
+        <div class='vdi-progress-item'>
+          {{ file.name }}
+
+          {{#if file.completed}}
+            Completed
+          {{else}}
+            {{#if file.uploading }}
+              {{ file.progress }}%
+              {{ fa-icon "spinner" spin=true}}
+              <span class="link" {{ action "cancel" target=file }}>
+                Cancel
+              </span>
+            {{/if}}
+          {{/if}}
+        </div>
       </div>
     {{else}}
       No items

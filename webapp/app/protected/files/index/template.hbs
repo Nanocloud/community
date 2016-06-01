@@ -1,11 +1,10 @@
 <div id="file-page">
-
-{{#vdi-drag-n-drop 
+{{#vdi-drag-n-drop
   id="drag-n-drop"
   assignBrowse="browse"
   complete="refreshModel"
   dragAndDropActive=dragAndDropActive
-  as |uploadData|}}  
+  as |uploadData|}}
 
   {{#ember-wormhole to="file-page"}}
     <div class="section p-a-2">
@@ -25,10 +24,10 @@
           </p>
           <p>
             {{#each uploadData.queue as |value|}}
-              {{vdi-progress-item file=value cancelSingleUpload=uploadData.cancelSingleUpload}}
+              {{vdi-progress-item file=value}}
             {{/each}}
           </p>
-          
+
           <button {{action "uploadCallback" uploadData.flushHistory }} type="button" class="btn btn-primary">Clear upload history</button>
       {{/unless}}
       </p>
@@ -36,7 +35,7 @@
         <div class='drag-drop-wrapper'>
         </div>
         {{#if modelIsEmpty}}
-          There is no file 
+          There is no file
         {{else}}
           {{models-table
             class="sortableTable"
