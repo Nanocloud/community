@@ -55,7 +55,7 @@ var (
 	kProtocol             string
 )
 
-type Application struct {
+type App struct {
 	Id             string `json:"-"`
 	CollectionName string `json:"collection-name"`
 	Alias          string `json:"alias"`
@@ -65,11 +65,11 @@ type Application struct {
 	IconContents   []byte `json:"icon-content"`
 }
 
-func (a *Application) GetID() string {
+func (a *App) GetID() string {
 	return a.Id
 }
 
-func (a *Application) SetID(id string) error {
+func (a *App) SetID(id string) error {
 	a.Id = id
 	return nil
 }
@@ -123,7 +123,7 @@ func ChangeName(appId, newName string) error {
 	return nil
 }
 
-func GetApp(appId string) (*Application, error) {
+func GetApp(appId string) (*App, error) {
 	rows, err := db.Query(
 		`SELECT id, collection_name,
 		alias, display_name,
@@ -137,7 +137,7 @@ func GetApp(appId string) (*Application, error) {
 
 	defer rows.Close()
 	if rows.Next() {
-		var application Application
+		var application App
 
 		err = rows.Scan(
 			&application.Id,
@@ -156,7 +156,7 @@ func GetApp(appId string) (*Application, error) {
 	return nil, nil
 }
 
-func GetAllApps() ([]*Application, error) {
+func GetAllApps() ([]*App, error) {
 	rows, err := db.Query(
 		`SELECT
 		id,
@@ -174,10 +174,10 @@ func GetAllApps() ([]*Application, error) {
 
 	defer rows.Close()
 
-	applications := make([]*Application, 0)
+	applications := make([]*App, 0)
 
 	for rows.Next() {
-		appParam := Application{}
+		appParam := App{}
 
 		rows.Scan(
 			&appParam.Id,
@@ -195,7 +195,7 @@ func GetAllApps() ([]*Application, error) {
 
 }
 
-func GetUserApps(userId string) ([]*Application, error) {
+func GetUserApps(userId string) ([]*App, error) {
 	rows, err := db.Query(
 		`SELECT id, collection_name,
 		alias, display_name,
@@ -211,10 +211,10 @@ func GetUserApps(userId string) ([]*Application, error) {
 
 	defer rows.Close()
 
-	applications := make([]*Application, 0)
+	applications := make([]*App, 0)
 
 	for rows.Next() {
-		appParam := Application{}
+		appParam := App{}
 
 		rows.Scan(
 			&appParam.Id,
@@ -254,7 +254,7 @@ func getCredentials() (string, string) {
 }
 
 // ========================================================================================================================
-// Procedure: unpublishApplication
+// Procedure: unpublishApp
 //
 // Does:
 // - Unpublish specified applications from ActiveDirectory
@@ -274,7 +274,7 @@ func UnpublishApp(user *users.User, id string) error {
 	var alias string
 	var collection string
 	if !rows.Next() {
-		return errors.New("Application not found")
+		return errors.New("App not found")
 	}
 
 	rows.Scan(&alias, &collection)
@@ -316,7 +316,7 @@ func UnpublishApp(user *users.User, id string) error {
 	return nil
 }
 
-func PublishApp(user *users.User, app *Application) error {
+func PublishApp(user *users.User, app *App) error {
 	plazaAddress := utils.Env("EXECUTION_SERVERS", "iaas-module")
 	if plazaAddress == "" {
 		return errors.New("plaza address unknown")
@@ -389,7 +389,7 @@ func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, e
 	defer rows.Close()
 	var execServ string
 	for rows.Next() {
-		appParam := Application{}
+		appParam := App{}
 		rows.Scan(
 			&appParam.Alias,
 		)

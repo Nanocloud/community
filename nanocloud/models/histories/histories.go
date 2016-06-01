@@ -144,7 +144,7 @@ func FindAll() ([]*History, error) {
 		defer rows.Close()
 
 		for rows.Next() {
-			app := apps.Application{}
+			app := apps.App{}
 			rows.Scan(
 				&app.Id,
 				&app.CollectionName,
@@ -154,7 +154,7 @@ func FindAll() ([]*History, error) {
 				&app.IconContents,
 			)
 			for _, h := range appList[app.Id] {
-				h.application = &app
+				h.app = &app
 			}
 		}
 	}

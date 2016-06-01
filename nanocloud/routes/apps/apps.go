@@ -61,7 +61,7 @@ func GetConnections(c *echo.Context) error {
 	for i, val := range connections {
 		res := hash{
 			"id":         i,
-			"type":       "app",
+			"type":       "apps",
 			"attributes": val,
 		}
 		response[i] = res
@@ -88,7 +88,7 @@ func ListApplications(c *echo.Context) error {
 		for i, val := range applications {
 			res := hash{
 				"id":         val.Id,
-				"type":       "app",
+				"type":       "apps",
 				"attributes": val,
 			}
 			response[i] = res
@@ -111,7 +111,7 @@ func ListApplications(c *echo.Context) error {
 	for i, val := range applications {
 		res := hash{
 			"id":         val.Id,
-			"type":       "app",
+			"type":       "apps",
 			"attributes": val,
 		}
 		response[i] = res
@@ -151,7 +151,7 @@ func UnpublishApplication(c *echo.Context) error {
 }
 
 func PublishApplication(c *echo.Context) error {
-	app := &apps.Application{}
+	app := &apps.App{}
 	err := utils.ParseJSONBody(c, app)
 	if err != nil {
 		return err
@@ -236,7 +236,7 @@ func ChangeAppName(c *echo.Context) error {
 		return c.JSON(http.StatusNotFound, hash{
 			"error": [1]hash{
 				hash{
-					"detail": "Application Not Found",
+					"detail": "App Not Found",
 				},
 			},
 		})

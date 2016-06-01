@@ -10,7 +10,7 @@ export default DS.Model.extend({
     connectionId: DS.attr('string'),
     startDate: DS.attr('date'),
     endDate: DS.attr('date'),
-    application: DS.belongsTo('app'),
+    app: DS.belongsTo('app'),
     duration: Ember.computed('startDate', 'endDate', function() {
       var start = window.moment(this.get('startDate'));
       var end = window.moment(this.get('endDate'));

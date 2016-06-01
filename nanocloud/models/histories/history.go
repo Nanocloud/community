@@ -16,8 +16,8 @@ type History struct {
 	StartDate     string `json:"start-date"`
 	EndDate       string `json:"end-date"`
 
-	user        *users.User
-	application *apps.Application
+	user *users.User
+	app  *apps.App
 }
 
 func (h *History) GetID() string {
@@ -36,8 +36,8 @@ func (h *History) GetReferences() []jsonapi.Reference {
 			Name: "user",
 		},
 		{
-			Type: "applications",
-			Name: "application",
+			Type: "apps",
+			Name: "app",
 		},
 	}
 }
@@ -56,13 +56,13 @@ func (h *History) GetReferencedIDs() []jsonapi.ReferenceID {
 		)
 	}
 
-	if h.application != nil {
+	if h.app != nil {
 		result = append(
 			result,
 			jsonapi.ReferenceID{
-				ID:   h.application.GetID(),
-				Name: "application",
-				Type: "applications",
+				ID:   h.app.GetID(),
+				Name: "app",
+				Type: "apps",
 			},
 		)
 	}
@@ -77,8 +77,8 @@ func (h *History) GetReferencedStructs() []jsonapi.MarshalIdentifier {
 		result = append(result, h.user)
 	}
 
-	if h.application != nil {
-		result = append(result, h.application)
+	if h.app != nil {
+		result = append(result, h.app)
 	}
 
 	return result
