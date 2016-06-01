@@ -33,6 +33,8 @@ import (
 )
 
 func Post(w http.ResponseWriter, r *http.Request) {
+	filename := r.URL.Query()["filename"][0]
+
 	rawuser, oauthErr := oauth2.GetUser(w, r)
 	if rawuser == nil || oauthErr != nil {
 		http.Error(w, "", http.StatusUnauthorized)
@@ -52,7 +54,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 
 	request, err := http.NewRequest(
 		"POST",
-		"http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam)+"&userId="+url.QueryEscape(user.Id),
+		"http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam)+"&userId="+url.QueryEscape(user.Id)+"&filename="+url.QueryEscape(filename),
 		r.Body,
 	)
 	if err != nil {
@@ -99,12 +101,8 @@ func Get(w http.ResponseWriter, r *http.Request) {
 
 	request.Header = r.Header
 	client := &http.Client{}
-	resp, err := client.Do(request)
+	_, err = client.Do(request)
 	if err != nil {
 		log.Println("request error", err)
 	}
-	if resp.StatusCode == http.StatusTeapot {
-		http.Error(w, "", http.StatusSeeOther)
-	}
-	return
 }
