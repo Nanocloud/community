@@ -33,7 +33,7 @@ export default Ember.Controller.extend({
     this.get('items').forEach(function(item) {
       ret.push(Ember.Object.create({
         user: item.get('userFullName'),
-        application: item.get('application.displayName'),
+        application: item.get('app.displayName'),
         start: window.moment(item.get('startDate')).format('MMMM Do YYYY, h:mm:ss A'),
         end: window.moment(item.get('endDate')).format('MMMM Do YYYY, h:mm:ss A'),
       }));
