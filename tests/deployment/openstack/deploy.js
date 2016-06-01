@@ -68,6 +68,7 @@ var windowsIP = new Promise(function(resolve) {
 var provisionLinux = function(callback) {
   var linuxServer = null;
   var linuxIP = null;
+  var linuxPrivateIP = null;
 
   async.waterfall([
     function(next) { // Boot Linux server
@@ -100,6 +101,11 @@ var provisionLinux = function(callback) {
             waitForLinuxToBeOnline(next);
           }, 1000);
         }
+
+        linuxServer.get(function(error, _server) {
+          linuxPrivateIP = _server.addresses[NETWORK_NAME][0].addr;
+        });
+        return next(null);
 
         return next(null);
       });
@@ -152,9 +158,12 @@ var provisionLinux = function(callback) {
         next(null, ip);
       });
     },
-    function(winIP, next) { // Save Windows IP to be read back in the VM
+    function(winIP, next) { // Save Windows and Linux private IPs to be read back in the VM
 
       linuxServer.execute(linuxIP, "echo " + winIP + " > windowsIP", KEY_PATH, function(error) {
+        next(error);
+      });
+      linuxServer.execute(linuxIP, "echo " + linuxPrivateIP + " > linuxIP", KEY_PATH, function(error) {
         next(error);
       });
     },
