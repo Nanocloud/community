@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import TooltipsterComponent from 'ember-cli-tooltipster/components/tool-tipster';
 
 export default TooltipsterComponent.extend({
@@ -6,6 +7,10 @@ export default TooltipsterComponent.extend({
     'hover-enabled:hover-enabled',
     'clickable:clickable'
   ],
+
+  didInsertElement() {
+    Ember.$(this.get('element')).find('.icon-element').css('font-size', this.get('size'));
+  },
 
   actions: {
     clickAction() {
