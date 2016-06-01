@@ -5,7 +5,7 @@ export default Ember.Route.extend({
   configuration: Ember.inject.service('configuration'),
   model() {
     this.get('configuration').loadData();
-    return this.store.findAll('application', { reload: true });
+    return this.store.findAll('app', { reload: true });
   },
 
   actions: {

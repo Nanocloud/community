@@ -108,11 +108,11 @@ func main() {
 	/**
 	 * APPS
 	 */
-	e.Get("/api/applications", m.OAuth2(apps.ListApplications))
-	e.Delete("/api/applications/:app_id", m.OAuth2(m.Admin(apps.UnpublishApplication)))
-	e.Post("/api/applications", m.OAuth2(m.Admin(apps.PublishApplication)))
-	e.Get("/api/applications/connections", m.OAuth2(apps.GetConnections))
-	e.Patch("/api/applications/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
+	e.Get("/api/apps", m.OAuth2(apps.ListApplications))
+	e.Delete("/api/apps/:app_id", m.OAuth2(m.Admin(apps.UnpublishApplication)))
+	e.Post("/api/apps", m.OAuth2(m.Admin(apps.PublishApplication)))
+	e.Get("/api/apps/connections", m.OAuth2(apps.GetConnections))
+	e.Patch("/api/apps/:app_id", m.OAuth2(m.Admin(apps.ChangeAppName)))
 
 	/**
 	 * SESSIONS

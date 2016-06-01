@@ -61,7 +61,7 @@ func GetConnections(c *echo.Context) error {
 	for i, val := range connections {
 		res := hash{
 			"id":         i,
-			"type":       "application",
+			"type":       "app",
 			"attributes": val,
 		}
 		response[i] = res
@@ -88,7 +88,7 @@ func ListApplications(c *echo.Context) error {
 		for i, val := range applications {
 			res := hash{
 				"id":         val.Id,
-				"type":       "application",
+				"type":       "app",
 				"attributes": val,
 			}
 			response[i] = res
@@ -111,7 +111,7 @@ func ListApplications(c *echo.Context) error {
 	for i, val := range applications {
 		res := hash{
 			"id":         val.Id,
-			"type":       "application",
+			"type":       "app",
 			"attributes": val,
 		}
 		response[i] = res
