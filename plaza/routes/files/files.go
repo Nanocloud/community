@@ -68,6 +68,8 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer dst.Close()
+
 	_, err = io.Copy(dst, r.Body)
 	if err != nil {
 		log.Error(err)
@@ -75,7 +77,6 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dst.Close()
 }
 
 func Get(c *echo.Context) error {
