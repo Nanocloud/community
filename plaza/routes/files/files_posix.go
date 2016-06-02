@@ -1,3 +1,5 @@
+// +build !windows
+
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
@@ -20,20 +22,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// +build !windows
-
-package utils
+package files
 
 import (
-	"os/exec"
-
-	"github.com/labstack/gommon/log"
+	"fmt"
+	"hash/fnv"
+	"os"
 )
 
-func ExecuteCommandAsAdmin(cmd, username, pwd, domain string) {
-	out, err := exec.Command(cmd).Output()
+func loadFileId(filepath string) (string, error) {
+	fileInfo, err := os.Stat(filepath)
 	if err != nil {
-		log.Error(err)
+		return "", err
 	}
-	log.Info(out)
+
+	hash := fnv.New32a()
+	hash.Write([]byte(fileInfo.Name()))
+
+	return fmt.Sprintf("%x-%x-%x", hash.Sum32(), fileInfo.ModTime(), fileInfo.Size()), nil
+}
+
+func isFileHidden(file os.FileInfo) bool {
+	return file.Name()[0] == '.'
+}
+
+func getUploadDir(sam string, userId string) string {
+	plazaDir := os.Getenv("PLAZA_USER_DIR")
+	if plazaDir == "" {
+		plazaDir = "/opt/Users/%s"
+	}
+	return fmt.Sprintf(plazaDir, "u"+userId[:20])
 }

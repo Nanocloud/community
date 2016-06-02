@@ -1,22 +1,85 @@
 import Ember from 'ember';
 
+var FileUploader = Ember.Object.extend(Ember.Evented, {
+  completed: false,
+  progress: 0,
+  uploading: false,
+
+  init() {
+    this._super(...arguments);
+    this.startUpload();
+  },
+
+  name: Ember.computed('file', function() {
+    return this.get('file').name;
+  }),
+
+  startUpload() {
+    let req = new XMLHttpRequest();
+
+    this.set('req', req);
+
+    req.open('POST', '/upload?filename=' + encodeURIComponent(this.get('file').name));
+    req.setRequestHeader('Authorization', 'Bearer ' + this.get('token'));
+
+    req.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        let p = event.loaded / event.total;
+        if (p === 1) {
+          this.set('uploading', false);
+        }
+        this.set('progress', Math.round(event.loaded / event.total * 100));
+      }
+    };
+
+    req.onload = () => {
+      this.set('completed', true);
+      this.trigger('completed');
+      this.set('uploading', false);
+    };
+
+    this.set('uploading', true);
+    req.send(this.get('file'));
+  },
+
+  cancel(preventEvent) {
+    this.get('req').abort();
+    this.set('uploading', false);
+
+    if (!preventEvent) {
+      this.trigger('canceled');
+    }
+  }
+});
+
 export default Ember.Component.extend({
-
-  /* global $:false */
-
   classNames: ['vdi-drag-n-drop'],
   classNameBindings: ['show:state-show:state-hide'],
   session: Ember.inject.service('session'),
-  flow: null,
-  progress: null,
+
+  progress: Ember.computed('queue.@each.uploading', 'queue.@each.progress', function() {
+    let q = this.get('queue');
+    let len = q.get('length');
+    if (len) {
+      return Math.round(q.filterBy('uploading').reduce((a, b) => a + b.get('progress'), 0) / q.get('length'));
+    } else {
+      return 0;
+    }
+  }),
+
+  uploading: Ember.computed('queue.@each.uploading', function() {
+    return this.get('queue').isAny('uploading');
+  }),
+
   show: false,
-  queue: [],
+  queue: null,
   state: null,
 
-  reset: function() {
-    $('body').off('dragenter dragover');
-    this.set('queue', []);
-  }.on('init'),
+  init: function() {
+    this._super(...arguments);
+    Ember.$('body').off('dragenter dragover');
+    this.set('queue', Ember.A([]));
+  },
 
   showElement() {
     this.set('show', true);
@@ -31,132 +94,73 @@ export default Ember.Component.extend({
     this.hideElement();
   },
 
-  drop() {
+  drop(event) {
+    event.preventDefault();
     this.set('dragAndDropActive', false);
     this.hideElement();
-  },
 
-  fileExistInFlowQueue(file) {
-    var flowfiles = this.get('flow.files');
-    for (var i = 0; i < flowfiles.length; i++) {
-      if (flowfiles[i].name === file.name) {
-        return true;
-      }
-    }
-    return false;
-  },
+    let files = event.dataTransfer.files;
+    let q = this.get('queue');
 
-  flowfileExistInQueue(file) {
-    var queue = this.get('queue');
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].content.name === file.name) {
-        return true;
-      }
-    }
-    return false;
-  },
+    for (let i = 0; i < files.length; i++) {
+      let f = FileUploader.create({
+        file: files[i],
+        token: this.get('session.access_token')
+      });
+      f.one('completed', this, () => {
+        this.completeNotif();
+      });
 
-  updateQueue() {
-
-    var queue = this.get('queue');
-    var flowQueue = this.get('flow.files');
-
-    for ( var i = 0; i < queue.length; i++) {
-      if (!this.fileExistInFlowQueue(queue[i].content)) {
-        this.get('queue').removeObject(queue[i]);
-      }
-    }
-
-    for ( var j = 0; j < flowQueue.length; j++) {
-      if (this.flowfileExistInQueue(flowQueue[j])) {
-        Ember.set(this.get('queue').objectAt(j).content, "current_progress", flowQueue[j].progress());
-      }
-      else {
-        var obj = Ember.ObjectProxy.create({ content : flowQueue[j]});
-        this.get('queue').pushObject(obj);
-      }
+      f.one('canceled', this, this.abortNotif);
+      q.pushObject(f);
     }
   },
 
   removeCompleteDownload() {
+    let q = this.get('queue');
+    let len = q.get('length');
+    let i = 0;
 
-    var flowfiles = this.get('flow.files');
-    if (flowfiles === null) {
-      return ;
-    }
-    var i = flowfiles.length;
-    while (--i >= 0) {
-      if (flowfiles[i].current_progress === 1) {
-        this.get('flow.files').removeAt(i);
-        this.get('queue').removeAt(i);
+    while (i < len) {
+      if (!q.objectAt(i).get('uploading')) {
+        q.removeAt(i);
+        --len;
+      } else {
+        ++i;
       }
     }
   },
 
   didInsertElement() {
+    Ember.$('body').on('dragenter dragover', (event) => {
+      event.preventDefault();
 
-    $('body').on('dragenter dragover', function() {
       this.set('show', true);
       if (this.get('dragAndDropActive') === false) {
         this.set('dragAndDropActive', true);
         this.showElement();
       }
-    }.bind(this));
-
-    this.set('flow', new window.Flow({
-      target: '/upload',
-      headers: { Authorization : "Bearer " + this.get('session.access_token') },
-      singleFile: false,
-      allowDuplicateUploads: false,
-      supportDirectory: false,
-    }));
-
-    this.get('flow').assignDrop(this.element);
-    this.get('flow').assignBrowse($('.browse'));
-
-    this.get('flow').on('filesSubmitted', () => {
-      this.$().find('.state').show();
-      this.updateQueue();
-      this.get('flow').upload();
-    });
-
-    this.get('flow').on('complete', () => {
-
-      this.updateQueue();
-      if (this.get('flow').progress() === 1) {
-        this.downloadCompleted();
-        this.sendAction('complete');
-      }
-    });
-
-    this.get('flow').on('fileSuccess', () => {
-
-      this.updateQueue();
-      this.sendAction('complete');
-    });
-
-    this.get('flow').on('error', () => {
-        this.set('state', "Error");
-    });
-
-    this.get('flow').on('progress', () => {
-
-      this.updateQueue();
-      this.set('progress', this.get('flow').progress());
     });
   },
 
-  downloadCompleted() {
-    this.set('progress', null);
-    this.updateQueue();
+  completeNotif() {
+    this.sendAction('complete');
+    this.toast.success('Upload successful');
+  },
 
+  abortNotif() {
+    this.toast.info('Abort successful');
+  },
+
+  downloadCompleted() {
     if (this.get('state') !== 'Aborted') {
-      this.toast.success("Upload successful");
-      this.set('state', "Completed");
-      setTimeout(() => {
-        $('.state').fadeOut(700, () => {
+      this.completeNotif();
+
+      this.set('state', 'Completed');
+      Ember.run.next(() => {
+        Ember.$('.state').fadeOut(700, () => {
           this.set('state', null);
-          $('.state').fadeIn(0);
+          Ember.$('.state').fadeIn(0);
         });
       }, 3000);
     }
@@ -166,9 +170,9 @@ export default Ember.Component.extend({
   },
 
   stopUpload() {
-    this.toast.info("Abort successful");
-    this.set('state', "Aborted");
-    this.get('flow').cancel();
+    this.get('queue').invoke('cancel', true);
+    this.abortNotif();
+    this.set('state', 'Aborted');
     this.downloadCompleted();
   },
 
@@ -179,13 +183,6 @@ export default Ember.Component.extend({
 
     flushHistory() {
       this.removeCompleteDownload();
-    },
-
-    cancelSingleUpload() {
-      this.updateQueue();
-      if (this.get('queue').length === 0) {
-        this.stopUpload();
-      }
     }
   },
 });

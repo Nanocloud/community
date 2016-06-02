@@ -7,7 +7,7 @@
         <div class="remote-session-topbar">
           <div class="left">
             {{#if uploadData.progress}}
-                {{ topbar-item 
+                {{ topbar-item
                   materialIcon="cloud_upload"
                   clickable=true
                   hover-enabled=true
@@ -18,11 +18,11 @@
                 }}
                 {{#unless uploadData.state}}
                   <span class="state">
-                    {{vdi-progress-formater uploadData.progress true }}
+                    {{ uploadData.progress }}%
                   </span>
                 {{/unless}}
             {{else}}
-               {{ topbar-item 
+               {{ topbar-item
                   materialIcon="cloud_upload"
                   clickable=true
                   hover-enabled=true
@@ -32,12 +32,12 @@
                   content="File Upload"
                 }}
             {{/if}}
-            
+
             <span class="state">{{uploadData.state}}</span>
             {{#if uploadData.progress}}
               <span class="link progress" {{ action uploadData.stopUpload }}>Cancel All</span>
             {{/if}}
-            {{ topbar-item 
+            {{ topbar-item
               materialIcon="cloud_download"
               clickable=true
               hover-enabled=true
@@ -63,14 +63,14 @@
 
           {{#if disconnectBtn}}
             {{#if logoff}}
-              {{ topbar-item 
+              {{ topbar-item
                 class="go-back"
                 fontAwesome="spinner"
-                fontAwesomeSpin=true 
+                fontAwesomeSpin=true
                 content="Disconnect VDI"
               }}
             {{else}}
-              {{ topbar-item 
+              {{ topbar-item
                 clickable=true
                 class="go-back"
                 hover-enabled=true
@@ -83,7 +83,7 @@
           {{/if}}
 
           {{#if homeBtn}}
-            {{ topbar-item 
+            {{ topbar-item
               clickable=true
               class="go-back"
               hover-enabled=true
@@ -122,6 +122,6 @@
           {{yield (hash disconnectVDI=(action 'disconnectVDI')) }}
         </div>
       </div>
-    {{/vdi-drag-n-drop }}  
+    {{/vdi-drag-n-drop }}
   {{/modal-dialog}}
 {{/if}}

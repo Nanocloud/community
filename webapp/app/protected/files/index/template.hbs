@@ -1,42 +1,60 @@
 <div id="file-page">
-
-{{#vdi-drag-n-drop 
+{{#vdi-drag-n-drop
   id="drag-n-drop"
   assignBrowse="browse"
   complete="refreshModel"
   dragAndDropActive=dragAndDropActive
-  as |uploadData|}}  
+  as |uploadData|}}
 
   {{#ember-wormhole to="file-page"}}
     <div class="section p-a-2">
       <h4>Files</h4>
       <p class="color-primary indication">
         <span class="browse clickable link">You can upload a file with drag and drop!</span>
-        {{#unless (is-equal uploadData.queue.length 0)}}
-        <hr>
+
+        {{#if uploadData.queue}}
+          <hr>
           <p>
           <span class="state">
             {{ uploadData.state }}
           </span>
-          {{#unless (is-equal uploadData.progress null)}}
-            {{vdi-progress-formater uploadData.progress true}} -
+          {{#if uploadData.uploading }}
+            {{ uploadData.progress }}%
             <span class="link" {{ action "uploadCallback" uploadData.stopUpload }}>Cancel All</span>
-          {{/unless}}
+          {{/if}}
           </p>
           <p>
-            {{#each uploadData.queue as |value|}}
-              {{vdi-progress-item file=value cancelSingleUpload=uploadData.cancelSingleUpload}}
+            {{#each uploadData.queue as |file|}}
+              <div class='item'>
+                <div class='vdi-progress-item'>
+                  {{ file.name }}
+
+                  {{#if file.completed}}
+                    Completed
+                  {{else}}
+                    {{#if file.uploading }}
+                      {{ file.progress }}%
+                      {{ fa-icon "spinner" spin=true}}
+                      <span class="link" {{ action "cancel" target=file }}>
+                        Cancel
+                      </span>
+                    {{/if}}
+                  {{/if}}
+                </div>
+              </div>
+            {{else}}
+              No items
             {{/each}}
           </p>
-          
+
           <button {{action "uploadCallback" uploadData.flushHistory }} type="button" class="btn btn-primary">Clear upload history</button>
-      {{/unless}}
+        {{/if}}
       </p>
       <div class='content-wrapper'>
         <div class='drag-drop-wrapper'>
         </div>
         {{#if modelIsEmpty}}
-          There is no file 
+          There is no file
         {{else}}
           {{models-table
             class="sortableTable"

@@ -1,8 +1,10 @@
+// +build !windows
+
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
  *
- * Copyright (C) 2015 Nanocloud Software
+ * Copyright (C) 2016 Nanocloud Software
  *
  * This file is part of Nanocloud community.
  *
@@ -20,14 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// +build !windows
-
-package main
+package utils
 
 import (
-	"github.com/Nanocloud/community/plaza/router"
+	"os/exec"
+
+	"github.com/labstack/gommon/log"
 )
 
-func main() {
-	router.Start()
+func ExecuteCommandAsAdmin(cmd, username, pwd, domain string) {
+	out, err := exec.Command(cmd).Output()
+	if err != nil {
+		log.Error(err)
+	}
+	log.Info(out)
 }

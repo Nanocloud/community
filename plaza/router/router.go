@@ -49,7 +49,6 @@ func Start() {
 
 	e.Get("/files", files.Get)
 	e.Post("/upload", files.Post)
-	e.Get("/upload", files.GetUpload)
 
 	/***
 	POWER

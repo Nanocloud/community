@@ -1,8 +1,10 @@
+// +build !windows
+
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
  *
- * Copyright (C) 2016 Nanocloud Software
+ * Copyright (C) 2015 Nanocloud Software
  *
  * This file is part of Nanocloud community.
  *
@@ -20,36 +22,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// +build !windows
-
-package files
+package main
 
 import (
-	"fmt"
-	"hash/fnv"
-	"os"
+	"github.com/Nanocloud/community/plaza/router"
 )
 
-func loadFileId(filepath string) (string, error) {
-	fileInfo, err := os.Stat(filepath)
-	if err != nil {
-		return "", err
-	}
-
-	hash := fnv.New32a()
-	hash.Write([]byte(fileInfo.Name()))
-
-	return fmt.Sprintf("%x-%x-%x", hash.Sum32(), fileInfo.ModTime(), fileInfo.Size()), nil
-}
-
-func isFileHidden(file os.FileInfo) bool {
-	return file.Name()[0] == '.'
-}
-
-func getUploadDir(sam string, userId string) string {
-	plazaDir := os.Getenv("PLAZA_USER_DIR")
-	if plazaDir == "" {
-		plazaDir = "/opt/Users/%s"
-	}
-	return fmt.Sprintf(plazaDir, "u"+userId[:20])
+func main() {
+	router.Start()
 }

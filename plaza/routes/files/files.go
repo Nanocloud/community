@@ -25,19 +25,13 @@ package files
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
-	"sort"
-
-	log "github.com/Sirupsen/logrus"
-
 	"strconv"
-
-	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -50,43 +44,11 @@ type file_t struct {
 
 var kUploadDir string
 
-// Get checks a chunk.
-// If it doesn't exist then flowjs tries to upload it via Post.
-func GetUpload(w http.ResponseWriter, r *http.Request) {
-	sam := r.URL.Query()["sam"][0]
-	userId := r.URL.Query()["userId"][0]
-
-	log.Error(sam)
-	kUploadDir = getUploadDir(sam, userId)
-	if _, err := os.Stat(kUploadDir); err != nil {
-		if os.IsNotExist(err) {
-			err := os.MkdirAll(kUploadDir, 0711)
-			if err != nil {
-				log.Error(err)
-				http.Error(w, "Unable to create upload directory", http.StatusInternalServerError)
-			}
-		}
-	}
-	chunkPath := filepath.Join(
-		kUploadDir,
-		sam,
-		"incomplete",
-		r.FormValue("flowFilename"),
-		r.FormValue("flowChunkNumber"),
-	)
-	if _, err := os.Stat(chunkPath); err != nil {
-		w.WriteHeader(http.StatusTeapot)
-		w.Write([]byte("chunk not found"))
-		return
-	}
-}
-
-// Post tries to get and save a chunk.
 func Post(w http.ResponseWriter, r *http.Request) {
 	sam := r.URL.Query()["sam"][0]
 	userId := r.URL.Query()["userId"][0]
+	filename := r.URL.Query()["filename"][0]
 
-	log.Error(sam)
 	kUploadDir = getUploadDir(sam, userId)
 	if _, err := os.Stat(kUploadDir); err != nil {
 		if os.IsNotExist(err) {
@@ -94,118 +56,27 @@ func Post(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Error(err)
 				http.Error(w, "Unable to create upload directory", http.StatusInternalServerError)
+				return
 			}
 		}
 	}
-	// get the multipart data
-	err := r.ParseMultipartForm(2 * 1024 * 1024) // chunkSize
+
+	dst, err := os.Create(path.Join(kUploadDir, filename))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Error(err)
+		http.Error(w, "Unable to create destination file", http.StatusInternalServerError)
 		return
 	}
 
-	chunkNum, err := strconv.Atoi(r.FormValue("flowChunkNumber"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	totalChunks, err := strconv.Atoi(r.FormValue("flowTotalChunks"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	filename := r.FormValue("flowFilename")
-	// module := r.FormValue("module")
-
-	err = writeChunk(filepath.Join(kUploadDir, "incomplete", filename), strconv.Itoa(chunkNum), r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// it's done if it's not the last chunk
-	if chunkNum < totalChunks {
-		return
-	}
-
-	upPath := filepath.Join(kUploadDir, filename)
-
-	// now finish the job
-	err = assembleUpload(kUploadDir, filename)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("unable to assemble the uploaded chunks")
-		return
-	}
-	log.WithFields(log.Fields{
-		"path": upPath,
-	}).Info("file uploaded")
-}
-
-func writeChunk(path, chunkNum string, r *http.Request) error {
-	// prepare the chunk folder
-	err := os.MkdirAll(path, 02750)
-	if err != nil {
-		return err
-	}
-	// write the chunk
-	fileIn, _, err := r.FormFile("file")
-	if err != nil {
-		return err
-	}
-	defer fileIn.Close()
-	fileOut, err := os.Create(filepath.Join(path, chunkNum))
-	if err != nil {
-		return err
-	}
-	defer fileOut.Close()
-	_, err = io.Copy(fileOut, fileIn)
-	return err
-}
-
-func assembleUpload(path, filename string) error {
-
-	// create final file to write to
-	dst, err := os.Create(filepath.Join(path, filename))
-	if err != nil {
-		return err
-	}
 	defer dst.Close()
 
-	chunkDirPath := filepath.Join(path, "incomplete", filename)
-	fileInfos, err := ioutil.ReadDir(chunkDirPath)
+	_, err = io.Copy(dst, r.Body)
 	if err != nil {
-		return err
+		log.Error(err)
+		http.Error(w, "Unable to write destination file", http.StatusInternalServerError)
+		return
 	}
-	sort.Sort(byChunk(fileInfos))
-	for _, fs := range fileInfos {
-		src, err := os.Open(filepath.Join(chunkDirPath, fs.Name()))
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(dst, src)
-		src.Close()
-		if err != nil {
-			return err
-		}
-	}
-	os.RemoveAll(chunkDirPath)
 
-	return nil
-}
-
-type byChunk []os.FileInfo
-
-func (a byChunk) Len() int      { return len(a) }
-func (a byChunk) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a byChunk) Less(i, j int) bool {
-	ai, _ := strconv.Atoi(a[i].Name())
-	aj, _ := strconv.Atoi(a[j].Name())
-	return ai < aj
 }
 
 func Get(c *echo.Context) error {
