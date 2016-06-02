@@ -86,9 +86,8 @@ func GetUserFromEmailPassword(email, password string) (*User, error) {
 
 func FindUsers() ([]*User, error) {
 	rows, err := db.Query(
-		`SELECT id,
-		first_name, last_name,
-		email, is_admin, activated
+		`SELECT id, first_name, last_name, email,
+			is_admin, activated, extract(epoch from signup_date)
 		FROM users`,
 	)
 	if err != nil {
@@ -107,7 +106,9 @@ func FindUsers() ([]*User, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
+			&user.SignupDate,
 		)
+		user.SignupDate *= 1000
 		users = append(users, &user)
 	}
 
@@ -357,9 +358,8 @@ func UpdateUserLastName(id string, lastname string) error {
 
 func GetUser(id string) (*User, error) {
 	rows, err := db.Query(
-		`SELECT id,
-		first_name, last_name,
-		email, is_admin, activated
+		`SELECT id, first_name, last_name, email, is_admin,
+			activated, extract(epoch from signup_date)
 		FROM users
 		WHERE id = $1::varchar`,
 		id)
@@ -378,11 +378,12 @@ func GetUser(id string) (*User, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
+			&user.SignupDate,
 		)
 		if err != nil {
 			return nil, err
 		}
-
+		user.SignupDate *= 1000
 		return &user, nil
 	}
 	return nil, nil
