@@ -1,7 +1,7 @@
 export default function formatDuration(value) {
   
   if (value < 60) {
-    return Number(value).toFixed(2) + ' s';
+    return Number(value) + ' s';
   }
   if (value < (60 * 60)) {
     return Number(value/60).toFixed(2) + ' min';
