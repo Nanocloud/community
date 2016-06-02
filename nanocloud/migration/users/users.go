@@ -113,6 +113,7 @@ func createUsersTable() (bool, error) {
 			last_name        varchar(36) NOT NULL DEFAULT '',
 			email            varchar(36) NOT NULL DEFAULT '' UNIQUE,
 			password         varchar(60) NOT NULL DEFAULT '',
+			signup_date      timestamp   NOT NULL DEFAULT current_timestamp,
 			is_admin         boolean,
 			activated        boolean
 		);`)

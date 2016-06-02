@@ -67,6 +67,12 @@
             <td>{{model.id}}</td>
           </tr>
           <tr>
+            <th scope="row">Creation date</th>
+            <td>
+              {{moment-calendar model.signupDate}}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">Delete Account</th>
             <td>
               {{ remove-user action="removeDone" }}
