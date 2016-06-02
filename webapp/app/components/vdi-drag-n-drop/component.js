@@ -32,11 +32,9 @@ var FileUploader = Ember.Object.extend(Ember.Evented, {
       }
     };
 
-    req.onloadend = (e) => {
-      if (e.eventPhase === 4 /* DONE */) {
-        this.set('completed', true);
-        this.trigger('completed');
-      }
+    req.onload = () => {
+      this.set('completed', true);
+      this.trigger('completed');
       this.set('uploading', false);
     };
 
@@ -58,10 +56,21 @@ export default Ember.Component.extend({
   classNames: ['vdi-drag-n-drop'],
   classNameBindings: ['show:state-show:state-hide'],
   session: Ember.inject.service('session'),
+
   progress: Ember.computed('queue.@each.uploading', 'queue.@each.progress', function() {
     let q = this.get('queue');
-    return Math.round(q.filterBy('uploading').reduce((a, b) => a + b.get('progress'), 0) / q.get('length'));
+    let len = q.get('length');
+    if (len) {
+      return Math.round(q.filterBy('uploading').reduce((a, b) => a + b.get('progress'), 0) / q.get('length'));
+    } else {
+      return 0;
+    }
   }),
+
+  uploading: Ember.computed('queue.@each.uploading', function() {
+    return this.get('queue').isAny('uploading');
+  }),
+
   show: false,
   queue: null,
   state: null,
@@ -98,7 +107,10 @@ export default Ember.Component.extend({
         file: files[i],
         token: this.get('session.access_token')
       });
-      f.one('completed', this, this.completeNotif);
+      f.one('completed', this, () => {
+        this.completeNotif();
+      });
+
       f.one('canceled', this, this.abortNotif);
       q.pushObject(f);
     }
@@ -132,6 +144,7 @@ export default Ember.Component.extend({
   },
 
   completeNotif() {
+    this.sendAction('complete');
     this.toast.success('Upload successful');
   },
 
