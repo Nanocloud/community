@@ -33,7 +33,6 @@ module.exports = function(defaults) {
     prepend: true
   });
 
-  app.import('bower_components/flow.js/dist/flow.js');
   app.import('bower_components/bootstrap/dist/js/bootstrap.js');
 
   return app.toTree();
