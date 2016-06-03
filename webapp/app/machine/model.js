@@ -42,8 +42,4 @@ export default DS.Model.extend({
     }
     return true;
   }),
-
-  machineState: Ember.computed('isUp', function() {
-    return this.get('isUp') ? "Online" : "Down";
-  }),
 });
