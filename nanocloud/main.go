@@ -178,7 +178,6 @@ func main() {
 	 * UPLOAD
 	 */
 	e.Post("/upload", upload.Post)
-	e.Get("/upload", upload.Get)
 
 	addr := ":" + utils.Env("BACKEND_PORT", "8080")
 	log.Info("Server running at ", addr)
