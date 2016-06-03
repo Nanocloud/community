@@ -1,17 +1,18 @@
-<div class="card card-block">
-    <span class="card-title"> 
-      {{#link-to 'protected.machines.machine' machine}}
-        {{#if machine.name}}
-          {{machine.name}} -
-        {{/if}}
-        {{machine.ip}}
-      
-      {{/link-to}} - {{state-machine machine.status}} {{light-bulb class='in-bl va-mid' enabled=machine.isUp status=machine.status}}
-    </span>
-    {{#if machine.isDownloading}}
-      <p class="card-text m-t-2">
-        <progress class="progress machine-progress" value="{{machine.progress}}" max="100">{{machine.progress}}%</progress>
-      </p>
-    {{/if}}
-</div>
-
+{{#link-to 'protected.machines.machine' machine}}
+  <div class="card card-block">
+      <span class="card-title"> 
+          {{#if machine.name}}
+            {{machine.name}} -
+          {{/if}}
+          {{#if machine.ip}}
+            {{machine.ip}} -
+          {{/if}}
+         {{state-machine machine.status}} {{light-bulb class='in-bl va-mid' enabled=shouldEnableLightBulb status=machine.status}}
+      </span>
+      {{#if machine.isDownloading}}
+        <p class="card-text m-t-2">
+          <progress class="progress machine-progress" value="{{machine.progress}}" max="100">{{machine.progress}}%</progress>
+        </p>
+      {{/if}}
+  </div>
+{{/link-to}}
