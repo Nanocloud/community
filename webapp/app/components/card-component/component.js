@@ -4,7 +4,9 @@ export default Ember.Component.extend({
 
   classNames: ["card-component"],
 
-  click() {
-    this.sendAction();
-  },
+  actions: {
+    clickOnContent() {
+      this.sendAction('clickOnContent');
+    }
+  }
 });
