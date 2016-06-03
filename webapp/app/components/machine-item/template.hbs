@@ -6,7 +6,7 @@
         {{/if}}
         {{machine.ip}}
       
-      {{/link-to}} - {{state-machine machine.status}} {{light-bulb class='in-bl va-mid' enabled=machine.isUp status="up"}}
+      {{/link-to}} - {{state-machine machine.status}} {{light-bulb class='in-bl va-mid' enabled=machine.isUp status=machine.status}}
     </span>
     {{#if machine.isDownloading}}
       <p class="card-text m-t-2">
