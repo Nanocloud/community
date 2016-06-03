@@ -1,80 +1,39 @@
-.machine {
-  display: inline-block;
-  position: relative;
+.machines {
+  .machines-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    
+    .item {
+      flex-basis: 47%;
+      margin-right: 20px;
+    }
 
-  padding: 20px 45px 20px 45px;
-  margin: 0px 10px 10px 0px;
-  border: 1px solid #DAE6EF;
-  border-radius: 2px;
-
-  &:hover {
-    cursor: pointer;
-
-    > .title {
-      text-decoration: underline;
+    .machine {
+      
+      .card {
+        border: 1px solid #F5F5F5;
+        &:hover {
+          border: 1px solid $blue-default;
+        } 
+      }
     }
   }
 }
 
-.machine-progress {
-  height: 8px;
-}
-
-.state-color {
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  position: absolute;
-  right: 15px;
-  top: 21px;
-
-  &.unknown {
-    background-color: #F45835;
-  }
-
-  &.down {
-    background-color: #CDCDCD;
-  }
-
-  &.up {
-    background-color: #2CC24E;
-  }
-
-  &.terminated {
-    background-color: #525252;
-  }
-
-  &.booting {
-    background-color: #F4B835;
-  }
-
-  &.downloading {
-    background-color: #8EDAFB;
+@media (max-width: 750px) {
+  .machines-wrapper {
+    .item {
+      flex-basis: 100% !important;
+      margin-right: 0 !important;
+    }
   }
 }
 
-.machine-status {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  margin-right: 20px;
-  left: 14px;
-  top: 20px;
-  position: absolute;
-
-  > .title {
-    padding-left: 30px;
+@media (min-width:1800px) {
+  .machines-wrapper {
+    .item {
+      flex-basis: auto !important;
+    }
   }
-}
-
-.content-wrapper.form {
-  max-width: 350px;
-}
-
-.open > .dropdown-menu {
-  height: auto;
-  max-height: 300px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
