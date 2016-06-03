@@ -1,0 +1,25 @@
+.light-bulb {
+  .unknown {		
+    color: #F45835;		
+  }		
+
+  .down {		
+    color: #CDCDCD;		
+  }		
+
+  .up {		
+    color: $blue-default;		
+  }		
+
+  .terminated {		
+    color: #525252;		
+  }		
+
+  .booting {		
+    color: #F4B835;		
+  }		
+
+  .downloading {		
+    color: #8EDAFB;		
+  }
+}

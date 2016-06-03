@@ -1,13 +1,18 @@
-<div class="section">
+<div class="machines section">
   <h4>
     {{#link-to 'protected.machines' }}
       Machines
     {{/link-to}}
   </h4>
 
-  <div class='content-wrapper machines-wrapper'>
-    {{#each machines as |machine|}}
-      {{machine-item machine=machine}}
+  <div class='content-wrapper machines-wrapper m-t-2'>
+
+    {{#if model.length}}
+        {{#each model as |machine|}}
+          <div class='item m-b-1'>
+            {{machine-item machine=machine}}
+          </div>
+        {{/each}}
     {{else}}
       <div class="alert alert-info" role="alert">
         <strong>You are one click way from having your favorite apps accessible from your web browser</strong>
@@ -24,6 +29,6 @@
           Create Machine
         </button>
       {{/if}}
-    {{/each}}
+    {{/if}}
   </div>
 </div>
