@@ -71,38 +71,3 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", resp.StatusCode)
 	return
 }
-
-func Get(w http.ResponseWriter, r *http.Request) {
-	rawuser, oauthErr := oauth2.GetUser(w, r)
-	if rawuser == nil || oauthErr != nil {
-		http.Error(w, "", http.StatusUnauthorized)
-		return
-	}
-
-	user := rawuser.(*users.User)
-
-	winUser, err := user.WindowsCredentials()
-	if err != nil {
-		http.Error(w, "", http.StatusUnauthorized)
-		return
-	}
-
-	sam := winUser.Sam
-	winServer := utils.Env("PLAZA_ADDRESS", "iaas-module")
-
-	request, err := http.NewRequest(
-		"GET",
-		"http://"+winServer+":"+utils.Env("PLAZA_PORT", "9090")+"/upload?sam="+url.QueryEscape(sam)+"&userId="+url.QueryEscape(user.Id),
-		nil,
-	)
-	if err != nil {
-		log.Println("Unable de create request ", err)
-	}
-
-	request.Header = r.Header
-	client := &http.Client{}
-	_, err = client.Do(request)
-	if err != nil {
-		log.Println("request error", err)
-	}
-}
