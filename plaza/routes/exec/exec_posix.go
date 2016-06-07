@@ -26,12 +26,17 @@ package exec
 
 import (
 	"bytes"
+	"errors"
 	"os/exec"
 )
 
 func runCommand(username string, domain string, password string, command []string) exec.Cmd {
 	cmd := exec.Command(command[0], command[1:]...)
 	return *cmd
+}
+
+func launchApp(command []string) (uint32, error) {
+	return 0, errors.New("Unimplemented")
 }
 
 func makeResponse(stdout bytes.Buffer, stderr bytes.Buffer, cmd exec.Cmd) map[string]interface{} {

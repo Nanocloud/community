@@ -28,7 +28,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/Nanocloud/community/plaza/windows"
 	"github.com/labstack/echo"
 )
 
@@ -38,6 +40,7 @@ type bodyRequest struct {
 	Domain   string   `json:"domain"`
 	Command  []string `json:"command"`
 	Stdin    string   `json:"stdin"`
+	AppMode  bool     `json:"app-mode"`
 }
 
 func Route(c *echo.Context) error {
@@ -50,6 +53,18 @@ func Route(c *echo.Context) error {
 	err = json.Unmarshal(b, &body)
 	if err != nil {
 		return err
+	}
+
+	if body.AppMode {
+		pid := uint32(0)
+		pid, err = launchApp(body.Command)
+		if err != nil {
+			return err
+		}
+
+		m := make(map[string]uint32)
+		m["pid"] = pid
+		return c.JSON(http.StatusOK, m)
 	}
 
 	cmd := runCommand(body.Username, body.Domain, body.Password, body.Command)
