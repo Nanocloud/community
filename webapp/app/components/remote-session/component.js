@@ -31,8 +31,9 @@ export default Ember.Component.extend({
     let width = this.getWidth();
     let height = this.getHeight();
 
-    this.set('guacamole', this.get('remoteSession').getSession(this.get('connectionName'), width, height));
-    this.get('guacamole').then((guacData) => {
+    let guacamole = this.get('remoteSession').getSession('hapticDesktop', width, height);
+    this.set('guacamole', guacamole);
+    guacamole.then((guacData) => {
 
       guacData.tunnel.onerror = function() {
         this.sendAction('onError', {
@@ -41,10 +42,6 @@ export default Ember.Component.extend({
         });
       }.bind(this);
       let guac = guacData.guacamole;
-
-      guac.onstatechange = (state) => {
-        this.get('remoteSession').set('loadState', state);
-      };
 
       guac.onfile = function(stream, mimetype, filename) {
         let blob_reader = new Guacamole.BlobReader(stream, mimetype);
@@ -68,6 +65,10 @@ export default Ember.Component.extend({
 
         stream.sendAck("Ready", Guacamole.Status.Code.SUCCESS);
       }.bind(this);
+
+      guac.onstatechange = (state) => {
+        this.get('remoteSession').stateChanged(state);
+      };
 
       guac.onclipboard = function(stream, mimetype) {
 
