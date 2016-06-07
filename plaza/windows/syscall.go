@@ -191,6 +191,122 @@ func logonUser(username, domain, password string, logonType, logonProvider uint3
 	return
 }
 
+type wtsSessionInfo struct {
+	sessionID      uint32 // session id
+	winStationName string // name of WinStation this session is connected to
+	state          uint32 // connection state (see enum)
+}
+
+type rawWTSSessionInfo struct {
+	sessionID      uint32  // session id
+	winStationName *uint16 // name of WinStation this session is connected to
+	state          uint32  // connection state (see enum)
+}
+
+const (
+	wtsActive       = 0 // User logged on to WinStation
+	wtsConnected    = 1 // WinStation connected to client
+	wtsConnectQuery = 2 // In the process of connecting to client
+	wtsShadow       = 3 // Shadowing another WinStation
+	wtsDisconnected = 4 // WinStation logged on without client
+	wtsIdle         = 5 // Waiting for client to connect
+	wtsListen       = 6 // WinStation is listening for connection
+	wtsReset        = 7 // WinStation is being reset
+	wtsDown         = 8 // WinStation is down due to error
+	wtsInit         = 9 // WinStation in initialization
+)
+
+func wtsFreeMemory(ptr uintptr) (err error) {
+	dll, err := loadDLL("Wtsapi32.dll")
+	if err != nil {
+		return
+	}
+	proc, err := dll.FindProc("WTSFreeMemory")
+	if err != nil {
+		return
+	}
+
+	proc.Call(ptr)
+	return
+}
+
+func wtsEnumerateSessions(server syscall.Handle) ([]wtsSessionInfo, error) {
+	dll, err := loadDLL("Wtsapi32.dll")
+	if err != nil {
+		return nil, err
+	}
+	proc, err := dll.FindProc("WTSEnumerateSessionsW")
+	if err != nil {
+		return nil, err
+	}
+
+	count := uint32(0)
+
+	var sessionInfo *rawWTSSessionInfo
+
+	r1, _, err := proc.Call(
+		uintptr(server),
+		uintptr(0),
+		uintptr(1),
+		uintptr(unsafe.Pointer(&sessionInfo)),
+		uintptr(unsafe.Pointer(&count)),
+	)
+
+	if r1 != 1 {
+		return nil, err
+	}
+
+	defer wtsFreeMemory(uintptr(unsafe.Pointer(sessionInfo)))
+
+	rt := make([]wtsSessionInfo, count)
+
+	i := uint32(0)
+	for i < count {
+		var n []uint16
+
+		j := 0
+		for {
+			n = append(n, *sessionInfo.winStationName)
+			if *sessionInfo.winStationName == 0 {
+				break
+			}
+			sessionInfo.winStationName = (*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(sessionInfo.winStationName)) + 2))
+			j++
+		}
+
+		rt[i] = wtsSessionInfo{
+			sessionID:      sessionInfo.sessionID,
+			state:          sessionInfo.state,
+			winStationName: syscall.UTF16ToString(n),
+		}
+		sessionInfo = (*rawWTSSessionInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(sessionInfo)) + unsafe.Sizeof(*sessionInfo)))
+		i++
+	}
+	for _, v := range rt {
+		fmt.Println(v.sessionID, v.state, v.winStationName)
+	}
+	return rt, nil
+}
+
+func wtsQueryUserToken(sessionID uint32) (hd syscall.Handle, err error) {
+	dll, err := loadDLL("Wtsapi32.dll")
+	if err != nil {
+		return
+	}
+	proc, err := dll.FindProc("WTSQueryUserToken")
+	if err != nil {
+		return
+	}
+	r1, _, err := proc.Call(
+		uintptr(sessionID),
+		uintptr(unsafe.Pointer(&hd)),
+	)
+	if r1 == 1 {
+		err = nil
+	}
+	return
+}
+
 func createProcessAsUser(
 	token syscall.Handle,
 	applicationName *uint16,
