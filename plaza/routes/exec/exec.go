@@ -28,9 +28,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/Nanocloud/community/plaza/windows"
 	"github.com/labstack/echo"
 )
 

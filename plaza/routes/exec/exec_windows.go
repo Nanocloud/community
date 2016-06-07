@@ -26,6 +26,7 @@ package exec
 
 import (
 	"bytes"
+	"time"
 
 	"github.com/Nanocloud/community/plaza/windows"
 )
@@ -38,9 +39,9 @@ func runCommand(username string, domain string, password string, command []strin
 	return *cmd
 }
 
-func launchApp(command []string) (uint32, error) {
+func launchApp(command []string) (pid uint32, err error) {
 	for tries := 20; tries > 0; tries-- {
-		pid, err = windows.LaunchApp(body.Command)
+		pid, err = windows.LaunchApp(command)
 		if err == nil {
 			break
 		}
