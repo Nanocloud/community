@@ -24,10 +24,8 @@ package manual
 
 import (
 	"errors"
-	"io/ioutil"
 	"net"
 	"net/http"
-	"strings"
 
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/vms"
@@ -44,23 +42,17 @@ type machine struct {
 }
 
 func (m *machine) Status() (vms.MachineStatus, error) {
-	resp, err := http.Get("http://" + m.server + ":" + m.plazaport + "/checkrds")
-	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Error(err)
-		return vms.StatusUnknown, nil
-	}
-
-	b, err := ioutil.ReadAll(resp.Body)
+	resp, err := http.Get("http://" + m.server + ":" + m.plazaport + "/")
 	if err != nil {
 		log.Error(err)
+		return vms.StatusDown, nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
 		return vms.StatusUnknown, nil
 	}
 
-	if strings.Contains(string(b), "Running") {
-		return vms.StatusUp, nil
-	}
-	return vms.StatusDown, nil
-
+	return vms.StatusUp, nil
 }
 
 func (m *machine) IP() (net.IP, error) {
