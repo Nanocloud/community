@@ -38,6 +38,22 @@ func runCommand(username string, domain string, password string, command []strin
 	return *cmd
 }
 
+func launchApp(command []string) (uint32, error) {
+	for tries := 20; tries > 0; tries-- {
+		pid, err = windows.LaunchApp(body.Command)
+		if err == nil {
+			break
+		}
+		time.Sleep(time.Second)
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	return pid, err
+}
+
 func makeResponse(stdout bytes.Buffer, stderr bytes.Buffer, cmd windows.Cmd) map[string]interface{} {
 	res := make(map[string]interface{})
 	res["stdout"] = stdout.String()
