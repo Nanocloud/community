@@ -119,7 +119,19 @@
             }}
           {{/vdi-download}}
 
+          {{#if vdiLoadState}}
+            <div class="vdi-load-background section centered">
+              <div>
+                <h1>Loading VDI, Please wait</h1>
+                <p class='ta-center'>
+                {{loading-component}}
+                </p>
+              </div>
+            </div>
+          {{/if}}
+
           {{yield (hash disconnectVDI=(action 'disconnectVDI')) }}
+
         </div>
       </div>
     {{/vdi-drag-n-drop }}
