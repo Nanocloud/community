@@ -4,6 +4,9 @@ import config from 'nanocloud/config/environment';
 /* global Guacamole */
 
 export default Ember.Service.extend({
+
+  GUAC_IS_CONNECTED: 3,
+
   session: Ember.inject.service('session'),
   guacamole: null,
   openedGuacSession: Ember.Object.create({}),

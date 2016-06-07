@@ -20,8 +20,10 @@ export default Ember.Component.extend({
   dragAndDropActive: false,
   windowIsSelected: false,
 
+
   vdiLoadState: Ember.computed('remoteSession.loadState', function() {
-    if (this.get('remoteSession.loadState') === 3) {
+
+    if (this.get('remoteSession.loadState') === this.get('remoteSession.GUAC_IS_CONNECTED')) {
       return false;
     }
     return true;
