@@ -20,6 +20,13 @@ export default Ember.Component.extend({
   dragAndDropActive: false,
   windowIsSelected: false,
 
+  vdiLoadState: Ember.computed('remoteSession.loadState', function() {
+    if (this.get('remoteSession.loadState') === 3) {
+      return false;
+    }
+    return true;
+  }),
+
   manageOpenedWindow: function() {
     if (this.get('dragAndDropActive') === true) {
       this.closeAll();

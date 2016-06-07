@@ -42,6 +42,10 @@ export default Ember.Component.extend({
       }.bind(this);
       let guac = guacData.guacamole;
 
+      guac.onstatechange = (state) => {
+        this.get('remoteSession').set('loadState', state);
+      };
+
       guac.onfile = function(stream, mimetype, filename) {
         let blob_reader = new Guacamole.BlobReader(stream, mimetype);
 
