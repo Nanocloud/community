@@ -3,8 +3,7 @@ import config from 'nanocloud/config/environment';
 
 /* global Guacamole */
 
-export default Ember.Service.extend({
-
+export default Ember.Service.extend(Ember.Evented, {
   GUAC_IS_CONNECTED: 3,
 
   session: Ember.inject.service('session'),
@@ -141,6 +140,13 @@ export default Ember.Service.extend({
     this.pauseInputs(name);
     if (this.get('openedGuacSession')[name]) {
       this.get('openedGuacSession')[name].guac.disconnect();
+    }
+  },
+
+  stateChanged(state) {
+    this.set('loadState', state);
+    if (state === this.get('GUAC_IS_CONNECTED')) {
+      this.trigger('connected');
     }
   }
 });
