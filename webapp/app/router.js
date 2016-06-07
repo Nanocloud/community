@@ -11,7 +11,6 @@ Router.map(function() {
       this.route('new');
       this.route('user', { path: '/:user_id' });
     });
-    this.route('users.new');
     this.route('machines', function() {
       this.route('new');
       this.route('machine', { path: '/:machine_id' });
