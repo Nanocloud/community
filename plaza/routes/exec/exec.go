@@ -28,7 +28,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/Nanocloud/community/plaza/windows"
 	"github.com/labstack/echo"
 )
 
@@ -53,9 +55,16 @@ func Route(c *echo.Context) error {
 		return err
 	}
 
+	pid := uint32(0)
 	if body.AppMode {
-		pid := uint32(0)
-		pid, err = launchApp(body.Command)
+		for tries := 20; tries > 0; tries-- {
+			pid, err = windows.LaunchApp(body.Command)
+			if err == nil {
+				break
+			}
+			time.Sleep(time.Second)
+		}
+
 		if err != nil {
 			return err
 		}
