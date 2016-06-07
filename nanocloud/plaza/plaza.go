@@ -51,7 +51,7 @@ type Cmd_t struct {
 type result_t struct {
 	Stdout string `json:"stdout"`
 	Stderr string `json:"stderr"`
-	Code   uint64 `json:"code"`
+	Code   string `json:"code"`
 }
 
 func Exec(address string, port int, cmd *Cmd_t) (*result_t, error) {
@@ -126,7 +126,7 @@ func PowershellExec(
 		return nil, err
 	}
 
-	if res.Code != 0 {
+	if res.Code != "exit status 0" {
 		return nil, errors.New("STDOUT: " + res.Stdout + "\nSTDERR: " + res.Stderr)
 	}
 	return res, nil
