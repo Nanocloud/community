@@ -40,7 +40,7 @@ func LaunchApp(name []string) (uint32, error) {
 
 	id := strconv.FormatInt(int64(session.sessionID), 10)
 
-	wsName, err := syscall.UTF16PtrFromString(`C:\PSTools\PsExec.exe -d -i ` + id + " " + cmd)
+	wsName, err := syscall.UTF16PtrFromString(`C:\PSTools\PsExec.exe -accepteula -d -i ` + id + " " + cmd)
 	if err != nil {
 		return 0, err
 	}
