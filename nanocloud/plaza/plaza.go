@@ -44,6 +44,7 @@ type Cmd_t struct {
 	Username string   `json:"username"`
 	Password string   `json:"password"`
 	Domain   string   `json:"domain"`
+	AppMode  bool     `json:"app-mode"`
 	Command  []string `json:"command"`
 	Stdin    string   `json:"stdin"`
 }
@@ -107,12 +108,13 @@ func Exec(address string, port int, cmd *Cmd_t) (*result_t, error) {
 func PowershellExec(
 	address string, port int,
 	username string, domain string, password string,
-	command ...string,
+	appMode bool, command ...string,
 ) (*result_t, error) {
 	cmd := Cmd_t{
 		Username: username,
 		Password: password,
 		Domain:   domain,
+		AppMode:  appMode,
 		Command: []string{
 			"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe",
 			"-Command",
@@ -139,7 +141,7 @@ func PublishApp(
 ) ([]byte, error) {
 	res, err := PowershellExec(
 		address, port,
-		username, domain, password,
+		username, domain, password, false,
 		"Try {",
 		"Import-module RemoteDesktop;",
 		fmt.Sprintf(
@@ -170,7 +172,7 @@ func UnpublishApp(
 ) ([]byte, error) {
 	res, err := PowershellExec(
 		address, port,
-		username, domain, password,
+		username, domain, password, false,
 		"Try {",
 		"Import-module RemoteDesktop;",
 		fmt.Sprintf(
@@ -244,6 +246,7 @@ func provExec(p io.Writer, machine vms.Machine, command string) (string, error) 
 		username,
 		domain,
 		password,
+		false,
 		command,
 	)
 
