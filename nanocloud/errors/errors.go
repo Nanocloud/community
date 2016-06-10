@@ -108,4 +108,10 @@ var (
 		http.StatusInternalServerError,
 		"The specified machine type does not exists",
 	}
+
+	SqlQueryError = &apiError{
+		0x000014,
+		http.StatusInternalServerError,
+		"PostgreSql query responds with an error",
+	}
 )
