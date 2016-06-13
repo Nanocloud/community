@@ -45,7 +45,7 @@ func (v *vm) Create(attr vms.MachineAttributes) (vms.Machine, error) {
 	rows, err := db.Query(
 		`INSERT INTO machines
 		(id, name, type, ip, username, password)
-		VALUES( $1::varchar, $2::varchar, $3::vmtype, $4::varchar, $5::varchar, $6::varchar)`,
+		VALUES( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar)`,
 		machine.id, machine.Name, "manual", machine.server, machine.user, machine.password)
 	if err != nil {
 		return nil, err
