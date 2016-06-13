@@ -56,6 +56,7 @@ module.exports = function(admin) {
       'start-date',
       'end-date',
     ],
+    additionalProperties: false
   };
 
   describe("Create fake history entry", function() {
