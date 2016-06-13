@@ -165,7 +165,7 @@ var nano = {
       shouldComplyTo: function(schema) {
         var JSONAPIschema = require('./JSONAPIschema.json');
         var clonedJSONAPIschema = clone(JSONAPIschema);
-        clonedJSONAPIschema.definitions.attributes = schema;
+        clonedJSONAPIschema.definitions.attributes_data = schema;
 
         return this.shouldComplyToNotJsonAPI(clonedJSONAPIschema);
       }
