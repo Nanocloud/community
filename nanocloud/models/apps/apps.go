@@ -376,6 +376,24 @@ func PublishApp(user *users.User, app *App) error {
 	return nil
 }
 
+func CreateApp(app *App) error {
+	id := uuid.NewV4().String()
+
+	_, err := db.Query(
+		`INSERT INTO apps
+		(id, collection_name, alias, display_name, file_path, icon_content)
+		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
+		`,
+		id, app.CollectionName, app.Alias, app.DisplayName, app.FilePath, app.IconContents,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, error) {
 
 	rand.Seed(time.Now().UTC().UnixNano())

@@ -51,8 +51,24 @@ func compareApp(app *App) {
 	}
 }
 
+func TestCreateApp(t *testing.T) {
+	id = uuid.NewV4().String()
+	app := App{id, collectionName, alias, displayName, filePath, path, iconContents}
+
+	if user == nil {
+		log.Fatalf("Administrator account is nil")
+	}
+
+	err := CreateApp(&app)
+	if err != nil {
+		log.Fatalf("Cannot publish the app: %v", err.Error())
+	}
+}
+
 func TestGetApp(t *testing.T) {
 	id = uuid.NewV4().String()
+	alias = "LibreOffice.exe"
+	displayName = "Libre Office"
 
 	_, err := db.Query(
 		`INSERT INTO apps
@@ -79,7 +95,7 @@ func TestChangeName(t *testing.T) {
 }
 
 func TestGetAllApps(t *testing.T) {
-	var expected_num_apps int = 1
+	var expected_num_apps int = 3
 	var num_apps int
 
 	rows, err := db.Query("SELECT COUNT(*) FROM apps")
@@ -112,7 +128,7 @@ func TestGetUserApps(t *testing.T) {
 		id, collectionName, "Libre Office", displayName, filePath, iconContents,
 	)
 	if err != nil {
-		t.Fatalf("Cannot create the application")
+		t.Fatalf("Cannot create the application: %s", err.Error())
 	}
 
 	apps, err := GetUserApps(user.GetID())
@@ -131,6 +147,6 @@ func TestGetUserApps(t *testing.T) {
 		filePath = app.FilePath
 		iconContents = app.IconContents
 		compareApp(app)
-		db.Query(`DELETE FROM apps where id=$1::varchar`, id)
+		db.Query(`DELETE FROM apps where id=$1::varchar and alias != $2::varchar`, id, "hapticDesktop")
 	}
 }
