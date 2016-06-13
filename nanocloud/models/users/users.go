@@ -25,7 +25,6 @@ package users
 import (
 	errors "errors"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
-	apiErrors "github.com/Nanocloud/community/nanocloud/errors"
 	log "github.com/Sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -386,5 +385,5 @@ func GetUser(id string) (*User, error) {
 		user.SignupDate *= 1000
 		return &user, nil
 	}
-	return nil, apiErrors.SqlQueryError
+	return nil, nil
 }
