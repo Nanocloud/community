@@ -4,12 +4,12 @@ import (
 	"log"
 	"testing"
 
-	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	uuid "github.com/satori/go.uuid"
 )
 
 var (
+	app_num               = 0
 	id                    = ""
 	collectionName        = "foo"
 	alias                 = "notepad_plusplus_64.exe"
@@ -17,71 +17,80 @@ var (
 	filePath              = "/bin/zsh"
 	path                  = "/bin/zsh"
 	iconContents   []byte = nil
-	user, _               = users.GetUserFromEmailPassword("admin@nanocloud.com", "Nanocloud123+")
+	user                  = &users.User{}
+	list_apps             = []*App{}
 )
 
-func getApp(id string, error string) *App {
-	app, err := GetApp(id)
-
+func init() {
+	admin_user, err := users.GetUserFromEmailPassword("admin@nanocloud.com", "Nanocloud123+")
 	if err != nil {
-		log.Fatalf("Cannot get the app: %v", err.Error())
+		log.Panicf("Can't retreive administrator account: %s\r\n", err.Error())
 	}
-	if app == nil {
-		log.Fatalf(error)
+	if admin_user == nil {
+		log.Panicf("Can't retreive administrator account\r\n")
 	}
-	return app
+	user = admin_user
 }
 
-func compareApp(app *App) {
+func getApp(app_id string, error string) *App {
+	get_app, err := GetApp(app_id)
+
+	if err != nil {
+		log.Panicf("Cannot get the app: %v", err.Error())
+	}
+	if get_app == nil {
+		log.Panicf(error)
+	}
+
+	list_apps = append(list_apps, get_app)
+	id = get_app.Id
+	return get_app
+}
+
+func compareApp(get_app *App, i int) {
 	switch {
-	case app.Id == "":
+	case get_app.Id == "":
 		log.Fatalf("'app.Id' field is empty")
-	case app.CollectionName != collectionName:
+	case get_app.CollectionName != list_apps[i].CollectionName:
 		log.Fatalf("'app.CollectionName' field doesn't match the inserted value")
-	case app.Alias != alias:
+	case get_app.Alias != list_apps[i].Alias:
 		log.Fatalf("'app.Alias' field doesn't match the inserted value")
-	case app.DisplayName != displayName:
+	case get_app.DisplayName != list_apps[i].DisplayName:
 		log.Fatalf("'app.DisplayName' field doesn't match the inserted value")
-	case app.FilePath != filePath:
+	case get_app.FilePath != list_apps[i].FilePath:
 		log.Fatalf("'app.FilePath' field should be empty")
-	case app.Path != "":
-		log.Fatalf("'app.Path' field should be empty")
-	case app.IconContents == nil:
-		log.Fatalf("'app.IconContents' field doesn't match the inserted value")
 	}
 }
 
 func TestCreateApp(t *testing.T) {
-	id = uuid.NewV4().String()
-	app := App{id, collectionName, alias, displayName, filePath, path, iconContents}
+	new_app := &App{id, collectionName, alias, displayName, filePath, path, iconContents}
 
 	if user == nil {
 		log.Fatalf("Administrator account is nil")
 	}
 
-	err := CreateApp(&app)
+	new_app, err := CreateApp(new_app)
 	if err != nil {
-		log.Fatalf("Cannot publish the app: %v", err.Error())
+		log.Fatalf("Cannot create the app: %v", err.Error())
 	}
+
+	new_app = getApp(new_app.GetID(), "Can't get the created application\r\n")
+	compareApp(new_app, app_num)
+	app_num++
 }
 
 func TestGetApp(t *testing.T) {
-	id = uuid.NewV4().String()
 	alias = "LibreOffice.exe"
 	displayName = "Libre Office"
+	new_app := &App{Id: "", CollectionName: collectionName, Alias: alias, DisplayName: displayName, FilePath: filePath}
 
-	_, err := db.Query(
-		`INSERT INTO apps
-		(id, collection_name, alias, display_name, file_path, icon_content)
-		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
-		`,
-		id, collectionName, alias, displayName, filePath, iconContents,
-	)
+	new_app, err := CreateApp(new_app)
 	if err != nil {
-		t.Fatalf("Cannot create the application")
+		log.Fatalf("Cannot create the app: %v", err.Error())
 	}
-	app := getApp(id, "Nil app was returned")
-	compareApp(app)
+	_ = getApp(new_app.GetID(), "Nil app was returned")
+	compareApp(new_app, app_num)
+	app_num++
 }
 
 func TestChangeName(t *testing.T) {
@@ -90,63 +99,46 @@ func TestChangeName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Can't update the application name: %s", err.Error())
 	}
-	app := getApp(id, "Nil app was returned")
-	compareApp(app)
-}
 
-func TestGetAllApps(t *testing.T) {
-	var expected_num_apps int = 3
-	var num_apps int
-
-	rows, err := db.Query("SELECT COUNT(*) FROM apps")
+	get_app, err := GetApp(id)
 	if err != nil {
-		t.Fatalf("Can't count apps")
+		t.Errorf("Can't get the updated app: %s", err.Error())
 	}
-
-	defer rows.Close()
-	if rows.Next() {
-		err = rows.Scan(&num_apps)
-		if err != nil {
-			t.Fatalf("Error when trying to scan query result: %s", err.Error())
-		}
-		if num_apps != expected_num_apps {
-			t.Fatalf("Unexpected number of apps returned: Expected %d, have %d", expected_num_apps, num_apps)
-		}
-	} else {
-		t.Fatalf("No result was returned by the query")
+	if get_app == nil {
+		t.Fatalf("Nil app was returned\r\n")
 	}
+	list_apps[app_num-1].DisplayName = displayName
+	compareApp(get_app, app_num-1)
 }
 
 func TestGetUserApps(t *testing.T) {
 	id = uuid.NewV4().String()
+	new_app := &App{Id: id, CollectionName: collectionName, Alias: "Libre Office", DisplayName: displayName, FilePath: filePath}
+	i := 0
 
-	_, err := db.Query(
-		`INSERT INTO apps
-		(id, collection_name, alias, display_name, file_path, icon_content)
-		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
-		`,
-		id, collectionName, "Libre Office", displayName, filePath, iconContents,
-	)
+	new_app, err := CreateApp(new_app)
 	if err != nil {
-		t.Fatalf("Cannot create the application: %s", err.Error())
+		log.Fatalf("Cannot create the app: %v", err.Error())
 	}
+	list_apps = append(list_apps, new_app)
+	app_num++
 
 	apps, err := GetUserApps(user.GetID())
 	if err != nil {
 		t.Fatalf("Unable to get user apps")
 	}
 
-	for _, app := range apps {
-		if app == nil {
+	for _, get_app := range apps {
+		if get_app == nil {
 			t.Fatalf("A nil app was returned")
 		}
-		id = app.Id
-		collectionName = app.CollectionName
-		alias = app.Alias
-		displayName = app.DisplayName
-		filePath = app.FilePath
-		iconContents = app.IconContents
-		compareApp(app)
-		db.Query(`DELETE FROM apps where id=$1::varchar and alias != $2::varchar`, id, "hapticDesktop")
+		if get_app.Alias != "hapticDesktop" {
+			compareApp(get_app, i)
+			err = get_app.Delete()
+			if err != nil {
+				log.Fatalf("Can't delete application: %s\r\n", err.Error())
+			}
+			i++
+		}
 	}
 }
