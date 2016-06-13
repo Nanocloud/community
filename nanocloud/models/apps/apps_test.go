@@ -4,8 +4,6 @@ import (
 	"log"
 	"testing"
 
-	"fmt"
-
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	uuid "github.com/satori/go.uuid"
@@ -54,7 +52,6 @@ func compareApp(app *App) {
 }
 
 func TestGetApp(t *testing.T) {
-	fmt.Printf("Testing GetApp()... ")
 	id = uuid.NewV4().String()
 
 	_, err := db.Query(
@@ -65,52 +62,46 @@ func TestGetApp(t *testing.T) {
 		id, collectionName, alias, displayName, filePath, iconContents,
 	)
 	if err != nil {
-		t.Errorf("Cannot create the application")
+		t.Fatalf("Cannot create the application")
 	}
 	app := getApp(id, "Nil app was returned")
 	compareApp(app)
-	fmt.Printf("OK\r\n")
 }
 
 func TestChangeName(t *testing.T) {
-	fmt.Printf("Testing ChangeName()... ")
 	displayName = "Notepad++"
 	err := ChangeName(id, displayName)
 	if err != nil {
-		t.Errorf("Can't update the application name: %s", err.Error())
+		t.Fatalf("Can't update the application name: %s", err.Error())
 	}
 	app := getApp(id, "Nil app was returned")
 	compareApp(app)
-	fmt.Printf("OK\r\n")
 }
 
 func TestGetAllApps(t *testing.T) {
-	fmt.Printf("Testing GetAllApps()... ")
 	var expected_num_apps int = 1
 	var num_apps int
 
 	rows, err := db.Query("SELECT COUNT(*) FROM apps")
 	if err != nil {
-		t.Errorf("Can't count apps")
+		t.Fatalf("Can't count apps")
 	}
 
 	defer rows.Close()
 	if rows.Next() {
 		err = rows.Scan(&num_apps)
 		if err != nil {
-			t.Errorf("Error when trying to scan query result: %s", err.Error())
+			t.Fatalf("Error when trying to scan query result: %s", err.Error())
 		}
 		if num_apps != expected_num_apps {
-			t.Errorf("Unexpected number of apps returned: Expected %d, have %d", expected_num_apps, num_apps)
+			t.Fatalf("Unexpected number of apps returned: Expected %d, have %d", expected_num_apps, num_apps)
 		}
 	} else {
-		t.Errorf("No result was returned by the query")
+		t.Fatalf("No result was returned by the query")
 	}
-	fmt.Printf("OK\r\n")
 }
 
 func TestGetUserApps(t *testing.T) {
-	fmt.Printf("Testing GetUserApps()... ")
 	id = uuid.NewV4().String()
 
 	_, err := db.Query(
@@ -121,17 +112,17 @@ func TestGetUserApps(t *testing.T) {
 		id, collectionName, "Libre Office", displayName, filePath, iconContents,
 	)
 	if err != nil {
-		t.Errorf("Cannot create the application")
+		t.Fatalf("Cannot create the application")
 	}
 
 	apps, err := GetUserApps(user.GetID())
 	if err != nil {
-		t.Errorf("Unable to get user apps")
+		t.Fatalf("Unable to get user apps")
 	}
 
 	for _, app := range apps {
 		if app == nil {
-			t.Errorf("A nil app was returned")
+			t.Fatalf("A nil app was returned")
 		}
 		id = app.Id
 		collectionName = app.CollectionName
@@ -142,5 +133,4 @@ func TestGetUserApps(t *testing.T) {
 		compareApp(app)
 		db.Query(`DELETE FROM apps where id=$1::varchar`, id)
 	}
-	fmt.Printf("OK\r\n")
 }
