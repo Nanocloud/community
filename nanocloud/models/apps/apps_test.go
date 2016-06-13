@@ -1,7 +1,6 @@
 package apps
 
 import (
-	"bytes"
 	"log"
 	"testing"
 
@@ -9,7 +8,7 @@ import (
 
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -49,23 +48,9 @@ func compareApp(app *App) {
 		log.Fatalf("'app.FilePath' field should be empty")
 	case app.Path != "":
 		log.Fatalf("'app.Path' field should be empty")
-	case !bytes.Equal(app.IconContents, iconContents):
-		fmt.Println("'app.IconContents' field doesn't match the inserted value")
+	case app.IconContents == nil:
+		log.Fatalf("'app.IconContents' field doesn't match the inserted value")
 	}
-}
-
-func TestPublishApp(t *testing.T) {
-	//app := App{id, collectionName, alias, displayName, filePath, path, iconContents}
-
-	//if user == nil {
-	//	log.Fatalf("Administrator account is nil")
-	//}
-	//
-	//err := PublishApp(user, &app)
-	//if err != nil {
-	//	log.Fatalf("Cannot publish the app: %v", err.Error())
-	//	return
-	//}
 }
 
 func TestGetApp(t *testing.T) {
@@ -96,6 +81,31 @@ func TestChangeName(t *testing.T) {
 	}
 	app := getApp(id, "Nil app was returned")
 	compareApp(app)
+	fmt.Printf("OK\r\n")
+}
+
+func TestGetAllApps(t *testing.T) {
+	fmt.Printf("Testing GetAllApps()... ")
+	var expected_num_apps int = 1
+	var num_apps int
+
+	rows, err := db.Query("SELECT COUNT(*) FROM apps")
+	if err != nil {
+		t.Errorf("Can't count apps")
+	}
+
+	defer rows.Close()
+	if rows.Next() {
+		err = rows.Scan(&num_apps)
+		if err != nil {
+			t.Errorf("Error when trying to scan query result: %s", err.Error())
+		}
+		if num_apps != expected_num_apps {
+			t.Errorf("Unexpected number of apps returned: Expected %d, have %d", expected_num_apps, num_apps)
+		}
+	} else {
+		t.Errorf("No result was returned by the query")
+	}
 	fmt.Printf("OK\r\n")
 }
 
