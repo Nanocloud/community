@@ -28,6 +28,9 @@ module.exports = function(admin) {
 
   var fakeConnection = {
     'user-id': "fake-id",
+    'user-mail': "fake@mail.com",
+    'user-firstname': 'fake-firstname',
+    'user-lastname': 'fake-lastname',
     'connection-id': "fake-connection-id",
     'start-date': "fake-start-date",
     'end-date': "fake-end-date" 
@@ -37,12 +40,22 @@ module.exports = function(admin) {
     type: 'object',
     properties: {
       'user-id': {type: 'string'},
+      'user-mail': {type: 'string'},
+      'user-firstname': {type: 'string'},
+      'user-lastname': {type: 'string'},
       'connection-id': {type: 'string'},
       'start-date': {type: 'string'},
       'end-date': {type: 'string'},
     },
-    required: ['user-id', 'connection-id', 'start-date', 'end-date'],
-    additionalProperties: false
+    required: [
+      'user-id',
+      'user-mail',
+      'user-firstname',
+      'user-lastname',
+      'connection-id',
+      'start-date',
+      'end-date',
+    ],
   };
 
   describe("Create fake history entry", function() {
@@ -52,9 +65,12 @@ module.exports = function(admin) {
         'type': 'histories',
         'attributes': {
           'user-id': fakeConnection["user-id"],
+          'user-mail': fakeConnection["user-mail"],
+          'user-firstname': fakeConnection["user-firstname"],
+          'user-lastname': fakeConnection["user-lastname"],
           'connection-id': fakeConnection["connection-id"],
           'start-date': fakeConnection["start-date"],
-          'end-date': fakeConnection["end-date"]
+          'end-date': fakeConnection["end-date"],
         }
       }
     })
@@ -73,10 +89,10 @@ module.exports = function(admin) {
 
     it("should contains fake history entry",  function() {
       return expect(request).to.comprise.of.json({
-        "user-id": "fake-id",
-        "connection-id": "fake-connection-id",
-        "start-date": "fake-start-date",
-        "end-date": "fake-end-date",
+        "user-id": fakeConnection['user-id'],
+        "user-mail": fakeConnection['user-mail'],
+        "user-firstname": fakeConnection['user-firstname'],
+        "user-lastname": fakeConnection['user-lastname'],
       });
     });
   });
