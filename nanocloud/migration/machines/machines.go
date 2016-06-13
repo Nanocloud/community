@@ -48,17 +48,11 @@ func Migrate() error {
 		return nil
 	}
 
-	_, err = db.Exec(`CREATE TYPE vmtype AS ENUM('qemu', 'manual', 'aws', 'vmware', 'azure')`)
-	if err != nil {
-		log.Error(err.Error())
-		return err
-	}
-
 	rows, err = db.Query(
 		`CREATE TABLE machines (
 			id         varchar(60) PRIMARY KEY,
 			name       varchar(255),
-			type       vmtype,
+			type       varchar(36),
 			ip         varchar(255),
 			plazaport  varchar(4) NOT NULL DEFAULT '9090',
 			username   varchar(36),
@@ -77,7 +71,7 @@ func Migrate() error {
 		for i, val := range ips {
 			rows, err := db.Query(`INSERT INTO machines
 			(id, name, type, ip, username, password)
-			VALUES( $1::varchar, $2::varchar, $3::vmtype,
+			VALUES( $1::varchar, $2::varchar, $3::varchar,
 			$4::varchar, $5::varchar, $6::varchar)`,
 				uuid.NewV4().String(),
 				fmt.Sprintf("Machine #%d", i+1),
