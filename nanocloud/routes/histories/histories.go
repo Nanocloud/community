@@ -26,7 +26,6 @@ import (
 	"net/http"
 
 	"github.com/Nanocloud/community/nanocloud/models/histories"
-	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
@@ -50,21 +49,11 @@ func Add(c *echo.Context) error {
 
 	err := utils.ParseJSONBody(c, &history)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
-	user, err := users.GetUser(history.UserId)
-	if err != nil {
-		log.Error("Invalid user id")
-		return c.JSON(http.StatusBadRequest, hash{
-			"error": [1]hash{
-				hash{
-					"detail": "Missing parameters",
-				},
-			},
-		})
-	}
-	if history.UserId == "" || user.Email == "" || user.FirstName == "" || user.LastName == "" || history.ConnectionId == "" || history.StartDate == "" || history.EndDate == "" {
+	if history.UserId == "" || history.UserMail == "" || history.UserFirstname == "" || history.UserLastname == "" || history.ConnectionId == "" || history.StartDate == "" || history.EndDate == "" {
 		log.Error("Missing one or several parameters to create entry")
 		return c.JSON(http.StatusBadRequest, hash{
 			"error": [1]hash{
@@ -78,9 +67,9 @@ func Add(c *echo.Context) error {
 	err = utils.ParseJSONBody(c, &history)
 	newHistory, err := histories.CreateHistory(
 		history.UserId,
-		user.Email,
-		user.FirstName,
-		user.LastName,
+		history.UserMail,
+		history.UserFirstname,
+		history.UserLastname,
 		history.ConnectionId,
 		history.StartDate,
 		history.EndDate,
