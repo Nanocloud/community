@@ -24,7 +24,7 @@ export default Ember.Component.extend({
     if (this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_WAITING') &&
     this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_CONNECTING')) {
       return false;
-    } 
+    }
     return true;
   }),
 
