@@ -24,14 +24,14 @@ package files
 
 import (
 	"encoding/json"
-	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/labstack/echo"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"strconv"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -95,7 +95,7 @@ func Get(c *echo.Context) error {
 
 	s, err := os.Stat(filepath)
 	if err != nil {
-		fmt.Println(err.(*os.PathError).Err.Error())
+		log.Error(err.(*os.PathError).Err.Error())
 		m := err.(*os.PathError).Err.Error()
 		if m == "no such file or directory" || m == "The system cannot find the file specified." {
 			if create {
