@@ -18,14 +18,22 @@ var (
 )
 
 func init() {
-	admin_user, err := users.GetUserFromEmailPassword("admin@nanocloud.com", "Nanocloud123+")
+	new_user, err := users.CreateUser(
+		true,
+		"new@nanocloud.com",
+		"Test",
+		"user",
+		"secret",
+		false,
+	)
+
 	if err != nil {
-		log.Panicln("Can't retreive administrator account:", err.Error())
+		log.Panicln("Can't create new account:", err.Error())
 	}
-	if admin_user == nil {
-		log.Panicln("Can't retreive administrator account")
+	if new_user == nil {
+		log.Panicln("Can't create new account")
 	}
-	user = admin_user
+	user = new_user
 }
 
 func countEntries() {
@@ -79,5 +87,10 @@ func TestFindAll(t *testing.T) {
 
 	if total-expected_num_rows+1 != 0 {
 		t.Errorf("Unexpected number of rows returned: Expected %d, have %d", expected_num_rows+1, total)
+	}
+
+	err = users.DeleteUser(user.GetID())
+	if err != nil {
+		t.Errorf("Can't delete user: %s\n", err.Error())
 	}
 }

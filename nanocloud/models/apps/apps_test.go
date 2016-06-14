@@ -22,14 +22,22 @@ var (
 )
 
 func init() {
-	admin_user, err := users.GetUserFromEmailPassword("admin@nanocloud.com", "Nanocloud123+")
+	new_user, err := users.CreateUser(
+		true,
+		"new_user@nanocloud.com",
+		"Test",
+		"user",
+		"secret",
+		false,
+	)
+
 	if err != nil {
-		log.Panicln("Can't retreive administrator account:", err.Error())
+		log.Panicln("Can't create new account:", err.Error())
 	}
-	if admin_user == nil {
-		log.Panicln("Can't retreive administrator account")
+	if new_user == nil {
+		log.Panicln("Can't create new account")
 	}
-	user = admin_user
+	user = new_user
 }
 
 func getApp(app_id string, error string) *App {
@@ -64,10 +72,6 @@ func compareApp(get_app *App, i int) {
 
 func TestCreateApp(t *testing.T) {
 	new_app := &App{id, collectionName, alias, displayName, filePath, path, iconContents}
-
-	if user == nil {
-		log.Fatalln("Administrator account is nil")
-	}
 
 	new_app, err := CreateApp(new_app)
 	if err != nil {
@@ -140,5 +144,10 @@ func TestGetUserApps(t *testing.T) {
 			}
 			i++
 		}
+	}
+
+	err = users.DeleteUser(user.GetID())
+	if err != nil {
+		t.Errorf("Can't delete user: %s\n", err.Error())
 	}
 }
