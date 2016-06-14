@@ -3,7 +3,7 @@
   <div class='content-wrapper'>
     {{#if session.user.isAdmin}}
       <div class='action-btn-wrapper'>
-        <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop</button>
+        <button class="btn btn-primary" {{ action "toggleSingleTab" "hapticDesktop" }}>Desktop </button>
           <button class="btn btn-primary" {{ action "toggleFileExplorer" }}>Publish</button>
       </div>
     {{/if}}
@@ -31,8 +31,9 @@
   isVisible=showSingleTab
   onClose="handleVdiClose"
   connectionName=connectionName
+  retryConnection="retryConnection"
 }}
-  {{remote-session connectionName=connectionName}}
+  {{remote-session connectionName=connectionName activator=activator}}
 {{/single-tab}}
 
 {{dim-background show=showFileExplorer preventAction=isPublishing action="toggleFileExplorer"}}

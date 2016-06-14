@@ -20,13 +20,24 @@ export default Ember.Component.extend({
   dragAndDropActive: false,
   windowIsSelected: false,
 
-
-  vdiLoadState: Ember.computed('remoteSession.loadState', function() {
-
-    if (this.get('remoteSession.loadState') === this.get('remoteSession.GUAC_IS_CONNECTED')) {
+  vdiIsLoading: Ember.computed('remoteSession.loadState', function() {
+    if (this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_WAITING') &&
+    this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_CONNECTING')) {
       return false;
-    }
+    } 
     return true;
+  }),
+
+  vdiLoadError: Ember.computed('remoteSession.isError', function() {
+
+    if (this.get('remoteSession.isError')) {
+      return true;
+    }
+    return false;
+  }),
+
+  vdiLoadErrorMessage: Ember.computed('remoteSession.errorMessage', function() {
+    return this.get('remoteSession.errorMessage') || "Unknown error";
   }),
 
   manageOpenedWindow: function() {
@@ -39,7 +50,8 @@ export default Ember.Component.extend({
 
     if (this.get('showState') === false) {
       $('.canva-fullscreen').hide();
-      $('.ember-modal-fullscreen').velocity({ opacity:1, left: 0} , {
+      $('.ember-modal-fullscreen').css('top: 100%');
+      $('.ember-modal-fullscreen').velocity({ opacity: 1} , {
         easing: "linear",
         duration: 300,
         complete: function() {
@@ -51,9 +63,7 @@ export default Ember.Component.extend({
     }
     else {
       this.closeAll();
-      $('.canva-fullscreen').hide();
-      $('.ember-modal-fullscreen').velocity({ opacity:0, left: -(window.innerWidth) }, {
-        easing: "linear",
+      $('.ember-modal-overlay').velocity({ opacity: 0 }, {
         duration: 400
       });
 
@@ -61,7 +71,7 @@ export default Ember.Component.extend({
         this.set('showState', false);
         this.set('isVisible', false);
         this.sendAction('onClose');
-      }.bind(this), 900);
+      }.bind(this), 400);
     }
   },
 
@@ -128,6 +138,10 @@ export default Ember.Component.extend({
   },
 
   actions: {
+
+    retryConnection() {
+      this.sendAction('retryConnection', this.get('connectionName'));
+    },
 
     closeAll() {
       this.closeAll();
