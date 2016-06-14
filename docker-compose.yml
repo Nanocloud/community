@@ -21,6 +21,8 @@ services:
   volumes_from:
    - nanocloud-frontend
   image: nanocloud/nanocloud-backend:0.7.0
+  depends_on:
+    - postgres
 
  nanocloud-frontend:
   extends:

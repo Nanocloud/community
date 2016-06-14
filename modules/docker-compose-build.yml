@@ -23,6 +23,8 @@ services:
   volumes_from:
    - nanocloud-frontend
   image: nanocloud/nanocloud-backend
+  depends_on:
+    - postgres
 
  nanocloud-frontend:
   build: ../webapp
