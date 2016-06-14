@@ -69,6 +69,9 @@ public class LoggedConnection extends SimpleConnection {
     private ActiveConnectionRecord connection;
     private String token;
     private String id;
+    private String email;
+    private String firstname;
+    private String lastname;
 
     public ConnectionCleanupTask(ActiveConnectionRecord connection, String token) throws GuacamoleException {
       this.connection = connection;
@@ -115,7 +118,15 @@ public class LoggedConnection extends SimpleConnection {
         JSONObject data = jsonResponse.getJSONObject("data");
         String responseId = data.getString("id");
 
+        JSONObject dataAttribute = data.getJSONObject("attributes");
+        String responseUserEmail = dataAttribute.getString("email");
+        String responseUserFirstname = dataAttribute.getString("first-name");
+        String responseUserLastname = dataAttribute.getString("last-name");
+
         this.id = responseId;
+        this.email = responseUserEmail;
+        this.firstname = responseUserFirstname;
+        this.lastname = responseUserLastname;
 
       } catch (IOException e) {
         // TODO Auto-generated catch block
@@ -123,7 +134,6 @@ public class LoggedConnection extends SimpleConnection {
       } catch (JSONException e) {
         e.printStackTrace();
       }
-
       logger.info("Trying to log history to token : " + this.token + " : " + hostname + ":" + port + "/" + endpoint);
 
       try {
@@ -140,6 +150,9 @@ public class LoggedConnection extends SimpleConnection {
               .add("type", "histories")
               .add("attributes", Json.createObjectBuilder()
                 .add("user-id", this.id)
+                .add("user-mail", this.email)
+                .add("user-firstname", this.firstname)
+                .add("user-lastname", this.lastname)
                 .add("connection-id", this.connection.getConnectionName())
                 .add("start-date", this.connection.getStartDate().toString())
                 .add("end-date", new Date().toString())))
