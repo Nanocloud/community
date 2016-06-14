@@ -29,7 +29,6 @@ export default Ember.Component.extend({
   }),
 
   vdiLoadError: Ember.computed('remoteSession.isError', function() {
-
     if (this.get('remoteSession.isError')) {
       return true;
     }
