@@ -81,7 +81,7 @@ export default Ember.Service.extend(Ember.Evented, {
         guacamole: guacamole
       };
     }, () => {
-      this.stateChanged(this.get('STATE_DISCONNECTED'), true, "Couldn't retrieve guacToken");
+      this.stateChanged(this.get('STATE_DISCONNECTED'), true, "Could not authenticate session");
     });
   },
 
