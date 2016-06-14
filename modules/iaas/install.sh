@@ -31,16 +31,23 @@ clone() {
     echo -n "$pkg @ $rev: "
 
     if [ -d "$target" ]; then
-        echo -n 'rm old, '
-        rm -rf "$target"
+
+	if [ "$rev" != "master" ]; then
+	    CURRENT_HASH=$(cd "$target" ; git rev-parse HEAD)
+
+	    if [ "$rev" = "$CURRENT_HASH" ]; then
+		echo 'unchanged'
+		return ;
+	    fi
+	fi
     fi
+
+    echo -n 'rm old, '
+    rm -rf "$target"
 
     echo -n 'clone, '
     git clone --quiet --no-checkout "$url" "$target"
     ( cd "$target" && git checkout --quiet "$rev" && git reset --quiet --hard "$rev" )
-
-    echo -n 'rm .git, '
-    ( cd "$target" && rm -rf .git )
 
     echo -n 'rm vendor, '
     ( cd "$target" && rm -rf vendor Godeps/_workspace )
