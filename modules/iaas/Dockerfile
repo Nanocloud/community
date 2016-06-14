@@ -4,8 +4,8 @@ MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
 RUN mkdir -p /go/build/iaas
-RUN mkdir -p /go/src/github.com/Nanocloud/community/nanocloud
-WORKDIR /go/src/github.com/Nanocloud/community/nanocloud
+RUN mkdir -p /go/src/github.com/Nanocloud/community/modules/iaas
+WORKDIR /go/src/github.com/Nanocloud/community/modules/iaas
 
 RUN apt-get update && \
     apt-get -y install git qemu-system-x86 genisoimage
