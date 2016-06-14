@@ -1,3 +1,5 @@
+// +build windows
+
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
@@ -20,8 +22,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// +build windows
-
 package service
 
 import (
@@ -34,9 +34,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/Nanocloud/community/plaza/router"
 	log "github.com/Sirupsen/logrus"
-
-	"github.com/Nanocloud/community/plaza/routes/provisioning"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.org/x/sys/windows/svc/mgr"
@@ -78,7 +77,7 @@ func exePath() (string, error) {
 }
 
 func startService(name string) error {
-	fmt.Println("Starting Service")
+	log.Info("Starting Service")
 	m, err := mgr.Connect()
 	if err != nil {
 		return err
@@ -98,7 +97,7 @@ func startService(name string) error {
 }
 
 func removeService(name string) error {
-	log.Println("Removing service")
+	log.Info("Removing service")
 
 	m, err := mgr.Connect()
 	if err != nil {
@@ -119,7 +118,7 @@ func removeService(name string) error {
 	if err != nil {
 		return fmt.Errorf("RemoveEventLogSource() failed: %s", err)
 	}
-	log.Println("Service removed")
+	log.Info("Service removed")
 	return nil
 }
 
@@ -137,7 +136,7 @@ func installService(name, exepath string) error {
 		return ServiceExistsAlready
 	}
 
-	log.Println("Crearing service")
+	log.Println("Creating service")
 	s, err = m.CreateService(
 		name,
 		exepath,
@@ -157,7 +156,7 @@ func installService(name, exepath string) error {
 		s.Delete()
 		return fmt.Errorf("SetupEventLogSource() failed: %s", err)
 	}
-	log.Println("Service created")
+	log.Info("Service created")
 	return nil
 }
 
@@ -233,7 +232,7 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
 
-	go provisioning.LaunchAll()
+	go router.Start()
 
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
 loop:
@@ -256,13 +255,13 @@ loop:
 }
 
 func Run() error {
-	log.Println("starting %s service", serviceName)
+	log.Infof("starting %s service", serviceName)
 
 	err := svc.Run(serviceName, &myservice{})
 	if err != nil {
-		log.Println("%s service failed: %v", serviceName, err)
+		log.Infof("%s service failed: %v", serviceName, err)
 		return err
 	}
-	log.Println("service stopped")
+	log.Infof("service stopped")
 	return nil
 }
