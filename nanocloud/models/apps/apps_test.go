@@ -24,10 +24,10 @@ var (
 func init() {
 	admin_user, err := users.GetUserFromEmailPassword("admin@nanocloud.com", "Nanocloud123+")
 	if err != nil {
-		log.Panicf("Can't retreive administrator account: %s\r\n", err.Error())
+		log.Panicln("Can't retreive administrator account:", err.Error())
 	}
 	if admin_user == nil {
-		log.Panicf("Can't retreive administrator account\r\n")
+		log.Panicln("Can't retreive administrator account")
 	}
 	user = admin_user
 }
@@ -36,7 +36,7 @@ func getApp(app_id string, error string) *App {
 	get_app, err := GetApp(app_id)
 
 	if err != nil {
-		log.Panicf("Cannot get the app: %v", err.Error())
+		log.Panicln("Cannot get the app:", err.Error())
 	}
 	if get_app == nil {
 		log.Panicf(error)
@@ -50,15 +50,15 @@ func getApp(app_id string, error string) *App {
 func compareApp(get_app *App, i int) {
 	switch {
 	case get_app.Id == "":
-		log.Fatalf("'app.Id' field is empty")
+		log.Fatalln("'app.Id' field is empty")
 	case get_app.CollectionName != list_apps[i].CollectionName:
-		log.Fatalf("'app.CollectionName' field doesn't match the inserted value")
+		log.Fatalln("'app.CollectionName' field doesn't match the inserted value")
 	case get_app.Alias != list_apps[i].Alias:
-		log.Fatalf("'app.Alias' field doesn't match the inserted value")
+		log.Fatalln("'app.Alias' field doesn't match the inserted value")
 	case get_app.DisplayName != list_apps[i].DisplayName:
-		log.Fatalf("'app.DisplayName' field doesn't match the inserted value")
+		log.Fatalln("'app.DisplayName' field doesn't match the inserted value")
 	case get_app.FilePath != list_apps[i].FilePath:
-		log.Fatalf("'app.FilePath' field should be empty")
+		log.Fatalln("'app.FilePath' field should be empty")
 	}
 }
 
@@ -66,15 +66,15 @@ func TestCreateApp(t *testing.T) {
 	new_app := &App{id, collectionName, alias, displayName, filePath, path, iconContents}
 
 	if user == nil {
-		log.Fatalf("Administrator account is nil")
+		log.Fatalln("Administrator account is nil")
 	}
 
 	new_app, err := CreateApp(new_app)
 	if err != nil {
-		log.Fatalf("Cannot create the app: %v", err.Error())
+		log.Fatalln("Cannot create the app:", err.Error())
 	}
 
-	new_app = getApp(new_app.GetID(), "Can't get the created application\r\n")
+	new_app = getApp(new_app.GetID(), "Can't get the created application")
 	compareApp(new_app, app_num)
 	app_num++
 }
@@ -86,7 +86,7 @@ func TestGetApp(t *testing.T) {
 
 	new_app, err := CreateApp(new_app)
 	if err != nil {
-		log.Fatalf("Cannot create the app: %v", err.Error())
+		log.Fatalln("Cannot create the app:", err.Error())
 	}
 	_ = getApp(new_app.GetID(), "Nil app was returned")
 	compareApp(new_app, app_num)
@@ -97,7 +97,7 @@ func TestChangeName(t *testing.T) {
 	displayName = "Notepad++"
 	err := ChangeName(id, displayName)
 	if err != nil {
-		t.Fatalf("Can't update the application name: %s", err.Error())
+		t.Errorf("Can't update the application name: %s", err.Error())
 	}
 
 	get_app, err := GetApp(id)
@@ -105,7 +105,7 @@ func TestChangeName(t *testing.T) {
 		t.Errorf("Can't get the updated app: %s", err.Error())
 	}
 	if get_app == nil {
-		t.Fatalf("Nil app was returned\r\n")
+		t.Error("Nil app was returned")
 	}
 	list_apps[app_num-1].DisplayName = displayName
 	compareApp(get_app, app_num-1)
@@ -118,25 +118,25 @@ func TestGetUserApps(t *testing.T) {
 
 	new_app, err := CreateApp(new_app)
 	if err != nil {
-		log.Fatalf("Cannot create the app: %v", err.Error())
+		log.Fatalln("Cannot create the app:", err.Error())
 	}
 	list_apps = append(list_apps, new_app)
 	app_num++
 
 	apps, err := GetUserApps(user.GetID())
 	if err != nil {
-		t.Fatalf("Unable to get user apps")
+		t.Error("Unable to get user apps")
 	}
 
 	for _, get_app := range apps {
 		if get_app == nil {
-			t.Fatalf("A nil app was returned")
+			t.Error("A nil app was returned")
 		}
 		if get_app.Alias != "hapticDesktop" {
 			compareApp(get_app, i)
 			err = get_app.Delete()
 			if err != nil {
-				log.Fatalf("Can't delete application: %s\r\n", err.Error())
+				log.Fatalln("Can't delete application:", err.Error())
 			}
 			i++
 		}

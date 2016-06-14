@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 )
 
 var (
+	total        = 0
 	history_num  = 0
 	user         = &users.User{}
 	connectionId = "fake-connection-id"
@@ -20,12 +20,22 @@ var (
 func init() {
 	admin_user, err := users.GetUserFromEmailPassword("admin@nanocloud.com", "Nanocloud123+")
 	if err != nil {
-		log.Panicf("Can't retreive administrator account: %s\r\n", err.Error())
+		log.Panicln("Can't retreive administrator account:", err.Error())
 	}
 	if admin_user == nil {
-		log.Panicf("Can't retreive administrator account\r\n")
+		log.Panicln("Can't retreive administrator account")
 	}
 	user = admin_user
+}
+
+func countEntries() {
+	histories, err := FindAll()
+	if err != nil {
+		log.Panicln("Can't retreive histories:", err.Error())
+	}
+	for range histories {
+		total++
+	}
 }
 
 func TestCreateHistory(t *testing.T) {
@@ -59,32 +69,15 @@ func TestCreateHistory(t *testing.T) {
 
 func TestFindAll(t *testing.T) {
 	var expected_num_rows int = history_num
-	var num_rows int
 
 	startDate = append(startDate, time.Now().Format(time.RFC3339))
 	endDate = append(endDate, time.Now().Format(time.RFC3339))
 	_, err := CreateHistory(user.GetID(), user.Email, user.FirstName, user.LastName, connectionId, startDate[history_num], endDate[history_num])
 	if err != nil {
-		log.Panicf("Can't add historic: %s", err.Error())
-	}
-	rows, err := db.Query("SELECT COUNT(*) FROM histories")
-	if err != nil {
-		t.Errorf("Can't count histories")
+		log.Panicln("Can't add historic:", err.Error())
 	}
 
-	defer rows.Close()
-	if rows.Next() {
-		err = rows.Scan(&num_rows)
-		if err != nil {
-			t.Errorf("Error when trying to scan query result: %s", err.Error())
-		}
-		if num_rows != expected_num_rows+1 {
-			t.Errorf("Unexpected number of rows returned: Expected %d, have %d", expected_num_rows+1, num_rows)
-		}
-	} else {
-		t.Errorf("No result was returned by the query")
-	}
-	for _, row := range startDate {
-		db.Exec(`DELETE FROM histories where startDate=$1::varchar`, row)
+	if total-expected_num_rows+1 != 0 {
+		t.Errorf("Unexpected number of rows returned: Expected %d, have %d", expected_num_rows+1, total)
 	}
 }
