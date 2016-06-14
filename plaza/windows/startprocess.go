@@ -4,6 +4,7 @@ package windows
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"syscall"
 	"unicode/utf16"
@@ -91,6 +92,53 @@ func joinExeDirAndFName(dir, p string) (name string, err error) {
 	// return "", syscall.EINVAL
 }
 
+func enableAllPrivileges(token syscall.Token) error {
+	privileges := []string{
+		"SeCreateTokenPrivilege",
+		"SeAssignPrimaryTokenPrivilege",
+		"SeLockMemoryPrivilege",
+		"SeIncreaseQuotaPrivilege",
+		"SeMachineAccountPrivilege",
+		"SeTcbPrivilege",
+		"SeSecurityPrivilege",
+		"SeTakeOwnershipPrivilege",
+		"SeLoadDriverPrivilege",
+		"SeSystemProfilePrivilege",
+		"SeSystemtimePrivilege",
+		"SeProfileSingleProcessPrivilege",
+		"SeIncreaseBasePriorityPrivilege",
+		"SeCreatePagefilePrivilege",
+		"SeCreatePermanentPrivilege",
+		"SeBackupPrivilege",
+		"SeRestorePrivilege",
+		"SeShutdownPrivilege",
+		"SeDebugPrivilege",
+		"SeAuditPrivilege",
+		"SeSystemEnvironmentPrivilege",
+		"SeChangeNotifyPrivilege",
+		"SeRemoteShutdownPrivilege",
+		"SeUndockPrivilege",
+		"SeSyncAgentPrivilege",
+		"SeEnableDelegationPrivilege",
+		"SeManageVolumePrivilege",
+		"SeImpersonatePrivilege",
+		"SeCreateGlobalPrivilege",
+		"SeTrustedCredManAccessPrivilege",
+		"SeRelabelPrivilege",
+		"SeIncreaseWorkingSetPrivilege",
+		"SeTimeZonePrivilege",
+		"SeCreateSymbolicLinkPrivilege",
+	}
+
+	for _, privilege := range privileges {
+		err := EnablePrivilege(token, privilege)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // createEnvBlock converts an array of environment strings into
 // the representation required by CreateProcess: a sequence of NUL
 // terminated strings followed by a nil.
@@ -118,9 +166,26 @@ func createEnvBlock(envv []string) *uint16 {
 	return &utf16.Encode([]rune(string(b)))[0]
 }
 
+func getUserSessionID(username string) (DWord, error) {
+	/* Retreive the user's session */
+	var session *wtsSessionInfo1
+	sessions, err := wtsEnumerateSessionsEx(0)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, s := range sessions {
+		if username == s.userName {
+			session = &s
+			return session.sessionID, nil
+		}
+	}
+	return 0, errors.New("Session not found")
+}
+
 func startProcessAsUser(
 	argv0 string, argv []string,
-	username string, domain string, password string,
+	username string, domain string,
 	attr *syscall.ProcAttr,
 ) (pid int, handle uintptr, err error) {
 	if len(argv0) == 0 {
@@ -205,13 +270,28 @@ func startProcessAsUser(
 	si.StdOutput = fd[1]
 	si.StdErr = fd[2]
 
-	token, err := logonUser(username, domain, password, logon32LogonInteractive, logon32ProviderDefault)
+	wsDesktop, err := syscall.UTF16PtrFromString(`winsta0\default`)
 	if err != nil {
-
-		return 0, 0, errors.New("logonUser: " + err.Error())
+		return 0, 0, err
 	}
 
-	defer syscall.CloseHandle(token)
+	si.Desktop = wsDesktop
+
+	sessionID, err := getUserSessionID(username)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	token, err := wtsQueryUserToken(sessionID)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Query User Token Failed: %s", err.Error())
+	}
+	defer token.Close()
+
+	err = enableAllPrivileges(token)
+	if err != nil {
+		return 0, 0, errors.New("enableAllPrivileges: " + err.Error())
+	}
 
 	var dirp *uint16
 	if len(attr.Dir) != 0 {
@@ -233,18 +313,22 @@ func startProcessAsUser(
 			return 0, 0, errors.New("createEnvironmentBlock: " + err.Error())
 		}
 		env = &e[0]
-	} else {
-		env = createEnvBlock(attr.Env)
 	}
 
 	err = impersonateLoggedOnUser(token)
 	if err != nil {
 		return 0, 0, errors.New("impersonateLoggedOnUser: " + err.Error())
 	}
+	defer revertToSelf()
 
 	pi := new(syscall.ProcessInformation)
 
-	flags := sys.CreationFlags | syscall.CREATE_UNICODE_ENVIRONMENT
+	flags := sys.CreationFlags
+
+	flags |= syscall.CREATE_UNICODE_ENVIRONMENT
+	flags |= uint32(normalPriorityClass)
+	flags |= uint32(createNewConsole)
+
 	err = createProcessAsUser(
 		token,
 		argv0p,
@@ -258,7 +342,6 @@ func startProcessAsUser(
 		si,
 		pi,
 	)
-	// err = CreateProcess(argv0p, argvp, nil, nil, true, flags, createEnvBlock(attr.Env), dirp, si, pi)
 	if err != nil {
 		return 0, 0, errors.New("createProcessAsUser: " + err.Error())
 	}
@@ -270,7 +353,7 @@ func startProcessAsUser(
 
 func startProcess(
 	name string, argv []string,
-	username string, domain string, password string,
+	username string, domain string,
 	attr *os.ProcAttr,
 ) (p *Process, err error) {
 	sysattr := &syscall.ProcAttr{
@@ -285,7 +368,7 @@ func startProcess(
 		sysattr.Files = append(sysattr.Files, f.Fd())
 	}
 
-	pid, h, e := startProcessAsUser(name, argv, username, domain, password, sysattr)
+	pid, h, e := startProcessAsUser(name, argv, username, domain, sysattr)
 
 	if e != nil {
 		return nil, e
