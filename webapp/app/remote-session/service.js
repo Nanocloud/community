@@ -3,7 +3,6 @@ import config from 'nanocloud/config/environment';
 
 /* global Guacamole */
 
-
 export default Ember.Service.extend(Ember.Evented, {
   STATE_IDLE: 0,
   STATE_WAITING: 2,
