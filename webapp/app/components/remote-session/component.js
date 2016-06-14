@@ -1,7 +1,7 @@
 /* globals Guacamole */
 
 import Ember from 'ember';
-import getKeyFromVal from 'nanocloud/utils/get-key-from-value';
+import getKeyFromVal from '../../utils/get-key-from-value';
 
 export default Ember.Component.extend({
   remoteSession: Ember.inject.service('remote-session'),
