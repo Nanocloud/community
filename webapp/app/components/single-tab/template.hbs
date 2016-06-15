@@ -3,7 +3,7 @@
     attachment="" targetAttachment=""}}
 
     {{#vdi-drag-n-drop dragAndDropActive=dragAndDropActive as |uploadData|}}  
-      <div class="ember-modal-fullscreen {{if togglable 'togglable-state'}}">
+      <div class="ember-modal-fullscreen {{if togglable 'togglable-state'}} {{if vdiLoadOrError 'vdi-off'}}">
         <div class="remote-session-topbar">
           <div class="left">
             {{#if uploadData.progress}}
@@ -119,12 +119,26 @@
             }}
           {{/vdi-download}}
 
-          {{#if vdiLoadState}}
+          {{#if vdiIsLoading}}
             <div class="vdi-load-background section centered">
               <div>
                 <h1>Loading VDI, Please wait</h1>
                 <p class='ta-center'>
                 {{loading-component}}
+                </p>
+              </div>
+            </div>
+          {{/if}}
+
+          {{#if vdiLoadError}}
+            <div class="vdi-load-background section centered">
+              <div>
+                <h1 class='ta-center'>An error has occured.</h1>
+                <p class='ta-center'>
+                  {{ vdiLoadErrorMessage }}
+                </p>
+                <p class='ta-center'>
+                  <span {{ action "retryConnection" }} class="link">Retry connection</span>
                 </p>
               </div>
             </div>

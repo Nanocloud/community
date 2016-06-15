@@ -17,15 +17,30 @@ export default Ember.Controller.extend({
     }
     return array;
   }),
+
+  launchVDI(connectionName) {
+    return new Ember.RSVP.Promise((res) => {
+      this.get('remoteSession').one('connected', () => {
+        res();
+      });
+
+      this.set('connectionName', connectionName);
+      this.set('showSingleTab', true);
+    });
+  },
+
   actions: {
+
+    retryConnection() {
+      this.toggleProperty('activator');
+    },
 
     handleVdiClose() {
       this.get('remoteSession').disconnectSession(this.get('connectionName'));
     },
 
     toggleSingleTab(connectionName) {
-      this.set('connectionName', connectionName);
-      this.toggleProperty('showSingleTab');
+      this.launchVDI(connectionName);
     },
 
     toggleFileExplorer() {
