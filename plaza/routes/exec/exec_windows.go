@@ -24,43 +24,9 @@
 
 package exec
 
-import (
-	"bytes"
-	"time"
+import "github.com/Nanocloud/community/plaza/windows"
 
-	"github.com/Nanocloud/community/plaza/windows"
-)
-
-func runCommand(username string, domain string, password string, command []string) windows.Cmd {
-	cmd := windows.Command(
-		username, domain, password,
-		command[0], command[1:]...,
-	)
+func runCommand(username string, domain string, hideWindow bool, command []string) windows.Cmd {
+	cmd := windows.Command(username, domain, hideWindow, command[0], command[1:]...)
 	return *cmd
-}
-
-func launchApp(command []string) (pid uint32, err error) {
-	for tries := 20; tries > 0; tries-- {
-		pid, err = windows.LaunchApp(command)
-		if err == nil {
-			break
-		}
-		time.Sleep(time.Second)
-	}
-
-	if err != nil {
-		return 0, err
-	}
-
-	return pid, err
-}
-
-func makeResponse(stdout bytes.Buffer, stderr bytes.Buffer, cmd windows.Cmd) map[string]interface{} {
-	res := make(map[string]interface{})
-	res["stdout"] = stdout.String()
-	res["stderr"] = stderr.String()
-	res["time"] = cmd.ProcessState.SysUsage()
-	res["code"] = cmd.ProcessState.String()
-
-	return res
 }

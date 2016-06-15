@@ -30,7 +30,7 @@ import (
 	"os/exec"
 )
 
-func runCommand(username string, domain string, password string, command []string) exec.Cmd {
+func runCommand(username string, domain string, hideWindow bool, command []string) exec.Cmd {
 	cmd := exec.Command(command[0], command[1:]...)
 	return *cmd
 }

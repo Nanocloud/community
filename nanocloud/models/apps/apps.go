@@ -353,7 +353,6 @@ func PublishApp(user *users.User, app *App) error {
 		plazaAddress, plazaPort,
 		winUser.Sam,
 		winUser.Domain,
-		winUser.Password,
 		app.CollectionName,
 		app.DisplayName,
 		app.Path,
@@ -417,8 +416,7 @@ func CreateApp(app *App) (*App, error) {
 	return app, err
 }
 
-func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, error) {
-
+func RetrieveConnections(user *users.User) ([]Connection, error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	var connections []Connection
 

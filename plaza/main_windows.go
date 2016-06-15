@@ -25,23 +25,36 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/Nanocloud/community/plaza/windows/service"
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 )
+
+const debug = false
 
 func main() {
 	if len(os.Args) < 2 || os.Args[1] != "service" {
-		log.Println("(re)Installing service")
+		logrus.Info("(re)Installing service")
 		err := service.InstallItSelf()
 		if err != nil {
-			log.Println(err)
+			logrus.Error(err)
 		}
 		return
 	}
+
+	if debug {
+		out, err := os.OpenFile(`C:\plaza.log`, os.O_WRONLY|os.O_CREATE, 0644)
+		if err == nil {
+			defer out.Close()
+			log.SetOutput(out)
+			logrus.SetOutput(out)
+		}
+	}
+
 	err := service.Run()
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 	}
 }

@@ -29,16 +29,17 @@ import (
 	"net/http"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
 
 type bodyRequest struct {
-	Username string   `json:"username"`
-	Password string   `json:"password"`
-	Domain   string   `json:"domain"`
-	Command  []string `json:"command"`
-	Stdin    string   `json:"stdin"`
-	AppMode  bool     `json:"app-mode"`
+	Username   string   `json:"username"`
+	Domain     string   `json:"domain"`
+	Command    []string `json:"command"`
+	Stdin      string   `json:"stdin"`
+	HideWindow bool     `json:"hide-window"`
+	Wait       bool     `json:"wait"`
 }
 
 func Route(c *echo.Context) error {
@@ -53,30 +54,35 @@ func Route(c *echo.Context) error {
 		return err
 	}
 
-	if body.AppMode {
-		pid := uint32(0)
-		pid, err = launchApp(body.Command)
-		if err != nil {
-			return err
-		}
-
-		m := make(map[string]uint32)
-		m["pid"] = pid
-		return c.JSON(http.StatusOK, m)
-	}
-
-	cmd := runCommand(body.Username, body.Domain, body.Password, body.Command)
+	cmd := runCommand(body.Username, body.Domain, body.HideWindow, body.Command)
 	if body.Stdin != "" {
 		cmd.Stdin = strings.NewReader(body.Stdin)
 	}
 
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
+	res := make(map[string]interface{})
+	if body.Wait {
+		var stdout bytes.Buffer
+		var stderr bytes.Buffer
 
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err = cmd.Run()
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
 
-	res := makeResponse(stdout, stderr, cmd)
+		err = cmd.Run()
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+
+		res["stdout"] = stdout.String()
+		res["stderr"] = stderr.String()
+	} else {
+		err = cmd.Start()
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+		res["pid"] = cmd.Process.Pid
+	}
+
 	return c.JSON(http.StatusOK, res)
 }
