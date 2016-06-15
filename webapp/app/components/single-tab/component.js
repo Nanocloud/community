@@ -22,7 +22,7 @@ export default Ember.Component.extend({
 
   vdiIsLoading: Ember.computed('remoteSession.loadState', function() {
     if (this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_WAITING') &&
-    this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_CONNECTING')) {
+      this.get('remoteSession.loadState') !== this.get('remoteSession.STATE_CONNECTING')) {
       return false;
     }
     return true;
@@ -37,6 +37,13 @@ export default Ember.Component.extend({
 
   vdiLoadErrorMessage: Ember.computed('remoteSession.errorMessage', function() {
     return this.get('remoteSession.errorMessage') || "Unknown error";
+  }),
+
+  vdiLoadOrError: Ember.computed('vdiIsLoading', 'vdiLoadError', function() {
+    if (this.get('vdiIsLoading') || this.get('vdiLoadError')) {
+      return true;
+    }
+    return false;
   }),
 
   manageOpenedWindow: function() {

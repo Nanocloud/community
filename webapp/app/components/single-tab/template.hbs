@@ -3,7 +3,7 @@
     attachment="" targetAttachment=""}}
 
     {{#vdi-drag-n-drop dragAndDropActive=dragAndDropActive as |uploadData|}}  
-      <div class="ember-modal-fullscreen {{if togglable 'togglable-state'}}">
+      <div class="ember-modal-fullscreen {{if togglable 'togglable-state'}} {{if vdiLoadOrError 'vdi-off'}}">
         <div class="remote-session-topbar">
           <div class="left">
             {{#if uploadData.progress}}
