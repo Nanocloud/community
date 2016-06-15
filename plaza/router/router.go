@@ -85,6 +85,6 @@ func Start() {
 		)
 	})
 
-	log.Println("Listenning on port: 9090")
+	log.Info("Listenning on port: 9090")
 	e.Run(":9090")
 }

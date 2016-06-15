@@ -69,7 +69,7 @@ func Route(c *echo.Context) error {
 
 		err = cmd.Run()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 			return err
 		}
 
@@ -78,7 +78,7 @@ func Route(c *echo.Context) error {
 	} else {
 		err = cmd.Start()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 			return err
 		}
 		res["pid"] = cmd.Process.Pid

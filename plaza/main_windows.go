@@ -36,10 +36,10 @@ const debug = false
 
 func main() {
 	if len(os.Args) < 2 || os.Args[1] != "service" {
-		log.Println("(re)Installing service")
+		log.Info("(re)Installing service")
 		err := service.InstallItSelf()
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 		return
 	}
@@ -55,6 +55,6 @@ func main() {
 
 	err := service.Run()
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }

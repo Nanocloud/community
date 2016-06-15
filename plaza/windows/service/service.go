@@ -92,7 +92,7 @@ func startService(name string) error {
 	if err != nil {
 		return fmt.Errorf("could not start service: %v", err)
 	}
-	log.Println("Service started")
+	log.Info("Service started")
 	return nil
 }
 
@@ -106,7 +106,7 @@ func removeService(name string) error {
 	defer m.Disconnect()
 	s, err := m.OpenService(name)
 	if err != nil {
-		log.Println("Service not installed")
+		log.Info("Service not installed")
 		return ServiceNotFound
 	}
 	defer s.Close()
@@ -123,7 +123,7 @@ func removeService(name string) error {
 }
 
 func installService(name, exepath string) error {
-	log.Println("Installing service")
+	log.Info("Installing service")
 	m, err := mgr.Connect()
 	if err != nil {
 		return err
@@ -132,11 +132,11 @@ func installService(name, exepath string) error {
 	s, err := m.OpenService(name)
 	if err == nil {
 		s.Close()
-		log.Println("Service already installed")
+		log.Info("Service already installed")
 		return ServiceExistsAlready
 	}
 
-	log.Println("Creating service")
+	log.Info("Creating service")
 	s, err = m.CreateService(
 		name,
 		exepath,
@@ -228,7 +228,7 @@ func InstallItSelf() error {
 type myservice struct{}
 
 func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
-	log.Println("Executing service")
+	log.Info("Executing service")
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
 
@@ -247,7 +247,7 @@ loop:
 		case svc.Stop, svc.Shutdown:
 			break loop
 		default:
-			log.Println("unexpected control request #%d", c)
+			log.Error("unexpected control request #%d", c)
 		}
 	}
 	changes <- svc.Status{State: svc.StopPending}
