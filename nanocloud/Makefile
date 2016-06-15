@@ -8,5 +8,6 @@ tests:
 	go test ./models/users
 	go test ./models/apps
 	go test ./models/histories
+	go test ./vms/drivers/test
 
 .PHONY: tests
