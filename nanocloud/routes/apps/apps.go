@@ -43,14 +43,8 @@ type hash map[string]interface{}
 // - Create all connections in DB for a particular user in order to use all applications
 // ========================================================================================================================
 func GetConnections(c *echo.Context) error {
-	userList, err := users.FindUsers()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, hash{
-			"error": "Unable to retrieve users",
-		})
-	}
 	user := c.Get("user").(*users.User)
-	connections, err := apps.RetrieveConnections(user, userList)
+	connections, err := apps.RetrieveConnections(user)
 	if err == apps.AppsListUnavailable {
 		return c.JSON(http.StatusInternalServerError, hash{
 			"error": "Unable to retrieve applications list",
