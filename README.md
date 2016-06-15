@@ -124,6 +124,14 @@ You can configure *nanocloud* with the following environement variables in *modu
 * WINDOWS_PASSWORD (mandatory)
 * WINDOWS_USER (mandatory)
 
+## Tests
+
+To run backend unit tests:
+
+````
+docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-backend make tests
+````
+
 ## Roadmap
 
 In future releases, we plan to add :
