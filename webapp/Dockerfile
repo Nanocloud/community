@@ -1,7 +1,7 @@
 FROM node:5.6
 MAINTAINER Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
-RUN npm install -g bower
+RUN npm install -g bower ember-cli phantomjs
 
 RUN mkdir -p /opt/front
 WORKDIR /opt/front
@@ -16,7 +16,7 @@ RUN cp -a /tmp/bower_components /opt/front
 
 COPY ./ /opt/front/
 
-RUN ./node_modules/ember-cli/bin/ember build --environment=production
+RUN ember build --environment=production
 
 EXPOSE 8080
 VOLUME ["/opt/front"]

@@ -1,12 +1,7 @@
 get-deps:
-	@cd nanocloud && ./install.sh
+	make -C ./nanocloud get-deps
 
 tests:
-	 go test ./nanocloud/utils
-	 go test ./nanocloud/migration
-	 go test ./nanocloud/config
-	 go test ./nanocloud/models/users
-	 go test ./nanocloud/models/apps
-	 go test ./nanocloud/models/histories
+	make -C ./nanocloud tests
 
 .PHONY: tests

@@ -124,6 +124,31 @@ You can configure *nanocloud* with the following environement variables in *modu
 * WINDOWS_PASSWORD (mandatory)
 * WINDOWS_USER (mandatory)
 
+## Tests
+
+To run backend unit tests:
+
+````
+docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-backend make tests
+````
+
+To run frontend unit tests:
+
+````
+docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-frontend ember test
+````
+
+To run API tests:
+
+You need a fresh installation of Nanocloud community with a Windows VM running and ready to accept applications publish.
+
+````
+docker build -t nanocloud/testapi tests/api/
+env NANOCLOUD-URL="localhost" docker run --net=host -e NANOCLOUD_HOST="${NANOCLOUR_URL}" --rm nanocloud/testapi
+````
+
+Replace localhost with the nanocloud's API host
+
 ## Roadmap
 
 In future releases, we plan to add :
