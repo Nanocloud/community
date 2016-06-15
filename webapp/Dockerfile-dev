@@ -2,7 +2,6 @@ FROM nanocloud/nanocloud-frontend
 MAINTAINER \
   Olivier Berthonneau <olivier.berthonneau@nanocloud.com>
 
-RUN npm install -g ember-cli
 ENV EMBER_CLI_INJECT_LIVE_RELOAD_BASEURL=https://localhost:4201/
 ENV EMBER_CLI_INJECT_LIVE_RELOAD_PORT=49153
 

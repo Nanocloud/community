@@ -132,6 +132,12 @@ To run backend unit tests:
 docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-backend make tests
 ````
 
+To run frontend unit tests:
+
+````
+docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-frontend ember test
+````
+
 ## Roadmap
 
 In future releases, we plan to add :
