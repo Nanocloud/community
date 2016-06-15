@@ -162,8 +162,9 @@ func Migrate() error {
 
 		password := utils.Env("WINDOWS_PASSWORD", "")
 		sam := utils.Env("WINDOWS_USER", "")
+		domain := utils.Env("WINDOWS_DOMAIN", "")
 
-		err = users.UpdateUserAd(admin.Id, sam, password, "intra.localdomain.com")
+		err = users.UpdateUserAd(admin.Id, sam, password, domain)
 
 		if err != nil {
 			log.Error("Failed to update admin account: ", err)
