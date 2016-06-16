@@ -37,7 +37,6 @@ export default Ember.Component.extend({
     guacamole.then((guacData) => {
 
       guacData.tunnel.onerror = function(status) {
-        this.get('element').removeChild(guacData.guacamole.getDisplay().getElement());
         var message = "Opening a WebSocketTunnel has failed";
         var code = getKeyFromVal(Guacamole.Status.Code, status.code);
         if (code !== -1) {
@@ -98,7 +97,6 @@ export default Ember.Component.extend({
 
       this.get('element').appendChild(guac.getDisplay().getElement());
 
-      this.get('remoteSession').keyboardAttach(this.get('connectionName'));
       let mouse = new window.Guacamole.Mouse(guac.getDisplay().getElement());
       let display = guac.getDisplay();
       window.onresize = function() {
