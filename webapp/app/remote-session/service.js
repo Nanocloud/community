@@ -74,7 +74,6 @@ export default Ember.Service.extend(Ember.Evented, {
         tunnel
       );
       this.set('openedGuacSession.' + name, Ember.Object.create({ guac : guacamole }));
-      this.keyboardAttach(name);
 
       return  {
         tunnel : tunnel,
