@@ -128,10 +128,11 @@ func Disable(userId string) (int, error) {
 
 func Update(c *echo.Context) error {
 	u := users.User{}
-
+	uid := c.Param("id")
+	u.SetID(uid)
 	err := utils.ParseJSONBody(c, &u)
 	if err != nil {
-		return nil
+		return apiErrors.InvalidRequest
 	}
 
 	user, err := users.GetUser(u.GetID())
@@ -139,7 +140,13 @@ func Update(c *echo.Context) error {
 		return apiErrors.UserNotFound
 	}
 
-	if u.Password != "" {
+	if u.IsAdmin != user.IsAdmin {
+		err = users.UpdateUserRank(user.GetID(), u.IsAdmin)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the rank.")
+		}
+	} else if u.Password != "" {
 		err = users.UpdateUserPassword(user.GetID(), u.Password)
 		if err != nil {
 			log.Error(err)

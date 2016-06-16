@@ -108,12 +108,12 @@ func createUsersTable() (bool, error) {
 
 	rows, err = db.Query(
 		`CREATE TABLE users (
-			id               varchar(36) PRIMARY KEY,
-			first_name       varchar(36) NOT NULL DEFAULT '',
-			last_name        varchar(36) NOT NULL DEFAULT '',
-			email            varchar(36) NOT NULL DEFAULT '' UNIQUE,
-			password         varchar(60) NOT NULL DEFAULT '',
-			signup_date      timestamp   NOT NULL DEFAULT current_timestamp,
+			id               varchar(36)                PRIMARY KEY,
+			first_name       varchar(36)                NOT NULL DEFAULT '',
+			last_name        varchar(36)                NOT NULL DEFAULT '',
+			email            varchar(36)                NOT NULL DEFAULT '' UNIQUE,
+			password         varchar(60)                NOT NULL DEFAULT '',
+			signup_date      timestamp with time zone   NOT NULL DEFAULT current_timestamp,
 			is_admin         boolean,
 			activated        boolean
 		);`)
