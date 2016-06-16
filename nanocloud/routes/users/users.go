@@ -141,6 +141,9 @@ func Update(c *echo.Context) error {
 	}
 
 	if u.IsAdmin != user.IsAdmin {
+		if u.Id == user.Id {
+			return apiErrors.Unauthorized.Detail("You can't change your own rank")
+		}
 		err = users.UpdateUserRank(user.GetID(), u.IsAdmin)
 		if err != nil {
 			log.Error(err)

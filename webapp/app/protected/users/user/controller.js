@@ -3,6 +3,9 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
 
   passwordConfirmation: null,
+  isMe: Ember.computed('session.user', 'model', function() {
+    return this.get('model.id') === this.get('session.user.id');
+  }),
 
   actions: {
 

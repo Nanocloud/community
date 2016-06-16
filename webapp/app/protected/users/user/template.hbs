@@ -81,7 +81,11 @@
           <tr>
             <th scope="row">Is admin</th>
             <td>
-              {{input type="checkbox" name="isAdmin" change=(action "updateRank") checked=model.isAdmin}}
+              {{#if isMe }}
+                {{input type="checkbox" name="isAdmin" change=(action "updateRank") checked=model.isAdmin disabled="isMe"}}
+              {{else}}
+                {{input type="checkbox" name="isAdmin" change=(action "updateRank") checked=model.isAdmin}}
+              {{/if}}
             </td>
           </tr>
         {{/if}}
