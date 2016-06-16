@@ -146,6 +146,7 @@ export default Ember.Service.extend(Ember.Evented, {
     this.pauseInputs(name);
     if (this.get('openedGuacSession')[name]) {
       this.get('openedGuacSession')[name].guac.disconnect();
+      delete this.get('openedGuacSession')[name];
     }
   },
 
