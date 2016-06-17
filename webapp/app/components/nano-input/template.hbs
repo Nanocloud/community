@@ -2,6 +2,6 @@
   {{input class='form-control' focus-in="toggleFocus" focus-out="toggleFocus" type=type placeholder=placeholder value=value}}
 
   {{#unless isValid}}
-    {{errorMessage}}
+    <span class="error">{{errorMessage}}</span>
   {{/unless}}
 </fieldset>

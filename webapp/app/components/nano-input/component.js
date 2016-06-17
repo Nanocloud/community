@@ -27,7 +27,7 @@ export default Ember.Component.extend({
 
   getErrorMessage: function() {
 
-    if (this.get('focus') === false && this.get('model')) {
+    if (this.get('model')) {
       if (this.get('value')) {
         var errorMessage = this.get('model').get('validations.attrs').get(this.get('valuePath')).get('message');
 
