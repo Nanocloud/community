@@ -35,11 +35,8 @@ export default Ember.Controller.extend({
               this.send('refreshModel');
               this.toast.success('Rank has been updated successfully');
             }, () => {
-              this.toast.error("Rank hasn't been updated");
-            }
-            );
-        }, (err) => {
-          console.error(err);
+              this.toast.error("Rank has not been updated");
+            });
         });
     },
 
@@ -60,9 +57,8 @@ export default Ember.Controller.extend({
               this.toast.success('Email has been updated successfully');
             }, () => {
               defer.reject();
-              this.toast.error("Email hasn't been updated");
-            }
-            );
+              this.toast.error("Email has not been updated");
+            });
         });
     },
 
@@ -84,9 +80,8 @@ export default Ember.Controller.extend({
               this.toast.success('First name has been updated successfully');
             }, () => {
               defer.reject();
-              this.toast.error("First name hasn't been updated");
-            }
-            );
+              this.toast.error("First name has not been updated");
+            });
         });
     },
 
@@ -108,9 +103,8 @@ export default Ember.Controller.extend({
               this.toast.success('Last name has been updated successfully');
             }, () => {
               defer.reject();
-              this.toast.error("Last name hasn't been updated");
-            }
-            );
+              this.toast.error("Last name has not been updated");
+            });
         });
     },
 
@@ -127,7 +121,7 @@ export default Ember.Controller.extend({
 
           if (this.get('model.password') !== this.get('passwordConfirmation')) {
             this.toast.error("Password doesn't match confirmation");
-            return defer.reject("Password doesn't match confirmation");
+            return defer.reject("Password does not match confirmation");
           }
 
           this.model.save()
@@ -137,9 +131,8 @@ export default Ember.Controller.extend({
               this.toast.success('Password has been updated successfully');
             }, () => {
               defer.reject();
-              this.toast.error("Password hasn't been updated");
-            }
-            );
+              this.toast.error("Password has not been updated");
+            });
         });
     }
   }
