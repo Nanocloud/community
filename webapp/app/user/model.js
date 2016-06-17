@@ -44,7 +44,7 @@ export default DS.Model.extend(Validations, {
   firstName: DS.attr('string'),
   lastName: DS.attr('string'),
   password: DS.attr('string'),
-  signupDate: DS.attr('utc'),
+  signupDate: DS.attr('number'),
 
   fullName: function() {
     return `${this.get('firstName')}  ${this.get('lastName')}`;

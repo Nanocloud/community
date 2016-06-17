@@ -13,14 +13,14 @@ type WindowsUser struct {
 }
 
 type User struct {
-	Id         string  `json:"-"`
-	Email      string  `json:"email"`
-	Password   string  `json:"password,omitempty"`
-	Activated  bool    `json:"activated"`
-	IsAdmin    bool    `json:"is-admin"`
-	FirstName  string  `json:"first-name"`
-	LastName   string  `json:"last-name"`
-	SignupDate float64 `json:"signup-date"`
+	Id         string `json:"-"`
+	Email      string `json:"email"`
+	Password   string `json:"password,omitempty"`
+	Activated  bool   `json:"activated"`
+	IsAdmin    bool   `json:"is-admin"`
+	FirstName  string `json:"first-name"`
+	LastName   string `json:"last-name"`
+	SignupDate int    `json:"signup-date,omitempty"`
 }
 
 func (u *User) GetID() string {

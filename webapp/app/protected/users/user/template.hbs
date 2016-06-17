@@ -1,6 +1,6 @@
 <div class="section">
   <h4>
-    {{#if model.isAdmin }}
+    {{#if session.user.isAdmin }}
       {{#link-to 'protected.users'}} Users {{/link-to}} -
     {{/if}}
     {{#edit-text
@@ -76,6 +76,16 @@
             <th scope="row">Delete Account</th>
             <td>
               {{ remove-user action="removeDone" }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Is admin</th>
+            <td>
+              {{#if isMe }}
+                {{input type="checkbox" name="isAdmin" change=(action "updatePrivilege") checked=model.isAdmin disabled="isMe"}}
+              {{else}}
+                {{input type="checkbox" name="isAdmin" change=(action "updatePrivilege") checked=model.isAdmin}}
+              {{/if}}
             </td>
           </tr>
         {{/if}}

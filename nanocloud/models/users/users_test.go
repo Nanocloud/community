@@ -11,7 +11,7 @@ var (
 	firstName = "Admin"
 	lastName  = "Nanocloud"
 	password  = "secret"
-	isAdmin   = false
+	isAdmin   = true
 	id        = ""
 )
 
@@ -71,6 +71,18 @@ func TestGetUserFromEmailPassword(t *testing.T) {
 		t.Fatalf("No error was returned but get a nil user\n")
 		return
 	}
+	compareUser(user)
+}
+
+func TestUpdateUserPrivilege(t *testing.T) {
+	err := UpdateUserPrivilege(id, false)
+
+	if err != nil {
+		t.Fatalf("Cannot update user privilege: %s", err.Error())
+	}
+
+	isAdmin = false
+	user := getUser(id, "Nil user was returned")
 	compareUser(user)
 }
 

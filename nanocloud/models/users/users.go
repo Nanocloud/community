@@ -24,6 +24,7 @@ package users
 
 import (
 	errors "errors"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
@@ -94,6 +95,7 @@ func FindUsers() ([]*User, error) {
 	}
 
 	var users []*User
+	var timestamp float64
 
 	defer rows.Close()
 	for rows.Next() {
@@ -105,9 +107,10 @@ func FindUsers() ([]*User, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
-			&user.SignupDate,
+			&timestamp,
 		)
-		user.SignupDate *= 1000
+		// javascript time is in millisecond not in second
+		user.SignupDate = int(1000 * timestamp)
 		users = append(users, &user)
 	}
 
@@ -292,6 +295,26 @@ func UpdateUserPassword(id string, password string) error {
 	return nil
 }
 
+func UpdateUserPrivilege(id string, rank bool) error {
+	res, err := db.Exec(
+		`UPDATE users
+		SET is_admin = $1::boolean
+		WHERE id = $2::varchar`,
+		rank, id)
+	if err != nil {
+		return err
+	}
+
+	updated, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if updated == 0 {
+		return UserNotFound
+	}
+	return nil
+}
+
 func UpdateUserEmail(id string, email string) error {
 
 	res, err := db.Exec(
@@ -369,6 +392,7 @@ func GetUser(id string) (*User, error) {
 	defer rows.Close()
 	if rows.Next() {
 		var user User
+		var timestamp float64
 
 		err = rows.Scan(
 			&user.Id,
@@ -377,12 +401,13 @@ func GetUser(id string) (*User, error) {
 			&user.Email,
 			&user.IsAdmin,
 			&user.Activated,
-			&user.SignupDate,
+			&timestamp,
 		)
 		if err != nil {
 			return nil, err
 		}
-		user.SignupDate *= 1000
+		// javascript time is in millisecond not in second
+		user.SignupDate = int(1000 * timestamp)
 		return &user, nil
 	}
 	return nil, nil
