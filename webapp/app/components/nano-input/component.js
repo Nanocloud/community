@@ -25,9 +25,16 @@ export default Ember.Component.extend({
     }
   },
 
+  fieldIsCorrect: Ember.computed('isValid', 'value', function() {
+    if (this.get('isValid') === true && this.get('value') !== undefined) {
+      return true;
+    }
+    return false;
+  }),
+
   getErrorMessage: function() {
 
-    if (this.get('focus') === false && this.get('model')) {
+    if (this.get('model')) {
       if (this.get('value')) {
         var errorMessage = this.get('model').get('validations.attrs').get(this.get('valuePath')).get('message');
 

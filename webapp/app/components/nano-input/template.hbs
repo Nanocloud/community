@@ -1,7 +1,7 @@
-<fieldset class="form-group {{ unless isValid "has-danger" }}">
+<fieldset class="form-group {{ unless isValid "has-danger" }} {{ if fieldIsCorrect "has-success"}}">
   {{input class='form-control' focus-in="toggleFocus" focus-out="toggleFocus" type=type placeholder=placeholder value=value}}
 
   {{#unless isValid}}
-    {{errorMessage}}
+    <span class="error">{{errorMessage}}</span>
   {{/unless}}
 </fieldset>
