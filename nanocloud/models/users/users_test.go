@@ -74,11 +74,11 @@ func TestGetUserFromEmailPassword(t *testing.T) {
 	compareUser(user)
 }
 
-func TestUpdateUserRank(t *testing.T) {
-	err := UpdateUserRank(id, false)
+func TestUpdateUserPrivilege(t *testing.T) {
+	err := UpdateUserPrivilege(id, false)
 
 	if err != nil {
-		t.Fatalf("Cannot update user rank: %s", err.Error())
+		t.Fatalf("Cannot update user privilege: %s", err.Error())
 	}
 
 	isAdmin = false

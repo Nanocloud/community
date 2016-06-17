@@ -19,9 +19,9 @@ export default Ember.Controller.extend({
       this.set('passwordConfirmation', "");
     },
 
-    updateRank: function(defer) {
+    updatePrivilege: function(defer) {
       let model = this.get('model');
-      model.toggleProperty('isAdmin');
+      let is_admin = model.toggleProperty('isAdmin');
       model.validate({ on: ['isadmin'] })
         .then(({ m, validations }) => {
 
@@ -33,9 +33,15 @@ export default Ember.Controller.extend({
           this.model.save()
             .then(() => {
               this.send('refreshModel');
-              this.toast.success('Rank has been updated successfully');
+              console.log(model.isAdmin);
+              if (is_admin === true) {
+                this.toast.success('Administration rights have been granted');
+              }
+              else {
+                this.toast.success('Administration rights have been revoked');
+              }
             }, () => {
-              this.toast.error("Rank has not been updated");
+              this.toast.error("Administration rights have not been granted");
             });
         });
     },

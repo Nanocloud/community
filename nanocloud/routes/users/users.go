@@ -146,9 +146,9 @@ func Update(c *echo.Context) error {
 
 	if updatedUser.IsAdmin != currentUser.IsAdmin {
 		if currentUser.Id == user.GetID() {
-			return apiErrors.Unauthorized.Detail("You can not change your own rank")
+			return apiErrors.Unauthorized.Detail("You cannot grant administration rights")
 		}
-		err = users.UpdateUserRank(updatedUser.GetID(), updatedUser.IsAdmin)
+		err = users.UpdateUserPrivilege(updatedUser.GetID(), updatedUser.IsAdmin)
 		if err != nil {
 			log.Error(err)
 			return apiErrors.InternalError.Detail("Unable to update the rank")

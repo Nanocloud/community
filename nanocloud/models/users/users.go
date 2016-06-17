@@ -109,6 +109,7 @@ func FindUsers() ([]*User, error) {
 			&user.Activated,
 			&timestamp,
 		)
+		// javascript time is in millisecond not in second
 		user.SignupDate = int(1000 * timestamp)
 		users = append(users, &user)
 	}
@@ -294,7 +295,7 @@ func UpdateUserPassword(id string, password string) error {
 	return nil
 }
 
-func UpdateUserRank(id string, rank bool) error {
+func UpdateUserPrivilege(id string, rank bool) error {
 	res, err := db.Exec(
 		`UPDATE users
 		SET is_admin = $1::boolean
@@ -405,6 +406,7 @@ func GetUser(id string) (*User, error) {
 		if err != nil {
 			return nil, err
 		}
+		// javascript time is in millisecond not in second
 		user.SignupDate = int(1000 * timestamp)
 		return &user, nil
 	}
