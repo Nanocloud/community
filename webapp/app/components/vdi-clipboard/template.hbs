@@ -7,35 +7,23 @@
 
   <div class='content-wrapper'>
 
+    <p class="color-primary indication">This input reflects your instance's clipboard. You can type any text in here and it will be automatically transfered to your instance ready to be paste.</p>
+
     <div class='input-wrapper'>
-      <div class='icon-wrapper'>
-        <i class="color-gray-dark material-icons">cloud</i>
-        <div class='text'>Cloud</div>
-      </div>
       <div class='textarea'>
-        {{textarea disabled=hasFocus value=cloudClipboardContent }}
+        {{textarea value=cloudClipboardContent }}
       </div>
     </div>
   
-    <div class='input-wrapper actions'>
-      <div {{ action "savePasteToLocal" }} class='icon-wrapper'>
-        <i class="clickable color-gray-dark material-icons">arrow_downward</i>
-      </div>
-      <div {{ action "savePasteToCloud" }} class='icon-wrapper'>
-        <i class="clickable color-gray-dark material-icons">arrow_upward</i>
-      </div>
+    <div {{ action "savePasteToLocal" }} class='input-wrapper'>
+        <i class="clickable color-gray-dark material-icons va-sub">laptop_chromebook</i>
+        <span class='text link'>Copy clipboard to local</span>
+        <span class='done-msg'>Done!</span>
     </div>
-
-    <div class='input-wrapper'>
-      <div class='icon-wrapper'>
-        <i class="color-gray-dark material-icons">desktop_windows</i>
-        <div class='text'>Local</div>
-      </div>
-      <div class='textarea'>
-        {{textarea disabled=hasFocus value=localClipboardContent }}
-      </div>
+    <div {{ action "clearClipboard" }} class='input-wrapper'>
+        <i class="clickable color-gray-dark material-icons va-sub">clear</i>
+        <span class='text link'>Clear clipboard</span>
     </div>
   </div>
 
 {{/vdi-window}}
-

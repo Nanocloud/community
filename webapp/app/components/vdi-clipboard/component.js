@@ -20,13 +20,26 @@ export default VdiWindowComponent.extend({
 
   actions: {
 
-    savePasteToCloud() {
-      this.get('remoteSession').setCloudClipboard(this.get('connectionName'), this.get('localClipboardContent'));
-    },
-
     savePasteToLocal() {
       this.get('remoteSession').setLocalClipboard(this.get('connectionName'), this.get('cloudClipboardContent'));
+      Ember.$('.vdi-clipboard .done-msg').css('opacity', 0);
+      Ember.$('.vdi-clipboard .done-msg')
+        .velocity("stop")
+        .velocity({ opacity: 1}, {
+        duration: 400,
+        complete: function() {
+          setTimeout(function() {
+            Ember.$('.vdi-clipboard .done-msg').velocity({ opacity: 0}, {
+              duration: 400,
+            });
+          }, 4000);
+        }
+      });
     },
+
+    clearClipboard() {
+      this.set('cloudClipboardContent', '');
+    }
   }
 });
 
