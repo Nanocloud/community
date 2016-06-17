@@ -74,7 +74,6 @@ export default Ember.Service.extend(Ember.Evented, {
         tunnel
       );
       this.set('openedGuacSession.' + name, Ember.Object.create({ guac : guacamole }));
-      this.keyboardAttach(name);
 
       return  {
         tunnel : tunnel,
@@ -146,6 +145,7 @@ export default Ember.Service.extend(Ember.Evented, {
     this.pauseInputs(name);
     if (this.get('openedGuacSession')[name]) {
       this.get('openedGuacSession')[name].guac.disconnect();
+      delete this.get('openedGuacSession')[name];
     }
   },
 
