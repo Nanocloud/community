@@ -61,9 +61,8 @@ func Migrate() error {
 	rows, err = db.Query(
 		`INSERT INTO apps
 		(id, collection_name, alias, display_name, file_path, icon_content)
-		VALUES ($1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
-		`,
-		id, "", "hapticDesktop", "Desktop", "", "",
+		VALUES ($1::varchar, '', 'Desktop', 'Desktop', 'C:\\Windows\\explorer.exe', NULL)`,
+		id,
 	)
 	if err != nil {
 		log.Errorf("Unable to insert haptic desktop: %s", err)
