@@ -36,10 +36,11 @@ export default Ember.Component.extend({
 
     if (this.get('model')) {
       if (this.get('value')) {
-        var errorMessage = this.get('model').get('validations.attrs').get(this.get('valuePath')).get('message');
-
-        this.set('errorMessage', errorMessage);
-        this.set('isValid', Ember.isEmpty(errorMessage));
+        setTimeout(function() {
+          var errorMessage = this.get('model').get('validations.attrs').get(this.get('valuePath')).get('message');
+          this.set('errorMessage', errorMessage);
+          this.set('isValid', Ember.isEmpty(errorMessage));
+        }.bind(this), 500);
       }
     }
   }.observes('value', 'focus'),
