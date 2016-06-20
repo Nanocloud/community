@@ -10,7 +10,8 @@ export default Ember.Controller.extend({
   }),
 
   driverName : Ember.computed(function() {
-    return this.get('drivers').objectAt(0).id;
+    let machineDriver =  this.get('drivers');
+    return machineDriver ? machineDriver.objectAt(0).id : null;
   }),
 
   isConfigurable : function() {
