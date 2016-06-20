@@ -23,6 +23,7 @@ export default Ember.Component.extend({
     if (this.get('model')) {
       Ember.defineProperty(this, 'value', Ember.computed.alias(`model.${valuePath}`));
     }
+    Ember.defineProperty(this, 'errorMessage', Ember.computed.alias(`model.validations.attrs.${valuePath}.message`));
   },
 
   fieldIsCorrect: Ember.computed('isValid', 'value', function() {
