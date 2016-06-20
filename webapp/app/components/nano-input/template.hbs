@@ -1,7 +1,9 @@
-<fieldset class="form-group {{ unless isValid "has-danger" }} {{ if fieldIsCorrect "has-success"}}">
+<fieldset class="form-group {{ if isInvalid "has-danger" }} {{ if isValid "has-success"}}">
   {{input class='form-control' focus-in="toggleFocus" focus-out="toggleFocus" type=type placeholder=placeholder value=value}}
 
-  {{#unless isValid}}
-    <span class="error">{{errorMessage}}</span>
-  {{/unless}}
+  {{#if showMessage}}
+    <div class="error">
+      {{v-get model valuePath 'message'}}
+    </div>
+  {{/if}}
 </fieldset>
