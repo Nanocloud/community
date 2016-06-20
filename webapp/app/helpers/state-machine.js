@@ -7,7 +7,7 @@ export function stateMachine([val]/*, hash*/) {
     down: "Offline",
     up: "Online",
     terminated: "Terminated",
-    booting: "Booting in progress",
+    booting: "Boot in progress",
     downloading: "Downloading",
   };
 
