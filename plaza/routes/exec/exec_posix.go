@@ -26,24 +26,61 @@ package exec
 
 import (
 	"bytes"
-	"errors"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"os/exec"
+	"strings"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 )
 
-func runCommand(username string, domain string, hideWindow bool, command []string) exec.Cmd {
-	cmd := exec.Command(command[0], command[1:]...)
-	return *cmd
+type bodyRequest struct {
+	Command []string `json:"command"`
+	Stdin   string   `json:"stdin"`
 }
 
-func launchApp(command []string) (uint32, error) {
-	return 0, errors.New("Unimplemented")
-}
+func Route(c *echo.Context) error {
+	b, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
 
-func makeResponse(stdout bytes.Buffer, stderr bytes.Buffer, cmd exec.Cmd) map[string]interface{} {
+	body := bodyRequest{}
+	err = json.Unmarshal(b, &body)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(body.Command[0], body.Command[1:]...)
+	if body.Stdin != "" {
+		cmd.Stdin = strings.NewReader(body.Stdin)
+	}
+
 	res := make(map[string]interface{})
-	res["stdout"] = stdout.String()
-	res["stderr"] = stderr.String()
-	res["time"] = ""
-	res["code"] = 0
-	return res
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err = cmd.Run()
+	if err != nil {
+		log.Error(err)
+		res["success"] = false
+	} else {
+		res["success"] = cmd.ProcessState.Success()
+	}
+
+	sstdout := stdout.String()
+	if len(sstdout) > 0 {
+		res["stdout"] = sstdout
+	}
+	sstderr := stderr.String()
+	if len(sstderr) > 0 {
+		res["stderr"] = sstderr
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
