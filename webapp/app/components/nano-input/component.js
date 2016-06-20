@@ -29,14 +29,12 @@ export default Ember.Component.extend({
   hasContent: Ember.computed.notEmpty('value'),
   isValid: Ember.computed.and('hasContent', 'validation.isValid', 'notValidating'),
   isInvalid: Ember.computed('validation.isInvalid', function() {
-    if (this.get('value') === "" || this.get('value') === undefined) {
+    if (!this.get('hasContent')) {
       return false;
     }
     return this.get('validation.isInvalid');
   }),
-  showMessage: Ember.computed('validation.isDirty', 'isInvalid', 'didValidate', function() {
-    return (this.get('validation.isDirty') || this.get('didValidate')) && this.get('isInvalid');
-  }),
+  showMessage: Ember.computed.oneWay('isInvalid'),
 
   actions: {
     toggleFocus: function() {
