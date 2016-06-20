@@ -26,7 +26,7 @@ export default Ember.Component.extend({
   },
 
   fieldIsCorrect: Ember.computed('isValid', 'value', function() {
-    if (this.get('isValid') === true && this.get('value') !== undefined) {
+    if (this.get('isValid') === true && this.get('value') !== undefined && this.get('value') !== "") {
       return true;
     }
     return false;
