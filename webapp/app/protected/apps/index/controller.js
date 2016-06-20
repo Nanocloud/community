@@ -11,9 +11,9 @@ export default Ember.Controller.extend({
   isPublishing: false,
 
   applicationList: Ember.computed('model.@each', 'model.@each', function() {
-    var array = this.get('model').rejectBy('alias', 'hapticPowershell');
+    var array = this.get('model');
     if (this.get('session.user.isAdmin') === true) {
-      array = array.rejectBy('alias', 'hapticDesktop');
+      array = array.rejectBy('alias', 'Desktop');
     }
     return array;
   }),
