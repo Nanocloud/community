@@ -24,14 +24,15 @@ package config
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	log "github.com/Sirupsen/logrus"
-	"strings"
 )
 
 // Return a map with the keys arguments associated with the found value if any.
 // If the key doesn't exist, no field for the actual key will be present in the map.
-func Get(isPrivate bool, keys ...string) map[string]string {
+func Get(keys ...string) map[string]string {
 
 	rt := make(map[string]string)
 
@@ -47,17 +48,8 @@ func Get(isPrivate bool, keys ...string) map[string]string {
 		queryArgs[k] = fmt.Sprintf("$%d::varchar", k+1)
 	}
 
-	request := ""
-	if isPrivate {
-		request = fmt.Sprintf("SELECT key, value FROM config WHERE key IN(%s)", strings.Join(queryArgs, ","))
-	} else {
-		request = fmt.Sprintf("SELECT key, value FROM config WHERE key IN(%s) AND private = false", strings.Join(queryArgs, ","))
-	}
-
-	rows, err := db.Query(
-		request,
-		args...,
-	)
+	request := fmt.Sprintf("SELECT key, value FROM config WHERE key IN(%s)", strings.Join(queryArgs, ","))
+	rows, err := db.Query(request, args...)
 
 	if err != nil {
 		log.Error(err)
@@ -77,13 +69,13 @@ func Get(isPrivate bool, keys ...string) map[string]string {
 }
 
 // Save the configuration key. If the value exists already, it will be overwritten.
-func Set(key, value string, isPrivate bool) {
+func Set(key, value string) {
 	_, err := db.Exec(
 		`INSERT INTO
-		config (key, value, private)
-		VALUES($1::varchar, $2::varchar, $3::boolean)
+		config (key, value)
+		VALUES($1::varchar, $2::varchar)
 		ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-		key, value, isPrivate,
+		key, value,
 	)
 	if err != nil {
 		log.Error(err)
