@@ -1,5 +1,6 @@
 .topbar-item {
 
+  height: $topbar-height;
   margin: 0px 5px 0px 5px;
   padding: 2px 3px 0px 3px;
 
@@ -12,13 +13,7 @@
   }
 
   & .material-icons {
-    font-size: 20px;
-  }
-
-  &.adjustIcon .material-icons {
     font-size: 16px;
-    position: relative;
-    bottom: -2px;
   }
 }
 
