@@ -24,9 +24,68 @@
 
 package exec
 
-import "github.com/Nanocloud/community/plaza/windows"
+import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
-func runCommand(username string, domain string, hideWindow bool, command []string) windows.Cmd {
-	cmd := windows.Command(username, domain, hideWindow, command[0], command[1:]...)
-	return *cmd
+	"github.com/Nanocloud/community/plaza/windows"
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
+)
+
+type bodyRequest struct {
+	Username   string   `json:"username"`
+	Domain     string   `json:"domain"`
+	Command    []string `json:"command"`
+	Stdin      string   `json:"stdin"`
+	HideWindow bool     `json:"hide-window"`
+	Wait       bool     `json:"wait"`
+}
+
+func Route(c *echo.Context) error {
+	b, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	body := bodyRequest{}
+	err = json.Unmarshal(b, &body)
+	if err != nil {
+		return err
+	}
+
+	cmd := windows.Command(body.Username, body.Domain, body.HideWindow, body.Command[0], body.Command[1:]...)
+	if body.Stdin != "" {
+		cmd.Stdin = strings.NewReader(body.Stdin)
+	}
+
+	res := make(map[string]interface{})
+	if body.Wait {
+		var stdout bytes.Buffer
+		var stderr bytes.Buffer
+
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+
+		err = cmd.Run()
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+
+		res["stdout"] = stdout.String()
+		res["stderr"] = stderr.String()
+	} else {
+		err = cmd.Start()
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+		res["pid"] = cmd.Process.Pid
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
