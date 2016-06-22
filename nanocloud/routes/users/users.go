@@ -73,26 +73,6 @@ func Delete(c *echo.Context) error {
 		})
 	}
 
-	err = ldap.DeleteAccount(user.Id)
-	if err != nil {
-		log.Errorf("Unable to delete user in ad: %s", err.Error())
-		switch err {
-		case ldap.DeleteFailed:
-			return c.JSON(http.StatusInternalServerError, hash{
-				"error": [1]hash{
-					hash{
-						"detail": err.Error(),
-					},
-				},
-			})
-		case ldap.UnknownUser:
-			log.Info("User doesn't exist in AD")
-			break
-		default:
-			return err
-		}
-	}
-
 	err = users.DeleteUser(user.Id)
 	if err != nil {
 		log.Errorf("Unable to delete user: ", err.Error())
