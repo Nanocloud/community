@@ -4,9 +4,11 @@ export default Ember.Controller.extend({
 
   passwordConfirmation: null,
   loadState: false,
+  userHasSubmitted: false,
 
   actions: {
     add() {
+      this.set('userHasSubmitted', true);
       this.model
         .validate()
         .then(({ m, validations }) => {
