@@ -47,7 +47,11 @@ export default DS.Model.extend(Validations, {
   signupDate: DS.attr('number'),
 
   fullName: function() {
-    return `${this.get('firstName')}  ${this.get('lastName')}`;
+    if (this.get('firstName') && this.get('lastName')) {
+      return `${this.get('firstName')} ${this.get('lastName')}`;
+    }
+    let email = this.get('email');
+    return email ? email : "Unknown user";
   }.property('firstName', 'lastName'),
   isNotAdmin: function() {
     return !this.get('isAdmin');
