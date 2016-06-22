@@ -26,9 +26,15 @@ const Validations = buildValidations({
     })
   ],
   passwordConfirmation: [
+    validator('presence', true),
     validator('confirmation', {
       on: 'password',
       message: 'Does not match password',
+    }),
+    validator('length', {
+      min: 8,
+      max: 255,
+      type: 'password',
     })
   ],
   email: [
