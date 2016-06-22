@@ -29,7 +29,7 @@ export default Ember.Component.extend({
   hasContent: Ember.computed.notEmpty('value'),
   isValid: Ember.computed.and('hasContent', 'validation.isValid', 'notValidating'),
   isInvalid: Ember.computed('validation.isInvalid', 'hideError', function() {
-    if (!this.get('hideError')) {
+    if (!this.get('hideError') && !this.get('hasContent')) {
       return false;
     }
     return this.get('validation.isInvalid');
