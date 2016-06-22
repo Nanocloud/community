@@ -10,8 +10,13 @@ export default Ember.Controller.extend({
   actions: {
 
     removeDone: function() {
-      this.get('model').destroyRecord();
-      this.transitionToRoute('protected.users');
+      this.get('model').destroyRecord()
+        .then(() => {
+          this.toast.success("User have been deleted");
+          this.transitionToRoute('protected.users.index');
+        }, (err) => {
+          this.toast.error(err, "User have not been deleted");
+        });
     },
 
     toggleEditPassword: function() {
@@ -33,7 +38,6 @@ export default Ember.Controller.extend({
           this.model.save()
             .then(() => {
               this.send('refreshModel');
-              console.log(model.isAdmin);
               if (is_admin === true) {
                 this.toast.success('Administration rights have been granted');
               }
