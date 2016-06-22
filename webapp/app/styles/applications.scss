@@ -17,8 +17,8 @@
   color: $blue-default;
   font-size: $font-size-root;
 
-  & .link:hover{
-    text-decoration: underline;
+  &.link:hover {
+    text-decoration: inherit;
   }
 
   & td .icon i {
