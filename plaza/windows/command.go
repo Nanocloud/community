@@ -31,10 +31,6 @@ type Cmd struct {
 	// In typical use, both Path and Args are set by calling Command.
 	Args []string
 
-	// Env specifies the environment of the process.
-	// If Env is nil, Run uses the current process's environment.
-	Env []string
-
 	// Dir specifies the working directory of the command.
 	// If Dir is the empty string, Run runs the command in the
 	// calling process's current directory.
@@ -259,7 +255,6 @@ func (c *Cmd) Start() error {
 		&os.ProcAttr{
 			Dir:   c.Dir,
 			Files: c.childFiles,
-			Env:   c.Env,
 			Sys:   c.SysProcAttr,
 		},
 	)
