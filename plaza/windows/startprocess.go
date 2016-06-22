@@ -213,7 +213,6 @@ func startProcessAsUser(
 		// argv0 relative to the current directory, and, only once the new
 		// process is started, it does Chdir(attr.Dir). We are adjusting
 		// for that difference here by making argv0 absolute.
-		var err error
 		argv0, err = joinExeDirAndFName(attr.Dir, argv0)
 		if err != nil {
 			return 0, 0, err
@@ -307,13 +306,11 @@ func startProcessAsUser(
 	}
 
 	var env *uint16
-	if attr.Env == nil {
-		e, err := createEnvironmentBlock(token, true)
-		if err != nil {
-			return 0, 0, errors.New("createEnvironmentBlock: " + err.Error())
-		}
-		env = &e[0]
+	env, err = createEnvironmentBlock(token, false)
+	if err != nil {
+		return 0, 0, errors.New("createEnvironmentBlock: " + err.Error())
 	}
+	defer destroyEnvironmentBlock(env)
 
 	err = impersonateLoggedOnUser(token)
 	if err != nil {
@@ -358,11 +355,7 @@ func startProcess(
 ) (p *Process, err error) {
 	sysattr := &syscall.ProcAttr{
 		Dir: attr.Dir,
-		Env: attr.Env,
 		Sys: attr.Sys,
-	}
-	if sysattr.Env == nil {
-		sysattr.Env = os.Environ()
 	}
 	for _, f := range attr.Files {
 		sysattr.Files = append(sysattr.Files, f.Fd())

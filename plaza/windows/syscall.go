@@ -135,7 +135,7 @@ func destroyEnvironmentBlock(env *uint16) error {
 	return nil
 }
 
-func createEnvironmentBlock(token syscall.Token, inherit bool) ([]uint16, error) {
+func createEnvironmentBlock(token syscall.Token, inherit bool) (*uint16, error) {
 	proc, err := loadProc("Userenv.dll", "CreateEnvironmentBlock")
 	if err != nil {
 		return nil, err
@@ -149,27 +149,13 @@ func createEnvironmentBlock(token syscall.Token, inherit bool) ([]uint16, error)
 	var env *uint16
 
 	r1, _, err := proc.Call(
-		uintptr(unsafe.Pointer(env)),
+		uintptr(unsafe.Pointer(&env)),
 		uintptr(token),
 		uintptr(iInherit),
 	)
 
 	if r1 == 1 {
-		l := 0
-		for l = 0; *(*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(env)) + uintptr(l))) != 0; l++ {
-		}
-		rt := make([]uint16, l)
-
-		for i := 0; i < l; i++ {
-			rt[i] = *(*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(env)) + uintptr(i)))
-		}
-
-		err = destroyEnvironmentBlock(env)
-		if err != nil {
-			return nil, err
-		}
-
-		return rt, nil
+		return env, nil
 	}
 	return nil, err
 }
