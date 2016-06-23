@@ -1,7 +1,6 @@
 import Ember from 'ember';
 
 /* global $:false */
-
 var FileUploader = Ember.Object.extend(Ember.Evented, {
   completed: false,
   progress: 0,
@@ -158,10 +157,11 @@ export default Ember.Component.extend({
       .on('change', (event) => {
         this.startDownload(event.target.files);
       });
-      $('.' + this.get('assignBrowse')).after(input);
-      $('.' + this.get('assignBrowse')).on('click', function() {
-        input.click();
-      });
+      $('.' + this.get('assignBrowse'))
+        .after(input)
+        .on('click', function() {
+          input.click();
+        });
     }
   },
 
