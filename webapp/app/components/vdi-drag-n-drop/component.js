@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+/* global $:false */
+
 var FileUploader = Ember.Object.extend(Ember.Evented, {
   completed: false,
   progress: 0,
@@ -99,7 +101,10 @@ export default Ember.Component.extend({
     this.set('dragAndDropActive', false);
     this.hideElement();
 
-    let files = event.dataTransfer.files;
+    this.startDownload(event.dataTransfer.files);
+  },
+
+  startDownload(files){
     let q = this.get('queue');
 
     for (let i = 0; i < files.length; i++) {
@@ -141,6 +146,23 @@ export default Ember.Component.extend({
         this.showElement();
       }
     });
+
+    if (this.get('assignBrowse')) {
+      var input = $('<input>', { type: "file" })
+      .css({
+        "visibility": "hidden",
+        "position": "absolute",
+        "width": "1px",
+        "height": "1px"
+      })
+      .on('change', (event) => {
+        this.startDownload(event.target.files);
+      });
+      $('.' + this.get('assignBrowse')).after(input);
+      $('.' + this.get('assignBrowse')).on('click', function() {
+        input.click();
+      });
+    }
   },
 
   completeNotif() {
