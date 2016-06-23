@@ -23,6 +23,8 @@
 package vms
 
 import (
+	log "github.com/Sirupsen/logrus"
+
 	"github.com/Nanocloud/community/nanocloud/vms"
 )
 
@@ -38,6 +40,9 @@ const (
 var vm *vms.VM
 
 func SetVM(v *vms.VM) {
+	if (*v) == nil {
+		log.Fatal("Driver error: Please fix your configuration")
+	}
 	vm = v
 }
 
