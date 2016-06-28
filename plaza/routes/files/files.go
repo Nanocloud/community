@@ -29,6 +29,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"runtime"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
@@ -44,10 +45,21 @@ type file_t struct {
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
+	var filePath string
 	username := r.URL.Query()["username"][0]
 	filename := r.URL.Query()["filename"][0]
 
-	dst, err := os.Create(fmt.Sprintf("/home/%s/%s", username, filename))
+	if runtime.GOOS == "windows" {
+		home := `C:\Users\` + username + `\Desktop\Nanocloud`
+		_, err := os.Stat(home)
+		if os.IsNotExist(err) {
+			os.MkdirAll(home, 0777)
+		}
+		filePath = home + `\` + filename
+	} else {
+		filePath = fmt.Sprintf("/home/%s/%s", username, filename)
+	}
+	dst, err := os.Create(filePath)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, "Unable to create destination file", http.StatusInternalServerError)
