@@ -64,7 +64,7 @@ module.exports = function(admin) {
 
     var request = nano.as(admin).post('api/users', {
       'data' : {
-        'type': 'user',
+        'type': 'users',
         'attributes': {
           'first-name': nano.USER_FIRSTNAME,
           'last-name': nano.USER_LASTNAME,
