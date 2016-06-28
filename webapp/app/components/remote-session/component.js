@@ -42,11 +42,10 @@ export default Ember.Component.extend({
 
       guacData.tunnel.onerror = function(status) {
         this.get('element').removeChild(guacData.guacamole.getDisplay().getElement());
-
         let message = "";
         this.checkMachine().then((machine) => {
           if (machine.get('length') === 0) {
-            message = "There are no machine available";
+            message = "There are no machines available";
           }
           else {
             message = "Opening a WebSocketTunnel has failed";
