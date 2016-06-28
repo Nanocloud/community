@@ -4,11 +4,10 @@ export default Ember.Component.extend({
 
   mode: null,
   placeholder: "",
-  errorMessage: "",
   value: "",
   focus: false,
-  isValid: true,
   type: "text",
+  validation: null,
 
   didInsertElement() {
     if (this.get('autofocus') === true) {
@@ -22,20 +21,20 @@ export default Ember.Component.extend({
 
     if (this.get('model')) {
       Ember.defineProperty(this, 'value', Ember.computed.alias(`model.${valuePath}`));
+      Ember.defineProperty(this, 'validation', Ember.computed.oneWay(`model.validations.attrs.${valuePath}`));
     }
   },
 
-  getErrorMessage: function() {
-
-    if (this.get('focus') === false && this.get('model')) {
-      if (this.get('value')) {
-        var errorMessage = this.get('model').get('validations.attrs').get(this.get('valuePath')).get('message');
-
-        this.set('errorMessage', errorMessage);
-        this.set('isValid', Ember.isEmpty(errorMessage));
-      }
+  notValidating: Ember.computed.not('validation.isValidating'),
+  hasContent: Ember.computed.notEmpty('value'),
+  isValid: Ember.computed.and('hasContent', 'validation.isValid', 'notValidating'),
+  isInvalid: Ember.computed('validation.isInvalid', 'hideError', function() {
+    if (!this.get('hideError') && !this.get('hasContent')) {
+      return false;
     }
-  }.observes('value', 'focus'),
+    return this.get('validation.isInvalid');
+  }),
+  showMessage: Ember.computed.oneWay('isInvalid'),
 
   actions: {
     toggleFocus: function() {

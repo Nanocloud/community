@@ -33,3 +33,4 @@ vendor
 # Binary files
 *.exe
 plaza/plaza
+*.exe~

@@ -4,7 +4,10 @@ import config from 'nanocloud/config/environment';
 /* global Guacamole */
 
 export default Ember.Service.extend(Ember.Evented, {
-  GUAC_IS_CONNECTED: 3,
+  STATE_IDLE: 0,
+  STATE_WAITING: 2,
+  STATE_CONNECTED: 3,
+  STATE_DISCONNECTED: 5,
 
   session: Ember.inject.service('session'),
   guacamole: null,
@@ -63,6 +66,7 @@ export default Ember.Service.extend(Ember.Evented, {
 
   getSession: function(name, width, height) {
 
+    this.set('isError', false);
     return this.get('guacToken').then((token) => {
 
       let tunnel = new Guacamole.WebSocketTunnel('/guacamole/websocket-tunnel?' + this._forgeConnectionString(token.authToken, name, width, height));
@@ -70,12 +74,13 @@ export default Ember.Service.extend(Ember.Evented, {
         tunnel
       );
       this.set('openedGuacSession.' + name, Ember.Object.create({ guac : guacamole }));
-      this.keyboardAttach(name);
 
       return  {
         tunnel : tunnel,
         guacamole: guacamole
       };
+    }, () => {
+      this.stateChanged(this.get('STATE_DISCONNECTED'), true, "Could not authenticate session");
     });
   },
 
@@ -140,13 +145,20 @@ export default Ember.Service.extend(Ember.Evented, {
     this.pauseInputs(name);
     if (this.get('openedGuacSession')[name]) {
       this.get('openedGuacSession')[name].guac.disconnect();
+      delete this.get('openedGuacSession')[name];
     }
   },
 
-  stateChanged(state) {
+  stateChanged(state, isError, errorMessage) {
+    if (isError) {
+      this.set('isError', true);
+    }
+    if (errorMessage) {
+      this.set('errorMessage', errorMessage);
+    }
     this.set('loadState', state);
-    if (state === this.get('GUAC_IS_CONNECTED')) {
+    if (state === this.get('STATE_CONNECTED')) {
       this.trigger('connected');
     }
-  }
+  },
 });

@@ -73,26 +73,6 @@ func Delete(c *echo.Context) error {
 		})
 	}
 
-	err = ldap.DeleteAccount(user.Id)
-	if err != nil {
-		log.Errorf("Unable to delete user in ad: %s", err.Error())
-		switch err {
-		case ldap.DeleteFailed:
-			return c.JSON(http.StatusInternalServerError, hash{
-				"error": [1]hash{
-					hash{
-						"detail": err.Error(),
-					},
-				},
-			})
-		case ldap.UnknownUser:
-			log.Info("User doesn't exist in AD")
-			break
-		default:
-			return err
-		}
-	}
-
 	err = users.DeleteUser(user.Id)
 	if err != nil {
 		log.Errorf("Unable to delete user: ", err.Error())
@@ -127,47 +107,61 @@ func Disable(userId string) (int, error) {
 }
 
 func Update(c *echo.Context) error {
-	u := users.User{}
+	updatedUser := users.User{}
+	user := c.Get("user").(*users.User)
 
-	err := utils.ParseJSONBody(c, &u)
+	err := utils.ParseJSONBody(c, &updatedUser)
 	if err != nil {
-		return nil
+		return apiErrors.InvalidRequest
 	}
 
-	user, err := users.GetUser(u.GetID())
+	currentUser, err := users.GetUser(updatedUser.GetID())
 	if err != nil {
 		return apiErrors.UserNotFound
 	}
 
-	if u.Password != "" {
-		err = users.UpdateUserPassword(user.GetID(), u.Password)
-		if err != nil {
-			log.Error(err)
-			return apiErrors.InternalError.Detail("Unable to update the password.")
-		}
-	} else if u.Email != user.Email {
-		err = users.UpdateUserEmail(user.GetID(), u.Email)
-		if err != nil {
-			log.Error(err)
-			return apiErrors.InternalError.Detail("Unable to update the email.")
-		}
-	} else if u.FirstName != user.FirstName {
-		err = users.UpdateUserFirstName(user.GetID(), u.FirstName)
-		if err != nil {
-			log.Error(err)
-			return apiErrors.InternalError.Detail("Unable to update the first name.")
-		}
-	} else if u.LastName != user.LastName {
-		err = users.UpdateUserLastName(user.GetID(), u.LastName)
-		if err != nil {
-			log.Error(err)
-			return apiErrors.InternalError.Detail("Unable to update the last name.")
-		}
-	} else {
-		return apiErrors.InvalidRequest.Detail("No field send.")
+	if !user.IsAdmin && (updatedUser.GetID() != user.GetID()) {
+		return apiErrors.Unauthorized.Detail("You can only update your account")
 	}
 
-	return utils.JSON(c, http.StatusOK, user)
+	if updatedUser.IsAdmin != currentUser.IsAdmin {
+		if currentUser.Id == user.GetID() {
+			return apiErrors.Unauthorized.Detail("You cannot grant administration rights")
+		}
+		err = users.UpdateUserPrivilege(updatedUser.GetID(), updatedUser.IsAdmin)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the rank")
+		}
+	} else if updatedUser.Password != "" {
+		err = users.UpdateUserPassword(updatedUser.GetID(), updatedUser.Password)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the password")
+		}
+	} else if updatedUser.Email != currentUser.Email {
+		err = users.UpdateUserEmail(updatedUser.GetID(), updatedUser.Email)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the email")
+		}
+	} else if updatedUser.FirstName != currentUser.FirstName {
+		err = users.UpdateUserFirstName(updatedUser.GetID(), updatedUser.FirstName)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the first name")
+		}
+	} else if updatedUser.LastName != currentUser.LastName {
+		err = users.UpdateUserLastName(updatedUser.GetID(), updatedUser.LastName)
+		if err != nil {
+			log.Error(err)
+			return apiErrors.InternalError.Detail("Unable to update the last name")
+		}
+	} else {
+		return apiErrors.InvalidRequest.Detail("No field sent")
+	}
+
+	return utils.JSON(c, http.StatusOK, &updatedUser)
 }
 
 func Get(c *echo.Context) error {
@@ -183,7 +177,7 @@ func Get(c *echo.Context) error {
 	users, err := users.FindUsers()
 	if err != nil {
 		log.Error(err)
-		return apiErrors.InternalError.Detail("Unable to retreive the user list.")
+		return apiErrors.InternalError.Detail("Unable to retreive the user list")
 	}
 
 	return utils.JSON(c, http.StatusOK, users)

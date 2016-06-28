@@ -8,10 +8,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
 	"strconv"
-	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -33,10 +30,6 @@ type Cmd struct {
 	//
 	// In typical use, both Path and Args are set by calling Command.
 	Args []string
-
-	// Env specifies the environment of the process.
-	// If Env is nil, Run uses the current process's environment.
-	Env []string
 
 	// Dir specifies the working directory of the command.
 	// If Dir is the empty string, Run runs the command in the
@@ -93,7 +86,6 @@ type Cmd struct {
 
 	Username string
 	Domain   string
-	Password string
 }
 
 // Command returns the Cmd struct to execute the named program with
@@ -108,20 +100,15 @@ type Cmd struct {
 // The returned Cmd's Args field is constructed from the command name
 // followed by the elements of arg, so arg should not include the
 // command name itself. For example, Command("echo", "hello")
-func Command(username string, domain string, password string, name string, arg ...string) *Cmd {
+func Command(username string, domain string, hideWindow bool, name string, arg ...string) *Cmd {
 	cmd := &Cmd{
 		Path:     name,
 		Args:     append([]string{name}, arg...),
 		Username: username,
 		Domain:   domain,
-		Password: password,
 	}
-	if filepath.Base(name) == name {
-		if lp, err := exec.LookPath(name); err != nil {
-			cmd.lookPathErr = err
-		} else {
-			cmd.Path = lp
-		}
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		HideWindow: hideWindow,
 	}
 	return cmd
 }
@@ -133,13 +120,6 @@ func interfaceEqual(a, b interface{}) bool {
 		recover()
 	}()
 	return a == b
-}
-
-func (c *Cmd) envv() []string {
-	if c.Env != nil {
-		return c.Env
-	}
-	return os.Environ()
 }
 
 func (c *Cmd) argv() []string {
@@ -241,32 +221,6 @@ func (c *Cmd) Run() error {
 	return c.Wait()
 }
 
-// lookExtensions finds windows executable by its dir and path.
-// It uses LookPath to try appropriate extensions.
-// lookExtensions does not search PATH, instead it converts `prog` into `.\prog`.
-func lookExtensions(path, dir string) (string, error) {
-	if filepath.Base(path) == path {
-		path = filepath.Join(".", path)
-	}
-	if dir == "" {
-		return exec.LookPath(path)
-	}
-	if filepath.VolumeName(path) != "" {
-		return exec.LookPath(path)
-	}
-	if len(path) > 1 && os.IsPathSeparator(path[0]) {
-		return exec.LookPath(path)
-	}
-	dirandpath := filepath.Join(dir, path)
-	// We assume that LookPath will only add file extension.
-	lp, err := exec.LookPath(dirandpath)
-	if err != nil {
-		return "", err
-	}
-	ext := strings.TrimPrefix(lp, dirandpath)
-	return path + ext, nil
-}
-
 // Start starts the specified command but does not wait for it to complete.
 //
 // The Wait method will return the exit code and release associated resources
@@ -276,15 +230,6 @@ func (c *Cmd) Start() error {
 		c.closeDescriptors(c.closeAfterStart)
 		c.closeDescriptors(c.closeAfterWait)
 		return c.lookPathErr
-	}
-	if runtime.GOOS == "windows" {
-		lp, err := lookExtensions(c.Path, c.Dir)
-		if err != nil {
-			c.closeDescriptors(c.closeAfterStart)
-			c.closeDescriptors(c.closeAfterWait)
-			return err
-		}
-		c.Path = lp
 	}
 	if c.Process != nil {
 		return errors.New("exec: already started")
@@ -306,11 +251,10 @@ func (c *Cmd) Start() error {
 
 	c.Process, err = startProcess(
 		c.Path, c.argv(),
-		c.Username, c.Domain, c.Password,
+		c.Username, c.Domain,
 		&os.ProcAttr{
 			Dir:   c.Dir,
 			Files: c.childFiles,
-			Env:   c.envv(),
 			Sys:   c.SysProcAttr,
 		},
 	)

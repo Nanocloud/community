@@ -21,7 +21,20 @@ const Validations = buildValidations({
     validator('presence', true),
     validator('length', {
       min: 8,
-      max: 255
+      max: 255,
+      type: 'password',
+    })
+  ],
+  passwordConfirmation: [
+    validator('presence', true),
+    validator('confirmation', {
+      on: 'password',
+      message: 'Does not match password',
+    }),
+    validator('length', {
+      min: 8,
+      max: 255,
+      type: 'password',
     })
   ],
   email: [
@@ -37,10 +50,14 @@ export default DS.Model.extend(Validations, {
   firstName: DS.attr('string'),
   lastName: DS.attr('string'),
   password: DS.attr('string'),
-  signupDate: DS.attr('utc'),
+  signupDate: DS.attr('number'),
 
   fullName: function() {
-    return `${this.get('firstName')}  ${this.get('lastName')}`;
+    if (this.get('firstName') && this.get('lastName')) {
+      return `${this.get('firstName')} ${this.get('lastName')}`;
+    }
+    let email = this.get('email');
+    return email ? email : "Unknown user";
   }.property('firstName', 'lastName'),
   isNotAdmin: function() {
     return !this.get('isAdmin');

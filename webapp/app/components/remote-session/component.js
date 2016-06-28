@@ -1,6 +1,7 @@
 /* globals Guacamole */
 
 import Ember from 'ember';
+import getKeyFromVal from '../../utils/get-key-from-value';
 
 export default Ember.Component.extend({
   remoteSession: Ember.inject.service('remote-session'),
@@ -31,11 +32,19 @@ export default Ember.Component.extend({
     let width = this.getWidth();
     let height = this.getHeight();
 
-    let guacamole = this.get('remoteSession').getSession('hapticDesktop', width, height);
+    let guacamole = this.get('remoteSession').getSession(this.get('connectionName'), width, height);
     this.set('guacamole', guacamole);
     guacamole.then((guacData) => {
 
-      guacData.tunnel.onerror = function() {
+      guacData.tunnel.onerror = function(status) {
+        this.get('element').removeChild(guacData.guacamole.getDisplay().getElement());
+        var message = "Opening a WebSocketTunnel has failed";
+        var code = getKeyFromVal(Guacamole.Status.Code, status.code);
+        if (code !== -1) {
+          message += " - " + code;
+        }
+        this.get('remoteSession').stateChanged(this.get('remoteSession.STATE_DISCONNECTED'), true, message);
+        this.get('remoteSession').disconnectSession(this.get('connectionName'));
         this.sendAction('onError', {
           error : true,
           message: "You have been disconnected due to some error"
@@ -90,6 +99,7 @@ export default Ember.Component.extend({
 
       this.get('element').appendChild(guac.getDisplay().getElement());
 
+      this.get('remoteSession').keyboardAttach(this.get('connectionName'));
       let mouse = new window.Guacamole.Mouse(guac.getDisplay().getElement());
       let display = guac.getDisplay();
       window.onresize = function() {
@@ -109,5 +119,5 @@ export default Ember.Component.extend({
 
       guac.connect();
     });
-  }.observes('connectionName').on('becameVisible'),
+  }.observes('connectionName', 'activator').on('becameVisible'),
 });

@@ -9,7 +9,7 @@ WORKDIR /go/src/github.com/Nanocloud/community/nanocloud
 
 COPY install.sh /tmp/install.sh
 RUN cd /tmp && ./install.sh
-RUN cp -a /tmp/vendor //go/src/github.com/Nanocloud/community/nanocloud/
+RUN cp -a /tmp/vendor /go/src/github.com/Nanocloud/community/nanocloud/
 
 COPY ./ /go/src/github.com/Nanocloud/community/nanocloud
 

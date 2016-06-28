@@ -2,11 +2,7 @@ package histories
 
 import (
 	"errors"
-	"strings"
-
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
-	"github.com/Nanocloud/community/nanocloud/models/apps"
-	"github.com/Nanocloud/community/nanocloud/models/users"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -39,10 +35,8 @@ func FindAll() ([]*History, error) {
 	result := make([]*History, 0)
 
 	res, err := db.Query(
-		`SELECT histories.id, histories.userid, histories.usermail, histories.userfirstname,
-		histories.userlastname, apps.id as app_id, histories.startdate, histories.enddate
-		FROM histories
-		LEFT JOIN apps ON apps.alias = histories.connectionid`,
+		`SELECT id, userid, usermail, userfirstname,
+		userlastname, connectionid, startdate, enddate FROM histories`,
 	)
 	if err != nil {
 		return nil, err
@@ -50,113 +44,21 @@ func FindAll() ([]*History, error) {
 
 	defer res.Close()
 
-	userList := make(map[string][]*History)
-	userIds := make([]string, 0)
-
-	appList := make(map[string][]*History)
-	appIds := make([]string, 0)
-
 	for res.Next() {
 		h := History{}
 
-		var userId string
-		var appId string
-
 		res.Scan(
 			&h.Id,
-			&userId,
+			&h.UserId,
 			&h.UserMail,
 			&h.UserFirstname,
 			&h.UserLastname,
-			&appId,
+			&h.ConnectionId,
 			&h.StartDate,
 			&h.EndDate,
 		)
 
-		userHistories := userList[userId]
-		if userHistories == nil {
-			userHistories = make([]*History, 0)
-		}
-		if isValidId(userId) {
-			userList[userId] = append(userHistories, &h)
-			userIds = append(userIds, escapeId(userId))
-		}
-
-		appHistories := appList[appId]
-		if appHistories == nil {
-			appHistories = make([]*History, 0)
-		}
-		if isValidId(appId) {
-			appList[appId] = append(appHistories, &h)
-			appIds = append(appIds, escapeId(appId))
-		}
 		result = append(result, &h)
-	}
-
-	if len(userIds) > 0 {
-		sUserIds := strings.Join(userIds, ",")
-
-		rows, err := db.Query(
-			`SELECT id, activated,
-			email,
-			first_name, last_name,
-			is_admin
-			FROM users
-			WHERE id in (` + sUserIds + ")",
-		)
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			user := users.User{}
-			rows.Scan(
-				&user.Id,
-				&user.Activated,
-				&user.Email,
-				&user.FirstName,
-				&user.LastName,
-				&user.IsAdmin,
-			)
-
-			for _, h := range userList[user.Id] {
-				h.user = &user
-			}
-		}
-	}
-
-	if len(appIds) > 0 {
-
-		sAppIds := strings.Join(appIds, ",")
-
-		rows, err := db.Query(
-			`SELECT id, collection_name,
-			alias, display_name,
-			file_path,
-			icon_content
-			FROM apps
-			WHERE id in (` + sAppIds + ")",
-		)
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			app := apps.App{}
-			rows.Scan(
-				&app.Id,
-				&app.CollectionName,
-				&app.Alias,
-				&app.DisplayName,
-				&app.FilePath,
-				&app.IconContents,
-			)
-			for _, h := range appList[app.Id] {
-				h.app = &app
-			}
-		}
 	}
 
 	return result, nil

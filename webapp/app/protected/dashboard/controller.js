@@ -18,7 +18,7 @@ export default Ember.Controller.extend({
 
   apps: Ember.computed('model.apps', 'model.apps', function() {
     return this.get('model.apps')
-      .rejectBy('alias', 'hapticDesktop');
+      .rejectBy('alias', 'Desktop');
   }),
 
   sessions: Ember.computed('model.sessions', 'model.sessions', function() {

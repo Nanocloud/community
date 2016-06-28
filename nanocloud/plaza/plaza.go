@@ -41,12 +41,12 @@ import (
 )
 
 type Cmd_t struct {
-	Username string   `json:"username"`
-	Password string   `json:"password"`
-	Domain   string   `json:"domain"`
-	AppMode  bool     `json:"app-mode"`
-	Command  []string `json:"command"`
-	Stdin    string   `json:"stdin"`
+	Username   string   `json:"username"`
+	Domain     string   `json:"domain"`
+	Command    []string `json:"command"`
+	Stdin      string   `json:"stdin"`
+	HideWindow bool     `json:"hide-window"`
+	Wait       bool     `json:"wait"`
 }
 
 type result_t struct {
@@ -108,13 +108,13 @@ func Exec(address string, port int, cmd *Cmd_t) (*result_t, error) {
 func PowershellExec(
 	address string, port int,
 	username string, domain string, password string,
-	appMode bool, command ...string,
+	command ...string,
 ) (*result_t, error) {
 	cmd := Cmd_t{
-		Username: username,
-		Password: password,
-		Domain:   domain,
-		AppMode:  appMode,
+		Username:   username,
+		Domain:     domain,
+		HideWindow: true,
+		Wait:       true,
 		Command: []string{
 			"C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe",
 			"-Command",
@@ -136,12 +136,12 @@ func PowershellExec(
 
 func PublishApp(
 	address string, port int,
-	username string, domain string, password string,
+	username string, domain string,
 	collectionName string, displayName string, filePath string,
 ) ([]byte, error) {
 	res, err := PowershellExec(
 		address, port,
-		username, domain, password, false,
+		username, domain,
 		"Try {",
 		"Import-module RemoteDesktop;",
 		fmt.Sprintf(
@@ -172,7 +172,7 @@ func UnpublishApp(
 ) ([]byte, error) {
 	res, err := PowershellExec(
 		address, port,
-		username, domain, password, false,
+		username, domain,
 		"Try {",
 		"Import-module RemoteDesktop;",
 		fmt.Sprintf(
@@ -234,7 +234,7 @@ func provExec(p io.Writer, machine vms.Machine, command string) (string, error) 
 		return "", errors.New("domain unknown")
 	}
 
-	username, password, err := machine.Credentials()
+	username, _, err := machine.Credentials()
 	if err != nil {
 		log.Error(err.Error())
 		return "", err
@@ -245,8 +245,6 @@ func provExec(p io.Writer, machine vms.Machine, command string) (string, error) 
 		plazaPort,
 		username,
 		domain,
-		password,
-		false,
 		command,
 	)
 

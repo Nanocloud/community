@@ -25,13 +25,14 @@ package files
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/labstack/echo"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"strconv"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/labstack/echo"
 )
 
 type hash map[string]interface{}
@@ -42,26 +43,11 @@ type file_t struct {
 	Attributes map[string]interface{} `json:"attributes"`
 }
 
-var kUploadDir string
-
 func Post(w http.ResponseWriter, r *http.Request) {
-	sam := r.URL.Query()["sam"][0]
-	userId := r.URL.Query()["userId"][0]
+	username := r.URL.Query()["username"][0]
 	filename := r.URL.Query()["filename"][0]
 
-	kUploadDir = getUploadDir(sam, userId)
-	if _, err := os.Stat(kUploadDir); err != nil {
-		if os.IsNotExist(err) {
-			err := os.MkdirAll(kUploadDir, 0711)
-			if err != nil {
-				log.Error(err)
-				http.Error(w, "Unable to create upload directory", http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-
-	dst, err := os.Create(path.Join(kUploadDir, filename))
+	dst, err := os.Create(fmt.Sprintf("/home/%s/%s", username, filename))
 	if err != nil {
 		log.Error(err)
 		http.Error(w, "Unable to create destination file", http.StatusInternalServerError)
@@ -95,7 +81,7 @@ func Get(c *echo.Context) error {
 
 	s, err := os.Stat(filepath)
 	if err != nil {
-		fmt.Println(err.(*os.PathError).Err.Error())
+		log.Error(err.(*os.PathError).Err.Error())
 		m := err.(*os.PathError).Err.Error()
 		if m == "no such file or directory" || m == "The system cannot find the file specified." {
 			if create {

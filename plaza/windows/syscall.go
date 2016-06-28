@@ -3,12 +3,61 @@
 package windows
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 )
 
+type DWord uint32
+
+type luid struct {
+	lowPart  uint32
+	highPart uint32
+}
+
+type luidAndAttributes struct {
+	luid       luid
+	attributes DWord
+}
+
+type tokenPrivileges struct {
+	privilegeCount DWord
+	privileges     *luidAndAttributes
+}
+
+type wtsSessionInfo1 struct {
+	execEnvID   DWord
+	state       uint32
+	sessionID   DWord
+	sessionName string
+	hostName    string
+	userName    string
+	domainName  string
+	farmName    string
+}
+
+type rawWTSSessionInfo1 struct {
+	execEnvID   DWord
+	state       uint32
+	sessionID   DWord
+	sessionName *uint16
+	hostName    *uint16
+	userName    *uint16
+	domainName  *uint16
+	farmName    *uint16
+}
+
 const (
+	wtsActive       = 0 // User logged on to WinStation
+	wtsConnected    = 1 // WinStation connected to client
+	wtsConnectQuery = 2 // In the process of connecting to client
+	wtsShadow       = 3 // Shadowing another WinStation
+	wtsDisconnected = 4 // WinStation logged on without client
+	wtsIdle         = 5 // Waiting for client to connect
+	wtsListen       = 6 // WinStation is listening for connection
+	wtsReset        = 7 // WinStation is being reset
+	wtsDown         = 8 // WinStation is down due to error
+	wtsInit         = 9 // WinStation in initialization
+
 	logon32ProviderDefault   = 0
 	logonWithProfile         = 1
 	logon32LogonInteractive  = 2
@@ -22,9 +71,27 @@ const (
 	handleFlagInherit = 0x00000001
 
 	startfUseStdHandles = 0x00000100
+
+	sePrivilegeEnabled = DWord(0x00000002)
+
+	normalPriorityClass = 0x00000020
+	createNewConsole    = 0x00000010
 )
 
-func impersonateLoggedOnUser(token syscall.Handle) error {
+func revertToSelf() error {
+	proc, err := loadProc("Advapi32.dll", "RevertToSelf")
+	if err != nil {
+		return err
+	}
+
+	r1, _, err := proc.Call()
+	if r1 == 0 {
+		return err
+	}
+	return nil
+}
+
+func impersonateLoggedOnUser(token syscall.Token) error {
 	proc, err := loadProc("Advapi32.dll", "ImpersonateLoggedOnUser")
 	if err != nil {
 		return err
@@ -32,13 +99,12 @@ func impersonateLoggedOnUser(token syscall.Handle) error {
 
 	r1, _, err := proc.Call(uintptr(token))
 	if r1 == 0 {
-		fmt.Println(err)
 		return err
 	}
 	return nil
 }
 
-func getUserProfileDirectory(token syscall.Handle) (*uint16, error) {
+func getUserProfileDirectory(token syscall.Token) (*uint16, error) {
 	proc, err := loadProc("Userenv.dll", "GetUserProfileDirectoryW")
 	if err != nil {
 		return nil, err
@@ -57,23 +123,6 @@ func getUserProfileDirectory(token syscall.Handle) (*uint16, error) {
 	return &buff[0], nil
 }
 
-func openProcessToken(handle uintptr, desiredAccess uint32, tokenHandle *uintptr) error {
-	proc, err := loadProc("Advapi32.dll", "OpenProcessToken")
-	if err != nil {
-		return err
-	}
-
-	r1, _, err := proc.Call(
-		handle,
-		uintptr(desiredAccess),
-		uintptr(unsafe.Pointer(tokenHandle)),
-	)
-	if r1 != 1 {
-		return err
-	}
-	return nil
-}
-
 func destroyEnvironmentBlock(env *uint16) error {
 	proc, err := loadProc("Userenv.dll", "DestroyEnvironmentBlock")
 	if err != nil {
@@ -86,7 +135,7 @@ func destroyEnvironmentBlock(env *uint16) error {
 	return nil
 }
 
-func createEnvironmentBlock(token syscall.Handle, inherit bool) ([]uint16, error) {
+func createEnvironmentBlock(token syscall.Token, inherit bool) (*uint16, error) {
 	proc, err := loadProc("Userenv.dll", "CreateEnvironmentBlock")
 	if err != nil {
 		return nil, err
@@ -100,27 +149,13 @@ func createEnvironmentBlock(token syscall.Handle, inherit bool) ([]uint16, error
 	var env *uint16
 
 	r1, _, err := proc.Call(
-		uintptr(unsafe.Pointer(env)),
+		uintptr(unsafe.Pointer(&env)),
 		uintptr(token),
 		uintptr(iInherit),
 	)
 
 	if r1 == 1 {
-		l := 0
-		for l = 0; *(*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(env)) + uintptr(l))) != 0; l++ {
-		}
-		rt := make([]uint16, l)
-
-		for i := 0; i < l; i++ {
-			rt[i] = *(*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(env)) + uintptr(i)))
-		}
-
-		err = destroyEnvironmentBlock(env)
-		if err != nil {
-			return nil, err
-		}
-
-		return rt, nil
+		return env, nil
 	}
 	return nil, err
 }
@@ -138,13 +173,7 @@ func createProcessWithLogon(
 	si *syscall.StartupInfo,
 	pi *syscall.ProcessInformation,
 ) error {
-	fmt.Println("createProcessWithLogon")
-	fmt.Println(cmd)
-	dll, err := syscall.LoadDLL("advapi32.dll")
-	if err != nil {
-		return err
-	}
-	proc, err := dll.FindProc("CreateProcessWithLogonW")
+	proc, err := loadProc("advapi32.dll", "CreateProcessWithLogonW")
 	if err != nil {
 		return err
 	}
@@ -168,12 +197,8 @@ func createProcessWithLogon(
 	return err
 }
 
-func logonUser(username, domain, password string, logonType, logonProvider uint32) (hd syscall.Handle, err error) {
-	dll, err := loadDLL("advapi32.dll")
-	if err != nil {
-		return
-	}
-	proc, err := dll.FindProc("LogonUserW")
+func logonUser(username, domain, password string, logonType, logonProvider uint32) (hd syscall.Token, err error) {
+	proc, err := loadProc("advapi32.dll", "LogonUserW")
 	if err != nil {
 		return
 	}
@@ -191,37 +216,8 @@ func logonUser(username, domain, password string, logonType, logonProvider uint3
 	return
 }
 
-type wtsSessionInfo struct {
-	sessionID      uint32 // session id
-	winStationName string // name of WinStation this session is connected to
-	state          uint32 // connection state (see enum)
-}
-
-type rawWTSSessionInfo struct {
-	sessionID      uint32  // session id
-	winStationName *uint16 // name of WinStation this session is connected to
-	state          uint32  // connection state (see enum)
-}
-
-const (
-	wtsActive       = 0 // User logged on to WinStation
-	wtsConnected    = 1 // WinStation connected to client
-	wtsConnectQuery = 2 // In the process of connecting to client
-	wtsShadow       = 3 // Shadowing another WinStation
-	wtsDisconnected = 4 // WinStation logged on without client
-	wtsIdle         = 5 // Waiting for client to connect
-	wtsListen       = 6 // WinStation is listening for connection
-	wtsReset        = 7 // WinStation is being reset
-	wtsDown         = 8 // WinStation is down due to error
-	wtsInit         = 9 // WinStation in initialization
-)
-
 func wtsFreeMemory(ptr uintptr) (err error) {
-	dll, err := loadDLL("Wtsapi32.dll")
-	if err != nil {
-		return
-	}
-	proc, err := dll.FindProc("WTSFreeMemory")
+	proc, err := loadProc("Wtsapi32.dll", "WTSFreeMemory")
 	if err != nil {
 		return
 	}
@@ -230,24 +226,29 @@ func wtsFreeMemory(ptr uintptr) (err error) {
 	return
 }
 
-func wtsEnumerateSessions(server syscall.Handle) ([]wtsSessionInfo, error) {
-	dll, err := loadDLL("Wtsapi32.dll")
-	if err != nil {
-		return nil, err
+func UTF16FromUTF16Ptr(str *uint16) (rt []uint16) {
+	for *str != 0 {
+		rt = append(rt, *str)
+		str = (*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(str)) + 2))
 	}
-	proc, err := dll.FindProc("WTSEnumerateSessionsW")
+	return
+}
+
+func wtsEnumerateSessionsEx(server syscall.Handle) ([]wtsSessionInfo1, error) {
+	proc, err := loadProc("Wtsapi32.dll", "WTSEnumerateSessionsExW")
 	if err != nil {
 		return nil, err
 	}
 
 	count := uint32(0)
 
-	var sessionInfo *rawWTSSessionInfo
+	var sessionInfo *rawWTSSessionInfo1
 
+	level := uint32(1)
 	r1, _, err := proc.Call(
 		uintptr(server),
+		uintptr(unsafe.Pointer(&level)),
 		uintptr(0),
-		uintptr(1),
 		uintptr(unsafe.Pointer(&sessionInfo)),
 		uintptr(unsafe.Pointer(&count)),
 	)
@@ -258,42 +259,45 @@ func wtsEnumerateSessions(server syscall.Handle) ([]wtsSessionInfo, error) {
 
 	defer wtsFreeMemory(uintptr(unsafe.Pointer(sessionInfo)))
 
-	rt := make([]wtsSessionInfo, count)
+	rt := make([]wtsSessionInfo1, count)
 
 	i := uint32(0)
 	for i < count {
-		var n []uint16
-
-		j := 0
-		for {
-			n = append(n, *sessionInfo.winStationName)
-			if *sessionInfo.winStationName == 0 {
-				break
-			}
-			sessionInfo.winStationName = (*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(sessionInfo.winStationName)) + 2))
-			j++
+		info := wtsSessionInfo1{
+			execEnvID: sessionInfo.execEnvID,
+			state:     sessionInfo.state,
+			sessionID: sessionInfo.sessionID,
 		}
 
-		rt[i] = wtsSessionInfo{
-			sessionID:      sessionInfo.sessionID,
-			state:          sessionInfo.state,
-			winStationName: syscall.UTF16ToString(n),
+		if sessionInfo.sessionName != nil {
+			info.sessionName = syscall.UTF16ToString(UTF16FromUTF16Ptr(sessionInfo.sessionName))
 		}
-		sessionInfo = (*rawWTSSessionInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(sessionInfo)) + unsafe.Sizeof(*sessionInfo)))
+
+		if sessionInfo.hostName != nil {
+			info.hostName = syscall.UTF16ToString(UTF16FromUTF16Ptr(sessionInfo.hostName))
+		}
+
+		if sessionInfo.userName != nil {
+			info.userName = syscall.UTF16ToString(UTF16FromUTF16Ptr(sessionInfo.userName))
+		}
+
+		if sessionInfo.domainName != nil {
+			info.domainName = syscall.UTF16ToString(UTF16FromUTF16Ptr(sessionInfo.domainName))
+		}
+
+		if sessionInfo.farmName != nil {
+			info.farmName = syscall.UTF16ToString(UTF16FromUTF16Ptr(sessionInfo.farmName))
+		}
+
+		rt[i] = info
+		sessionInfo = (*rawWTSSessionInfo1)(unsafe.Pointer(uintptr(unsafe.Pointer(sessionInfo)) + unsafe.Sizeof(*sessionInfo)))
 		i++
-	}
-	for _, v := range rt {
-		fmt.Println(v.sessionID, v.state, v.winStationName)
 	}
 	return rt, nil
 }
 
-func wtsQueryUserToken(sessionID uint32) (hd syscall.Handle, err error) {
-	dll, err := loadDLL("Wtsapi32.dll")
-	if err != nil {
-		return
-	}
-	proc, err := dll.FindProc("WTSQueryUserToken")
+func wtsQueryUserToken(sessionID DWord) (hd syscall.Token, err error) {
+	proc, err := loadProc("Wtsapi32.dll", "WTSQueryUserToken")
 	if err != nil {
 		return
 	}
@@ -308,7 +312,7 @@ func wtsQueryUserToken(sessionID uint32) (hd syscall.Handle, err error) {
 }
 
 func createProcessAsUser(
-	token syscall.Handle,
+	token syscall.Token,
 	applicationName *uint16,
 	cmd *uint16,
 	procSecurity *syscall.SecurityAttributes,
@@ -320,11 +324,7 @@ func createProcessAsUser(
 	startupInfo *syscall.StartupInfo,
 	outProcInfo *syscall.ProcessInformation,
 ) error {
-	dll, err := loadDLL("advapi32.dll")
-	if err != nil {
-		return err
-	}
-	proc, err := dll.FindProc("CreateProcessAsUserW")
+	proc, err := loadProc("advapi32.dll", "CreateProcessAsUserW")
 	if err != nil {
 		return err
 	}
@@ -348,6 +348,67 @@ func createProcessAsUser(
 		uintptr(unsafe.Pointer(outProcInfo)),
 	)
 
+	if r1 == 1 {
+		return nil
+	}
+	return err
+}
+
+func lookupPrivilegeValue(systemName string, name string) (*luid, error) {
+	proc, err := loadProc("advapi32.dll", "LookupPrivilegeValueW")
+	if err != nil {
+		return nil, err
+	}
+
+	l := luid{}
+
+	wsSystemName := uintptr(0)
+	if len(systemName) > 0 {
+		wsSystemName = uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(systemName)))
+	}
+
+	r1, _, err := proc.Call(
+		wsSystemName,
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(name))),
+		uintptr(unsafe.Pointer(&l)),
+	)
+	if r1 == 1 {
+		return &l, nil
+	}
+	return nil, err
+}
+
+func EnablePrivilege(token syscall.Token, privilege string) error {
+	uid, err := lookupPrivilegeValue("", privilege)
+	if err != nil {
+		return err
+	}
+
+	return adjustTokenPrivileges(token, *uid)
+}
+
+func adjustTokenPrivileges(token syscall.Token, uid luid) error {
+	proc, err := loadProc("advapi32.dll", "AdjustTokenPrivileges")
+	if err != nil {
+		return err
+	}
+
+	newState := tokenPrivileges{
+		privilegeCount: 1,
+		privileges: &luidAndAttributes{
+			luid:       uid,
+			attributes: sePrivilegeEnabled,
+		},
+	}
+
+	r1, _, err := proc.Call(
+		uintptr(token),
+		uintptr(0),
+		uintptr(unsafe.Pointer(&newState)),
+		uintptr(unsafe.Sizeof(newState)),
+		uintptr(0),
+		uintptr(0),
+	)
 	if r1 == 1 {
 		return nil
 	}

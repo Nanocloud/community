@@ -45,11 +45,3 @@ func loadFileId(filepath string) (string, error) {
 func isFileHidden(file os.FileInfo) bool {
 	return file.Name()[0] == '.'
 }
-
-func getUploadDir(sam string, userId string) string {
-	plazaDir := os.Getenv("PLAZA_USER_DIR")
-	if plazaDir == "" {
-		plazaDir = "/opt/Users/%s"
-	}
-	return fmt.Sprintf(plazaDir, "u"+userId[:20])
-}

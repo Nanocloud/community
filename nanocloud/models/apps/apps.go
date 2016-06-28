@@ -39,6 +39,8 @@ import (
 )
 
 var (
+	AppNotFound         = errors.New("Application not found")
+	AppNotCreated       = errors.New("Application not created")
 	GetAppsFailed       = errors.New("Can't get apps list")
 	GetAppFailed        = errors.New("Can't get app")
 	UnpublishFailed     = errors.New("Unpublish application failed")
@@ -91,6 +93,21 @@ type Connection struct {
 	RemoteApp string `json:"remote_app"`
 	Protocol  string `json:"protocol"`
 	AppName   string `json:"app_name"`
+}
+
+func (app *App) Delete() error {
+	res, err := db.Exec(`DELETE FROM apps where id=$1::varchar`, app.Id)
+	if err != nil {
+		return err
+	}
+	deleted, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if deleted == 0 {
+		return AppNotFound
+	}
+	return nil
 }
 
 func AppExists(appId string) (bool, error) {
@@ -336,7 +353,6 @@ func PublishApp(user *users.User, app *App) error {
 		plazaAddress, plazaPort,
 		winUser.Sam,
 		winUser.Domain,
-		winUser.Password,
 		app.CollectionName,
 		app.DisplayName,
 		app.Path,
@@ -376,8 +392,31 @@ func PublishApp(user *users.User, app *App) error {
 	return nil
 }
 
-func RetrieveConnections(user *users.User, users []*users.User) ([]Connection, error) {
+func CreateApp(app *App) (*App, error) {
+	id := uuid.NewV4().String()
 
+	rows, err := db.Query(
+		`INSERT INTO apps
+		(id, collection_name, alias, display_name, file_path, icon_content)
+		VALUES ( $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::bytea)
+		RETURNING id, collection_name, alias, display_name, file_path, icon_content`,
+		id, app.CollectionName, app.Alias, app.DisplayName, app.FilePath, app.IconContents,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	if !rows.Next() {
+		return nil, AppNotCreated
+	}
+	app.SetID(id)
+	return app, err
+}
+
+func RetrieveConnections(user *users.User) ([]Connection, error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	var connections []Connection
 

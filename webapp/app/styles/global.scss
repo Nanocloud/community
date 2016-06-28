@@ -81,6 +81,10 @@ h1 {
   color: $blue-default;
 }
 
+.error{
+  color: red;
+}
+
 .indication {
   font-weight: 200;
   padding: 10px;
@@ -173,6 +177,10 @@ h1 {
   float: right;
 }
 
+.z-1 {
+  z-index: 1;
+}
+
 .noselect {
   -webkit-touch-callout: none; 
   -webkit-user-select: none;   
@@ -212,4 +220,16 @@ h1 {
 
 .btn-primary {
   box-shadow: none;
+}
+
+.ember-modal-dialog {
+  padding: 0 !important;
+}
+
+@media (max-width: 991px) {
+  .ember-modal-dialog {
+    width: 95%;
+    left: auto !important;
+    margin-left: auto !important;
+  }
 }

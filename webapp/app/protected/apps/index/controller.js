@@ -11,21 +11,36 @@ export default Ember.Controller.extend({
   isPublishing: false,
 
   applicationList: Ember.computed('model.@each', 'model.@each', function() {
-    var array = this.get('model').rejectBy('alias', 'hapticPowershell');
+    var array = this.get('model');
     if (this.get('session.user.isAdmin') === true) {
-      array = array.rejectBy('alias', 'hapticDesktop');
+      array = array.rejectBy('alias', 'Desktop');
     }
     return array;
   }),
+
+  launchVDI(connectionName) {
+    return new Ember.RSVP.Promise((res) => {
+      this.get('remoteSession').one('connected', () => {
+        res();
+      });
+
+      this.set('connectionName', connectionName);
+      this.set('showSingleTab', true);
+    });
+  },
+
   actions: {
+
+    retryConnection() {
+      this.toggleProperty('activator');
+    },
 
     handleVdiClose() {
       this.get('remoteSession').disconnectSession(this.get('connectionName'));
     },
 
     toggleSingleTab(connectionName) {
-      this.set('connectionName', connectionName);
-      this.toggleProperty('showSingleTab');
+      this.launchVDI(connectionName);
     },
 
     toggleFileExplorer() {

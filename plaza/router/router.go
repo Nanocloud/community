@@ -33,12 +33,15 @@ import (
 	"github.com/Nanocloud/community/plaza/routes/sessions"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
+	mw "github.com/labstack/echo/middleware"
 )
 
 type hash map[string]interface{}
 
 func Start() {
 	e := echo.New()
+
+	e.Use(mw.Recover())
 
 	e.Post("/exec", exec.Route)
 	e.Get("/", about.Get)
@@ -82,6 +85,6 @@ func Start() {
 		)
 	})
 
-	log.Println("Listenning on port: 9090")
+	log.Info("Listenning on port: 9090")
 	e.Run(":9090")
 }
