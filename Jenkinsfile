@@ -1,4 +1,5 @@
 node {
+  // Create directory on releases.nanocloud.com
   sshagent(['releases']) {
     sh 'ssh -o StrictHostKeyChecking=no bamboo@releases.nanocloud.com "mkdir /data/artifacts/community/builds/${BRANCH_NAME} || true"'
   }
