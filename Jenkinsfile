@@ -1,5 +1,4 @@
 node {
-  // Create directory on releases.nanocloud.com
   sshagent(['releases']) {
     sh 'ssh -o StrictHostKeyChecking=no bamboo@releases.nanocloud.com "mkdir /data/artifacts/community/builds/${BRANCH_NAME} || true"'
   }
@@ -33,7 +32,6 @@ node {
     withCredentials([[$class: 'StringBinding', credentialsId: 'GITHUB_PASSWORD', variable: 'TOKEN']]) {
       sh 'env GITHUB_PASSWORD=$TOKEN ./scripts/notify-github.sh failure "Backend tests" "go tests" "http://jenkins.nanocloud.com:8080/job/Nanocloud%20Community/job/Nanocloud%20Community/job/$BRANCH_NAME/$BUILD_NUMBER/" "Nanocloud/community" $(git rev-list --parents -n 1 $(git rev-parse HEAD) | cut -f 3 -d " ")'
     }
-  }
 
   try {
     sh 'docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-frontend ember test'
@@ -44,7 +42,6 @@ node {
     withCredentials([[$class: 'StringBinding', credentialsId: 'GITHUB_PASSWORD', variable: 'TOKEN']]) {
       sh 'env GITHUB_PASSWORD=$TOKEN ./scripts/notify-github.sh failure "Frontend tests" "ember tests" "http://jenkins.nanocloud.com:8080/job/Nanocloud%20Community/job/Nanocloud%20Community/job/$BRANCH_NAME/$BUILD_NUMBER/" "Nanocloud/community" $(git rev-list --parents -n 1 $(git rev-parse HEAD) | cut -f 3 -d " ")'
     }
-  }
 
   sh "docker save nanocloud/nanocloud-backend \$(docker history -q nanocloud/nanocloud-backend | tail -n +2 | grep -v \\<missing\\> | tr '\n' ' ') > nanocloud-backend.tar"
   sh "docker save nanocloud/nanocloud-frontend \$(docker history -q nanocloud/nanocloud-frontend | tail -n +2 | grep -v \\<missing\\> | tr '\n' ' ') > nanocloud-frontend.tar"
