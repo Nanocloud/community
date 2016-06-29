@@ -29,6 +29,12 @@ node {
     // Report error to Github
   }
 
+  try {
+    sh 'docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-frontend ember test'
+  } catch (all) {
+    // Report error to Github
+  }
+
   sh "docker save nanocloud/nanocloud-backend \$(docker history -q nanocloud/nanocloud-backend | tail -n +2 | grep -v \\<missing\\> | tr '\n' ' ') > nanocloud-backend.tar"
   sh "docker save nanocloud/nanocloud-frontend \$(docker history -q nanocloud/nanocloud-frontend | tail -n +2 | grep -v \\<missing\\> | tr '\n' ' ') > nanocloud-frontend.tar"
 
