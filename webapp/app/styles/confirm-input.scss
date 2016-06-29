@@ -1,28 +1,33 @@
 .confirm-input {
+
+  form {
+    display: flex;
+  }
   button {
+    display: flex;
     border: none;
     background: none;
     cursor: pointer;
+    padding: 0;
+    border: 0;
   }
-  .edit-mode-icon,
   .controls-wrapper {
-    display: inline-block;
-    vertical-align: middle;
+    margin-right: 7px;
+    display: flex;
   }
   .done {
     color: $blue-lighten;
-
     &:hover,
-    &:target {
+    &:focus {
       color: $blue-default;
       transition-duration: .3s;
     }
   }
   .clear {
-    color: lighten($red, 30%);
+    color: $red;
     &:hover,
-    &:target {
-      color: $red;
+    &:focus {
+      color: darken($red, 20%);
       transition-duration: .3s;
     }
   }

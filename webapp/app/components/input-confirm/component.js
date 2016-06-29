@@ -1,11 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  init() {
-    this._super(...arguments);
-    this.set('tmpValue', this.get('value'));
-  },
-
+  tmpValue: Ember.computed.oneWay('value'),
   classNames: 'confirm-input',
 
   isModified: Ember.computed('value', 'tmpValue', function() {
