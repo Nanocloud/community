@@ -19,11 +19,13 @@
   focusOut=(action "focusOut")
 }}
 {{#if isModified}}
-<button type="submit">
-  <i class="material-icons done">done</i>
-</button>
-<button {{action "resetValue"}} type="button">
-  <i class="material-icons clear">clear</i>
-</button>
+<div class='controls-wrapper'>
+  <button type="submit">
+    <i class="material-icons done">done</i>
+  </button>
+  <button {{action "resetValue"}} type="button">
+    <i class="material-icons clear">clear</i>
+  </button>
+</div>
 {{/if}}
 </form>
