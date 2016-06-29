@@ -1,0 +1,29 @@
+<form {{action "saveValue" on="submit"}}>
+{{input
+  autocapitalize=autocapitalize
+  autocorrect=autocorrect
+  autofocus=autofocus
+  disabled=disabled
+  form=form
+  maxlength=maxlength
+  placeholder=placeholder
+  readonly=readonly
+  required=required
+  selectionDirection=selectionDirection
+  spellcheck=spellcheck
+  tabindex=tabindex
+  title=title
+  type=type
+  value=tmpValue
+  focusIn=(action "focusIn")
+  focusOut=(action "focusOut")
+}}
+{{#if isModified}}
+<button type="submit">
+  <i class="material-icons done">done</i>
+</button>
+<button {{action "resetValue"}} type="button">
+  <i class="material-icons clear">clear</i>
+</button>
+{{/if}}
+</form>

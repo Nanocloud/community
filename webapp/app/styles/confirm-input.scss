@@ -1,0 +1,40 @@
+.confirm-input {
+  button {
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  .edit-mode-icon,
+  .controls-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .done {
+    color: $blue-lighten;
+
+    &:hover,
+    &:target {
+      color: $blue-default;
+      transition-duration: .3s;
+    }
+  }
+  .clear {
+    color: lighten($red, 30%);
+    &:hover,
+    &:target {
+      color: $red;
+      transition-duration: .3s;
+    }
+  }
+
+  input {
+    border: none;
+    background: none;
+    background-color: $blue-lighter;
+    padding: 5px 3px 3px 10px;
+  }
+
+  .edit {
+    font-size: 17px;
+  }
+}
