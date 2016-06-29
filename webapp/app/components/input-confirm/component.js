@@ -8,7 +8,6 @@ export default Ember.Component.extend({
 
   classNames: 'confirm-input',
 
-
   isModified: Ember.computed('value', 'tmpValue', function() {
     return this.get('value') !== this.get('tmpValue');
   }),
@@ -34,7 +33,6 @@ export default Ember.Component.extend({
     focusOut: function() {
       this.set('focus', false);
     },
-
     saveValue: function() {
       this.set('value', this.get('tmpValue'));
     },
