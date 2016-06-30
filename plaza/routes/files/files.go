@@ -29,7 +29,7 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"runtime"
+	"path/filepath"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
@@ -45,21 +45,29 @@ type file_t struct {
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
-	var filePath string
+	var dst *os.File
 	username := r.URL.Query()["username"][0]
 	filename := r.URL.Query()["filename"][0]
+	path := fmt.Sprintf("/home/%s/%s", username, filename)
 
-	if runtime.GOOS == "windows" {
-		home := `C:\Users\` + username + `\Desktop\Nanocloud`
-		_, err := os.Stat(home)
-		if os.IsNotExist(err) {
-			os.MkdirAll(home, 0777)
+	_, err := os.Stat(path)
+	// if a file with exactly the same name already exists
+	if err == nil {
+		// we rename it like 'file (2).txt'
+		for i := 1; i <= 50; i++ {
+			extension := filepath.Ext(path)
+			new_file := path[0:len(path)-len(extension)] + " (" + strconv.Itoa(i) + ")" + extension
+			_, err = os.Stat(new_file)
+			if err != nil {
+				dst, err = os.Create(new_file)
+				if err == nil {
+					break
+				}
+			}
 		}
-		filePath = home + `\` + filename
 	} else {
-		filePath = fmt.Sprintf("/home/%s/%s", username, filename)
+		dst, err = os.Create(path)
 	}
-	dst, err := os.Create(filePath)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, "Unable to create destination file", http.StatusInternalServerError)
@@ -74,7 +82,6 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to write destination file", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func Get(c *echo.Context) error {
