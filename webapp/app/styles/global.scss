@@ -157,6 +157,10 @@ h1 {
   vertical-align: middle;
 }
 
+.va-tb {
+  vertical-align: text-bottom;
+}
+
 .bl {
   display: block;
 }
@@ -228,10 +232,6 @@ h1 {
 
 .ember-modal-dialog {
   padding: 0 !important;
-}
-
-.content-wrapper table th {
-  width: 30%;
 }
 
 @media (max-width: 991px) {
