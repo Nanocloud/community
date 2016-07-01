@@ -1,4 +1,4 @@
-# Nanocloud community [![Build Status](https://travis-ci.org/Nanocloud/community.svg?branch=master)](https://travis-ci.org/Nanocloud/community)
+# Nanocloud community [![Build Status](http://jenkins.nanocloud.com:8080/buildStatus/icon?job=Nanocloud Community/Nanocloud Community/master)](http://jenkins.nanocloud.com:8080/job/Nanocloud%20Community/job/Nanocloud%20Community/job/master/)
 
 Current version: **0.7.0**
 
