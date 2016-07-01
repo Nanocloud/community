@@ -20,17 +20,6 @@ export default Ember.Controller.extend({
            this.get("driverName") !== "vmwarefusion");
   }.property("driverName"),
 
-  _refreshLoop: null,
-  activateRefreshLoop() {
-    if (!this.get('_refreshLoop')) {
-      let loop = window.setInterval(() => {
-        let model = this.get('model');
-        model.update();
-      }, 3000);
-      this.set('_refreshLoop', loop);
-    }
-  },
-
   actions: {
     downloadWindows: function() {
       let machine = this.store.createRecord('machine', {
