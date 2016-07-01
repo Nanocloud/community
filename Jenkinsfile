@@ -25,14 +25,24 @@ node {
 
   try {
     sh 'docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-backend make tests '
+    withCredentials([[$class: 'StringBinding', credentialsId: 'GITHUB_PASSWORD', variable: 'TOKEN']]) {
+      sh 'env GITHUB_PASSWORD=$TOKEN ./scripts/notify-github.sh success "Backend tests" "go tests" "http://jenkins.nanocloud.com:8080/" "Nanocloud/community" $(git rev-list --parents -n 1 $(git rev-parse HEAD) | cut -f 3 -d " ")'
+    }
   } catch (all) {
-    // Report error to Github
+    withCredentials([[$class: 'StringBinding', credentialsId: 'GITHUB_PASSWORD', variable: 'TOKEN']]) {
+      sh 'env GITHUB_PASSWORD=$TOKEN ./scripts/notify-github.sh failure "Backend tests" "go tests" "http://jenkins.nanocloud.com:8080/" "Nanocloud/community" $(git rev-list --parents -n 1 $(git rev-parse HEAD) | cut -f 3 -d " ")'
+    }
   }
 
   try {
     sh 'docker-compose -f modules/docker-compose-build.yml run --rm nanocloud-frontend ember test'
+    withCredentials([[$class: 'StringBinding', credentialsId: 'GITHUB_PASSWORD', variable: 'TOKEN']]) {
+      sh 'env GITHUB_PASSWORD=$TOKEN ./scripts/notify-github.sh success "Frontend tests" "ember tests" "http://jenkins.nanocloud.com:8080/" "Nanocloud/community" $(git rev-list --parents -n 1 $(git rev-parse HEAD) | cut -f 3 -d " ")'
+    }
   } catch (all) {
-    // Report error to Github
+    withCredentials([[$class: 'StringBinding', credentialsId: 'GITHUB_PASSWORD', variable: 'TOKEN']]) {
+      sh 'env GITHUB_PASSWORD=$TOKEN ./scripts/notify-github.sh failure "Frontend tests" "ember tests" "http://jenkins.nanocloud.com:8080/" "Nanocloud/community" $(git rev-list --parents -n 1 $(git rev-parse HEAD) | cut -f 3 -d " ")'
+    }
   }
 
   sh "docker save nanocloud/nanocloud-backend \$(docker history -q nanocloud/nanocloud-backend | tail -n +2 | grep -v \\<missing\\> | tr '\n' ' ') > nanocloud-backend.tar"
