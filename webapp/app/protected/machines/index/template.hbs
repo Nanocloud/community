@@ -3,10 +3,14 @@
     {{#link-to 'protected.machines' }}
       Machines
     {{/link-to}}
+    <span class="icon_link clickable" {{ action "refreshModel" }}>
+      {{icon-component class='va-top' size=19 materialIcon="autorenew" spin=loadState}}
+    </span>
   </h4>
 
   <div class='content-wrapper machines-wrapper m-t-2'>
 
+  {{#unless loadState}}
     {{#if model.length}}
         {{#each model as |machine|}}
           <div class='item m-b-1'>
@@ -30,5 +34,6 @@
         </button>
       {{/if}}
     {{/if}}
+  {{/unless}} 
   </div>
 </div>

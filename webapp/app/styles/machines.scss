@@ -1,4 +1,17 @@
 .machines {
+
+  .content-wrapper table th {
+    width: 30%;
+  }
+
+  .refresh-notification {
+    font-size: 11px;
+    height: 20px;
+    padding: 1px 4px;
+    position: relative;
+    bottom: 2px;
+  }
+
   .machines-wrapper {
     display: flex;
     justify-content: flex-start;
