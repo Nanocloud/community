@@ -41,7 +41,7 @@ describe('Windows should be up', function() {
 
   it('Should have one Windows up', function() {
     expect(request.response.data.data).to.exist;
-    expect(request.response.data.data).to.have.lengthOf(1);
+    expect(request.response.data.data).to.have.length.of.at.least(1);
     expect(request.response.data.data[0].attributes.status).to.equal('up');
   });
 });
