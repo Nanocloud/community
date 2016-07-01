@@ -14,8 +14,32 @@
   color: $blue-default;
   @extend .transition-enabled;
   animation-name: nanoloading;
-  animation-duration: 3s;
+  animation-duration: 2s;
   animation-iteration-count: infinite;
-  margin-right: 10px;
+  margin: 0px 5px 0px 5px;
+}
+
+.refresh-loading {
+  position: absolute;
+  top: 7%;
+  height: 90%;
+  left: 0;
+  z-index: 1;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation-name: spin;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 

@@ -181,6 +181,10 @@ h1 {
   z-index: 1;
 }
 
+.no-underline *:hover {
+  text-decoration: none;
+}
+
 .noselect {
   -webkit-touch-callout: none; 
   -webkit-user-select: none;   
@@ -224,6 +228,10 @@ h1 {
 
 .ember-modal-dialog {
   padding: 0 !important;
+}
+
+.content-wrapper table th {
+  width: 30%;
 }
 
 @media (max-width: 991px) {
