@@ -8,7 +8,7 @@ export default DS.Model.extend({
   adminPassword: DS.attr('string'),
   platform: DS.attr('string'),
   progress: DS.attr('number'),
-
+  machineSize: DS.attr('string'),
   type: DS.belongsTo('machine-type'),
   driver: DS.belongsTo('machine-driver'),
 
@@ -30,16 +30,16 @@ export default DS.Model.extend({
           return "Qemu";
       case "manual":
           return "Manual";
+      case "aws":
+          return "AWS";
+      case "openstack":
+          return "Openstack";
       default:
-          return "No drivers detected";
+          return false;
     }
   }),
 
   driverDetected: Ember.computed('platform', function() {
-    let platform = this.get('getPlatform');
-    if (platform === "No drivers detected") {
-      return false;
-    }
-    return true;
+    return this.get('getPlatform')? true : false;
   }),
 });
