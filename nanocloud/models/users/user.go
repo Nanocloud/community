@@ -35,15 +35,15 @@ func (u *User) SetID(id string) error {
 func (u *User) WindowsCredentials() (*WindowsUser, error) {
 	res, err := db.Query(
 		`SELECT
-			windows_users.sam,
-			windows_users.password,
-			windows_users.domain
-		FROM users_windows_user
+			machines.username,
+			machines.password,
+			machines.domain
+		FROM machines_users
 		LEFT JOIN
-			windows_users
-			ON users_windows_user.windows_user_id = windows_users.id
-		WHERE users_windows_user.user_id = $1::varchar`,
-		u.Id,
+			machines
+			ON machines_users.machine_id = machines.id
+		WHERE machines_users.user_id = $1::varchar`,
+		u.GetID(),
 	)
 	if err != nil {
 		return nil, err

@@ -26,71 +26,7 @@ import (
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
 	"github.com/Nanocloud/community/nanocloud/models/users"
 	"github.com/Nanocloud/community/nanocloud/utils"
-	log "github.com/Sirupsen/logrus"
 )
-
-func createWindowsUsersTable() error {
-	rows, err := db.Query(
-		`SELECT table_name
-			FROM information_schema.tables
-			WHERE table_name = 'windows_users'`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return nil
-	}
-
-	rows, err = db.Query(
-		`CREATE TABLE windows_users (
-			id       serial PRIMARY KEY,
-			sam      varchar(35),
-			password varchar(255),
-			domain   varchar(255)
-		);`)
-	if err != nil {
-		return err
-	}
-
-	rows.Close()
-	return nil
-}
-
-func createUsersWindowsUserTable() error {
-	rows, err := db.Query(
-		`SELECT table_name
-			FROM information_schema.tables
-			WHERE table_name = 'users_windows_user'`)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return nil
-	}
-
-	rows, err = db.Query(
-		`CREATE TABLE users_windows_user (
-			user_id varchar(36)
-			REFERENCES users(id)
-				ON UPDATE CASCADE
-				ON DELETE CASCADE,
-			windows_user_id  serial
-			REFERENCES windows_users(id)
-				ON UPDATE CASCADE
-				ON DELETE CASCADE,
-			PRIMARY KEY (user_id)
-		);`)
-	if err != nil {
-		return err
-	}
-
-	rows.Close()
-	return nil
-}
 
 func createUsersTable() (bool, error) {
 	rows, err := db.Query(
@@ -131,23 +67,13 @@ func Migrate() error {
 		return err
 	}
 
-	err = createWindowsUsersTable()
-	if err != nil {
-		return err
-	}
-
-	err = createUsersWindowsUserTable()
-	if err != nil {
-		return err
-	}
-
 	if insertAdmin {
 		adminpwd := utils.Env("ADMIN_PASSWORD", "Nanocloud123+")
 		adminfirstname := utils.Env("ADMIN_FIRSTNAME", "Admin")
 		adminlastname := utils.Env("ADMIN_LASTNAME", "Nanocloud")
 		adminmail := utils.Env("ADMIN_MAIL", "admin@nanocloud.com")
 
-		admin, err := users.CreateUser(
+		_, err := users.CreateUser(
 			true,
 			adminmail,
 			adminfirstname,
@@ -157,17 +83,6 @@ func Migrate() error {
 		)
 
 		if err != nil {
-			return err
-		}
-
-		password := utils.Env("WINDOWS_PASSWORD", "")
-		sam := utils.Env("WINDOWS_USER", "")
-		domain := utils.Env("WINDOWS_DOMAIN", "")
-
-		err = users.UpdateUserAd(admin.Id, sam, password, domain)
-
-		if err != nil {
-			log.Error("Failed to update admin account: ", err)
 			return err
 		}
 	}

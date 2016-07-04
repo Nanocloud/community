@@ -56,7 +56,8 @@ func Migrate() error {
 			ip         varchar(255),
 			plazaport  varchar(4) NOT NULL DEFAULT '9090',
 			username   varchar(36),
-			password   varchar(60)
+			password   varchar(60),
+			domain     varchar(36)
 		);`)
 	if err != nil {
 		log.Errorf("Unable to create machines table: %s", err)

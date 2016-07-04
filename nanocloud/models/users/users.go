@@ -210,51 +210,6 @@ func CreateUser(
 	return &user, err
 }
 
-func UpdateUserAd(userID, sam, password, domain string) error {
-	res, err := db.Query(
-		`INSERT INTO windows_users
-		(sam, password, domain)
-		VALUES ($1::varchar, $2::varchar, $3::varchar)
-		RETURNING id`,
-		sam, password, domain,
-	)
-	if err != nil {
-		log.Error(err)
-		return UserNotCreated
-	}
-
-	defer res.Close()
-
-	if !res.Next() {
-		return UserNotCreated
-	}
-
-	winUserID := 0
-	res.Scan(&winUserID)
-
-	insert, err := db.Exec(
-		`INSERT INTO users_windows_user
-		(user_id, windows_user_id)
-		VALUES ($1::varchar, $2::integer)
-		ON CONFLICT (user_id)
-		DO UPDATE SET windows_user_id = EXCLUDED.windows_user_id`,
-		userID, winUserID,
-	)
-	if err != nil {
-		log.Error(err)
-		return UserNotCreated
-	}
-
-	inserted, err := insert.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if inserted == 0 {
-		return UserNotCreated
-	}
-	return nil
-}
-
 func DeleteUser(id string) error {
 	res, err := db.Exec("DELETE FROM users WHERE id = $1::varchar", id)
 	if err != nil {
