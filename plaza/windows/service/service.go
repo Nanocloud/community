@@ -29,7 +29,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -196,21 +195,9 @@ func InstallItSelf() error {
 		}
 	}
 
-	installDir := os.Getenv("ProgramFiles")
-	if len(installDir) < 1 {
-		return errors.New("Cannot get installation dir")
-	}
-
-	installDir = path.Join(installDir, "Nanocloud")
-
-	dst := path.Join(installDir, "plaza.exe")
+	dst := `C:\Windows\plaza.exe`
 
 	if exepath != dst {
-		err = os.Mkdir(installDir, 0755)
-		if err != nil && !os.IsExist(err) {
-			return err
-		}
-
 		err = copyFile(exepath, dst)
 		if err != nil {
 			return err
