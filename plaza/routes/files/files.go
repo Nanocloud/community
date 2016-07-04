@@ -54,15 +54,16 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	// if a file with exactly the same name already exists
 	if err == nil {
 		// we rename it like 'file (2).txt'
-		for i := 1; i <= 50; i++ {
+		for i := 1; i > 0; i++ {
 			extension := filepath.Ext(path)
 			new_file := path[0:len(path)-len(extension)] + " (" + strconv.Itoa(i) + ")" + extension
 			_, err = os.Stat(new_file)
 			if err != nil {
 				dst, err = os.Create(new_file)
-				if err == nil {
-					break
+				if err != nil {
+					log.Error(err)
 				}
+				break
 			}
 		}
 	} else {
