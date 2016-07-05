@@ -4,7 +4,7 @@
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
  *
- * Copyright (C) 2015 Nanocloud Software
+ * Copyright (C) 2016 Nanocloud Software
  *
  * This file is part of Nanocloud community.
  *
@@ -22,10 +22,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package shells
 
-import "github.com/Nanocloud/community/plaza/router"
+import (
+	"fmt"
 
-func main() {
-	router.Start()
+	"github.com/labstack/echo"
+)
+
+// Post is only used by the windows plaza
+func Post(c *echo.Context) error {
+	return fmt.Errorf("Unimplemented")
 }

@@ -1,10 +1,10 @@
-// +build !windows
+// +build windows
 
 /*
  * Nanocloud Community, a comprehensive platform to turn any application
  * into a cloud solution.
  *
- * Copyright (C) 2015 Nanocloud Software
+ * Copyright (C) 2016 Nanocloud Software
  *
  * This file is part of Nanocloud community.
  *
@@ -22,10 +22,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package shells
 
-import "github.com/Nanocloud/community/plaza/router"
+import (
+	"encoding/json"
+	"io/ioutil"
 
-func main() {
-	router.Start()
+	"github.com/Nanocloud/community/plaza/processmanager"
+	"github.com/labstack/echo"
+)
+
+// Post registers a new shell to the processmanager
+func Post(c *echo.Context) error {
+	type bodyRequest struct {
+		Username string `json:"username"`
+		Pid      int    `json:"pid"`
+	}
+
+	b, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	body := bodyRequest{}
+	err = json.Unmarshal(b, &body)
+	if err != nil {
+		return err
+	}
+	err = processmanager.SetSessionPid(body.Pid, body.Username)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -29,9 +29,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
-	"github.com/Nanocloud/community/plaza/windows"
+	"github.com/Nanocloud/community/plaza/processmanager"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 )
@@ -45,6 +44,21 @@ type bodyRequest struct {
 	Wait       bool     `json:"wait"`
 }
 
+// Route handles the `POST /exec` requests.
+// It execute the command passed in the body of the request on the target
+// machine.
+// It excpect JSON encoded data in the request's body that should contains the
+// following attributes:
+//  - username string (required): The username of the Windows user to launch the
+//    application on behalf.
+//  - domain string: The domain name of the user if any.
+//  - command [string] (required): The command line of the process to execute.
+//  - stdin string: The string to write on the standard input of the process.
+//  - hide-window boolean: If true, the process graphical window will be hidden.
+//  - wait boolean: If true, the response will be sent once the created proccess
+//    will have exited and the answer will contain the standard and the error
+//    ouput. If false, The response will be sent once the process will have been
+//    created and the answer will contain the pid of the process.
 func Route(c *echo.Context) error {
 	b, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -57,34 +71,33 @@ func Route(c *echo.Context) error {
 		return err
 	}
 
-	cmd := windows.Command(body.Username, body.Domain, body.HideWindow, body.Command[0], body.Command[1:]...)
-	if body.Stdin != "" {
-		cmd.Stdin = strings.NewReader(body.Stdin)
+	app := processmanager.Application{
+		Username:   body.Username,
+		Domain:     body.Domain,
+		HideWindow: body.HideWindow,
+		Command:    body.Command,
+	}
+	if len(body.Stdin) > 0 {
+		app.Stdin = bytes.NewReader([]byte(body.Stdin))
 	}
 
 	res := make(map[string]interface{})
 	if body.Wait {
-		var stdout bytes.Buffer
-		var stderr bytes.Buffer
-
-		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
-
-		err = cmd.Run()
+		err = app.Run()
 		if err != nil {
 			log.Error(err)
 			return err
 		}
 
-		res["stdout"] = stdout.String()
-		res["stderr"] = stderr.String()
+		res["stdout"] = app.Stdout.String()
+		res["stderr"] = app.Stderr.String()
 	} else {
-		err = cmd.Start()
+		err = app.Start()
 		if err != nil {
 			log.Error(err)
 			return err
 		}
-		res["pid"] = cmd.Process.Pid
+		res["pid"] = app.Pid
 	}
 
 	return c.JSON(http.StatusOK, res)

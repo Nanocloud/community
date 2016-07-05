@@ -31,6 +31,7 @@ import (
 	"github.com/Nanocloud/community/plaza/routes/files"
 	"github.com/Nanocloud/community/plaza/routes/power"
 	"github.com/Nanocloud/community/plaza/routes/sessions"
+	"github.com/Nanocloud/community/plaza/routes/shells"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
@@ -67,6 +68,12 @@ func Start() {
 
 	e.Get("/sessions/:id", sessions.Get)
 	e.Delete("/sessions/:id", sessions.Logoff)
+
+	/***
+	SHELLS
+	***/
+
+	e.Post("/shells", shells.Post)
 
 	/***
 	APPS

@@ -414,3 +414,26 @@ func adjustTokenPrivileges(token syscall.Token, uid luid) error {
 	}
 	return err
 }
+
+// regSetKeyValue exposes the `RegSetKeyValueW` function in `advapi32.dll`.
+// Refer to Windows references for more informations.
+func regSetKeyValue(key syscall.Handle, subKey *uint16, valueName *uint16,
+	valueType uint32, buf *byte, bufLen uint32) error {
+	proc, err := loadProc("advapi32.dll", "RegSetKeyValueW")
+	if err != nil {
+		return err
+	}
+
+	r1, _, err := proc.Call(
+		uintptr(key),
+		uintptr(unsafe.Pointer(subKey)),
+		uintptr(unsafe.Pointer(valueName)),
+		uintptr(valueType),
+		uintptr(unsafe.Pointer(buf)),
+		uintptr(bufLen),
+	)
+	if r1 == 0 {
+		return nil
+	}
+	return err
+}
