@@ -45,3 +45,7 @@ func loadFileId(filepath string) (string, error) {
 func isFileHidden(file os.FileInfo) bool {
 	return file.Name()[0] == '.'
 }
+
+func getUploadPath(username string, filename string) string {
+	return fmt.Sprintf("/home/%s/%s", username, filename)
+}

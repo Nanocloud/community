@@ -24,7 +24,6 @@ package files
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -48,7 +47,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	var dst *os.File
 	username := r.URL.Query()["username"][0]
 	filename := r.URL.Query()["filename"][0]
-	path := fmt.Sprintf("/home/%s/%s", username, filename)
+	path := getUploadPath(username, filename)
 
 	_, err := os.Stat(path)
 	// if a file with exactly the same name already exists
