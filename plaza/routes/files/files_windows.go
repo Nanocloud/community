@@ -56,11 +56,3 @@ func isFileHidden(file os.FileInfo) bool {
 	}
 	return false
 }
-
-func getUploadDir(sam string, userId string) string {
-	plazaDir := os.Getenv("PLAZA_USER_DIR")
-	if plazaDir == "" {
-		plazaDir = "C:\\Users\\%s\\Desktop\\Nanocloud"
-	}
-	return fmt.Sprintf(plazaDir, sam)
-}
