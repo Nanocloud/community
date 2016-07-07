@@ -30,6 +30,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
@@ -48,7 +49,22 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	var dst *os.File
 	username := r.URL.Query()["username"][0]
 	filename := r.URL.Query()["filename"][0]
-	path := fmt.Sprintf("/home/%s/%s", username, filename)
+	var path string
+
+	if runtime.GOOS == "windows" {
+		dstDir := fmt.Sprintf(`C:\Users\%s\Desktop\Nanocloud`, username)
+		err := os.MkdirAll(dstDir, 0777)
+
+		if err != nil {
+			log.Error(err)
+			http.Error(w, "Unable to create destination directory", http.StatusInternalServerError)
+			return
+		}
+
+		path = fmt.Sprintf(`%s\%s`, dstDir, filename)
+	} else {
+		path = fmt.Sprintf("/home/%s/%s", username, filename)
+	}
 
 	_, err := os.Stat(path)
 	// if a file with exactly the same name already exists
