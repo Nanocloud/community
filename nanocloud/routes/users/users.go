@@ -253,12 +253,7 @@ func Post(c *echo.Context) error {
 	}
 
 	winpass := utils.RandomString(8) + "s4D+"
-	sam, err := ldap.AddUser(newUser.Id, winpass)
-	if err != nil {
-		return err
-	}
-
-	err = users.UpdateUserAd(newUser.Id, sam, winpass, "intra.localdomain.com")
+	_, err = ldap.AddUser(newUser.Id, winpass)
 	if err != nil {
 		return err
 	}
