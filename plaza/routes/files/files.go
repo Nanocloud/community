@@ -23,7 +23,6 @@
 package files
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,14 +34,21 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
+	"github.com/manyminds/api2go/jsonapi"
 )
 
 type hash map[string]interface{}
 
-type file_t struct {
-	Id         string                 `json:"id"`
-	Type       string                 `json:"type"`
-	Attributes map[string]interface{} `json:"attributes"`
+type file struct {
+	Id      string `json:"-"`
+	ModTime int64  `json:"mod_time"`
+	Name    string `json:"name"`
+	Size    int64  `json:"size"`
+	Type    string `json:"type"`
+}
+
+func (f *file) GetID() string {
+	return f.Id
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
@@ -154,11 +160,11 @@ func Get(c *echo.Context) error {
 			return err
 		}
 
-		rt := make([]file_t, 0)
+		rt := make([]*file, 0)
 
-		for _, file := range files {
-			name := file.Name()
-			if !showHidden && isFileHidden(file) {
+		for _, fi := range files {
+			name := fi.Name()
+			if !showHidden && isFileHidden(fi) {
 				continue
 			}
 
@@ -169,32 +175,25 @@ func Get(c *echo.Context) error {
 				continue
 			}
 
-			f := file_t{
-				Id:   id,
-				Type: "file",
+			f := &file{
+				Id:      id,
+				ModTime: fi.ModTime().Unix(),
+				Name:    name,
+				Size:    fi.Size(),
 			}
-
-			attr := make(map[string]interface{}, 0)
-			f.Attributes = attr
-
-			attr["mod_time"] = file.ModTime().Unix()
-			attr["size"] = file.Size()
-			attr["name"] = name
-
-			if file.IsDir() {
-				attr["type"] = "directory"
+			if fi.IsDir() {
+				f.Type = "directory"
 			} else {
-				attr["type"] = "regular file"
+				f.Type = "regular file"
 			}
 			rt = append(rt, f)
 		}
 		/*
 		 * The Content-Length is not set is the buffer length is more than 2048
 		 */
-		b, err := json.Marshal(hash{
-			"data": rt,
-		})
+		b, err := jsonapi.Marshal(rt)
 		if err != nil {
+			log.Error(err)
 			return err
 		}
 
