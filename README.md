@@ -1,4 +1,7 @@
-# Nanocloud community [![Build Status](http://jenkins.nanocloud.com:8080/buildStatus/icon?job=Nanocloud Community/Nanocloud Community/master)](http://jenkins.nanocloud.com:8080/job/Nanocloud%20Community/job/Nanocloud%20Community/job/master/)
+# This repository is deprecated. See [github.com/nanocloud/nanocloud](github.com/nanocloud/nanocloud) for Nanocloud v2.
+
+
+## Nanocloud community
 
 Current version: **0.7.0**
 
