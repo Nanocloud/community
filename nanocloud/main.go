@@ -22,6 +22,8 @@
 
 package main
 
+// The diff
+
 import (
 	"errors"
 	"os"
