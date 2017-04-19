@@ -5,6 +5,7 @@ import getKeyFromVal from '../../utils/get-key-from-value';
 
 export default Ember.Component.extend({
   remoteSession: Ember.inject.service('remote-session'),
+  store: Ember.inject.service('store'),
 
   guacamole: null,
   connectionName: null,
@@ -23,6 +24,9 @@ export default Ember.Component.extend({
     }
   }.on('didRender'),
 
+  checkMachine: function() {
+    return this.get('store').query('machines/user', {});
+  },
   connect: function() {
 
     if (Ember.isEmpty(this.get('connectionName'))) {
@@ -38,16 +42,24 @@ export default Ember.Component.extend({
 
       guacData.tunnel.onerror = function(status) {
         this.get('element').removeChild(guacData.guacamole.getDisplay().getElement());
-        var message = "Opening a WebSocketTunnel has failed";
-        var code = getKeyFromVal(Guacamole.Status.Code, status.code);
-        if (code !== -1) {
-          message += " - " + code;
-        }
-        this.get('remoteSession').stateChanged(this.get('remoteSession.STATE_DISCONNECTED'), true, message);
-        this.get('remoteSession').disconnectSession(this.get('connectionName'));
-        this.sendAction('onError', {
-          error : true,
-          message: "You have been disconnected due to some error"
+        let message = "";
+        this.checkMachine().then((machine) => {
+          if (machine.get('length') === 0) {
+            message = "There are no machines available";
+          }
+          else {
+            message = "Opening a WebSocketTunnel has failed";
+            var code = getKeyFromVal(Guacamole.Status.Code, status.code);
+            if (code !== -1) {
+              message += " - " + code;
+            }
+          }
+          this.get('remoteSession').stateChanged(this.get('remoteSession.STATE_DISCONNECTED'), true, message);
+          this.get('remoteSession').disconnectSession(this.get('connectionName'));
+          this.sendAction('onError', {
+            error : true,
+            message: "You have been disconnected due to some error"
+          });
         });
       }.bind(this);
       let guac = guacData.guacamole;
