@@ -23,7 +23,9 @@
 package config
 
 import (
+	"github.com/Nanocloud/community/nanocloud/config"
 	"github.com/Nanocloud/community/nanocloud/connectors/db"
+	"github.com/Nanocloud/community/nanocloud/utils"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -53,5 +55,6 @@ func Migrate() error {
 	}
 
 	rows.Close()
+	config.Set("windowsAdmin", utils.Env("WINDOWS_USER", "Administrator"), false)
 	return nil
 }
